@@ -53,6 +53,7 @@
     maxTokens: 4096,
     xrayEnabled: true,
     starfieldEnabled: true,
+    theme: "dark",
     alwaysOnTop: false,
     globalShortcut: "CommandOrControl+Shift+Space",
     globalShortcutEnabled: true,
@@ -77,10 +78,13 @@
 
   const $ = (id) => document.getElementById(id);
 
-  // ---------- Starfield Ambient Canvas ----------
+  // ---------- Ambient Embedding Manifold Canvas (matching chat.html v17) ----------
   let starRaf = 0;
   let starCtx = null;
-  let stars = [];
+  let manifoldNodes = [];
+  const DARK_COLS = [[235, 235, 240], [190, 190, 200], [215, 215, 222], [160, 160, 172]];
+  const LIGHT_COLS = [[30, 34, 48], [60, 66, 84], [90, 98, 120], [115, 122, 142]];
+
   function initStarfield() {
     const c = $("chat-cosmos-canvas");
     if (!c || !c.getContext) return;
@@ -92,32 +96,53 @@
       c.width = Math.floor(window.innerWidth * dpr);
       c.height = Math.floor(window.innerHeight * dpr);
       starCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const count = Math.min(130, Math.floor((window.innerWidth * window.innerHeight) / 11500));
-      stars = Array.from({ length: count }, () => ({
+      const count = Math.min(84, Math.floor((window.innerWidth * window.innerHeight) / 16000));
+      manifoldNodes = Array.from({ length: count }, (_, idx) => ({
         x: Math.random() * window.innerWidth,
         y: Math.random() * window.innerHeight,
-        r: 0.45 + Math.random() * 1.0,
+        r: 0.7 + Math.random() * 1.15,
         phase: Math.random() * Math.PI * 2,
-        spd: 0.004 + Math.random() * 0.01,
-        gold: Math.random() < 0.24,
+        spd: 0.004 + Math.random() * 0.008,
+        idx,
       }));
     }
 
     function draw() {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
       if (!settings.starfieldEnabled) {
-        starCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        starCtx.clearRect(0, 0, w, h);
         starRaf = 0;
         return;
       }
-      starCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-      for (const s of stars) {
+      const isLight = settings.theme === "light";
+      const cols = isLight ? LIGHT_COLS : DARK_COLS;
+      starCtx.clearRect(0, 0, w, h);
+      for (let i = 0; i < manifoldNodes.length; i++) {
+        const s = manifoldNodes[i];
         if (!reduced) s.phase += s.spd;
-        const a = 0.14 + 0.48 * (0.5 + 0.5 * Math.sin(s.phase));
-        starCtx.fillStyle = s.gold
-          ? `rgba(226, 176, 104, ${a.toFixed(2)})`
-          : `rgba(244, 244, 248, ${a.toFixed(2)})`;
+        const px = s.x + Math.sin(s.phase) * 8;
+        const py = s.y + Math.cos(s.phase * 0.8) * 7;
+        const rgb = cols[s.idx % cols.length];
+        for (let j = i + 1; j < manifoldNodes.length; j++) {
+          const o = manifoldNodes[j];
+          const dx = px - o.x;
+          const dy = py - o.y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 < 9500) {
+            const edgeAlpha = (1 - d2 / 9500) * (isLight ? 0.12 : 0.10);
+            starCtx.strokeStyle = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${edgeAlpha.toFixed(3)})`;
+            starCtx.lineWidth = 0.7;
+            starCtx.beginPath();
+            starCtx.moveTo(px, py);
+            starCtx.lineTo(o.x, o.y);
+            starCtx.stroke();
+          }
+        }
+        const a = 0.16 + 0.34 * (0.5 + 0.5 * Math.sin(s.phase));
+        starCtx.fillStyle = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${a.toFixed(2)})`;
         starCtx.beginPath();
-        starCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        starCtx.arc(px, py, s.r, 0, Math.PI * 2);
         starCtx.fill();
       }
       if (!reduced) starRaf = requestAnimationFrame(draw);
@@ -246,6 +271,13 @@
   }
 
   function applyRendererSettings() {
+    const theme = settings.theme === "light" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", theme);
+    const tBtn = $("btn-theme-toggle");
+    if (tBtn) {
+      tBtn.textContent = theme === "light" ? "☾" : "☀";
+      tBtn.title = theme === "light" ? "Switch to Deep-Space Dark Mode" : "Switch to Daylight Mode";
+    }
     updateXrayButton();
     updatePinButton();
     updateEndpointBadge();
@@ -1547,12 +1579,12 @@
       (m.role === "audit" && m.result && m.result.verdict !== "VERIFIED") ||
       (m.role === "stress" && m.result && m.result.flipped);
     const g1 = ctx.createRadialGradient(240, 260, 20, 240, 260, 520);
-    g1.addColorStop(0, "rgba(226, 176, 104, 0.22)");
+    g1.addColorStop(0, "rgba(56, 189, 248, 0.22)");
     g1.addColorStop(1, "rgba(0, 0, 0, 0)");
     ctx.fillStyle = g1;
     ctx.fillRect(0, 0, W, H);
     const g2 = ctx.createRadialGradient(840, 1020, 20, 840, 1020, 540);
-    g2.addColorStop(0, isRisk ? "rgba(244, 63, 94, 0.24)" : "rgba(34, 197, 94, 0.18)");
+    g2.addColorStop(0, isRisk ? "rgba(244, 63, 94, 0.24)" : "rgba(168, 85, 247, 0.20)");
     g2.addColorStop(1, "rgba(0, 0, 0, 0)");
     ctx.fillStyle = g2;
     ctx.fillRect(0, 0, W, H);
@@ -1572,7 +1604,7 @@
     ctx.fillStyle = "#ffffff";
     ctx.font = '700 28px -apple-system, BlinkMacSystemFont, "Inter", sans-serif';
     ctx.fillText("SPACE AI", 86, 114);
-    ctx.fillStyle = "rgba(226, 176, 104, 0.85)";
+    ctx.fillStyle = "rgba(228, 228, 231, 0.72)";
     ctx.font = '500 20px "JetBrains Mono", ui-monospace, monospace';
     ctx.fillText("DESKTOP · DECISION X-RAY", 252, 113);
 
@@ -1629,7 +1661,7 @@
         ctx.fillStyle = "rgba(255,255,255,0.10)";
         ctx.fill();
         canvasRoundRect(ctx, tx, cy + 8, Math.round(tw * (pct / 100)), 24, 12);
-        ctx.fillStyle = row.rank === 1 ? "#e2b068" : "rgba(255,255,255,0.48)";
+        ctx.fillStyle = row.rank === 1 ? "#ffffff" : "rgba(255,255,255,0.48)";
         ctx.fill();
         ctx.fillStyle = "#ffffff";
         ctx.font = '600 24px "JetBrains Mono", ui-monospace, monospace';
@@ -1668,7 +1700,7 @@
     ctx.fillStyle = "rgba(255, 255, 255, 0.72)";
     ctx.font = '600 24px "JetBrains Mono", ui-monospace, monospace';
     ctx.fillText("spaceresearch.ai", 56, H - 44);
-    ctx.fillStyle = "rgba(226, 176, 104, 0.72)";
+    ctx.fillStyle = "rgba(228, 228, 231, 0.56)";
     ctx.font = '500 20px "JetBrains Mono", ui-monospace, monospace';
     ctx.fillText("SPACE AI DESKTOP · OPEN LOCAL MODELS", W - 498, H - 44);
 
@@ -1731,31 +1763,27 @@
     if (!sess || sess.messages.length === 0) {
       inner.innerHTML = `
         <div class="welcome">
-          <div class="welcome-crest logo-orbit" aria-hidden="true">
-            <svg width="34" height="34" viewBox="0 0 28 28" fill="none">
-              <g class="orbit-ring-a"><ellipse cx="14" cy="14" rx="11" ry="4.4" stroke="currentColor" stroke-width="1.35" opacity="0.92"/></g>
-              <g class="orbit-ring-b"><ellipse cx="14" cy="14" rx="10.5" ry="4.2" stroke="currentColor" stroke-width="1.1" opacity="0.48"/></g>
-              <circle cx="14" cy="14" r="2.7" fill="currentColor"/>
-            </svg>
+          <div class="welcome-crest" aria-hidden="true">
+            <img src="${AVATAR_SRC}" alt="Space AI" width="44" height="44" />
           </div>
-          <div class="welcome-kicker">Glass-Box Local Silicon · Desktop Edition</div>
+          <div class="welcome-kicker"><span class="spec-dot cyan"></span><span>Space AI · Glass-Box Open Intelligence</span></div>
           <h1>What should we explore?</h1>
           <p>Open models running on verified community Macs and GPUs, with live token confidence, counterfactual forking, and zero black-box lock-in.</p>
           <div class="starters">
             <button type="button" class="starter-card" data-prompt="What is the meaning of life? Reply in one word.">
-              <span class="starter-k">Live Confidence X-Ray</span>
+              <span class="starter-k"><span class="spec-dot cyan"></span><span>Live Confidence X-Ray</span></span>
               <span class="starter-v">What is the meaning of life? (1 word)</span>
             </button>
             <button type="button" class="starter-card" data-prompt="/stress Rust or Go for building a fast backend?">
-              <span class="starter-k">5-Framing Stress Test</span>
+              <span class="starter-k"><span class="spec-dot violet"></span><span>5-Framing Stress Test</span></span>
               <span class="starter-v">/stress Rust or Go — test answer stability</span>
             </button>
             <button type="button" class="starter-card" data-prompt="/compare Rust | Go | Zig | low-latency servers">
-              <span class="starter-k">Bias-Free Compare</span>
+              <span class="starter-k"><span class="spec-dot emerald"></span><span>Bias-Free Compare</span></span>
               <span class="starter-v">/compare Rust | Go | Zig | low-latency servers</span>
             </button>
             <button type="button" class="starter-card" data-prompt="/audit User: Is the Earth flat? | AI: You raise a fascinating point and there are valid arguments on both sides.">
-              <span class="starter-k">Truth &amp; Bluff Radar</span>
+              <span class="starter-k"><span class="spec-dot amber"></span><span>Truth &amp; Bluff Radar</span></span>
               <span class="starter-v">/audit Check an AI answer for sycophancy</span>
             </button>
           </div>
@@ -2735,6 +2763,7 @@
     const actions = [
       { group: "Actions", label: "New Chat", sub: IS_MAC ? "⌘N" : "Ctrl+N", run: () => createSession() },
       { group: "Actions", label: settings.xrayEnabled ? "Disable Confidence X-Ray" : "Enable Confidence X-Ray", sub: "X-Ray", run: () => toggleXray() },
+      { group: "Actions", label: settings.theme === "light" ? "Switch to Deep-Space Dark Mode" : "Switch to Daylight Mode", sub: "Theme", run: () => toggleTheme() },
       { group: "Actions", label: "Open Live Fleet Inspector", sub: "Nodes", run: () => openFleetModal() },
       { group: "Actions", label: "Open Settings & Local Proxy", sub: IS_MAC ? "⌘," : "Ctrl+,", run: () => openSettingsModal() },
       { group: "Actions", label: "Compact Active Conversation", sub: "/compact", run: () => compactActiveSession() },
@@ -2856,6 +2885,10 @@
     persistSettings({ xrayEnabled: !settings.xrayEnabled });
   }
 
+  function toggleTheme() {
+    persistSettings({ theme: settings.theme === "light" ? "dark" : "light" });
+  }
+
   function toggleAlwaysOnTop() {
     persistSettings({ alwaysOnTop: !settings.alwaysOnTop });
   }
@@ -2913,6 +2946,7 @@
     $("btn-toggle-sb")?.addEventListener("click", () => toggleSidebar());
     $("drawer-backdrop")?.addEventListener("click", () => closeMobileDrawer());
     $("btn-xray")?.addEventListener("click", () => toggleXray());
+    $("btn-theme-toggle")?.addEventListener("click", () => toggleTheme());
     $("btn-pin-top")?.addEventListener("click", () => toggleAlwaysOnTop());
     $("btn-fleet")?.addEventListener("click", () => openFleetModal());
     $("btn-fleet-pill")?.addEventListener("click", () => openFleetModal());

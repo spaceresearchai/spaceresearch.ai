@@ -88,10 +88,10 @@ jobs:
           Native cross-platform desktop app for **Space AI** — Glass-Box Local AI Chat with live Decision X-Ray, counterfactual token forking, `/stress`, `/compare`, `/audit`, `/compact`, Live Fleet Inspector, global quick-summon hotkey (`Cmd/Ctrl+Shift+Space`), and local `space proxy` integration.
 
           ### Downloads
-          - **macOS (Apple Silicon M1/M2/M3/M4)**: `Space-AI-1.0.0-mac-arm64.dmg` (or `.zip`)
-          - **macOS (Intel)**: `Space-AI-1.0.0-mac-x64.dmg` (or `.zip`)
-          - **Windows (x64)**: `Space-AI-1.0.0-win-x64-setup.exe` (Installer) or `Space-AI-1.0.0-win-x64-portable.exe` (Portable)
-          - **Linux (x64)**: `Space-AI-1.0.0-linux-x64.AppImage` or `Space-AI-1.0.0-linux-x64.deb`
+          - **macOS (Apple Silicon M1/M2/M3/M4)**: `Space-AI-mac-arm64.dmg` (or `.zip`)
+          - **macOS (Intel)**: `Space-AI-mac-x64.dmg` (or `.zip`)
+          - **Windows (x64)**: `Space-AI-win-x64-setup.exe` (Installer) or `Space-AI-win-x64-portable.exe` (Portable)
+          - **Linux (x64)**: `Space-AI-linux-x86_64.AppImage` or `Space-AI-linux-amd64.deb`
 
           > **macOS First Launch Note:** Because this open-source build is unsigned, if macOS Gatekeeper says the app is from an unidentified developer, right-click **Space AI.app** → **Open**, or run `xattr -cr "/Applications/Space AI.app"` in Terminal.
           EOF

@@ -2,7 +2,7 @@
   "name": "space-ai-desktop",
   "productName": "Space AI",
   "desktopName": "space-ai.desktop",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Native cross-platform desktop app for Space AI — Glass-Box Local AI Chat with live Decision X-Ray, counterfactual token forking, framing stress-tests, and local proxy integration.",
   "main": "src/main.js",
   "author": "Space Research (spaceresearch.ai)",
@@ -47,7 +47,7 @@
       "category": "public.app-category.productivity",
       "icon": "build/icon.png",
       "darkModeSupport": true,
-      "artifactName": "Space-AI-${version}-mac-${arch}.${ext}",
+      "artifactName": "Space-AI-mac-${arch}.${ext}",
       "target": [
         {
           "target": "dmg",
@@ -80,19 +80,19 @@
       ]
     },
     "nsis": {
-      "artifactName": "Space-AI-${version}-win-${arch}-setup.${ext}",
+      "artifactName": "Space-AI-win-${arch}-setup.${ext}",
       "oneClick": false,
       "perMachine": false,
       "allowToChangeInstallationDirectory": true,
       "deleteAppDataOnUninstall": false
     },
     "portable": {
-      "artifactName": "Space-AI-${version}-win-${arch}-portable.${ext}"
+      "artifactName": "Space-AI-win-${arch}-portable.${ext}"
     },
     "linux": {
       "icon": "build/icon.png",
       "syncDesktopName": true,
-      "artifactName": "Space-AI-${version}-linux-${arch}.${ext}",
+      "artifactName": "Space-AI-linux-${arch}.${ext}",
       "category": "Utility;Network;Chat;",
       "synopsis": "Space AI — Glass-Box Local AI Chat",
       "maintainer": "Space Research <hello@spaceresearch.ai>",

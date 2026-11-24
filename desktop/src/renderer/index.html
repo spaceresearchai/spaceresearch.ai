@@ -21,12 +21,8 @@
       <div class="sb-top">
         <div class="sb-brand">
           <div class="sb-brand-link" title="Space AI Desktop">
-            <span class="sb-emblem logo-orbit" aria-hidden="true">
-              <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
-                <g class="orbit-ring-a"><ellipse cx="14" cy="14" rx="11" ry="4.4" stroke="currentColor" stroke-width="1.4" opacity="0.92"/></g>
-                <g class="orbit-ring-b"><ellipse cx="14" cy="14" rx="10.5" ry="4.2" stroke="currentColor" stroke-width="1.1" opacity="0.48"/></g>
-                <circle cx="14" cy="14" r="2.7" fill="currentColor"/>
-              </svg>
+            <span class="sb-emblem" aria-hidden="true">
+              <img src="../../assets/mark.svg" alt="" width="28" height="28" />
             </span>
             <span>Space AI</span>
           </div>
@@ -70,10 +66,11 @@
         </div>
 
         <div class="tb-right">
-          <span id="endpoint-badge" class="endpoint-badge" title="Active Space AI connection">Cloud</span>
+          <span id="endpoint-badge" class="endpoint-badge" title="Active Space AI connection">Space Net</span>
           <button id="btn-xray" type="button" class="icon-btn xray-btn active" title="Toggle live confidence inspection (Cmd/Ctrl+Shift+X)">
             <span class="xray-dot"></span><span>Confidence · On</span>
           </button>
+          <button id="btn-theme-toggle" type="button" class="icon-btn theme-btn" title="Switch color theme" aria-label="Toggle color theme">☀</button>
           <button id="btn-pin-top" type="button" class="icon-btn pin-btn" title="Pin window always on top (Cmd/Ctrl+Shift+T)">
             <span>Pin</span>
           </button>
@@ -244,7 +241,7 @@
           <h3>Desktop Behavior</h3>
           <div class="toggle-list">
             <label class="toggle-row">
-              <span><strong>Ambient Deep-Space Starfield</strong><small>Subtle animated starfield canvas behind conversations</small></span>
+              <span><strong>Ambient Embedding Manifold</strong><small>Subtle connected neural-manifold canvas behind conversations</small></span>
               <input id="set-starfield" type="checkbox" />
             </label>
             <label class="toggle-row">

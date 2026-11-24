@@ -31,6 +31,7 @@ const DEFAULT_SETTINGS = Object.freeze({
   maxTokens: 4096,
   xrayEnabled: true,
   starfieldEnabled: true,
+  theme: "dark", // "dark" | "light"
   alwaysOnTop: false,
   globalShortcut: "CommandOrControl+Shift+Space",
   globalShortcutEnabled: true,
@@ -113,6 +114,7 @@ function sanitizeSettings(partial = {}, base = DEFAULT_SETTINGS) {
   merged.maxTokens = Math.max(256, Math.min(16384, Number(merged.maxTokens) || 4096));
   merged.xrayEnabled = Boolean(merged.xrayEnabled);
   merged.starfieldEnabled = Boolean(merged.starfieldEnabled);
+  merged.theme = merged.theme === "light" ? "light" : "dark";
   merged.alwaysOnTop = Boolean(merged.alwaysOnTop);
   merged.globalShortcut = String(merged.globalShortcut || "CommandOrControl+Shift+Space").trim();
   merged.globalShortcutEnabled = Boolean(merged.globalShortcutEnabled);
