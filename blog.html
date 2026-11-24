@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <title>Blog — Space AI</title>
+  <meta name="description" content="Research notes and essays from Space AI on open community intelligence and Quoridor game-theoretic proofs." />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Space AI" />
+  <meta property="og:title" content="Blog — Space AI" />
+  <meta property="og:description" content="Research notes and essays from Space AI on open community intelligence and Quoridor game-theoretic proofs." />
+  <meta property="og:image" content="https://spaceresearch.ai/og-card.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://spaceresearch.ai/og-card.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="./mark.svg?v=35" />
+  <link rel="stylesheet" href="./culture.css?v=24" />
+</head>
+<body>
+  <canvas id="cosmos-bg-canvas" class="cosmos-bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="page-shell">
+  <header class="ed-nav">
+    <div class="ed-nav-inner">
+      <a class="ed-brand" href="./index.html">
+        <span class="ed-emblem logo-orbit" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
+            <g class="orbit-ring-a"><ellipse cx="14" cy="14" rx="11" ry="4.4" stroke="currentColor" stroke-width="1.4" opacity="0.92"/></g>
+            <g class="orbit-ring-b"><ellipse cx="14" cy="14" rx="10.5" ry="4.2" stroke="currentColor" stroke-width="1.1" opacity="0.48"/></g>
+            <circle cx="14" cy="14" r="2.7" fill="currentColor"/>
+          </svg>
+        </span>
+        <span>Space AI</span>
+      </a>
+      <nav class="ed-links" aria-label="Primary">
+        <a href="./product.html" class="">Product</a>
+        <a href="./blog.html" class="active">Blog</a>
+        <a href="./network.html" class="">Network</a>
+        <a href="./chat.html">Chat</a>
+      </nav>
+      <div class="nav-actions">
+        <button type="button" class="icon-pill" data-theme-toggle aria-label="Toggle color theme" title="Switch to Daylight Mode">☀</button>
+        <a class="btn sm" href="./chat.html">Open Chat</a>
+      </div>
+    </div>
+  </header>
+
+    <main>
+      <section class="section" style="padding-top:4.2rem;">
+        <div class="wrap-blog">
+          <p class="folio-tag">Research &amp; Writing</p>
+          <h1 class="display-h2" style="margin-bottom:0.85rem;">Blog</h1>
+          <p class="lead" style="margin-bottom:2.8rem;">
+            Notes on what we are building at Space AI, open community intelligence, and our game-theory research.
+          </p>
+
+          <div class="blog-list">
+            <a class="blog-card" href="./blog-open-intelligence.html">
+              <div class="blog-meta">
+                <span class="blog-cat">MISSION</span>
+                <span>4 min read</span>
+              </div>
+              <h2 class="blog-card-title">What We Are Building at Space AI</h2>
+              <p class="blog-card-desc">
+                Why we are building an open network on everyday Macs and GPUs, making model certainty visible on every reply, and keeping home hardware independent from cloud monopolies.
+              </p>
+              <span class="blog-read-more">Read essay &rarr;</span>
+            </a>
+
+            <a class="blog-card" href="./blog-quoridor.html">
+              <div class="blog-meta">
+                <span class="blog-cat">RESEARCH &middot; GAME THEORY</span>
+                <span>6 min read</span>
+              </div>
+              <h2 class="blog-card-title">Solving the Maze: Exact Proofs and Neural Grandmasters in Quoridor</h2>
+              <p class="blog-card-desc">
+                How we discovered computer-verified phase-transition theorems on 5&times;5 and 7&times;7 Quoridor — including the single vertical wall that flips the winner — and trained a 2,600+ Elo engine on a single workstation.
+              </p>
+              <span class="blog-read-more">Read research note &rarr;</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="landing-foot">
+      <div class="wrap" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:1rem;">
+        <span>&copy; 2026 Space AI &middot; spaceresearch.ai</span>
+        <div style="display:flex; gap:1.4rem; color:var(--ink-soft);">
+          <a href="./product.html">Product</a>
+          <a href="./blog.html">Blog</a>
+          <a href="./network.html">Network</a>
+          <a href="./chat.html">Chat</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="./culture-home.js?v=24"></script>
+</body>
+</html>

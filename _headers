@@ -1,0 +1,24 @@
+/coordinator.json
+  Cache-Control: no-cache, no-store, must-revalidate
+  Access-Control-Allow-Origin: *
+/space-token.json
+  Cache-Control: public, max-age=300
+  Access-Control-Allow-Origin: *
+/tspace.json
+  Cache-Control: public, max-age=300
+  Access-Control-Allow-Origin: *
+/tlng.json
+  Cache-Control: public, max-age=300
+  Access-Control-Allow-Origin: *
+/join.py
+  Cache-Control: no-cache
+/join-gpu.sh
+  Cache-Control: no-cache
+/install-space.sh
+  Cache-Control: no-cache
+/space-cli.tar.gz
+  Cache-Control: no-cache
+/space-cli.sha256
+  Cache-Control: no-cache
+/*.webp
+  Cache-Control: public, max-age=604800

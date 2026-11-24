@@ -1,0 +1,34 @@
+# Space Research Hardened NVIDIA GPU Worker Container (Lean Portable CUDA Engine)
+# Minimal, auditable, non-root sandbox — never touches host files outside /data.
+# Auto-downloads portable CUDA 12/13 llama-server + VRAM-matched GGUF into /data.
+#
+# Build:
+#   docker build -f Dockerfile.worker -t space-worker .
+# Run (sandboxed, GPU-accelerated, auto-pause safe):
+#   docker run --rm -it --gpus all --read-only \
+#     -v space_data:/data -e HOME=/data \
+#     space-worker --name my-rtx-rig --auto-pause
+
+FROM nvidia/cuda:12.4.1-base-ubuntu22.04
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DEBIAN_FRONTEND=noninteractive \
+    HOME=/data
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      python3 python3-pip curl ca-certificates libgomp1 && \
+    pip3 install --no-cache-dir cryptography && \
+    rm -rf /var/lib/apt/lists/* && \
+    useradd -m -u 10001 -d /data spaceworker && \
+    mkdir -p /data && chown -R spaceworker:spaceworker /data
+
+WORKDIR /app
+COPY scripts/join.py /app/join.py
+RUN chmod 0555 /app/join.py
+
+USER spaceworker
+VOLUME ["/data"]
+
+ENTRYPOINT ["python3", "/app/join.py"]
+CMD ["--auto-pause"]

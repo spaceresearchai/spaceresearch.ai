@@ -1,0 +1,21 @@
+{
+  "name": "Space AI",
+  "symbol": "SPACE",
+  "description": "Space AI Devnet Token (1,000,000,000 fixed supply, mint authority disabled) for community compute settlement and Home Orbital governance on spaceresearch.ai.",
+  "image": "https://spaceresearch.ai/tspace-logo.png",
+  "external_url": "https://spaceresearch.ai/network.html",
+  "attributes": [
+    {
+      "trait_type": "Network",
+      "value": "Space AI"
+    },
+    {
+      "trait_type": "Cluster",
+      "value": "Solana Devnet"
+    },
+    {
+      "trait_type": "Supply Cap",
+      "value": "1,000,000,000 Fixed"
+    }
+  ]
+}

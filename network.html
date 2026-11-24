@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <title>Live Network — Space AI</title>
+  <meta name="description" content="Live community Macs and GPUs, direct API &amp; coding tool setup, Home Orbitals, and Season 0 rewards on Space AI." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://api.spaceresearch.ai" crossorigin />
+  <link rel="icon" type="image/svg+xml" href="./mark.svg?v=35" />
+  <link rel="stylesheet" href="./culture.css?v=24" />
+</head>
+<body>
+  <canvas id="cosmos-bg-canvas" class="cosmos-bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="page-shell">
+  <header class="ed-nav">
+    <div class="ed-nav-inner">
+      <a class="ed-brand" href="./index.html">
+        <span class="ed-emblem logo-orbit" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
+            <g class="orbit-ring-a"><ellipse cx="14" cy="14" rx="11" ry="4.4" stroke="currentColor" stroke-width="1.4" opacity="0.92"/></g>
+            <g class="orbit-ring-b"><ellipse cx="14" cy="14" rx="10.5" ry="4.2" stroke="currentColor" stroke-width="1.1" opacity="0.48"/></g>
+            <circle cx="14" cy="14" r="2.7" fill="currentColor"/>
+          </svg>
+        </span>
+        <span>Space AI</span>
+      </a>
+      <nav class="ed-links" aria-label="Primary">
+        <a href="./product.html" class="">Product</a>
+        <a href="./blog.html" class="">Blog</a>
+        <a href="./network.html" class="active">Network</a>
+        <a href="./chat.html">Chat</a>
+      </nav>
+      <div class="nav-actions">
+        <button type="button" class="icon-pill" data-theme-toggle aria-label="Toggle color theme" title="Switch to Daylight Mode">☀</button>
+        <a class="btn sm" href="./chat.html">Open Chat</a>
+      </div>
+    </div>
+  </header>
+
+    <main>
+      <section class="section-tight" style="padding-bottom:4rem;">
+        <div class="wrap-narrow">
+          <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:0.8rem; margin-bottom:1.25rem;">
+            <div>
+              <p class="folio-tag" style="margin-bottom:0.25rem;">Observatory Telemetry</p>
+              <h1 class="display-h2" style="margin:0;">Live Network</h1>
+            </div>
+            <span class="pill-status"><span class="dot"></span><span id="coord-status">Connecting...</span></span>
+          </div>
+
+          <div class="fleet-strip">
+            <div class="fleet-stat hi"><div class="metric-val" id="fleet-nodes">0</div><div class="metric-lbl">Active Stations</div></div>
+            <div class="fleet-stat"><div class="metric-val" id="fleet-mem">0 GB</div><div class="metric-lbl">Shared Memory</div></div>
+            <div class="fleet-stat"><div class="metric-val" id="fleet-tokens">0</div><div class="metric-lbl">Tokens Served</div></div>
+          </div>
+
+          <div class="net-subnav" role="navigation" aria-label="Network views">
+            <div class="net-tabs" role="tablist">
+              <button type="button" class="net-tab active" data-net-view="mesh" role="tab" aria-selected="true">Overview</button>
+              <button type="button" class="net-tab" data-net-view="dev" role="tab" aria-selected="false">API &amp; Coding Tools</button>
+              <button type="button" class="net-tab" data-net-view="rewards" role="tab" aria-selected="false">Orbitals &amp; Rewards</button>
+            </div>
+          </div>
+
+          <!-- VIEW 1: OVERVIEW -->
+          <div class="net-view active" data-net-view="mesh">
+            <div class="gp-card" id="cluster-topo-card">
+              <div class="gp-head">
+                <div>
+                  <p class="folio-tag" style="margin-bottom:0.15rem;">Stations</p>
+                  <h2 class="gp-title">Live Global Map</h2>
+                </div>
+                <a class="btn secondary sm" href="./product.html#stations">+ Add Station</a>
+              </div>
+              <div class="topo-wrap">
+                <div class="map-controls" aria-label="Map zoom controls">
+                  <span id="map-zoom-label" class="map-ctrl-zoom">1.0x</span>
+                  <button type="button" id="map-zoom-in" class="map-ctrl-btn" title="Zoom in">+</button>
+                  <button type="button" id="map-zoom-out" class="map-ctrl-btn" title="Zoom out">&minus;</button>
+                  <button type="button" id="map-zoom-reset" class="map-ctrl-btn" title="Reset world view">Reset</button>
+                </div>
+                <div id="topo-svg-wrap" style="min-height:220px; display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:0.75rem; color:rgba(255,255,255,0.65);">Mapping active stations...</div>
+              </div>
+              <div id="map-region-strip" class="map-regions"></div>
+              <div class="topo-foot">
+                <span id="topo-foot-left">Detecting live regions...</span>
+                <span id="topo-foot-right">Syncing active stations...</span>
+              </div>
+            </div>
+
+            <div class="gp-card">
+              <div class="gp-head">
+                <div>
+                  <p class="folio-tag" style="margin-bottom:0.15rem;">Performance</p>
+                  <h2 class="gp-title">Network Speed &amp; Growth</h2>
+                </div>
+                <div class="gp-tabs" role="tablist" aria-label="Speed metric">
+                  <button type="button" class="gp-tab active" data-metric="cluster_tok_s">Network Speed</button>
+                  <button type="button" class="gp-tab" data-metric="cum_tokens">Total Served</button>
+                  <button type="button" class="gp-tab" data-metric="tok_s">Per Reply</button>
+                  <button type="button" class="gp-tab" data-metric="ttfa_ms">First Word</button>
+                  <button type="button" class="gp-tab" data-metric="tpot_ms">Word Pace</button>
+                </div>
+              </div>
+              <div class="gp-kpis">
+                <div class="gp-kpi"><div class="gp-kpi-val" id="gp-val-goodput">--</div><div class="gp-kpi-lbl">Peak Speed</div></div>
+                <div class="gp-kpi"><div class="gp-kpi-val" id="gp-val-ttfa">--</div><div class="gp-kpi-lbl">Typical Start</div></div>
+                <div class="gp-kpi"><div class="gp-kpi-val" id="gp-val-tpot">--</div><div class="gp-kpi-lbl">Word Pace</div></div>
+                <div class="gp-kpi"><div class="gp-kpi-val" id="gp-val-slo">--</div><div class="gp-kpi-lbl">Reliability</div></div>
+              </div>
+              <div class="gp-chart-wrap"><div id="gp-svg-wrap"></div></div>
+              <div class="gp-inspect" id="gp-inspect">Loading live network speed...</div>
+            </div>
+
+            <div class="gp-card" id="integrity-panel" style="margin-bottom:0;">
+              <div class="gp-head">
+                <div>
+                  <p class="folio-tag" style="margin-bottom:0.15rem;">Quality Check</p>
+                  <h2 class="gp-title">Verified Genuine Models</h2>
+                </div>
+                <span class="pill-status"><span class="dot"></span><span id="int-live-badge">All Models Verified</span></span>
+              </div>
+              <div class="gp-kpis" style="margin-bottom:0;">
+                <div class="gp-kpi"><div class="gp-kpi-val ok" id="int-pass-rate">100.0%</div><div class="gp-kpi-lbl">Pass Rate</div></div>
+                <div class="gp-kpi"><div class="gp-kpi-val ok" id="int-auth-status">100% Genuine</div><div class="gp-kpi-lbl">Authenticity</div></div>
+                <div class="gp-kpi"><div class="gp-kpi-val" id="int-pos-rate">--</div><div class="gp-kpi-lbl">Verified Replies</div></div>
+                <div class="gp-kpi"><div class="gp-kpi-val" id="int-pack-count">Live</div><div class="gp-kpi-lbl">Checks Active</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- VIEW 2: API & CODING TOOLS -->
+          <div class="net-view" data-net-view="dev">
+            <div class="gp-card" id="api-key-panel">
+              <div class="gp-head">
+                <div>
+                  <p class="folio-tag" style="margin-bottom:0.15rem;">Direct API &amp; CLI</p>
+                  <h2 class="gp-title">Connect Coding Tools</h2>
+                </div>
+                <div class="gp-tabs" role="tablist" aria-label="Coding tool setup">
+                  <button type="button" class="gp-tab agent-tab active" data-agent="cli">Space CLI</button>
+                  <button type="button" class="gp-tab agent-tab" data-agent="claude">Claude Code</button>
+                  <button type="button" class="gp-tab agent-tab" data-agent="shell">Codex / OpenCode</button>
+                  <button type="button" class="gp-tab agent-tab" data-agent="cursor">Cursor / Cline</button>
+                  <button type="button" class="gp-tab agent-tab" data-agent="curl">cURL</button>
+                </div>
+              </div>
+              <p style="font-size:0.9rem; color:var(--ink-soft); margin:0 0 0.9rem 0;">
+                Call the open API directly, or route your coding assistant through Space AI in one command without touching your paid account or config files.
+              </p>
+              <pre class="mono-box" id="barter-cfg-box" style="margin:0 0 0.85rem 0;">Loading setup command...</pre>
+              <div class="btn-row" style="margin-bottom:1rem;">
+                <button type="button" class="btn sm" id="btn-copy-barter-cfg">Copy Setup</button>
+                <button type="button" class="btn secondary sm" id="btn-copy-base-url">Copy API URL</button>
+              </div>
+
+              <details class="zen-disclosure">
+                <summary>
+                  <span>Speed, Privacy &amp; Region Preferences</span>
+                  <span id="cfg-constraint-summary" class="zen-disclosure-sub">fastest &middot; standard &middot; auto</span>
+                </summary>
+                <div class="zen-disclosure-body">
+                  <div class="constraint-bar">
+                    <label class="constraint-field">Priority
+                      <select id="cfg-route" class="zen-select">
+                        <option value="fastest" selected>Fastest reply</option>
+                        <option value="cheapest">Lowest cost</option>
+                        <option value="verified-local-only">Strictly verified local</option>
+                      </select>
+                    </label>
+                    <label class="constraint-field">Privacy Mode
+                      <select id="cfg-privacy" class="zen-select">
+                        <option value="standard" selected>Standard</option>
+                        <option value="zero-log">No prompt logging</option>
+                        <option value="hardened-docker">Isolated container</option>
+                        <option value="tee">Confidential enclave</option>
+                      </select>
+                    </label>
+                    <label class="constraint-field">Region
+                      <select id="cfg-region" class="zen-select">
+                        <option value="auto" selected>Nearest station</option>
+                        <option value="us">North America</option>
+                        <option value="eu">Europe</option>
+                        <option value="ap">Asia-Pacific</option>
+                      </select>
+                    </label>
+                  </div>
+                </div>
+              </details>
+
+              <details class="zen-disclosure" style="margin-bottom:0;">
+                <summary>
+                  <span>Check Your Free Credit Balance</span>
+                  <span class="zen-disclosure-sub">Earned by sharing idle hardware</span>
+                </summary>
+                <div class="zen-disclosure-body">
+                  <div class="barter-input-row">
+                    <input id="barter-key-input" class="zen-input" type="password" autocomplete="off" spellcheck="false" placeholder="Paste your API key" aria-label="API key" />
+                    <button type="button" class="btn secondary sm" id="btn-toggle-key">Show</button>
+                    <button type="button" class="btn sm" id="btn-check-key">Check Balance</button>
+                  </div>
+                  <div class="gp-kpis" style="margin-bottom:0.65rem;">
+                    <div class="gp-kpi"><div class="gp-kpi-val" id="bk-remaining">--</div><div class="gp-kpi-lbl">Remaining</div></div>
+                    <div class="gp-kpi"><div class="gp-kpi-val" id="bk-earned">--</div><div class="gp-kpi-lbl">Earned</div></div>
+                    <div class="gp-kpi"><div class="gp-kpi-val" id="bk-used">--</div><div class="gp-kpi-lbl">Used</div></div>
+                    <div class="gp-kpi"><div class="gp-kpi-val" id="bk-genesis">--</div><div class="gp-kpi-lbl">Tier</div></div>
+                  </div>
+                  <div class="barter-status" id="barter-key-status" style="margin-bottom:0;">Share idle time with <code>space up</code> to earn credits automatically (+50,000 welcome credits).</div>
+                </div>
+              </details>
+            </div>
+
+            <div class="gp-card" id="agent-budget-panel">
+              <div class="gp-head">
+                <div>
+                  <p class="folio-tag" style="margin-bottom:0.15rem;">Zero Subscription</p>
+                  <h2 class="gp-title">Pay-As-You-Go Session Key</h2>
+                </div>
+                <div class="gp-tabs" role="tablist" aria-label="Payment method">
+                  <button type="button" class="gp-tab rail-tab active" data-rail="solana_usdc">USDC</button>
+                  <button type="button" class="gp-tab rail-tab" data-rail="card_topup">Card</button>
+                </div>
+              </div>
+              <p style="font-size:0.9rem; color:var(--ink-soft); margin:0 0 0.9rem 0;">
+                Set a hard spending cap and mint a temporary key for yourself or an autonomous agent. Usage stops cleanly at your limit.
+              </p>
+              <div class="budget-presets">
+                <button type="button" class="budget-chip" data-usd="1">$1 Cap</button>
+                <button type="button" class="budget-chip active" data-usd="5">$5 Cap</button>
+                <button type="button" class="budget-chip" data-usd="20">$20 Cap</button>
+                <button type="button" class="budget-chip" data-usd="50">$50 Cap</button>
+              </div>
+              <div class="barter-input-row">
+                <input id="sess-usd-input" class="zen-input" type="number" min="0.5" max="1000" step="0.5" value="5" style="flex:0 1 115px;" aria-label="Spending cap in USD" />
+                <input id="sess-owner-input" class="zen-input" type="text" autocomplete="off" spellcheck="false" placeholder="Name or agent label (optional)" aria-label="Label" />
+                <button type="button" class="btn sm" id="btn-create-session">Create Key &rarr;</button>
+              </div>
+              <div class="gp-kpis" style="margin-bottom:0.75rem;">
+                <div class="gp-kpi"><div class="gp-kpi-val ok" id="sess-quote-tokens">--</div><div class="gp-kpi-lbl">Est. Usage</div></div>
+                <div class="gp-kpi"><div class="gp-kpi-val" id="sess-quote-fee">--</div><div class="gp-kpi-lbl">Est. Fee</div></div>
+                <div class="gp-kpi"><div class="gp-kpi-val" id="sess-active-cap">$5.00</div><div class="gp-kpi-lbl">Spending Cap</div></div>
+                <div class="gp-kpi"><div class="gp-kpi-val" id="sess-active-rem">Ready</div><div class="gp-kpi-lbl">Status</div></div>
+              </div>
+              <div class="barter-status" id="sess-status">Pick a spending cap above to mint a ready-to-use session key.</div>
+              <pre class="mono-box" id="sess-snippet-box" style="margin:0 0 0.85rem 0;">Loading usage snippet...</pre>
+              <div class="btn-row" style="margin-bottom:0.9rem;">
+                <button type="button" class="btn sm" id="btn-copy-sess-snippet">Copy Snippet</button>
+                <button type="button" class="btn secondary sm" id="btn-copy-sess-token">Copy Key</button>
+              </div>
+
+              <details class="zen-disclosure" style="margin-bottom:0;">
+                <summary>
+                  <span>Fund With On-Chain USDC Deposit</span>
+                  <span class="zen-disclosure-sub">Optional direct transfer</span>
+                </summary>
+                <div class="zen-disclosure-body">
+                  <div class="btn-row" style="margin-bottom:0.75rem;">
+                    <button type="button" class="btn secondary sm" id="btn-sol-deposit-intent">Get Deposit Address</button>
+                  </div>
+                  <pre class="mono-box" id="sol-deposit-info" style="margin:0 0 0.75rem 0;">Click above to generate a deposit address and reference memo.</pre>
+                  <div class="barter-input-row" style="margin-bottom:0;">
+                    <input id="sol-tx-input" class="zen-input" type="text" autocomplete="off" spellcheck="false" placeholder="Paste confirmed transaction ID to activate..." aria-label="Transaction ID" />
+                    <button type="button" class="btn sm" id="btn-sol-verify-tx">Verify &rarr;</button>
+                  </div>
+                </div>
+              </details>
+            </div>
+          </div>
+
+          <!-- VIEW 3: ORBITALS & REWARDS -->
+          <div class="net-view" data-net-view="rewards">
+            <div class="gp-card" id="leaderboard-panel">
+              <div class="gp-head">
+                <div>
+                  <p class="folio-tag" style="margin-bottom:0.15rem;">Season 0 &middot; <span id="sync-countdown">Updates every 5m</span></p>
+                  <h2 class="gp-title">Community Leaderboard</h2>
+                </div>
+                <div class="gp-tabs" role="tablist" aria-label="Leaderboard view">
+                  <button type="button" class="gp-tab lb-tab active" data-lb="supply">Station Contributors</button>
+                  <button type="button" class="gp-tab lb-tab" data-lb="demand">Active Builders</button>
+                </div>
+              </div>
+              <div id="lb-supply-wrap" class="table-wrap">
+                <table>
+                  <thead><tr><th>Rank</th><th>Contributor &middot; Hardware</th><th>Served</th><th>Points</th><th>tSPACE</th><th>Share</th></tr></thead>
+                  <tbody id="lb-body"><tr><td colspan="6" style="font-family:var(--mono);">Loading leaderboard...</td></tr></tbody>
+                </table>
+              </div>
+              <div id="lb-demand-wrap" style="display:none;">
+                <p style="font-size:0.84rem; color:var(--ink-soft); margin:0 0 0.75rem 0;">
+                  Bonus multipliers: <strong>2x</strong> Coding Tools &middot; <strong>3x</strong> Shared Demos &middot; <strong>1.5x</strong> Home Orbitals
+                </p>
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th>Rank</th><th>Builder</th><th>Requests</th><th>Bonus</th><th>Usage</th><th>Points</th></tr></thead>
+                    <tbody id="lb-demand-body"><tr><td colspan="6" style="font-family:var(--mono);">Loading active builders...</td></tr></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="gp-card" id="pools-panel">
+              <div class="gp-head">
+                <div>
+                  <p class="folio-tag" style="margin-bottom:0.15rem;">Protected Habitats</p>
+                  <h2 class="gp-title">Support a Home Orbital</h2>
+                </div>
+                <span class="pool-badge">Home Hardware Protected</span>
+              </div>
+              <div class="table-wrap" style="margin-bottom:0.95rem;">
+                <table>
+                  <thead><tr><th>Orbital</th><th>Type</th><th>Supported</th><th>Priority</th><th>Free Daily Quota</th><th>Quality</th></tr></thead>
+                  <tbody id="pools-body"><tr><td colspan="6" style="font-family:var(--mono);">Loading Orbitals...</td></tr></tbody>
+                </table>
+              </div>
+              <div class="budget-presets">
+                <button type="button" class="budget-chip pool-amt-chip" data-amt="100">100 tSPACE</button>
+                <button type="button" class="budget-chip pool-amt-chip active" data-amt="500">500 tSPACE</button>
+                <button type="button" class="budget-chip pool-amt-chip" data-amt="2500">2,500 tSPACE</button>
+              </div>
+              <div class="barter-input-row">
+                <select id="pool-select" class="zen-select" style="flex:1 1 200px;" aria-label="Select Orbital"></select>
+                <input id="pool-wallet-input" class="zen-input" type="text" autocomplete="off" spellcheck="false" placeholder="Wallet address or handle" aria-label="Wallet or handle" />
+                <input id="pool-amount-input" class="zen-input" type="number" min="1" step="10" value="500" style="flex:0 1 110px;" aria-label="Amount" />
+                <button type="button" class="btn sm" id="btn-delegate-pool">Support &rarr;</button>
+              </div>
+              <div class="barter-status" id="pool-delegate-status" style="margin-bottom:0;">Select a Home Orbital above to support it and unlock free daily usage.</div>
+            </div>
+
+            <div class="gp-card" id="devnet-token-panel">
+              <div class="gp-head">
+                <div>
+                  <p class="folio-tag" style="margin-bottom:0.15rem;">Solana Devnet &middot; Token-2022</p>
+                  <h2 class="gp-title">$SPACE &amp; tSPACE Dev Tokens</h2>
+                </div>
+                <div class="btn-row" style="gap:0.45rem;">
+                  <a class="btn secondary sm" target="_blank" rel="noopener" href="https://explorer.solana.com/address/ANWbsE1h9qJHvW3tTSHqDDqWojMJSNvNabgJLitJJ5cu?cluster=devnet">$SPACE Explorer &#8599;</a>
+                  <a class="btn secondary sm" target="_blank" rel="noopener" href="https://explorer.solana.com/address/352xoBR8e1mUbnAK2ZCwTLBJtoU4vMhBAV5pedXU9CYK?cluster=devnet">tSPACE Explorer &#8599;</a>
+                </div>
+              </div>
+              <div class="gp-kpis" style="margin-bottom:0.9rem;">
+                <div class="gp-kpi"><div class="gp-kpi-val ok" id="tok-supply">1,000,000,000</div><div class="gp-kpi-lbl">$SPACE Fixed Cap</div></div>
+                <div class="gp-kpi"><div class="gp-kpi-val" id="tok-alloc">50 / 20 / 15 / 15</div><div class="gp-kpi-lbl">Vault Split %</div></div>
+                <div class="gp-kpi"><div class="gp-kpi-val" id="tok-revsplit">70 / 20 / 10</div><div class="gp-kpi-lbl">USDC Revenue %</div></div>
+                <div class="gp-kpi"><div class="gp-kpi-val ok" id="tok-tspace-minted">--</div><div class="gp-kpi-lbl">tSPACE Minted</div></div>
+              </div>
+              <div class="barter-input-row" style="margin-bottom:0.65rem;">
+                <input id="claim-wallet-input" class="zen-input" type="text" autocomplete="off" spellcheck="false" placeholder="Solana Devnet wallet address to claim 100 $SPACE or sync tSPACE..." aria-label="Solana wallet address for claim" />
+                <button type="button" class="btn sm" id="btn-claim-devnet-space">Claim Devnet $SPACE &rarr;</button>
+              </div>
+              <div class="barter-status" id="claim-token-status" style="margin-bottom:0;">$SPACE mint ANWbsE…J5cu (supply locked) &middot; tSPACE mint 352xoB…9CYK (soulbound).</div>
+            </div>
+
+            <details class="zen-disclosure" id="wallet-panel">
+              <summary>
+                <span>Connect Wallet &amp; Link Station Payouts</span>
+                <span class="zen-disclosure-sub">Optional &middot; Solana Devnet</span>
+              </summary>
+              <div class="zen-disclosure-body">
+                <div class="btn-row" style="margin-bottom:0.85rem;">
+                  <button type="button" class="btn sm" id="btn-connect-wallet">Connect Phantom / Solflare</button>
+                  <button type="button" class="btn secondary sm" id="btn-disconnect-wallet" style="display:none;">Disconnect</button>
+                </div>
+                <div class="barter-input-row">
+                  <input id="wallet-addr-input" class="zen-input" type="text" autocomplete="off" spellcheck="false" placeholder="Paste Solana wallet address..." aria-label="Solana wallet address" />
+                  <button type="button" class="btn secondary sm" id="btn-check-wallet">Check Balance</button>
+                </div>
+                <div class="gp-kpis" style="margin-bottom:0.75rem;">
+                  <div class="gp-kpi"><div class="gp-kpi-val ok" id="wk-onchain">--</div><div class="gp-kpi-lbl">On-Chain tSPACE</div></div>
+                  <div class="gp-kpi"><div class="gp-kpi-val" id="wk-pending">--</div><div class="gp-kpi-lbl">Pending Sync</div></div>
+                  <div class="gp-kpi"><div class="gp-kpi-val" id="wk-nodes" style="font-size:0.94rem;">--</div><div class="gp-kpi-lbl">Linked Stations</div></div>
+                  <div class="gp-kpi"><div class="gp-kpi-val" style="font-size:0.9rem;"><a id="wk-explorer-link" target="_blank" rel="noopener" href="https://explorer.solana.com/address/352xoBR8e1mUbnAK2ZCwTLBJtoU4vMhBAV5pedXU9CYK?cluster=devnet" style="text-decoration:underline;">View Explorer &#8599;</a></div><div class="gp-kpi-lbl">Public Ledger</div></div>
+                </div>
+                <div class="barter-status" id="wallet-status">Connect a wallet to view your Season 0 balance or link your station's rewards.</div>
+                <pre class="mono-box" id="wallet-join-cmd" style="margin:0 0 0.85rem 0;">Loading personalized join command...</pre>
+                <div class="btn-row">
+                  <button type="button" class="btn sm" id="btn-link-wallet-node">Link Station &rarr;</button>
+                  <button type="button" class="btn secondary sm" id="btn-copy-wallet-join">Copy Command</button>
+                </div>
+              </div>
+            </details>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <div class="foot-bottom" style="border-top:none; padding-top:0;">
+          <span>&copy; 2026 Space AI &middot; spaceresearch.ai</span>
+          <div style="display:flex; align-items:center; gap:1rem;">
+            <a href="./index.html">Home</a>
+            <a href="./chat.html">Space Chat</a>
+            <button type="button" class="icon-pill" data-theme-toggle aria-label="Toggle theme">☀</button>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+  (() => {
+    function applyTheme(t) {
+      document.documentElement.setAttribute("data-theme", t);
+      try { localStorage.setItem("space_theme_v17", t); } catch (_e) {}
+      document.querySelectorAll("[data-theme-toggle]").forEach((b) => { b.textContent = t === "light" ? "☾" : "☀"; });
+    }
+    try {
+      const s = localStorage.getItem("space_theme_v17");
+      if (s === "dark" || s === "light") applyTheme(s);
+      else applyTheme("dark");
+    } catch (_e) {}
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll("[data-theme-toggle]").forEach((b) => {
+        b.addEventListener("click", () => applyTheme(document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light"));
+      });
+      const c = document.getElementById("cosmos-bg-canvas");
+      if (c && c.getContext) {
+        const ctx = c.getContext("2d");
+        let stars = [];
+        const resize = () => {
+          const dpr = Math.min(window.devicePixelRatio || 1, 2);
+          c.width = Math.floor(window.innerWidth * dpr);
+          c.height = Math.floor(window.innerHeight * dpr);
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          stars = Array.from({ length: 140 }, () => ({ x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight, r: 0.5 + Math.random() * 1.1, a: 0.25 + Math.random() * 0.6 }));
+        };
+        resize();
+        window.addEventListener("resize", resize);
+        const draw = () => {
+          ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+          for (const s of stars) {
+            ctx.fillStyle = `rgba(244, 244, 248, ${s.a.toFixed(2)})`;
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        };
+        draw();
+      }
+      // Hydrate live Devnet $SPACE & tSPACE stats + 1-click claim handler
+      const API_BASE = "https://api.spaceresearch.ai";
+      fetch(API_BASE + "/v1/tokenomics")
+        .then((r) => r.ok ? r.json() : null)
+        .then((d) => {
+          if (!d) return;
+          const el = document.getElementById("tok-tspace-minted");
+          const v = Number(d.live_stats?.tspace_minted_onchain ?? 0);
+          if (el && v > 0) el.textContent = v.toLocaleString("en-US", { maximumFractionDigits: 1 });
+        })
+        .catch(() => {});
+      const claimBtn = document.getElementById("btn-claim-devnet-space");
+      const claimInp = document.getElementById("claim-wallet-input");
+      const claimSt = document.getElementById("claim-token-status");
+      if (claimBtn && claimInp && claimSt) {
+        claimBtn.addEventListener("click", async () => {
+          const w = (claimInp.value || document.getElementById("wallet-addr-input")?.value || "").trim();
+          if (!w) { claimSt.textContent = "Enter or connect a Solana Devnet wallet address first."; return; }
+          claimInp.value = w;
+          claimBtn.disabled = true;
+          claimBtn.textContent = "Claiming...";
+          claimSt.textContent = "Sending Devnet $SPACE transaction on Solana…";
+          try {
+            const res = await fetch(API_BASE + "/v1/token/claim", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ wallet: w }),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+              claimSt.textContent = data.detail || ("Claim failed (" + res.status + ")");
+            } else {
+              const txUrl = data.space_explorer_tx_url || data.explorer_wallet_url;
+              claimSt.innerHTML = `Claimed ${data.space_claimed} $SPACE${data.tspace_minted > 0 ? " + " + data.tspace_minted + " tSPACE" : ""} &middot; <a target="_blank" rel="noopener" href="${txUrl}" style="text-decoration:underline; color:var(--brass);">View Tx &#8599;</a>`;
+            }
+          } catch (err) {
+            claimSt.textContent = "Network error while claiming Devnet tokens.";
+          } finally {
+            claimBtn.disabled = false;
+            claimBtn.textContent = "Claim Devnet $SPACE →";
+          }
+        });
+      }
+    });
+  })();
+  </script>
+  <script src="./network.js?v=24"></script>
+</body>
+</html>

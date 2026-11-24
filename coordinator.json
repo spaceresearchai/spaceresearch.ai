@@ -1,0 +1,7 @@
+{
+  "api_base": "https://api.spaceresearch.ai",
+  "openai_base": "https://api.spaceresearch.ai/v1",
+  "fallback_api_base": "https://api.longinusresearch.com",
+  "updated_at": 1795519238,
+  "status": "online"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Space AI Season 0",
+  "symbol": "tSPACE",
+  "description": "Non-transferable soulbound Season 0 Canary Compute token earned by serving local AI on Space AI (spaceresearch.ai).",
+  "image": "https://spaceresearch.ai/tspace-logo.png",
+  "external_url": "https://spaceresearch.ai/network.html",
+  "attributes": [
+    {
+      "trait_type": "Network",
+      "value": "Space AI"
+    },
+    {
+      "trait_type": "Season",
+      "value": "Season 0 Canary"
+    },
+    {
+      "trait_type": "Transferability",
+      "value": "Soulbound (Non-Transferable Token-2022)"
+    }
+  ]
+}
