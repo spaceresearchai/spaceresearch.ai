@@ -17,12 +17,15 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
+from .pdf_compiler import compile_paper_pdf
+
 SITE_ROOT = Path(__file__).resolve().parents[2]
 PAPERS_HTML_DIR = SITE_ROOT / "papers"
 GEN_DATA_DIR = SITE_ROOT / "data" / "generated_papers"
 GEN_INDEX_JSON = SITE_ROOT / "data" / "generated-papers.json"
 
 DEFAULT_AUTHOR = "Marcio Diaz"
+DEFAULT_EMAIL = "marcio.diaz@gmail.com"
 DEFAULT_COMPANY = "Space AI"
 
 
@@ -398,9 +401,13 @@ def compile_paper(
     published_at: str | None = None,
     blog_href: str | None = None,
     author: str = DEFAULT_AUTHOR,
+    email: str = DEFAULT_EMAIL,
     company: str = DEFAULT_COMPANY,
+    doi: str | None = None,
+    zenodo_url: str | None = None,
+    build_pdf: bool = True,
 ) -> Dict[str, Any]:
-    """Generate Markdown manuscript (`data/generated_papers/<slug>.md`) + HTML paper (`papers/<slug>.html`)."""
+    """Generate Markdown manuscript, HTML paper, and print-grade academic PDF (`papers/<slug>.pdf`)."""
     now_iso = published_at or datetime.now().astimezone().isoformat(timespec="seconds")
     date_str = now_iso[:10]
     slug = exp_data["slug"]
@@ -419,6 +426,7 @@ def compile_paper(
     limits_md = "\n".join(f"- {l}" for l in analysis["limitations"])
     last_name = author.split()[-1].lower() if author.split() else "spaceai"
     bibtex_key = f"{last_name}{date_str[:4]}{slug.replace('-', '')[:16]}"
+    doi_bib_line = f"  doi         = {{{doi}}},\n" if doi else ""
     bibtex = (
         f"@techreport{{{bibtex_key},\n"
         f"  title       = {{{exp_data['title']}}},\n"
@@ -426,14 +434,16 @@ def compile_paper(
         f"  institution = {{{company} (spaceresearch.ai)}},\n"
         f"  year        = {{{date_str[:4]}}},\n"
         f"  month       = {{{date_str[5:7]}}},\n"
+        f"{doi_bib_line}"
         f"  url         = {{https://spaceresearch.ai/papers/{slug}.html}}\n"
         f"}}"
     )
 
+    doi_md_line = f"**DOI:** `{doi}` ({zenodo_url})  \n" if doi else ""
     md_text = f"""# {exp_data['title']}
 
-**Authors:** {author}, {company} (`spaceresearch.ai`)  
-**Published:** {now_iso}  
+**Authors:** {author} (`{email}`), {company} (`spaceresearch.ai`)  
+{doi_md_line}**Published:** {now_iso}  
 **Discovery Trigger:** {exp_data.get('source_discovery_type', 'CoreRank Discovery')}  
 **Hardware:** {exp_data.get('setup', {}).get('gpu_name', 'NVIDIA RTX 5090')}  
 
@@ -529,9 +539,14 @@ def compile_paper(
             <span>{html.escape(now_iso[:16].replace('T', ' '))}</span>
           </div>
           <h1 class="blog-article-title">{html.escape(exp_data['title'])}</h1>
-          <p style="font-family:var(--mono); font-size:0.8rem; color:var(--ink-soft); margin:-1.6rem 0 2rem 0;">
-            <strong>{html.escape(author)}</strong> &middot; {html.escape(company)} (spaceresearch.ai) &middot; Trigger: {html.escape(exp_data.get('source_discovery_type', 'CoreRank'))} &middot; Hardware: {html.escape(str(exp_data.get('setup', {}).get('gpu_name', 'RTX 5090')))}
+          <p style="font-family:var(--mono); font-size:0.8rem; color:var(--ink-soft); margin:-1.6rem 0 1rem 0;">
+            <strong>{html.escape(author)}</strong> ({html.escape(email)}) &middot; {html.escape(company)} (spaceresearch.ai) &middot; Hardware: {html.escape(str(exp_data.get('setup', {}).get('gpu_name', 'RTX 5090')))}
           </p>
+          <div style="display:flex; flex-wrap:wrap; gap:0.55rem; margin-bottom:1.8rem;">
+            <a class="btn sm" href="./{html.escape(slug)}.pdf" target="_blank" rel="noopener">Download PDF Preprint &darr;</a>
+            {f'<a class="btn secondary sm" href="{html.escape(zenodo_url or ("https://doi.org/" + doi))}" target="_blank" rel="noopener">Zenodo DOI: {html.escape(doi)} &#8599;</a>' if doi else ''}
+            <a class="btn secondary sm" href="../data/generated_papers/{html.escape(slug)}.json">Raw GPU Metrics JSON</a>
+          </div>
 
           <div class="blog-abstract">
             <div class="blog-abstract-lbl">ABSTRACT &amp; HYPOTHESIS</div>
@@ -586,27 +601,53 @@ def compile_paper(
 """
     html_path.write_text(paper_html, encoding="utf-8")
 
-    # Update generated-papers registry
+    # Compile print-grade academic PDF for direct download + Zenodo archival
+    pdf_info = None
+    if build_pdf:
+        pdf_info = compile_paper_pdf(
+            exp_data=exp_data,
+            analysis=analysis,
+            author=author,
+            email=email,
+            company=company,
+            published_at=now_iso,
+            doi=doi,
+        )
+
+    # Update generated-papers registry (preserving existing Zenodo DOI records if re-compiling!)
     gen_reg = json.loads(GEN_INDEX_JSON.read_text(encoding="utf-8")) if GEN_INDEX_JSON.exists() else {"papers": []}
+    prev = next((x for x in gen_reg.get("papers", []) if x.get("slug") == slug), {})
     gen_reg["papers"] = [x for x in gen_reg.get("papers", []) if x.get("slug") != slug]
-    gen_reg["papers"].insert(0, {
+    entry_rec = {
         "slug": slug,
         "experiment_id": exp_data["experiment_id"],
         "title": exp_data["title"],
         "authors": [author, company],
+        "email": email,
         "published_at": now_iso,
         "paper_html": f"./papers/{slug}.html",
+        "paper_pdf": f"./papers/{slug}.pdf",
         "paper_md": f"./data/generated_papers/{slug}.md",
         "metrics_json": f"./data/generated_papers/{slug}.json",
         "blog_href": blog_href,
         "metric_chip": analysis["metric_chip"],
         "source_papers": sources,
-    })
+    }
+    for carry_key in ("doi", "zenodo_url", "zenodo", "zenodo_sandbox"):
+        if carry_key in prev and carry_key not in entry_rec:
+            entry_rec[carry_key] = prev[carry_key]
+    if doi:
+        entry_rec["doi"] = doi
+    if zenodo_url:
+        entry_rec["zenodo_url"] = zenodo_url
+    gen_reg["papers"].insert(0, entry_rec)
     GEN_INDEX_JSON.write_text(json.dumps(gen_reg, indent=2) + "\n", encoding="utf-8")
 
     return {
         "slug": slug,
         "paper_html": html_path,
+        "paper_pdf": pdf_info["pdf_path"] if pdf_info else None,
+        "pdf_pages": pdf_info["pages"] if pdf_info else 0,
         "paper_md": md_path,
         "metrics_json": json_path,
         "analysis": analysis,

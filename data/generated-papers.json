@@ -8,8 +8,10 @@
         "Marcio Diaz",
         "Space AI"
       ],
+      "email": "marcio.diaz@gmail.com",
       "published_at": "2026-11-24T17:16:34+01:00",
       "paper_html": "./papers/steerable-not-decodable-ace-cores.html",
+      "paper_pdf": "./papers/steerable-not-decodable-ace-cores.pdf",
       "paper_md": "./data/generated_papers/steerable-not-decodable-ace-cores.md",
       "metrics_json": "./data/generated_papers/steerable-not-decodable-ace-cores.json",
       "blog_href": "./blog-auto-steerable-not-decodable-ace-cores.html",
@@ -30,8 +32,10 @@
         "Marcio Diaz",
         "Space AI"
       ],
+      "email": "marcio.diaz@gmail.com",
       "published_at": "2026-11-24T16:47:28+01:00",
       "paper_html": "./papers/pytorch-kl-bregman-stability.html",
+      "paper_pdf": "./papers/pytorch-kl-bregman-stability.pdf",
       "paper_md": "./data/generated_papers/pytorch-kl-bregman-stability.md",
       "metrics_json": "./data/generated_papers/pytorch-kl-bregman-stability.json",
       "blog_href": "./blog-auto-pytorch-kl-bregman-stability.html",
@@ -52,8 +56,10 @@
         "Marcio Diaz",
         "Space AI"
       ],
+      "email": "marcio.diaz@gmail.com",
       "published_at": "2026-11-24T16:46:42+01:00",
       "paper_html": "./papers/probmoe-batchtopk-sae.html",
+      "paper_pdf": "./papers/probmoe-batchtopk-sae.pdf",
       "paper_md": "./data/generated_papers/probmoe-batchtopk-sae.md",
       "metrics_json": "./data/generated_papers/probmoe-batchtopk-sae.json",
       "blog_href": "./blog-auto-probmoe-batchtopk-sae.html",

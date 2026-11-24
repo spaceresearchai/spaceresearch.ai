@@ -17,8 +17,9 @@ from pathlib import Path
 from typing import Any, Dict
 
 from .index_paper_vdb import upsert_via_torch_subprocess
-from .paper_writer import DEFAULT_AUTHOR, DEFAULT_COMPANY, analyze_experiment, compile_paper
+from .paper_writer import DEFAULT_AUTHOR, DEFAULT_COMPANY, DEFAULT_EMAIL, analyze_experiment, compile_paper
 from .rebuild_blog_index import MANIFEST_PATH, SITE_ROOT, rebuild_all
+from .zenodo_publisher import deposit_paper_to_zenodo, load_zenodo_config
 
 
 def publish_investigation(
@@ -26,8 +27,10 @@ def publish_investigation(
     published_at: str | None = None,
     dry_run: bool = False,
     author: str = DEFAULT_AUTHOR,
+    email: str = DEFAULT_EMAIL,
     company: str = DEFAULT_COMPANY,
     index_in_papers_vdb: bool = True,
+    zenodo_mode: str = "auto",  # auto | none | sandbox_draft | sandbox_publish | prod_draft | prod_publish
 ) -> Dict[str, Any]:
     now_iso = published_at or datetime.now().astimezone().isoformat(timespec="seconds")
     pub_date = now_iso[:10]
@@ -58,8 +61,8 @@ def publish_investigation(
             "findings": analysis["findings"],
         }
 
-    # 1. Compile full technical paper (Markdown + HTML + JSON archive)
-    paper_res = compile_paper(exp_data, published_at=now_iso, blog_href=blog_href, author=author, company=company)
+    # 1. Compile full technical paper (Markdown + HTML + academic PDF + JSON archive)
+    paper_res = compile_paper(exp_data, published_at=now_iso, blog_href=blog_href, author=author, email=email, company=company)
 
     # 2. Render Space AI Research Note HTML
     stats_html = "".join(
@@ -171,6 +174,7 @@ def publish_investigation(
               <p>Read the generated technical manuscript (with BibTeX, exact run configuration, and raw JSON telemetry) or explore the source papers in CoreRank Discovery.</p>
               <div style="display:flex; flex-wrap:wrap; gap:0.65rem;">
                 <a class="btn sm" href="{html.escape(paper_href)}">Read Full Technical Paper &rarr;</a>
+                <a class="btn secondary sm" href="./papers/{html.escape(slug)}.pdf" target="_blank" rel="noopener">Download PDF &darr;</a>
                 <a class="btn secondary sm" href="./papers.html?tab=discover">Open CoreRank Discovery</a>
               </div>
             </div>
@@ -241,24 +245,57 @@ def publish_investigation(
             "published_date": pub_date,
             "venue": f"{company} Technical Paper",
             "url": f"./papers/{slug}.html",
-            "pdf_url": None,
+            "pdf_url": f"./papers/{slug}.pdf",
             "tags": ["space-ai", "autonomous-gpu", "corerank", exp_data["experiment_id"]],
             "abstract": abstract_text,
         }
         vdb_res = upsert_via_torch_subprocess(vdb_rec)
 
-    # 5. Deterministically rebuild `blog.html` and `index.html`
+    # 5. Optional automatic Zenodo deposit & DataCite DOI minting
+    zenodo_res = None
+    eff_mode = zenodo_mode
+    if eff_mode == "auto":
+        zcfg = load_zenodo_config()
+        if zcfg.get("auto_publish") and zcfg.get("token"):
+            eff_mode = "prod_publish"
+        elif zcfg.get("token"):
+            eff_mode = "prod_draft"
+        elif zcfg.get("sandbox_token"):
+            eff_mode = "sandbox_draft"
+        else:
+            eff_mode = "none"
+
+    if eff_mode != "none":
+        try:
+            is_sandbox = eff_mode.startswith("sandbox")
+            do_pub = eff_mode.endswith("publish")
+            zenodo_res = deposit_paper_to_zenodo(slug=slug, sandbox=is_sandbox, publish=do_pub)
+            if zenodo_res.get("doi") and not is_sandbox and do_pub:
+                # Re-render HTML + PDF with the minted permanent DOI badge & BibTeX doi field!
+                paper_res = compile_paper(
+                    exp_data, published_at=now_iso, blog_href=blog_href,
+                    author=author, email=email, company=company,
+                    doi=zenodo_res["doi"], zenodo_url=zenodo_res.get("record_url"),
+                )
+        except Exception as e:
+            zenodo_res = {"status": "error", "error": str(e)}
+
+    # 6. Deterministically rebuild `blog.html` and `index.html`
     index_summary = rebuild_all()
     return {
         "dry_run": False,
         "note_id": note_id,
         "seq": seq,
         "authors": [author, company],
+        "email": email,
         "blog_path": str(blog_path),
         "paper_html": str(paper_res["paper_html"]),
+        "paper_pdf": str(paper_res.get("paper_pdf") or ""),
+        "pdf_pages": paper_res.get("pdf_pages", 0),
         "paper_md": str(paper_res["paper_md"]),
         "metrics_json": str(paper_res["metrics_json"]),
         "metric_chip": analysis["metric_chip"],
         "vdb_index": vdb_res,
+        "zenodo": zenodo_res,
         "index_summary": index_summary,
     }

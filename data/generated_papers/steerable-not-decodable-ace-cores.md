@@ -1,6 +1,6 @@
 # Steerable Before Decodable: Testing CoreRank 1D Causal Steering vs. Logit Lens Readability Across Depth
 
-**Authors:** Marcio Diaz, Space AI (`spaceresearch.ai`)  
+**Authors:** Marcio Diaz (`marcio.diaz@gmail.com`), Space AI (`spaceresearch.ai`)  
 **Published:** 2026-11-24T17:16:34+01:00  
 **Discovery Trigger:** Method 1 Prior-vs-Evidence Bayesian Surprise (#1 on 4B, +9.30)  
 **Hardware:** NVIDIA GeForce RTX 5090  

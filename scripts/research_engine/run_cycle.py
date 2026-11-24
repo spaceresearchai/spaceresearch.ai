@@ -85,7 +85,8 @@ def main():
     parser.add_argument("--auto-select", action="store_true", help="Automatically choose the top uninvestigated hypothesis from CoreRank discoveries")
     parser.add_argument("--allow-custom-synth", action="store_true", help="Synthesize a custom AST-audited PyTorch experiment via local LLM if all built-ins are complete")
     parser.add_argument("--min-free-vram-mb", type=int, default=None, help="Override GPU free VRAM safety guard (MiB)")
-    parser.add_argument("--publish", action="store_true", help="Write technical paper + blog post + rebuild site index")
+    parser.add_argument("--publish", action="store_true", help="Write technical paper + PDF + blog post + rebuild site index")
+    parser.add_argument("--zenodo-mode", choices=["auto", "none", "sandbox_draft", "sandbox_publish", "prod_draft", "prod_publish"], default="auto", help="Zenodo external DOI deposit mode")
     parser.add_argument("--dry-run", action="store_true", help="Run experiment & analyze without modifying site HTML or blog manifest")
     args = parser.parse_args()
 
@@ -143,9 +144,9 @@ def main():
     raw_out = GEN_DATA_DIR / f"raw_{exp_id or 'custom'}.json"
     exp_data = run_gpu_script(script_path, raw_out, timeout_sec=timeout_sec)
 
-    # Stage 4: Compile Technical Paper + Publish Blog Post + Rebuild Daily-Ordered Site Index
+    # Stage 4: Compile Technical Paper + PDF + Publish Blog Post + Optional Zenodo DOI + Rebuild Site Index
     if args.publish or args.dry_run:
-        pub = publish_investigation(exp_data, dry_run=args.dry_run)
+        pub = publish_investigation(exp_data, dry_run=args.dry_run, zenodo_mode=args.zenodo_mode)
         print(f"[cycle] Publish result: {json.dumps(pub, indent=2)}", flush=True)
     else:
         print(f"[cycle] Experiment finished and saved to {raw_out}. Re-run with --publish to compile paper & blog post.", flush=True)

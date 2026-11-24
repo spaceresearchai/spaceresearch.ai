@@ -1,6 +1,6 @@
 # Probabilistic Marginal Gradients for Sparse Autoencoders: Bridging ProbMoE Routing and BatchTopK SAEs
 
-**Authors:** Marcio Diaz, Space AI (`spaceresearch.ai`)  
+**Authors:** Marcio Diaz (`marcio.diaz@gmail.com`), Space AI (`spaceresearch.ai`)  
 **Published:** 2026-11-24T16:46:42+01:00  
 **Discovery Trigger:** Method 2 Cross-Domain Bridge + Method 3 Dense Contradiction  
 **Hardware:** NVIDIA GeForce RTX 5090  

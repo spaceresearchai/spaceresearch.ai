@@ -1,6 +1,6 @@
 # Eliminating Negative & Corrupted KL Divergence in Low-Precision PyTorch via Bregman-Taylor Formulation
 
-**Authors:** Marcio Diaz, Space AI (`spaceresearch.ai`)  
+**Authors:** Marcio Diaz (`marcio.diaz@gmail.com`), Space AI (`spaceresearch.ai`)  
 **Published:** 2026-11-24T16:47:28+01:00  
 **Discovery Trigger:** Method 1 Prior-vs-Evidence Bayesian Surprise (#3 on 4B)  
 **Hardware:** NVIDIA GeForce RTX 5090  

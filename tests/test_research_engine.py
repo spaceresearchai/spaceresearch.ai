@@ -20,6 +20,12 @@ from research_engine.rebuild_blog_index import (
     rebuild_all,
     sort_posts_newest,
 )
+from research_engine.zenodo_publisher import (
+    ZenodoClient,
+    build_zenodo_metadata,
+    deposit_paper_to_zenodo,
+    format_creator_name,
+)
 
 
 class TestHighVolumeDailyBlogOrdering(unittest.TestCase):
@@ -145,16 +151,102 @@ class TestAstSafetyAndDiscovery(unittest.TestCase):
         self.assertEqual(pdb["paper_count"], len(pdb["papers"]))
         self.assertEqual(vbin_bytes, len(pdb["papers"]) * 384 * 2)
 
-        # Verify generated Space AI papers carry Marcio Diaz & Space AI authorship
+        # Verify generated Space AI papers carry Marcio Diaz & Space AI authorship + real compiled PDFs
         auto_papers = [p for p in pdb["papers"] if str(p.get("id", "")).startswith("spaceai-")]
         self.assertGreaterEqual(len(auto_papers), 3)
         for ap in auto_papers:
             self.assertIn("Marcio Diaz", ap.get("authors", []))
             self.assertIn("Space AI", ap.get("authors", []))
+            pdf_rel = str(ap.get("pdf_url") or "").lstrip("./")
+            self.assertTrue(pdf_rel.endswith(".pdf"), f"Missing pdf_url on {ap['id']}")
+            pdf_file = SITE_ROOT / pdf_rel
+            self.assertTrue(pdf_file.exists(), f"Missing PDF file: {pdf_file}")
+            self.assertTrue(pdf_file.read_bytes().startswith(b"%PDF-"), f"Invalid PDF header: {pdf_file}")
 
         # 4. GPU snapshot call never crashes
         snap = query_gpu()
         self.assertIsInstance(snap.to_dict(), dict)
+
+
+class TestZenodoPublisher(unittest.TestCase):
+    def test_creator_format_and_metadata(self):
+        self.assertEqual(format_creator_name("Marcio Diaz"), "Diaz, Marcio")
+        arch = json.loads((SITE_ROOT / "data" / "generated_papers" / "pytorch-kl-bregman-stability.json").read_text())
+        meta = build_zenodo_metadata(
+            arch["experiment"], arch["analysis"],
+            author="Marcio Diaz", email="marcio.diaz@gmail.com", company="Space AI",
+        )["metadata"]
+        self.assertEqual(meta["creators"][0]["name"], "Diaz, Marcio")
+        self.assertEqual(meta["creators"][0]["affiliation"], "Space AI")
+        self.assertIn("marcio.diaz@gmail.com", meta["notes"])
+        self.assertEqual(meta["license"], "cc-by-4.0")
+        self.assertTrue(any(r["relation"] == "isIdenticalTo" for r in meta["related_identifiers"]))
+
+    def test_zenodo_client_full_deposit_lifecycle_mocked(self):
+        calls = []
+
+        class FakeResp:
+            def __init__(self, payload):
+                self._raw = json.dumps(payload).encode("utf-8")
+            def read(self):
+                return self._raw
+            def __enter__(self):
+                return self
+            def __exit__(self, *a):
+                return False
+
+        def fake_opener(req, timeout=60):
+            url = req.full_url
+            method = req.get_method()
+            calls.append((method, url))
+            self.assertEqual(req.get_header("Authorization"), "Bearer test_tok_123")
+            if method == "POST" and url.endswith("/deposit/depositions"):
+                return FakeResp({
+                    "id": 9999999,
+                    "links": {
+                        "bucket": "https://sandbox.zenodo.org/api/files/bucket-abc",
+                        "html": "https://sandbox.zenodo.org/deposit/9999999",
+                    },
+                    "metadata": {"prereserve_doi": {"doi": "10.5072/zenodo.9999999"}},
+                })
+            if method == "PUT" and "/api/files/bucket-abc/" in url:
+                self.assertGreater(len(req.data), 100)
+                return FakeResp({"key": url.rsplit("/", 1)[-1]})
+            if method == "PUT" and url.endswith("/deposit/depositions/9999999"):
+                body = json.loads(req.data.decode("utf-8"))
+                self.assertEqual(body["metadata"]["creators"][0]["name"], "Diaz, Marcio")
+                self.assertIn("marcio.diaz@gmail.com", body["metadata"]["notes"])
+                return FakeResp({"id": 9999999, "metadata": body["metadata"]})
+            if method == "POST" and url.endswith("/deposit/depositions/9999999/actions/publish"):
+                return FakeResp({
+                    "id": 9999999,
+                    "doi": "10.5072/zenodo.9999999",
+                    "links": {"record_html": "https://sandbox.zenodo.org/records/9999999"},
+                })
+            raise AssertionError(f"Unexpected HTTP call: {method} {url}")
+
+        # Run against sandbox mocked client using a temporary generated-papers.json so repo stays clean
+        import research_engine.zenodo_publisher as zp
+        orig_gen = zp.GEN_INDEX_JSON
+        with tempfile.TemporaryDirectory() as td:
+            tmp_gen = Path(td) / "generated-papers.json"
+            tmp_gen.write_text(orig_gen.read_text(encoding="utf-8"), encoding="utf-8")
+            zp.GEN_INDEX_JSON = tmp_gen
+            try:
+                client = ZenodoClient(token="test_tok_123", sandbox=True, opener=fake_opener)
+                res = deposit_paper_to_zenodo(
+                    slug="pytorch-kl-bregman-stability",
+                    sandbox=True,
+                    publish=True,
+                    force=True,
+                    client=client,
+                )
+                self.assertEqual(res["status"], "published")
+                self.assertEqual(res["doi"], "10.5072/zenodo.9999999")
+                self.assertIn("pytorch-kl-bregman-stability.pdf", res["uploaded_files"])
+                self.assertEqual(len(calls), 6)  # create + 3 uploads (.pdf/.md/.json) + metadata + publish
+            finally:
+                zp.GEN_INDEX_JSON = orig_gen
 
 
 if __name__ == "__main__":
