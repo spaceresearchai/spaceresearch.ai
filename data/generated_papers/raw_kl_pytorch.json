@@ -1,0 +1,196 @@
+{
+  "experiment_id": "kl_pytorch",
+  "slug": "pytorch-kl-bregman-stability",
+  "title": "Eliminating Negative & Corrupted KL Divergence in Low-Precision PyTorch via Bregman-Taylor Formulation",
+  "short_title": "Fixing Negative & Corrupted KL Divergence in PyTorch",
+  "category_label": "AUTONOMOUS GPU LAB \u00b7 NUMERICAL STABILITY",
+  "short_cat": "Auto GPU \u00b7 Numerics",
+  "track": "systems",
+  "cluster": 2,
+  "dot": "emerald",
+  "source_discovery_type": "Method 1 Prior-vs-Evidence Bayesian Surprise (#3 on 4B)",
+  "source_papers": [
+    {
+      "id": "arxiv-2611.30835",
+      "title": "The KL Divergence Is Never Negative, Except in PyTorch",
+      "url": "https://arxiv.org/abs/2611.30835"
+    }
+  ],
+  "hypothesis": "CoreRank Method 1 flagged arxiv:2611.30835 (4B surprise +7.65), showing PyTorch F.kl_div yields negative values and large relative errors for nearby distributions. We reproduce this on RTX 5090 across FP16/BF16/FP32 and test whether a strictly nonnegative Bregman-Taylor form p*(expm1(d)-d) eliminates negative KL and catastrophic cancellation.",
+  "setup": {
+    "n_samples": 8192,
+    "vocab": 256,
+    "gpu_name": "NVIDIA GeForce RTX 5090",
+    "total_elapsed_sec": 0.38
+  },
+  "results": {
+    "fp16": {
+      "eps_0.0001": {
+        "mean_ref_kl": 4.841e-09,
+        "torch_neg_pct": 49.84,
+        "torch_rel_err_gt1pct": 100.0,
+        "torch_med_rel_err": 6300.6105,
+        "bregman_neg_pct": 0.0,
+        "bregman_rel_err_gt1pct": 100.0,
+        "bregman_med_rel_err": 15.5273
+      },
+      "eps_0.0003": {
+        "mean_ref_kl": 4.357e-08,
+        "torch_neg_pct": 49.72,
+        "torch_rel_err_gt1pct": 100.0,
+        "torch_med_rel_err": 1538.8291,
+        "bregman_neg_pct": 0.0,
+        "bregman_rel_err_gt1pct": 99.96,
+        "bregman_med_rel_err": 5.6809
+      },
+      "eps_0.001": {
+        "mean_ref_kl": 4.841e-07,
+        "torch_neg_pct": 49.9,
+        "torch_rel_err_gt1pct": 100.0,
+        "torch_med_rel_err": 206.2479,
+        "bregman_neg_pct": 0.0,
+        "bregman_rel_err_gt1pct": 99.91,
+        "bregman_med_rel_err": 1.1037
+      },
+      "eps_0.003": {
+        "mean_ref_kl": 4.357e-06,
+        "torch_neg_pct": 48.54,
+        "torch_rel_err_gt1pct": 99.99,
+        "torch_med_rel_err": 23.3845,
+        "bregman_neg_pct": 0.0,
+        "bregman_rel_err_gt1pct": 93.49,
+        "bregman_med_rel_err": 0.0859
+      },
+      "eps_0.01": {
+        "mean_ref_kl": 4.841e-05,
+        "torch_neg_pct": 36.56,
+        "torch_rel_err_gt1pct": 99.68,
+        "torch_med_rel_err": 2.0793,
+        "bregman_neg_pct": 0.0,
+        "bregman_rel_err_gt1pct": 74.73,
+        "bregman_med_rel_err": 0.0212
+      },
+      "eps_0.1": {
+        "mean_ref_kl": 0.00484,
+        "torch_neg_pct": 0.0,
+        "torch_rel_err_gt1pct": 74.49,
+        "torch_med_rel_err": 0.0213,
+        "bregman_neg_pct": 0.0,
+        "bregman_rel_err_gt1pct": 0.18,
+        "bregman_med_rel_err": 0.002
+      }
+    },
+    "bf16": {
+      "eps_0.0001": {
+        "mean_ref_kl": 4.841e-09,
+        "torch_neg_pct": 23.13,
+        "torch_rel_err_gt1pct": 100.0,
+        "torch_med_rel_err": 1.0,
+        "bregman_neg_pct": 0.0,
+        "bregman_rel_err_gt1pct": 100.0,
+        "bregman_med_rel_err": 1.0
+      },
+      "eps_0.0003": {
+        "mean_ref_kl": 4.357e-08,
+        "torch_neg_pct": 42.3,
+        "torch_rel_err_gt1pct": 100.0,
+        "torch_med_rel_err": 1775.6117,
+        "bregman_neg_pct": 0.0,
+        "bregman_rel_err_gt1pct": 100.0,
+        "bregman_med_rel_err": 43.1599
+      },
+      "eps_0.001": {
+        "mean_ref_kl": 4.841e-07,
+        "torch_neg_pct": 49.28,
+        "torch_rel_err_gt1pct": 100.0,
+        "torch_med_rel_err": 588.7997,
+        "bregman_neg_pct": 0.0,
+        "bregman_rel_err_gt1pct": 99.98,
+        "bregman_med_rel_err": 17.9159
+      },
+      "eps_0.003": {
+        "mean_ref_kl": 4.357e-06,
+        "torch_neg_pct": 48.83,
+        "torch_rel_err_gt1pct": 100.0,
+        "torch_med_rel_err": 130.3149,
+        "bregman_neg_pct": 0.0,
+        "bregman_rel_err_gt1pct": 100.0,
+        "bregman_med_rel_err": 5.8286
+      },
+      "eps_0.01": {
+        "mean_ref_kl": 4.841e-05,
+        "torch_neg_pct": 46.79,
+        "torch_rel_err_gt1pct": 99.91,
+        "torch_med_rel_err": 16.4729,
+        "bregman_neg_pct": 0.0,
+        "bregman_rel_err_gt1pct": 99.99,
+        "bregman_med_rel_err": 1.1486
+      },
+      "eps_0.1": {
+        "mean_ref_kl": 0.00484,
+        "torch_neg_pct": 0.07,
+        "torch_rel_err_gt1pct": 96.98,
+        "torch_med_rel_err": 0.1674,
+        "bregman_neg_pct": 0.0,
+        "bregman_rel_err_gt1pct": 70.1,
+        "bregman_med_rel_err": 0.0175
+      }
+    },
+    "fp32": {
+      "eps_0.0001": {
+        "mean_ref_kl": 4.841e-09,
+        "torch_neg_pct": 38.94,
+        "torch_rel_err_gt1pct": 99.78,
+        "torch_med_rel_err": 2.5441,
+        "bregman_neg_pct": 0.0,
+        "bregman_rel_err_gt1pct": 0.0,
+        "bregman_med_rel_err": 0.0002
+      },
+      "eps_0.0003": {
+        "mean_ref_kl": 4.357e-08,
+        "torch_neg_pct": 1.77,
+        "torch_rel_err_gt1pct": 98.07,
+        "torch_med_rel_err": 0.2873,
+        "bregman_neg_pct": 0.0,
+        "bregman_rel_err_gt1pct": 0.0,
+        "bregman_med_rel_err": 0.0001
+      },
+      "eps_0.001": {
+        "mean_ref_kl": 4.841e-07,
+        "torch_neg_pct": 0.0,
+        "torch_rel_err_gt1pct": 78.28,
+        "torch_med_rel_err": 0.0258,
+        "bregman_neg_pct": 0.0,
+        "bregman_rel_err_gt1pct": 0.0,
+        "bregman_med_rel_err": 0.0
+      },
+      "eps_0.003": {
+        "mean_ref_kl": 4.357e-06,
+        "torch_neg_pct": 0.0,
+        "torch_rel_err_gt1pct": 3.28,
+        "torch_med_rel_err": 0.0028,
+        "bregman_neg_pct": 0.0,
+        "bregman_rel_err_gt1pct": 0.0,
+        "bregman_med_rel_err": 0.0
+      },
+      "eps_0.01": {
+        "mean_ref_kl": 4.841e-05,
+        "torch_neg_pct": 0.0,
+        "torch_rel_err_gt1pct": 0.0,
+        "torch_med_rel_err": 0.0003,
+        "bregman_neg_pct": 0.0,
+        "bregman_rel_err_gt1pct": 0.0,
+        "bregman_med_rel_err": 0.0
+      },
+      "eps_0.1": {
+        "mean_ref_kl": 0.00484,
+        "torch_neg_pct": 0.0,
+        "torch_rel_err_gt1pct": 0.0,
+        "torch_med_rel_err": 0.0,
+        "bregman_neg_pct": 0.0,
+        "bregman_rel_err_gt1pct": 0.0,
+        "bregman_med_rel_err": 0.0
+      }
+    }
+  }
+}

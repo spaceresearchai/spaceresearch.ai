@@ -1,0 +1,80 @@
+{
+  "papers": [
+    {
+      "slug": "steerable-not-decodable-ace-cores",
+      "experiment_id": "steering_lens",
+      "title": "Steerable Before Decodable: Testing CoreRank 1D Causal Steering vs. Logit Lens Readability Across Depth",
+      "authors": [
+        "Marcio Diaz",
+        "Space AI"
+      ],
+      "published_at": "2026-11-24T17:16:34+01:00",
+      "paper_html": "./papers/steerable-not-decodable-ace-cores.html",
+      "paper_md": "./data/generated_papers/steerable-not-decodable-ace-cores.md",
+      "metrics_json": "./data/generated_papers/steerable-not-decodable-ace-cores.json",
+      "blog_href": "./blog-auto-steerable-not-decodable-ace-cores.html",
+      "metric_chip": "Peak Steer Drop +0.29 @ |cos(q,W_U)|=0.088",
+      "source_papers": [
+        {
+          "id": "arxiv-2604.02608",
+          "title": "Steerable but Not Decodable: Function Vectors Operate Beyond the Logit Lens",
+          "url": "https://arxiv.org/abs/2604.02608"
+        }
+      ]
+    },
+    {
+      "slug": "pytorch-kl-bregman-stability",
+      "experiment_id": "kl_pytorch",
+      "title": "Eliminating Negative & Corrupted KL Divergence in Low-Precision PyTorch via Bregman-Taylor Formulation",
+      "authors": [
+        "Marcio Diaz",
+        "Space AI"
+      ],
+      "published_at": "2026-11-24T16:47:28+01:00",
+      "paper_html": "./papers/pytorch-kl-bregman-stability.html",
+      "paper_md": "./data/generated_papers/pytorch-kl-bregman-stability.md",
+      "metrics_json": "./data/generated_papers/pytorch-kl-bregman-stability.json",
+      "blog_href": "./blog-auto-pytorch-kl-bregman-stability.html",
+      "metric_chip": "0.0% neg KL \u00b7 FP32 err 100% -> 0%",
+      "source_papers": [
+        {
+          "id": "arxiv-2611.30835",
+          "title": "The KL Divergence Is Never Negative, Except in PyTorch",
+          "url": "https://arxiv.org/abs/2611.30835"
+        }
+      ]
+    },
+    {
+      "slug": "probmoe-batchtopk-sae",
+      "experiment_id": "probmoe_sae",
+      "title": "Probabilistic Marginal Gradients for Sparse Autoencoders: Bridging ProbMoE Routing and BatchTopK SAEs",
+      "authors": [
+        "Marcio Diaz",
+        "Space AI"
+      ],
+      "published_at": "2026-11-24T16:46:42+01:00",
+      "paper_html": "./papers/probmoe-batchtopk-sae.html",
+      "paper_md": "./data/generated_papers/probmoe-batchtopk-sae.md",
+      "metrics_json": "./data/generated_papers/probmoe-batchtopk-sae.json",
+      "blog_href": "./blog-auto-probmoe-batchtopk-sae.html",
+      "metric_chip": "k16 FVU 0.455 vs 0.418 \u00b7 Dead 20.0% vs 31.1% \u00b7 Seed cos 0.398",
+      "source_papers": [
+        {
+          "id": "arxiv-2606.01509",
+          "title": "ProbMoE: Differentiable Probabilistic Routing for Mixture-of-Experts",
+          "url": "https://arxiv.org/abs/2606.01509"
+        },
+        {
+          "id": "arxiv-2412.06410",
+          "title": "BatchTopK Sparse Autoencoders",
+          "url": "https://arxiv.org/abs/2412.06410"
+        },
+        {
+          "id": "arxiv-2501.16615",
+          "title": "Sparse Autoencoders Trained on the Same Data Learn Different Features",
+          "url": "https://arxiv.org/abs/2501.16615"
+        }
+      ]
+    }
+  ]
+}

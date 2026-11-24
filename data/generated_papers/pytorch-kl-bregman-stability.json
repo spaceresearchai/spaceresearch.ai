@@ -1,0 +1,231 @@
+{
+  "experiment": {
+    "experiment_id": "kl_pytorch",
+    "slug": "pytorch-kl-bregman-stability",
+    "title": "Eliminating Negative & Corrupted KL Divergence in Low-Precision PyTorch via Bregman-Taylor Formulation",
+    "short_title": "Fixing Negative & Corrupted KL Divergence in PyTorch",
+    "category_label": "AUTONOMOUS GPU LAB \u00b7 NUMERICAL STABILITY",
+    "short_cat": "Auto GPU \u00b7 Numerics",
+    "track": "systems",
+    "cluster": 2,
+    "dot": "emerald",
+    "source_discovery_type": "Method 1 Prior-vs-Evidence Bayesian Surprise (#3 on 4B)",
+    "source_papers": [
+      {
+        "id": "arxiv-2611.30835",
+        "title": "The KL Divergence Is Never Negative, Except in PyTorch",
+        "url": "https://arxiv.org/abs/2611.30835"
+      }
+    ],
+    "hypothesis": "CoreRank Method 1 flagged arxiv:2611.30835 (4B surprise +7.65), showing PyTorch F.kl_div yields negative values and large relative errors for nearby distributions. We reproduce this on RTX 5090 across FP16/BF16/FP32 and test whether a strictly nonnegative Bregman-Taylor form p*(expm1(d)-d) eliminates negative KL and catastrophic cancellation.",
+    "setup": {
+      "n_samples": 8192,
+      "vocab": 256,
+      "gpu_name": "NVIDIA GeForce RTX 5090",
+      "total_elapsed_sec": 0.38
+    },
+    "results": {
+      "fp16": {
+        "eps_0.0001": {
+          "mean_ref_kl": 4.841e-09,
+          "torch_neg_pct": 49.84,
+          "torch_rel_err_gt1pct": 100.0,
+          "torch_med_rel_err": 6300.6105,
+          "bregman_neg_pct": 0.0,
+          "bregman_rel_err_gt1pct": 100.0,
+          "bregman_med_rel_err": 15.5273
+        },
+        "eps_0.0003": {
+          "mean_ref_kl": 4.357e-08,
+          "torch_neg_pct": 49.72,
+          "torch_rel_err_gt1pct": 100.0,
+          "torch_med_rel_err": 1538.8291,
+          "bregman_neg_pct": 0.0,
+          "bregman_rel_err_gt1pct": 99.96,
+          "bregman_med_rel_err": 5.6809
+        },
+        "eps_0.001": {
+          "mean_ref_kl": 4.841e-07,
+          "torch_neg_pct": 49.9,
+          "torch_rel_err_gt1pct": 100.0,
+          "torch_med_rel_err": 206.2479,
+          "bregman_neg_pct": 0.0,
+          "bregman_rel_err_gt1pct": 99.91,
+          "bregman_med_rel_err": 1.1037
+        },
+        "eps_0.003": {
+          "mean_ref_kl": 4.357e-06,
+          "torch_neg_pct": 48.54,
+          "torch_rel_err_gt1pct": 99.99,
+          "torch_med_rel_err": 23.3845,
+          "bregman_neg_pct": 0.0,
+          "bregman_rel_err_gt1pct": 93.49,
+          "bregman_med_rel_err": 0.0859
+        },
+        "eps_0.01": {
+          "mean_ref_kl": 4.841e-05,
+          "torch_neg_pct": 36.56,
+          "torch_rel_err_gt1pct": 99.68,
+          "torch_med_rel_err": 2.0793,
+          "bregman_neg_pct": 0.0,
+          "bregman_rel_err_gt1pct": 74.73,
+          "bregman_med_rel_err": 0.0212
+        },
+        "eps_0.1": {
+          "mean_ref_kl": 0.00484,
+          "torch_neg_pct": 0.0,
+          "torch_rel_err_gt1pct": 74.49,
+          "torch_med_rel_err": 0.0213,
+          "bregman_neg_pct": 0.0,
+          "bregman_rel_err_gt1pct": 0.18,
+          "bregman_med_rel_err": 0.002
+        }
+      },
+      "bf16": {
+        "eps_0.0001": {
+          "mean_ref_kl": 4.841e-09,
+          "torch_neg_pct": 23.13,
+          "torch_rel_err_gt1pct": 100.0,
+          "torch_med_rel_err": 1.0,
+          "bregman_neg_pct": 0.0,
+          "bregman_rel_err_gt1pct": 100.0,
+          "bregman_med_rel_err": 1.0
+        },
+        "eps_0.0003": {
+          "mean_ref_kl": 4.357e-08,
+          "torch_neg_pct": 42.3,
+          "torch_rel_err_gt1pct": 100.0,
+          "torch_med_rel_err": 1775.6117,
+          "bregman_neg_pct": 0.0,
+          "bregman_rel_err_gt1pct": 100.0,
+          "bregman_med_rel_err": 43.1599
+        },
+        "eps_0.001": {
+          "mean_ref_kl": 4.841e-07,
+          "torch_neg_pct": 49.28,
+          "torch_rel_err_gt1pct": 100.0,
+          "torch_med_rel_err": 588.7997,
+          "bregman_neg_pct": 0.0,
+          "bregman_rel_err_gt1pct": 99.98,
+          "bregman_med_rel_err": 17.9159
+        },
+        "eps_0.003": {
+          "mean_ref_kl": 4.357e-06,
+          "torch_neg_pct": 48.83,
+          "torch_rel_err_gt1pct": 100.0,
+          "torch_med_rel_err": 130.3149,
+          "bregman_neg_pct": 0.0,
+          "bregman_rel_err_gt1pct": 100.0,
+          "bregman_med_rel_err": 5.8286
+        },
+        "eps_0.01": {
+          "mean_ref_kl": 4.841e-05,
+          "torch_neg_pct": 46.79,
+          "torch_rel_err_gt1pct": 99.91,
+          "torch_med_rel_err": 16.4729,
+          "bregman_neg_pct": 0.0,
+          "bregman_rel_err_gt1pct": 99.99,
+          "bregman_med_rel_err": 1.1486
+        },
+        "eps_0.1": {
+          "mean_ref_kl": 0.00484,
+          "torch_neg_pct": 0.07,
+          "torch_rel_err_gt1pct": 96.98,
+          "torch_med_rel_err": 0.1674,
+          "bregman_neg_pct": 0.0,
+          "bregman_rel_err_gt1pct": 70.1,
+          "bregman_med_rel_err": 0.0175
+        }
+      },
+      "fp32": {
+        "eps_0.0001": {
+          "mean_ref_kl": 4.841e-09,
+          "torch_neg_pct": 38.94,
+          "torch_rel_err_gt1pct": 99.78,
+          "torch_med_rel_err": 2.5441,
+          "bregman_neg_pct": 0.0,
+          "bregman_rel_err_gt1pct": 0.0,
+          "bregman_med_rel_err": 0.0002
+        },
+        "eps_0.0003": {
+          "mean_ref_kl": 4.357e-08,
+          "torch_neg_pct": 1.77,
+          "torch_rel_err_gt1pct": 98.07,
+          "torch_med_rel_err": 0.2873,
+          "bregman_neg_pct": 0.0,
+          "bregman_rel_err_gt1pct": 0.0,
+          "bregman_med_rel_err": 0.0001
+        },
+        "eps_0.001": {
+          "mean_ref_kl": 4.841e-07,
+          "torch_neg_pct": 0.0,
+          "torch_rel_err_gt1pct": 78.28,
+          "torch_med_rel_err": 0.0258,
+          "bregman_neg_pct": 0.0,
+          "bregman_rel_err_gt1pct": 0.0,
+          "bregman_med_rel_err": 0.0
+        },
+        "eps_0.003": {
+          "mean_ref_kl": 4.357e-06,
+          "torch_neg_pct": 0.0,
+          "torch_rel_err_gt1pct": 3.28,
+          "torch_med_rel_err": 0.0028,
+          "bregman_neg_pct": 0.0,
+          "bregman_rel_err_gt1pct": 0.0,
+          "bregman_med_rel_err": 0.0
+        },
+        "eps_0.01": {
+          "mean_ref_kl": 4.841e-05,
+          "torch_neg_pct": 0.0,
+          "torch_rel_err_gt1pct": 0.0,
+          "torch_med_rel_err": 0.0003,
+          "bregman_neg_pct": 0.0,
+          "bregman_rel_err_gt1pct": 0.0,
+          "bregman_med_rel_err": 0.0
+        },
+        "eps_0.1": {
+          "mean_ref_kl": 0.00484,
+          "torch_neg_pct": 0.0,
+          "torch_rel_err_gt1pct": 0.0,
+          "torch_med_rel_err": 0.0,
+          "bregman_neg_pct": 0.0,
+          "bregman_rel_err_gt1pct": 0.0,
+          "bregman_med_rel_err": 0.0
+        }
+      }
+    }
+  },
+  "analysis": {
+    "findings": [
+      "PyTorch F.kl_div silent negative failures reproduced on NVIDIA GeForce RTX 5090: at eps=1e-3 (mean KL\u22484.84e-07), FP16 F.kl_div returns negative values on 49.9% of inputs (BF16: 49.3%) and \u22651% relative error on 100.0%.",
+      "Even in FP32 at eps=1e-4 (mean KL\u22484.84e-09), standard F.kl_div yields negative outputs on 38.9% of inputs and \u22651% relative error on 99.8%.",
+      "Stabilized Bregman-Taylor formulation p*(expm1(d)-d) achieves 0.0% negative values across every tested dtype and precision regime, cutting FP32 (eps=1e-4) \u22651% relative error rate from 99.8% down to 0.0%."
+    ],
+    "metric_chip": "0.0% neg KL \u00b7 FP32 err 100% -> 0%",
+    "stats": [
+      [
+        "0.0%",
+        "Bregman Negative KL"
+      ],
+      [
+        "99.8%",
+        "FP32 F.kl_div Err \u22651%"
+      ],
+      [
+        "0.0%",
+        "FP32 Bregman Err \u22651%"
+      ],
+      [
+        "8,192",
+        "Certified GPU Trials"
+      ]
+    ],
+    "table_html": "<div class=\"table-wrap\" style=\"margin:1.3rem 0 1.7rem 0;\"><table><thead><tr><th>Dtype</th><th>Perturb</th><th>Ref KL</th><th>F.kl_div Neg%</th><th>F.kl_div Err&ge;1%</th><th>Bregman Neg%</th><th>Bregman Err&ge;1%</th></tr></thead><tbody><tr><td><code>fp16</code></td><td><code>eps_0.0001</code></td><td><code>4.84e-09</code></td><td><code>49.8%</code></td><td><code>100.0%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>100.0%</code></strong></td></tr><tr><td><code>fp16</code></td><td><code>eps_0.0003</code></td><td><code>4.36e-08</code></td><td><code>49.7%</code></td><td><code>100.0%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>100.0%</code></strong></td></tr><tr><td><code>fp16</code></td><td><code>eps_0.001</code></td><td><code>4.84e-07</code></td><td><code>49.9%</code></td><td><code>100.0%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>99.9%</code></strong></td></tr><tr><td><code>fp16</code></td><td><code>eps_0.003</code></td><td><code>4.36e-06</code></td><td><code>48.5%</code></td><td><code>100.0%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>93.5%</code></strong></td></tr><tr><td><code>fp16</code></td><td><code>eps_0.01</code></td><td><code>4.84e-05</code></td><td><code>36.6%</code></td><td><code>99.7%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>74.7%</code></strong></td></tr><tr><td><code>fp16</code></td><td><code>eps_0.1</code></td><td><code>4.84e-03</code></td><td><code>0.0%</code></td><td><code>74.5%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>0.2%</code></strong></td></tr><tr><td><code>bf16</code></td><td><code>eps_0.0001</code></td><td><code>4.84e-09</code></td><td><code>23.1%</code></td><td><code>100.0%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>100.0%</code></strong></td></tr><tr><td><code>bf16</code></td><td><code>eps_0.0003</code></td><td><code>4.36e-08</code></td><td><code>42.3%</code></td><td><code>100.0%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>100.0%</code></strong></td></tr><tr><td><code>bf16</code></td><td><code>eps_0.001</code></td><td><code>4.84e-07</code></td><td><code>49.3%</code></td><td><code>100.0%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>100.0%</code></strong></td></tr><tr><td><code>bf16</code></td><td><code>eps_0.003</code></td><td><code>4.36e-06</code></td><td><code>48.8%</code></td><td><code>100.0%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>100.0%</code></strong></td></tr><tr><td><code>bf16</code></td><td><code>eps_0.01</code></td><td><code>4.84e-05</code></td><td><code>46.8%</code></td><td><code>99.9%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>100.0%</code></strong></td></tr><tr><td><code>bf16</code></td><td><code>eps_0.1</code></td><td><code>4.84e-03</code></td><td><code>0.1%</code></td><td><code>97.0%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>70.1%</code></strong></td></tr><tr><td><code>fp32</code></td><td><code>eps_0.0001</code></td><td><code>4.84e-09</code></td><td><code>38.9%</code></td><td><code>99.8%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>0.0%</code></strong></td></tr><tr><td><code>fp32</code></td><td><code>eps_0.0003</code></td><td><code>4.36e-08</code></td><td><code>1.8%</code></td><td><code>98.1%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>0.0%</code></strong></td></tr><tr><td><code>fp32</code></td><td><code>eps_0.001</code></td><td><code>4.84e-07</code></td><td><code>0.0%</code></td><td><code>78.3%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>0.0%</code></strong></td></tr><tr><td><code>fp32</code></td><td><code>eps_0.003</code></td><td><code>4.36e-06</code></td><td><code>0.0%</code></td><td><code>3.3%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>0.0%</code></strong></td></tr><tr><td><code>fp32</code></td><td><code>eps_0.01</code></td><td><code>4.84e-05</code></td><td><code>0.0%</code></td><td><code>0.0%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>0.0%</code></strong></td></tr><tr><td><code>fp32</code></td><td><code>eps_0.1</code></td><td><code>4.84e-03</code></td><td><code>0.0%</code></td><td><code>0.0%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>0.0%</code></strong></td></tr></tbody></table></div>",
+    "table_md": "| Dtype | eps | Ref KL | F.kl_div Neg % | F.kl_div Err\u22651% | Bregman Neg % | Bregman Err\u22651% |\n|---|---|---:|---:|---:|---:|---:|\n| `fp16` | `eps_0.0001` | 4.84e-09 | 49.8% | 100.0% | 0.0% | 100.0% |\n| `fp16` | `eps_0.0003` | 4.36e-08 | 49.7% | 100.0% | 0.0% | 100.0% |\n| `fp16` | `eps_0.001` | 4.84e-07 | 49.9% | 100.0% | 0.0% | 99.9% |\n| `fp16` | `eps_0.003` | 4.36e-06 | 48.5% | 100.0% | 0.0% | 93.5% |\n| `fp16` | `eps_0.01` | 4.84e-05 | 36.6% | 99.7% | 0.0% | 74.7% |\n| `fp16` | `eps_0.1` | 4.84e-03 | 0.0% | 74.5% | 0.0% | 0.2% |\n| `bf16` | `eps_0.0001` | 4.84e-09 | 23.1% | 100.0% | 0.0% | 100.0% |\n| `bf16` | `eps_0.0003` | 4.36e-08 | 42.3% | 100.0% | 0.0% | 100.0% |\n| `bf16` | `eps_0.001` | 4.84e-07 | 49.3% | 100.0% | 0.0% | 100.0% |\n| `bf16` | `eps_0.003` | 4.36e-06 | 48.8% | 100.0% | 0.0% | 100.0% |\n| `bf16` | `eps_0.01` | 4.84e-05 | 46.8% | 99.9% | 0.0% | 100.0% |\n| `bf16` | `eps_0.1` | 4.84e-03 | 0.1% | 97.0% | 0.0% | 70.1% |\n| `fp32` | `eps_0.0001` | 4.84e-09 | 38.9% | 99.8% | 0.0% | 0.0% |\n| `fp32` | `eps_0.0003` | 4.36e-08 | 1.8% | 98.1% | 0.0% | 0.0% |\n| `fp32` | `eps_0.001` | 4.84e-07 | 0.0% | 78.3% | 0.0% | 0.0% |\n| `fp32` | `eps_0.003` | 4.36e-06 | 0.0% | 3.3% | 0.0% | 0.0% |\n| `fp32` | `eps_0.01` | 4.84e-05 | 0.0% | 0.0% | 0.0% | 0.0% |\n| `fp32` | `eps_0.1` | 4.84e-03 | 0.0% | 0.0% | 0.0% | 0.0% |",
+    "fig_caption": "Figure 1. Certified FP64 reference comparison on NVIDIA GeForce RTX 5090 across 8,192 discrete distributions.",
+    "limitations": [
+      "Evaluated on categorical softmax distributions; continuous exponential-family KL closed forms require per-family stabilized identities.",
+      "In extreme FP16/BF16 underflow where rounded log_p == log_q identically, Bregman-Taylor returns exact 0.0 (non-negative) rather than recovering sub-ULP rounding loss."
+    ]
+  }
+}

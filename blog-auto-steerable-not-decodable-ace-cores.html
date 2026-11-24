@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <title>Steerable Before Decodable: Testing CoreRank 1D Causal Steering vs. Logit Lens Readability Across Depth — Space AI</title>
+  <meta name="description" content="Planets: Peak cross-lexicon 1D causal steering occurs at L26/28 (Flip-1D AUC drop = +0.292, clean cross-AUC 0.972), where direct Logit Lens AUC is only 0.986 and unembedding alignment |cos(q_l, ΔW_U)| = 0.3472. ACE linea" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Space AI" />
+  <meta property="og:title" content="Steerable Before Decodable: Testing CoreRank 1D Causal Steering vs. Logit Lens Readability Across Depth — Space AI" />
+  <meta property="og:description" content="Planets: Peak cross-lexicon 1D causal steering occurs at L26/28 (Flip-1D AUC drop = +0.292, clean cross-AUC 0.972), where direct Logit Lens AUC is only 0.986 and unembedding alignment |cos(q_l, ΔW_U)| = 0.3472. ACE linea" />
+  <meta property="og:image" content="https://spaceresearch.ai/og-card.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://spaceresearch.ai/og-card.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="./mark.svg?v=35" />
+  <link rel="stylesheet" href="./culture.css?v=29" />
+</head>
+<body>
+  <canvas id="cosmos-bg-canvas" class="cosmos-bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="page-shell">
+  <header class="ed-nav">
+    <div class="ed-nav-inner">
+      <a class="ed-brand" href="./index.html">
+        <span class="ed-emblem" aria-hidden="true">
+          <img src="./mark.svg?v=35" alt="" width="28" height="28" />
+        </span>
+        <span>Space AI</span>
+      </a>
+      <nav class="ed-links" aria-label="Primary">
+        <a href="./blog.html" class="active">Research</a>
+        <a href="./papers.html" class="">Papers</a>
+        <a href="./product.html" class="">Product</a>
+        <a href="./network.html" class="">Network</a>
+        <a href="./chat.html">Chat</a>
+        <a href="https://github.com/spaceresearchai/spaceresearch.ai/releases/latest" target="_blank" rel="noopener">Desktop App</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="icon-pill" href="https://github.com/spaceresearchai" target="_blank" rel="noopener" aria-label="Space AI on GitHub" title="GitHub (spaceresearchai)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.69-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11.05 11.05 0 0 1 5.8 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14 0 1.55-.01 2.8-.01 3.18 0 .31.21.67.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+        </a>
+        <button type="button" class="icon-pill" data-theme-toggle aria-label="Toggle color theme" title="Switch to Daylight Mode">&#9728;</button>
+        <a class="btn sm" href="./chat.html">Open Chat</a>
+      </div>
+    </div>
+  </header>
+
+    <main>
+      <article class="section" style="padding-top:3.8rem;">
+        <div class="wrap-blog">
+          <a class="blog-back" href="./blog.html">&larr; All research notes</a>
+          <div class="blog-meta" style="margin-top:1.4rem;">
+            <span class="blog-cat">NOTE 14 &middot; AUTONOMOUS GPU LAB · MECHANISTIC INTERPRETABILITY</span>
+            <span>Marcio Diaz &middot; Space AI &middot; 2026-11-24 17:16</span>
+          </div>
+          <h1 class="blog-article-title">Steerable Before Decodable: Testing CoreRank 1D Causal Steering vs. Logit Lens Readability Across Depth</h1>
+          <p class="blog-article-lead">
+            Triggered automatically by CoreRank Discovery (Method 1 Prior-vs-Evidence Bayesian Surprise (#1 on 4B, +9.30)) and executed end-to-end on our NVIDIA GeForce RTX 5090 workstation GPU in 7.9 seconds.
+          </p>
+
+          <div class="blog-abstract">
+            <div class="blog-abstract-lbl">AUTONOMOUS GPU INVESTIGATION SUMMARY</div>
+            <p>CoreRank Method 1 surfaced arxiv:2604.02608 (4B surprise +9.30, #1 overall), showing that linear steering vectors routinely control model outputs where the unembedding Logit Lens fails to decode the answer. We test whether Paired-Swap ACE 1D cores in Qwen/Qwen3-1.7B exhibit this exact &#x27;steerable-before-decodable&#x27; separation on strictly held-out entities across unseen comparative lexicons, and measure their cosine alignment with W_U.</p>
+          </div>
+
+          <div class="blog-prose">
+            <div class="blog-stats"><div class="blog-stat"><div class="blog-stat-v">L26 / L24</div><div class="blog-stat-l">Peak 1D Steer Layers</div></div><div class="blog-stat"><div class="blog-stat-v">0.99 / 0.46</div><div class="blog-stat-l">Logit Lens AUC @ Peak</div></div><div class="blog-stat"><div class="blog-stat-v">0.347 / 0.088</div><div class="blog-stat-l">|cos(q_l, ΔW_U)|</div></div><div class="blog-stat"><div class="blog-stat-v">7.9s</div><div class="blog-stat-l">RTX 5090 Sweep Time</div></div></div>
+
+            <h2>1. What the GPU experiment actually found</h2>
+            <ul><li>Planets: Peak cross-lexicon 1D causal steering occurs at L26/28 (Flip-1D AUC drop = +0.292, clean cross-AUC 0.972), where direct Logit Lens AUC is only 0.986 and unembedding alignment |cos(q_l, ΔW_U)| = 0.3472. ACE linear readout crosses 0.85 AUC at L18 vs. Logit Lens at L18.</li><li>Hazard Severity: Peak cross-lexicon 1D causal steering occurs at L24/28 (Flip-1D AUC drop = +0.048, clean cross-AUC 0.520), where direct Logit Lens AUC is only 0.455 and unembedding alignment |cos(q_l, ΔW_U)| = 0.0883. ACE linear readout crosses 0.85 AUC at L16 vs. Logit Lens at LNone.</li></ul>
+
+            <div class="blog-figure"><svg viewBox="0 0 640 248" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ACE Readout and Causal Steerability vs Logit Lens across Qwen3-1.7B layers">
+  <rect x="10" y="12" width="306" height="224" rx="10" fill="#0b0b0d" stroke="rgba(255,255,255,0.14)"/>
+  <text x="24" y="34" fill="#38bdf8" font-family="JetBrains Mono, monospace" font-size="9.2" font-weight="600">PLANETS · DEPTH L4&rarr;L28</text>
+  <line x1="28" y1="126" x2="296" y2="126" stroke="rgba(255,255,255,0.16)" stroke-dasharray="3 3"/>
+  <polyline points="28.0,87.0 52.4,82.7 76.7,95.7 101.1,87.0 125.5,108.7 149.8,87.0 174.2,48.0 198.5,48.0 222.9,48.0 247.3,48.0 271.6,48.0 296.0,48.0" stroke="#34d399" stroke-width="2.2" fill="none"/>
+  <polyline points="28.0,117.3 52.4,126.0 76.7,147.7 101.1,154.2 125.5,132.5 149.8,102.2 174.2,48.0 198.5,48.0 222.9,54.5 247.3,52.3 271.6,50.2 296.0,52.3" stroke="#f59e0b" stroke-width="2.0" stroke-dasharray="4 3" fill="none"/>
+  <polyline points="28.0,52.3 52.4,50.2 76.7,51.2 101.1,50.2 125.5,51.2 149.8,53.4 174.2,94.6 198.5,85.9 222.9,87.0 247.3,84.8 271.6,97.8 296.0,91.3" stroke="#a78bfa" stroke-width="2.2" fill="none"/>
+  <text x="24" y="224" fill="#6b7185" font-family="JetBrains Mono, monospace" font-size="8">Green=ACE Readout · Amber=Logit Lens · Violet=Flip-1D (&darr;=steer)</text>
+
+  <rect x="328" y="12" width="302" height="224" rx="10" fill="#0b0b0d" stroke="rgba(255,255,255,0.14)"/>
+  <text x="342" y="34" fill="#a78bfa" font-family="JetBrains Mono, monospace" font-size="9.2" font-weight="600">HAZARD_SEVERITY · DEPTH L4&rarr;L28</text>
+  <line x1="346" y1="126" x2="612" y2="126" stroke="rgba(255,255,255,0.16)" stroke-dasharray="3 3"/>
+  <polyline points="346.0,116.6 370.2,119.8 394.4,121.3 418.5,143.2 442.7,130.7 466.9,52.7 491.1,76.1 515.3,112.0 539.5,124.4 563.6,129.1 587.8,135.4 612.0,108.8" stroke="#34d399" stroke-width="2.2" fill="none"/>
+  <polyline points="346.0,93.2 370.2,154.9 394.4,134.6 418.5,127.6 442.7,166.6 466.9,154.9 491.1,132.2 515.3,154.1 539.5,143.2 563.6,133.0 587.8,123.7 612.0,123.7" stroke="#f59e0b" stroke-width="2.0" stroke-dasharray="4 3" fill="none"/>
+  <polyline points="346.0,119.8 370.2,118.2 394.4,121.7 418.5,126.0 442.7,126.8 466.9,108.8 491.1,113.1 515.3,118.2 539.5,129.9 563.6,130.3 587.8,128.3 612.0,121.7" stroke="#a78bfa" stroke-width="2.2" fill="none"/>
+  <text x="342" y="224" fill="#6b7185" font-family="JetBrains Mono, monospace" font-size="8">Peak steer L24 | LL=0.46 | |cos(q,W_U)|=0.088</text>
+</svg><div class="blog-figcap">Figure 1. Held-out ACE 1D Readout (green), Cross-Lexicon Flip-1D AUC (violet; lower = stronger 1D causal reversal), and Direct Logit Lens AUC (dashed amber) across Qwen/Qwen3-1.7B layers.</div></div>
+
+            <h2>2. Complete empirical table</h2>
+            <div class="table-wrap" style="margin:1.3rem 0 1.7rem 0;"><table><thead><tr><th>Domain</th><th>Layer</th><th>Depth</th><th>ACE Readout</th><th>Logit Lens</th><th>Flip-1D AUC</th><th>Steer Drop</th><th>|cos(q,W_U)|</th></tr></thead><tbody><tr><td><code>planets</code></td><td>L4</td><td><code>0.14</code></td><td><code>0.750</code></td><td><code>0.556</code></td><td><code>0.972</code></td><td><strong><code>+0.000</code></strong></td><td><code>0.0195</code></td></tr><tr><td><code>planets</code></td><td>L8</td><td><code>0.29</code></td><td><code>0.778</code></td><td><code>0.500</code></td><td><code>0.986</code></td><td><strong><code>-0.014</code></strong></td><td><code>0.0260</code></td></tr><tr><td><code>planets</code></td><td>L10</td><td><code>0.36</code></td><td><code>0.694</code></td><td><code>0.361</code></td><td><code>0.979</code></td><td><strong><code>-0.007</code></strong></td><td><code>0.0186</code></td></tr><tr><td><code>planets</code></td><td>L12</td><td><code>0.43</code></td><td><code>0.750</code></td><td><code>0.319</code></td><td><code>0.986</code></td><td><strong><code>-0.014</code></strong></td><td><code>0.0060</code></td></tr><tr><td><code>planets</code></td><td>L14</td><td><code>0.50</code></td><td><code>0.611</code></td><td><code>0.458</code></td><td><code>0.979</code></td><td><strong><code>-0.007</code></strong></td><td><code>0.0003</code></td></tr><tr><td><code>planets</code></td><td>L16</td><td><code>0.57</code></td><td><code>0.750</code></td><td><code>0.653</code></td><td><code>0.965</code></td><td><strong><code>+0.007</code></strong></td><td><code>0.0659</code></td></tr><tr><td><code>planets</code></td><td>L18</td><td><code>0.64</code></td><td><code>1.000</code></td><td><code>1.000</code></td><td><code>0.701</code></td><td><strong><code>+0.271</code></strong></td><td><code>0.2683</code></td></tr><tr><td><code>planets</code></td><td>L20</td><td><code>0.71</code></td><td><code>1.000</code></td><td><code>1.000</code></td><td><code>0.757</code></td><td><strong><code>+0.215</code></strong></td><td><code>0.3165</code></td></tr><tr><td><code>planets</code></td><td>L22</td><td><code>0.79</code></td><td><code>1.000</code></td><td><code>0.958</code></td><td><code>0.750</code></td><td><strong><code>+0.222</code></strong></td><td><code>0.3142</code></td></tr><tr><td><code>planets</code></td><td>L24</td><td><code>0.86</code></td><td><code>1.000</code></td><td><code>0.972</code></td><td><code>0.764</code></td><td><strong><code>+0.208</code></strong></td><td><code>0.3222</code></td></tr><tr><td><code>planets</code></td><td><strong>L26</strong></td><td><code>0.93</code></td><td><code>1.000</code></td><td><code>0.986</code></td><td><code>0.681</code></td><td><strong><code>+0.292</code></strong></td><td><code>0.3472</code></td></tr><tr><td><code>planets</code></td><td>L28</td><td><code>1.00</code></td><td><code>1.000</code></td><td><code>0.972</code></td><td><code>0.722</code></td><td><strong><code>+0.250</code></strong></td><td><code>0.2891</code></td></tr><tr><td><code>hazard_severity</code></td><td>L4</td><td><code>0.14</code></td><td><code>0.560</code></td><td><code>0.710</code></td><td><code>0.540</code></td><td><strong><code>-0.020</code></strong></td><td><code>0.0313</code></td></tr><tr><td><code>hazard_severity</code></td><td>L8</td><td><code>0.29</code></td><td><code>0.540</code></td><td><code>0.315</code></td><td><code>0.550</code></td><td><strong><code>-0.030</code></strong></td><td><code>0.0344</code></td></tr><tr><td><code>hazard_severity</code></td><td>L10</td><td><code>0.36</code></td><td><code>0.530</code></td><td><code>0.445</code></td><td><code>0.527</code></td><td><strong><code>-0.007</code></strong></td><td><code>0.0088</code></td></tr><tr><td><code>hazard_severity</code></td><td>L12</td><td><code>0.43</code></td><td><code>0.390</code></td><td><code>0.490</code></td><td><code>0.500</code></td><td><strong><code>+0.020</code></strong></td><td><code>0.0298</code></td></tr><tr><td><code>hazard_severity</code></td><td>L14</td><td><code>0.50</code></td><td><code>0.470</code></td><td><code>0.240</code></td><td><code>0.495</code></td><td><strong><code>+0.025</code></strong></td><td><code>0.0314</code></td></tr><tr><td><code>hazard_severity</code></td><td>L16</td><td><code>0.57</code></td><td><code>0.970</code></td><td><code>0.315</code></td><td><code>0.610</code></td><td><strong><code>-0.090</code></strong></td><td><code>0.0574</code></td></tr><tr><td><code>hazard_severity</code></td><td>L18</td><td><code>0.64</code></td><td><code>0.820</code></td><td><code>0.460</code></td><td><code>0.583</code></td><td><strong><code>-0.062</code></strong></td><td><code>0.0467</code></td></tr><tr><td><code>hazard_severity</code></td><td>L20</td><td><code>0.71</code></td><td><code>0.590</code></td><td><code>0.320</code></td><td><code>0.550</code></td><td><strong><code>-0.030</code></strong></td><td><code>0.0551</code></td></tr><tr><td><code>hazard_severity</code></td><td>L22</td><td><code>0.79</code></td><td><code>0.510</code></td><td><code>0.390</code></td><td><code>0.475</code></td><td><strong><code>+0.045</code></strong></td><td><code>0.0712</code></td></tr><tr><td><code>hazard_severity</code></td><td><strong>L24</strong></td><td><code>0.86</code></td><td><code>0.480</code></td><td><code>0.455</code></td><td><code>0.472</code></td><td><strong><code>+0.048</code></strong></td><td><code>0.0883</code></td></tr><tr><td><code>hazard_severity</code></td><td>L26</td><td><code>0.93</code></td><td><code>0.440</code></td><td><code>0.515</code></td><td><code>0.485</code></td><td><strong><code>+0.035</code></strong></td><td><code>0.0839</code></td></tr><tr><td><code>hazard_severity</code></td><td>L28</td><td><code>1.00</code></td><td><code>0.610</code></td><td><code>0.515</code></td><td><code>0.527</code></td><td><strong><code>-0.007</code></strong></td><td><code>0.0454</code></td></tr></tbody></table></div>
+
+            <h2>3. Source papers connected by CoreRank</h2>
+            <ul><li><a href="https://arxiv.org/abs/2604.02608" target="_blank" rel="noopener">Steerable but Not Decodable: Function Vectors Operate Beyond the Logit Lens</a> (<code>arxiv-2604.02608</code>)</li></ul>
+
+            <h2>4. Honest limitations &amp; next steps</h2>
+            <ul><li>Evaluated on Qwen/Qwen3-1.7B (28 layers) across two structured comparative domains; larger 7B-70B models and open-ended generative tasks should be checked before claiming universal layer offsets.</li><li>Direct Logit Lens applies the final RMSNorm + W_U without a learned affine Tuned Lens adapter; however, the near-zero cosine |cos(q_l, ΔW_U)| confirms the steering subspace itself is nearly orthogonal to the unembedding readout vector.</li></ul>
+
+            <div class="blog-callout">
+              <div class="blog-callout-title">Full Technical Preprint &amp; Raw GPU Metrics</div>
+              <p>Read the generated technical manuscript (with BibTeX, exact run configuration, and raw JSON telemetry) or explore the source papers in CoreRank Discovery.</p>
+              <div style="display:flex; flex-wrap:wrap; gap:0.65rem;">
+                <a class="btn sm" href="./papers/steerable-not-decodable-ace-cores.html">Read Full Technical Paper &rarr;</a>
+                <a class="btn secondary sm" href="./papers.html?tab=discover">Open CoreRank Discovery</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <footer class="landing-foot">
+      <div class="wrap" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:1rem;">
+        <span>&copy; 2026 Space AI &middot; spaceresearch.ai</span>
+        <div style="display:flex; gap:1.4rem; color:var(--ink-soft);">
+          <a href="./blog.html">Research</a>
+          <a href="./papers.html">Papers</a>
+          <a href="./product.html">Product</a>
+          <a href="./network.html">Network</a>
+          <a href="./chat.html">Chat</a>
+          <a href="https://github.com/spaceresearchai" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="./culture-home.js?v=29"></script>
+</body>
+</html>

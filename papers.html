@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://api.spaceresearch.ai" crossorigin />
   <link rel="icon" type="image/svg+xml" href="./mark.svg?v=35" />
   <link rel="stylesheet" href="./culture.css?v=29" />
-  <link rel="stylesheet" href="./papers.css?v=2" />
+  <link rel="stylesheet" href="./papers.css?v=3" />
 </head>
 <body>
   <canvas id="cosmos-bg-canvas" class="cosmos-bg-canvas" aria-hidden="true"></canvas>
@@ -87,6 +87,7 @@
           <div class="net-subnav" role="navigation" aria-label="Paper database views">
             <div class="net-tabs" role="tablist">
               <button type="button" class="net-tab active" data-vdb-tab="search" role="tab" aria-selected="true">Semantic Search &amp; Library</button>
+              <button type="button" class="net-tab" data-vdb-tab="discover" role="tab" aria-selected="false">CoreRank Discovery</button>
               <button type="button" class="net-tab" data-vdb-tab="atlas" role="tab" aria-selected="false">2D Embedding Atlas</button>
               <button type="button" class="net-tab" data-vdb-tab="api" role="tab" aria-selected="false">Vector DB &amp; API</button>
             </div>
@@ -167,7 +168,50 @@
             </div>
           </div>
 
-          <!-- VIEW 2: 2D EMBEDDING ATLAS -->
+          <!-- VIEW 2: CORERANK SURPRISE & CROSS-FIELD DISCOVERY -->
+          <div class="net-view" data-vdb-view="discover">
+            <div class="gp-card disc-hero-card">
+              <div class="gp-head" style="margin-bottom:0.85rem;">
+                <div>
+                  <p class="folio-tag" style="margin-bottom:0.15rem;">Algorithmic Core Extraction &middot; Qwen3-1.7B ACE + Qwen3-Reranker-4B L22</p>
+                  <h2 class="gp-title">CoreRank Surprise &amp; Cross-Field Discovery</h2>
+                </div>
+                <a class="btn secondary sm" href="./blog-core-discovery.html">Read Methodology (Note 10) &rarr;</a>
+              </div>
+              <p class="disc-hero-desc">
+                Standard cosine search retrieves obvious topic neighbors; citation sorting amplifies consensus. CoreRank scans all indexed papers in <strong>O(N) early-exit</strong> across fluff-invariant rigor, pretrained plausibility prior, 8 domain-invariant mechanism cores, and de-biased Stage-2 Keep-1D contradiction axes to surface <strong>counterintuitive findings, cross-subfield bridges, hidden conflicts, and under-cited gems</strong>.
+              </p>
+              <div class="gp-kpis" id="disc-kpis" style="margin-top:0.9rem; margin-bottom:0;"></div>
+            </div>
+
+            <div class="disc-lens-bar" role="tablist" aria-label="CoreRank discovery lenses">
+              <button type="button" class="disc-lens-btn active" data-disc-lens="surprising">
+                <span class="spec-dot cyan"></span>
+                <span>Surprising &amp; Contrarian</span>
+                <span class="disc-lens-cnt" id="disc-cnt-surprising">&mdash;</span>
+              </button>
+              <button type="button" class="disc-lens-btn" data-disc-lens="bridges">
+                <span class="spec-dot violet"></span>
+                <span>Cross-Field Mechanism Bridges</span>
+                <span class="disc-lens-cnt" id="disc-cnt-bridges">&mdash;</span>
+              </button>
+              <button type="button" class="disc-lens-btn" data-disc-lens="contradictions">
+                <span class="spec-dot amber"></span>
+                <span>Dense-Cluster Contradictions</span>
+                <span class="disc-lens-cnt" id="disc-cnt-contradictions">&mdash;</span>
+              </button>
+              <button type="button" class="disc-lens-btn" data-disc-lens="under_the_radar">
+                <span class="spec-dot emerald"></span>
+                <span>Under-the-Radar &amp; Off-Core Gems</span>
+                <span class="disc-lens-cnt" id="disc-cnt-radar">&mdash;</span>
+              </button>
+            </div>
+
+            <div id="disc-lens-explain" class="disc-lens-explain"></div>
+            <div id="disc-grid" class="disc-grid" aria-live="polite"></div>
+          </div>
+
+          <!-- VIEW 3: 2D EMBEDDING ATLAS -->
           <div class="net-view" data-vdb-view="atlas">
             <div class="atlas-layout">
               <div class="atlas-stage">
@@ -296,6 +340,6 @@ for p in res["results"]:
   <div id="vdb-toast" class="vdb-toast" role="status" aria-live="polite"></div>
 
   <script src="./culture-home.js?v=29"></script>
-  <script src="./papers.js?v=2"></script>
+  <script src="./papers.js?v=4"></script>
 </body>
 </html>

@@ -1,0 +1,361 @@
+{
+  "experiment_id": "steering_lens",
+  "slug": "steerable-not-decodable-ace-cores",
+  "title": "Steerable Before Decodable: Testing CoreRank 1D Causal Steering vs. Logit Lens Readability Across Depth",
+  "short_title": "Steerable Before Decodable: ACE Cores vs Logit Lens",
+  "category_label": "AUTONOMOUS GPU LAB \u00b7 MECHANISTIC INTERPRETABILITY",
+  "short_cat": "Auto GPU \u00b7 Steering",
+  "track": "interpretability",
+  "cluster": 1,
+  "dot": "violet",
+  "source_discovery_type": "Method 1 Prior-vs-Evidence Bayesian Surprise (#1 on 4B, +9.30)",
+  "source_papers": [
+    {
+      "id": "arxiv-2604.02608",
+      "title": "Steerable but Not Decodable: Function Vectors Operate Beyond the Logit Lens",
+      "url": "https://arxiv.org/abs/2604.02608"
+    }
+  ],
+  "hypothesis": "CoreRank Method 1 surfaced arxiv:2604.02608 (4B surprise +9.30, #1 overall), showing that linear steering vectors routinely control model outputs where the unembedding Logit Lens fails to decode the answer. We test whether Paired-Swap ACE 1D cores in Qwen/Qwen3-1.7B exhibit this exact 'steerable-before-decodable' separation on strictly held-out entities across unseen comparative lexicons, and measure their cosine alignment with W_U.",
+  "setup": {
+    "model_id": "Qwen/Qwen3-1.7B",
+    "n_layers": 28,
+    "d_model": 2048,
+    "domains": [
+      "planets",
+      "hazard_severity"
+    ],
+    "sweep_layers": [
+      4,
+      8,
+      10,
+      12,
+      14,
+      16,
+      18,
+      20,
+      22,
+      24,
+      26,
+      28
+    ],
+    "gpu_name": "NVIDIA GeForce RTX 5090",
+    "total_elapsed_sec": 7.9
+  },
+  "results": {
+    "planets": {
+      "clean_src_auc": 1.0,
+      "clean_cross_auc": 0.9722,
+      "peak_steer_layer": 26,
+      "peak_cross_steer_drop": 0.2917,
+      "peak_steer_logit_lens_auc": 0.9861,
+      "peak_steer_wu_cosine": 0.3472,
+      "best_steerable_not_decodable_layer": 10,
+      "first_ace_readout_ge85_layer": 18,
+      "first_logit_lens_ge85_layer": 18,
+      "layers": [
+        {
+          "layer": 4,
+          "rel_depth": 0.143,
+          "ace_readout_auc": 0.75,
+          "logit_lens_src_auc": 0.5,
+          "logit_lens_cross_auc": 0.5556,
+          "flip_src_auc": 1.0,
+          "flip_cross_auc": 0.9722,
+          "cross_steer_drop": 0.0,
+          "wu_cosine": 0.0195,
+          "spectral_gap": 4.1
+        },
+        {
+          "layer": 8,
+          "rel_depth": 0.286,
+          "ace_readout_auc": 0.7778,
+          "logit_lens_src_auc": 0.3333,
+          "logit_lens_cross_auc": 0.5,
+          "flip_src_auc": 1.0,
+          "flip_cross_auc": 0.9861,
+          "cross_steer_drop": -0.0139,
+          "wu_cosine": 0.026,
+          "spectral_gap": 2.5
+        },
+        {
+          "layer": 10,
+          "rel_depth": 0.357,
+          "ace_readout_auc": 0.6944,
+          "logit_lens_src_auc": 0.3056,
+          "logit_lens_cross_auc": 0.3611,
+          "flip_src_auc": 1.0,
+          "flip_cross_auc": 0.9792,
+          "cross_steer_drop": -0.0069,
+          "wu_cosine": 0.0186,
+          "spectral_gap": 3.0
+        },
+        {
+          "layer": 12,
+          "rel_depth": 0.429,
+          "ace_readout_auc": 0.75,
+          "logit_lens_src_auc": 0.6389,
+          "logit_lens_cross_auc": 0.3194,
+          "flip_src_auc": 1.0,
+          "flip_cross_auc": 0.9861,
+          "cross_steer_drop": -0.0139,
+          "wu_cosine": 0.006,
+          "spectral_gap": 2.6
+        },
+        {
+          "layer": 14,
+          "rel_depth": 0.5,
+          "ace_readout_auc": 0.6111,
+          "logit_lens_src_auc": 0.6667,
+          "logit_lens_cross_auc": 0.4583,
+          "flip_src_auc": 1.0,
+          "flip_cross_auc": 0.9792,
+          "cross_steer_drop": -0.0069,
+          "wu_cosine": 0.0003,
+          "spectral_gap": 7.1
+        },
+        {
+          "layer": 16,
+          "rel_depth": 0.571,
+          "ace_readout_auc": 0.75,
+          "logit_lens_src_auc": 0.75,
+          "logit_lens_cross_auc": 0.6528,
+          "flip_src_auc": 1.0,
+          "flip_cross_auc": 0.9653,
+          "cross_steer_drop": 0.0069,
+          "wu_cosine": 0.0659,
+          "spectral_gap": 2.4
+        },
+        {
+          "layer": 18,
+          "rel_depth": 0.643,
+          "ace_readout_auc": 1.0,
+          "logit_lens_src_auc": 1.0,
+          "logit_lens_cross_auc": 1.0,
+          "flip_src_auc": 0.7361,
+          "flip_cross_auc": 0.7014,
+          "cross_steer_drop": 0.2708,
+          "wu_cosine": 0.2683,
+          "spectral_gap": 188.6
+        },
+        {
+          "layer": 20,
+          "rel_depth": 0.714,
+          "ace_readout_auc": 1.0,
+          "logit_lens_src_auc": 1.0,
+          "logit_lens_cross_auc": 1.0,
+          "flip_src_auc": 0.7222,
+          "flip_cross_auc": 0.7569,
+          "cross_steer_drop": 0.2153,
+          "wu_cosine": 0.3165,
+          "spectral_gap": 1612.1
+        },
+        {
+          "layer": 22,
+          "rel_depth": 0.786,
+          "ace_readout_auc": 1.0,
+          "logit_lens_src_auc": 1.0,
+          "logit_lens_cross_auc": 0.9583,
+          "flip_src_auc": 0.7222,
+          "flip_cross_auc": 0.75,
+          "cross_steer_drop": 0.2222,
+          "wu_cosine": 0.3142,
+          "spectral_gap": 1672.3
+        },
+        {
+          "layer": 24,
+          "rel_depth": 0.857,
+          "ace_readout_auc": 1.0,
+          "logit_lens_src_auc": 1.0,
+          "logit_lens_cross_auc": 0.9722,
+          "flip_src_auc": 0.6944,
+          "flip_cross_auc": 0.7639,
+          "cross_steer_drop": 0.2083,
+          "wu_cosine": 0.3222,
+          "spectral_gap": 3618.2
+        },
+        {
+          "layer": 26,
+          "rel_depth": 0.929,
+          "ace_readout_auc": 1.0,
+          "logit_lens_src_auc": 1.0,
+          "logit_lens_cross_auc": 0.9861,
+          "flip_src_auc": 0.6389,
+          "flip_cross_auc": 0.6806,
+          "cross_steer_drop": 0.2917,
+          "wu_cosine": 0.3472,
+          "spectral_gap": 22876.4
+        },
+        {
+          "layer": 28,
+          "rel_depth": 1.0,
+          "ace_readout_auc": 1.0,
+          "logit_lens_src_auc": 1.0,
+          "logit_lens_cross_auc": 0.9722,
+          "flip_src_auc": 0.7917,
+          "flip_cross_auc": 0.7222,
+          "cross_steer_drop": 0.25,
+          "wu_cosine": 0.2891,
+          "spectral_gap": 21994.1
+        }
+      ]
+    },
+    "hazard_severity": {
+      "clean_src_auc": 0.665,
+      "clean_cross_auc": 0.52,
+      "peak_steer_layer": 24,
+      "peak_cross_steer_drop": 0.0475,
+      "peak_steer_logit_lens_auc": 0.455,
+      "peak_steer_wu_cosine": 0.0883,
+      "best_steerable_not_decodable_layer": 24,
+      "first_ace_readout_ge85_layer": 16,
+      "first_logit_lens_ge85_layer": null,
+      "layers": [
+        {
+          "layer": 4,
+          "rel_depth": 0.143,
+          "ace_readout_auc": 0.56,
+          "logit_lens_src_auc": 0.28,
+          "logit_lens_cross_auc": 0.71,
+          "flip_src_auc": 0.675,
+          "flip_cross_auc": 0.54,
+          "cross_steer_drop": -0.02,
+          "wu_cosine": 0.0313,
+          "spectral_gap": 1.6
+        },
+        {
+          "layer": 8,
+          "rel_depth": 0.286,
+          "ace_readout_auc": 0.54,
+          "logit_lens_src_auc": 0.26,
+          "logit_lens_cross_auc": 0.315,
+          "flip_src_auc": 0.66,
+          "flip_cross_auc": 0.55,
+          "cross_steer_drop": -0.03,
+          "wu_cosine": 0.0344,
+          "spectral_gap": 2.9
+        },
+        {
+          "layer": 10,
+          "rel_depth": 0.357,
+          "ace_readout_auc": 0.53,
+          "logit_lens_src_auc": 0.3,
+          "logit_lens_cross_auc": 0.445,
+          "flip_src_auc": 0.555,
+          "flip_cross_auc": 0.5275,
+          "cross_steer_drop": -0.0075,
+          "wu_cosine": 0.0088,
+          "spectral_gap": 2.6
+        },
+        {
+          "layer": 12,
+          "rel_depth": 0.429,
+          "ace_readout_auc": 0.39,
+          "logit_lens_src_auc": 0.35,
+          "logit_lens_cross_auc": 0.49,
+          "flip_src_auc": 0.545,
+          "flip_cross_auc": 0.5,
+          "cross_steer_drop": 0.02,
+          "wu_cosine": 0.0298,
+          "spectral_gap": 1.2
+        },
+        {
+          "layer": 14,
+          "rel_depth": 0.5,
+          "ace_readout_auc": 0.47,
+          "logit_lens_src_auc": 0.42,
+          "logit_lens_cross_auc": 0.24,
+          "flip_src_auc": 0.64,
+          "flip_cross_auc": 0.495,
+          "cross_steer_drop": 0.025,
+          "wu_cosine": 0.0314,
+          "spectral_gap": 1.2
+        },
+        {
+          "layer": 16,
+          "rel_depth": 0.571,
+          "ace_readout_auc": 0.97,
+          "logit_lens_src_auc": 0.5,
+          "logit_lens_cross_auc": 0.315,
+          "flip_src_auc": 0.86,
+          "flip_cross_auc": 0.61,
+          "cross_steer_drop": -0.09,
+          "wu_cosine": 0.0574,
+          "spectral_gap": 5.7
+        },
+        {
+          "layer": 18,
+          "rel_depth": 0.643,
+          "ace_readout_auc": 0.82,
+          "logit_lens_src_auc": 0.54,
+          "logit_lens_cross_auc": 0.46,
+          "flip_src_auc": 0.84,
+          "flip_cross_auc": 0.5825,
+          "cross_steer_drop": -0.0625,
+          "wu_cosine": 0.0467,
+          "spectral_gap": 9.7
+        },
+        {
+          "layer": 20,
+          "rel_depth": 0.714,
+          "ace_readout_auc": 0.59,
+          "logit_lens_src_auc": 0.67,
+          "logit_lens_cross_auc": 0.32,
+          "flip_src_auc": 0.74,
+          "flip_cross_auc": 0.55,
+          "cross_steer_drop": -0.03,
+          "wu_cosine": 0.0551,
+          "spectral_gap": 21.4
+        },
+        {
+          "layer": 22,
+          "rel_depth": 0.786,
+          "ace_readout_auc": 0.51,
+          "logit_lens_src_auc": 0.79,
+          "logit_lens_cross_auc": 0.39,
+          "flip_src_auc": 0.625,
+          "flip_cross_auc": 0.475,
+          "cross_steer_drop": 0.045,
+          "wu_cosine": 0.0712,
+          "spectral_gap": 20.6
+        },
+        {
+          "layer": 24,
+          "rel_depth": 0.857,
+          "ace_readout_auc": 0.48,
+          "logit_lens_src_auc": 0.72,
+          "logit_lens_cross_auc": 0.455,
+          "flip_src_auc": 0.63,
+          "flip_cross_auc": 0.4725,
+          "cross_steer_drop": 0.0475,
+          "wu_cosine": 0.0883,
+          "spectral_gap": 44.9
+        },
+        {
+          "layer": 26,
+          "rel_depth": 0.929,
+          "ace_readout_auc": 0.44,
+          "logit_lens_src_auc": 0.65,
+          "logit_lens_cross_auc": 0.515,
+          "flip_src_auc": 0.605,
+          "flip_cross_auc": 0.485,
+          "cross_steer_drop": 0.035,
+          "wu_cosine": 0.0839,
+          "spectral_gap": 41.4
+        },
+        {
+          "layer": 28,
+          "rel_depth": 1.0,
+          "ace_readout_auc": 0.61,
+          "logit_lens_src_auc": 0.66,
+          "logit_lens_cross_auc": 0.515,
+          "flip_src_auc": 0.72,
+          "flip_cross_auc": 0.5275,
+          "cross_steer_drop": -0.0075,
+          "wu_cosine": 0.0454,
+          "spectral_gap": 138.3
+        }
+      ]
+    }
+  }
+}

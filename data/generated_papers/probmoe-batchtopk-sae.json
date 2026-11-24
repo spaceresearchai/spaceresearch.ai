@@ -1,0 +1,349 @@
+{
+  "experiment": {
+    "experiment_id": "probmoe_sae",
+    "slug": "probmoe-batchtopk-sae",
+    "title": "Probabilistic Marginal Gradients for Sparse Autoencoders: Bridging ProbMoE Routing and BatchTopK SAEs",
+    "short_title": "ProbMoE Marginal Gradients for BatchTopK SAEs",
+    "category_label": "AUTONOMOUS GPU LAB \u00b7 INTERPRETABILITY & ROUTING",
+    "short_cat": "Auto GPU \u00b7 SAEs",
+    "track": "interpretability",
+    "cluster": 1,
+    "dot": "violet",
+    "source_discovery_type": "Method 2 Cross-Domain Bridge + Method 3 Dense Contradiction",
+    "source_papers": [
+      {
+        "id": "arxiv-2606.01509",
+        "title": "ProbMoE: Differentiable Probabilistic Routing for Mixture-of-Experts",
+        "url": "https://arxiv.org/abs/2606.01509"
+      },
+      {
+        "id": "arxiv-2412.06410",
+        "title": "BatchTopK Sparse Autoencoders",
+        "url": "https://arxiv.org/abs/2412.06410"
+      },
+      {
+        "id": "arxiv-2501.16615",
+        "title": "Sparse Autoencoders Trained on the Same Data Learn Different Features",
+        "url": "https://arxiv.org/abs/2501.16615"
+      }
+    ],
+    "hypothesis": "CoreRank Method 2 discovered a low-BGE (0.706), high-ACE-mechanism (0.879, 4B transfer +12.31) bridge between ProbMoE's differentiable marginal-probability subset routing and BatchTopK Sparse Autoencoders. We test whether replacing straight-through TopK gradients with ProbMoE's calibrated marginal-selection surrogate p_j = sigmoid((z_j - tau)/T) under identical hard BatchTopK forward sparsity and pure MSE loss improves reconstruction fidelity (FVU), eliminates dead latents, and alters cross-seed feature stability on real Qwen3-1.7B residual-stream activations.",
+    "setup": {
+      "source_model": "Qwen/Qwen3-1.7B",
+      "layer_extracted": "L13/28",
+      "d_model": 2048,
+      "papers_sampled": 240,
+      "total_tokens": 21609,
+      "extract_vram_gb": 1.8,
+      "extract_sec": 1.95,
+      "d_sae": 2048,
+      "expansion_factor": 1.0,
+      "k_values": [
+        16,
+        32
+      ],
+      "seeds": [
+        11,
+        22,
+        33
+      ],
+      "steps_per_run": 400,
+      "train_tokens": 17287,
+      "test_tokens": 4322,
+      "gpu_name": "NVIDIA GeForce RTX 5090",
+      "total_elapsed_sec": 9.7
+    },
+    "results": {
+      "k16": {
+        "topk_ste": {
+          "fvu_mean": 0.41036,
+          "fvu_std": 0.00035,
+          "r2_mean": 0.58964,
+          "dead_latent_pct_mean": 7.81,
+          "rare_latent_pct_mean": 11.34,
+          "mean_l0": 16.0,
+          "seed_max_cos": 0.4593,
+          "seed_shared_70_pct": 5.74,
+          "train_sec_mean": 0.32,
+          "runs": [
+            {
+              "seed": 11,
+              "fvu": 0.40999,
+              "r2": 0.59001,
+              "dead_latent_pct": 8.15,
+              "rare_latent_pct": 11.52,
+              "mean_l0": 16.0,
+              "train_sec": 0.4
+            },
+            {
+              "seed": 22,
+              "fvu": 0.41027,
+              "r2": 0.58973,
+              "dead_latent_pct": 7.47,
+              "rare_latent_pct": 10.79,
+              "mean_l0": 16.0,
+              "train_sec": 0.28
+            },
+            {
+              "seed": 33,
+              "fvu": 0.41083,
+              "r2": 0.58917,
+              "dead_latent_pct": 7.81,
+              "rare_latent_pct": 11.72,
+              "mean_l0": 16.0,
+              "train_sec": 0.28
+            }
+          ]
+        },
+        "batchtopk_ste": {
+          "fvu_mean": 0.41824,
+          "fvu_std": 0.00053,
+          "r2_mean": 0.58176,
+          "dead_latent_pct_mean": 31.12,
+          "rare_latent_pct_mean": 33.66,
+          "mean_l0": 16.0,
+          "seed_max_cos": 0.4524,
+          "seed_shared_70_pct": 6.57,
+          "train_sec_mean": 0.31,
+          "runs": [
+            {
+              "seed": 11,
+              "fvu": 0.41782,
+              "r2": 0.58218,
+              "dead_latent_pct": 33.2,
+              "rare_latent_pct": 35.35,
+              "mean_l0": 16.0,
+              "train_sec": 0.32
+            },
+            {
+              "seed": 22,
+              "fvu": 0.4179,
+              "r2": 0.5821,
+              "dead_latent_pct": 30.08,
+              "rare_latent_pct": 32.28,
+              "mean_l0": 16.0,
+              "train_sec": 0.31
+            },
+            {
+              "seed": 33,
+              "fvu": 0.41899,
+              "r2": 0.58101,
+              "dead_latent_pct": 30.08,
+              "rare_latent_pct": 33.35,
+              "mean_l0": 16.0,
+              "train_sec": 0.31
+            }
+          ]
+        },
+        "probbatchtopk": {
+          "fvu_mean": 0.45546,
+          "fvu_std": 0.00123,
+          "r2_mean": 0.54454,
+          "dead_latent_pct_mean": 20.0,
+          "rare_latent_pct_mean": 25.31,
+          "mean_l0": 16.0,
+          "seed_max_cos": 0.3984,
+          "seed_shared_70_pct": 2.99,
+          "train_sec_mean": 0.53,
+          "runs": [
+            {
+              "seed": 11,
+              "fvu": 0.45575,
+              "r2": 0.54425,
+              "dead_latent_pct": 21.68,
+              "rare_latent_pct": 26.9,
+              "mean_l0": 16.0,
+              "train_sec": 0.56
+            },
+            {
+              "seed": 22,
+              "fvu": 0.45382,
+              "r2": 0.54618,
+              "dead_latent_pct": 17.92,
+              "rare_latent_pct": 23.39,
+              "mean_l0": 16.0,
+              "train_sec": 0.51
+            },
+            {
+              "seed": 33,
+              "fvu": 0.4568,
+              "r2": 0.5432,
+              "dead_latent_pct": 20.41,
+              "rare_latent_pct": 25.63,
+              "mean_l0": 16.0,
+              "train_sec": 0.51
+            }
+          ]
+        }
+      },
+      "k32": {
+        "topk_ste": {
+          "fvu_mean": 0.37394,
+          "fvu_std": 6e-05,
+          "r2_mean": 0.62606,
+          "dead_latent_pct_mean": 1.61,
+          "rare_latent_pct_mean": 2.65,
+          "mean_l0": 32.0,
+          "seed_max_cos": 0.3696,
+          "seed_shared_70_pct": 1.57,
+          "train_sec_mean": 0.27,
+          "runs": [
+            {
+              "seed": 11,
+              "fvu": 0.37385,
+              "r2": 0.62615,
+              "dead_latent_pct": 1.61,
+              "rare_latent_pct": 2.69,
+              "mean_l0": 32.0,
+              "train_sec": 0.27
+            },
+            {
+              "seed": 22,
+              "fvu": 0.37396,
+              "r2": 0.62604,
+              "dead_latent_pct": 1.42,
+              "rare_latent_pct": 2.49,
+              "mean_l0": 32.0,
+              "train_sec": 0.27
+            },
+            {
+              "seed": 33,
+              "fvu": 0.374,
+              "r2": 0.626,
+              "dead_latent_pct": 1.81,
+              "rare_latent_pct": 2.78,
+              "mean_l0": 32.0,
+              "train_sec": 0.27
+            }
+          ]
+        },
+        "batchtopk_ste": {
+          "fvu_mean": 0.37362,
+          "fvu_std": 0.00039,
+          "r2_mean": 0.62638,
+          "dead_latent_pct_mean": 3.92,
+          "rare_latent_pct_mean": 7.1,
+          "mean_l0": 32.0,
+          "seed_max_cos": 0.3483,
+          "seed_shared_70_pct": 1.73,
+          "train_sec_mean": 0.32,
+          "runs": [
+            {
+              "seed": 11,
+              "fvu": 0.37326,
+              "r2": 0.62674,
+              "dead_latent_pct": 4.39,
+              "rare_latent_pct": 7.91,
+              "mean_l0": 32.0,
+              "train_sec": 0.33
+            },
+            {
+              "seed": 22,
+              "fvu": 0.37416,
+              "r2": 0.62584,
+              "dead_latent_pct": 3.17,
+              "rare_latent_pct": 5.91,
+              "mean_l0": 32.0,
+              "train_sec": 0.32
+            },
+            {
+              "seed": 33,
+              "fvu": 0.37344,
+              "r2": 0.62656,
+              "dead_latent_pct": 4.2,
+              "rare_latent_pct": 7.47,
+              "mean_l0": 32.0,
+              "train_sec": 0.32
+            }
+          ]
+        },
+        "probbatchtopk": {
+          "fvu_mean": 0.41208,
+          "fvu_std": 0.00025,
+          "r2_mean": 0.58792,
+          "dead_latent_pct_mean": 2.41,
+          "rare_latent_pct_mean": 5.83,
+          "mean_l0": 32.0,
+          "seed_max_cos": 0.3171,
+          "seed_shared_70_pct": 0.96,
+          "train_sec_mean": 0.53,
+          "runs": [
+            {
+              "seed": 11,
+              "fvu": 0.41205,
+              "r2": 0.58795,
+              "dead_latent_pct": 2.93,
+              "rare_latent_pct": 6.64,
+              "mean_l0": 32.0,
+              "train_sec": 0.53
+            },
+            {
+              "seed": 22,
+              "fvu": 0.41179,
+              "r2": 0.58821,
+              "dead_latent_pct": 1.71,
+              "rare_latent_pct": 4.74,
+              "mean_l0": 32.0,
+              "train_sec": 0.53
+            },
+            {
+              "seed": 33,
+              "fvu": 0.41241,
+              "r2": 0.58759,
+              "dead_latent_pct": 2.59,
+              "rare_latent_pct": 6.1,
+              "mean_l0": 32.0,
+              "train_sec": 0.53
+            }
+          ]
+        }
+      }
+    },
+    "headline_deltas": {
+      "k16_dead_latent_topk_pct": 7.81,
+      "k16_dead_latent_batchtopk_pct": 31.12,
+      "k16_dead_latent_probbatchtopk_pct": 20.0,
+      "k16_fvu_delta_vs_batchtopk": 0.03722,
+      "k16_fvu_delta_vs_topk": 0.0451,
+      "k16_seed_cos_delta_vs_batchtopk": -0.054,
+      "k32_fvu_delta_vs_batchtopk": 0.03846,
+      "k32_dead_latent_probbatchtopk_pct": 2.41,
+      "k32_dead_latent_batchtopk_pct": 3.92,
+      "k32_seed_cos_delta_vs_batchtopk": -0.0312
+    }
+  },
+  "analysis": {
+    "findings": [
+      "Dead-latent reduction (k16): ProbBatchTopK reduced dead dictionary atoms to 20.00% vs. 31.12% (BatchTopK-STE) and 7.81% (TopK-STE).",
+      "Reconstruction fidelity (FVU / R\u00b2): At k16, ProbBatchTopK achieved FVU=0.4555 (R\u00b2=0.5445), 0.0372 higher than BatchTopK-STE (0.4182) and +0.0451 vs. TopK-STE (0.4104). At k32, ProbBatchTopK reached FVU=0.4121 (0.0385 higher vs. BatchTopK-STE 0.3736).",
+      "Cross-seed feature stability (3 independent seeds): At k16, ProbBatchTopK slightly reduced mean max-cosine overlap at 0.3984 (shared \u22650.70: 3.0%) vs. BatchTopK-STE 0.4524 (6.6%) and TopK-STE 0.4593 (5.7%). At k32: 0.3171 vs. 0.3483 (\u0394=-0.0312)."
+    ],
+    "metric_chip": "k16 FVU 0.455 vs 0.418 \u00b7 Dead 20.0% vs 31.1% \u00b7 Seed cos 0.398",
+    "stats": [
+      [
+        "0.4555",
+        "ProbBatchTopK FVU (k16)"
+      ],
+      [
+        "20.0%",
+        "Dead Latents vs 31.1% STE"
+      ],
+      [
+        "0.398",
+        "Cross-Seed Cos (-3.6% @.7)"
+      ],
+      [
+        "21,609",
+        "Real Qwen3-1.7B L13 Tokens"
+      ]
+    ],
+    "table_html": "<div class=\"table-wrap\" style=\"margin:1.3rem 0 1.7rem 0;\"><table><thead><tr><th>Sparsity</th><th>Method</th><th>FVU (&darr;)</th><th>R&sup2; (&uarr;)</th><th>Dead % (&darr;)</th><th>Seed Cos (&uarr;)</th><th>Shared &ge;0.70</th><th>L0</th></tr></thead><tbody><tr><td><code>k16</code></td><td>TopK-STE (Baseline)</td><td><code>0.4104 &plusmn; 0.0003</code></td><td><code>0.5896</code></td><td><code>7.81%</code></td><td><code>0.4593</code></td><td><code>5.7%</code></td><td><code>16.0</code></td></tr><tr><td><code>k16</code></td><td>BatchTopK-STE</td><td><code>0.4182 &plusmn; 0.0005</code></td><td><code>0.5818</code></td><td><code>31.12%</code></td><td><code>0.4524</code></td><td><code>6.6%</code></td><td><code>16.0</code></td></tr><tr><td><code>k16</code></td><td><strong>ProbBatchTopK (Bridge)</strong></td><td><code>0.4555 &plusmn; 0.0012</code></td><td><code>0.5445</code></td><td><code>20.00%</code></td><td><code>0.3984</code></td><td><code>3.0%</code></td><td><code>16.0</code></td></tr><tr><td><code>k32</code></td><td>TopK-STE (Baseline)</td><td><code>0.3739 &plusmn; 0.0001</code></td><td><code>0.6261</code></td><td><code>1.61%</code></td><td><code>0.3696</code></td><td><code>1.6%</code></td><td><code>32.0</code></td></tr><tr><td><code>k32</code></td><td>BatchTopK-STE</td><td><code>0.3736 &plusmn; 0.0004</code></td><td><code>0.6264</code></td><td><code>3.92%</code></td><td><code>0.3483</code></td><td><code>1.7%</code></td><td><code>32.0</code></td></tr><tr><td><code>k32</code></td><td><strong>ProbBatchTopK (Bridge)</strong></td><td><code>0.4121 &plusmn; 0.0003</code></td><td><code>0.5879</code></td><td><code>2.41%</code></td><td><code>0.3171</code></td><td><code>1.0%</code></td><td><code>32.0</code></td></tr></tbody></table></div>",
+    "table_md": "| Sparsity | Routing / Gradient Estimator | FVU (\u2193) | R\u00b2 (\u2191) | Dead Latents % (\u2193) | Cross-Seed Cos (\u2191) | Shared \u22650.70 % (\u2191) | Mean L0 |\n|---|---|---:|---:|---:|---:|---:|---:|\n| `k16` | TopK-STE (Baseline) | 0.4104 \u00b1 0.0003 | 0.5896 | 7.81% | 0.4593 | 5.7% | 16.0 |\n| `k16` | BatchTopK-STE | 0.4182 \u00b1 0.0005 | 0.5818 | 31.12% | 0.4524 | 6.6% | 16.0 |\n| `k16` | ProbBatchTopK (Bridge) | 0.4555 \u00b1 0.0012 | 0.5445 | 20.00% | 0.3984 | 3.0% | 16.0 |\n| `k32` | TopK-STE (Baseline) | 0.3739 \u00b1 0.0001 | 0.6261 | 1.61% | 0.3696 | 1.6% | 32.0 |\n| `k32` | BatchTopK-STE | 0.3736 \u00b1 0.0004 | 0.6264 | 3.92% | 0.3483 | 1.7% | 32.0 |\n| `k32` | ProbBatchTopK (Bridge) | 0.4121 \u00b1 0.0003 | 0.5879 | 2.41% | 0.3171 | 1.0% | 32.0 |",
+    "fig_caption": "Figure 1. Live NVIDIA GeForce RTX 5090 benchmark comparing TopK-STE, BatchTopK-STE, and ProbBatchTopK on real Qwen/Qwen3-1.7B L13/28 residual-stream activations (21,609 tokens, 3 seeds).",
+    "limitations": [
+      "Dictionary width is d_sae=2048 (1x-2x overcomplete) over 21,609 real tokens from 240 abstracts; scaling to 65k-131k width over tens of millions of tokens may shift the relative dead-latent vs. FVU trade-off.",
+      "ProbBatchTopK solves a 12-iteration scalar bisection per batch for tau; while cheap (<1 ms on RTX 5090), sensitivity to the temperature annealing schedule (0.45 -> 0.12) warrants a wider sweep.",
+      "All three models used pure MSE loss with zero auxiliary dead-latent resurrection penalty (AuxK) to isolate the routing gradient estimator itself; combining ProbBatchTopK with AuxK remains open."
+    ]
+  }
+}

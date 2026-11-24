@@ -40,6 +40,8 @@
 
     // Atlas state
     atlasTabActive: false,
+    discoveries: null,
+    discLens: "surprising",
     atlasZoom: 1.0,
     atlasPanX: 0,
     atlasPanY: 0,
@@ -953,6 +955,231 @@
     }
   }
 
+  // ---------- CoreRank Discovery Tab ----------
+  const DISC_LENS_INFO = {
+    surprising: "Method 1 · Prior-vs-Evidence Bayesian Surprise: papers whose hype-stripped core claim violates the backbone LLM's pretrained prior (-z_prior, high NLL) while scoring high on fluff-invariant Stage-1 rigor and 4B CoreRank Ultra verification.",
+    bridges: "Method 2 · Cross-Domain Mechanism Bridges: pairs from different research categories with LOW BGE topic similarity (< 0.71, bottom 25%) but HIGH alignment on 8 topic-canceled Stage-1 ACE mechanism cores + 4B transfer check.",
+    contradictions: "Method 3 · Dense-Cluster Empirical Contradictions: high-BGE same-topic pairs (cosine > 0.90, disjoint authors) ranked by De-Biased Stage-2 Keep-1D Contradiction Core (-53.5% order bias) + 4B verification.",
+    under_the_radar: "Method 4 · Residuals & Off-Core Outliers: (A) pre-2026 Sleeping Beauties (<50 cites, high rigor, low hype), (B) Quiet Technical Gems buried in today's arXiv firehose, and (C) Off-Core Causal Outliers carrying high energy orthogonal to the dominant 1D rigor ladder.",
+  };
+
+  function discPaperActions(p) {
+    const arxivUrl = p.url || (p.arxiv_id ? `https://arxiv.org/abs/${p.arxiv_id}` : "");
+    const pdfUrl = p.pdf_url || "";
+    const chatQ = encodeURIComponent(`Explain the core mechanism and non-obvious findings of "${p.title}" and how we could test or extend it.`);
+    return `
+      <div class="paper-actions" style="margin-top:auto; padding-top:0.35rem;">
+        ${arxivUrl ? `<a class="paper-act-btn primary" href="${esc(arxivUrl)}" target="_blank" rel="noopener">arXiv &#8599;</a>` : ""}
+        ${pdfUrl ? `<a class="paper-act-btn" href="${esc(pdfUrl)}" target="_blank" rel="noopener">PDF</a>` : ""}
+        ${p.id && state.byId.has(p.id) ? `<button type="button" class="paper-act-btn" data-disc-similar="${esc(p.id)}">Similar</button>` : ""}
+        ${p.id && state.byId.has(p.id) ? `<button type="button" class="paper-act-btn" data-disc-atlas="${esc(p.id)}">Atlas</button>` : ""}
+        <a class="paper-act-btn" href="./chat.html?q=${chatQ}">Investigate in Chat &rarr;</a>
+      </div>
+    `;
+  }
+
+  function renderDiscoverySingleCard(p, chipsHtml) {
+    const dom = state.catMap.get(p.category) || { short: p.category, color: "#94a3b8" };
+    return `
+      <article class="disc-card">
+        <div class="disc-card-top">
+          <span class="paper-domain-badge"><span class="vdb-domain-dot" style="background:${esc(dom.color)}"></span>${esc(dom.short || p.category)}</span>
+          <div class="disc-metrics">${chipsHtml}</div>
+        </div>
+        <h3 class="disc-title">${esc(p.title)}</h3>
+        <div class="disc-submeta">${esc(p.venue || String(p.year || ""))} &middot; ${esc(p.published_date || String(p.year || ""))} &middot; ${fmtNum(p.citations || 0)} citations</div>
+        <p class="disc-abs">${esc((p.abstract || "").slice(0, 380))}${(p.abstract || "").length > 380 ? "..." : ""}</p>
+        ${discPaperActions(p)}
+      </article>
+    `;
+  }
+
+  function renderDiscoveryPairCard(item, mode) {
+    const a = item.paper_a;
+    const b = item.paper_b;
+    const domA = state.catMap.get(a.category) || { short: a.category, color: "#94a3b8" };
+    const domB = state.catMap.get(b.category) || { short: b.category, color: "#94a3b8" };
+    let metricsHtml = "";
+    let midSymbol = "&harr;";
+    if (mode === "bridges") {
+      const mechs = (item.shared_mechanisms || [])
+        .slice(0, 2)
+        .map(([m]) => `<span class="disc-chip violet">${esc(m.replace(/_/g, " "))}</span>`)
+        .join("");
+      metricsHtml = `
+        <span class="disc-chip">BGE ${Number(item.bge_cosine).toFixed(3)} (low)</span>
+        <span class="disc-chip cyan">ACE Mech ${Number(item.ace_mech_cosine).toFixed(3)}</span>
+        <span class="disc-chip emerald">4B Transfer ${Number(item.transfer_4b) >= 0 ? "+" : ""}${Number(item.transfer_4b).toFixed(2)}</span>
+        ${mechs}
+      `;
+    } else {
+      midSymbol = "&ne;";
+      metricsHtml = `
+        <span class="disc-chip">BGE ${Number(item.bge_cosine).toFixed(3)} (dense)</span>
+        <span class="disc-chip amber">4B Conflict ${Number(item.contradiction_4b) >= 0 ? "+" : ""}${Number(item.contradiction_4b).toFixed(2)}</span>
+        <span class="disc-chip cyan">Stage-2 Keep-1D ${Number(item.keep1d_sym) >= 0 ? "+" : ""}${Number(item.keep1d_sym).toFixed(2)}</span>
+      `;
+    }
+
+    return `
+      <article class="disc-card">
+        <div class="disc-card-top">
+          <div class="disc-metrics">${metricsHtml}</div>
+        </div>
+        <div class="disc-pair-cols">
+          <div class="disc-pair-side">
+            <span class="paper-domain-badge"><span class="vdb-domain-dot" style="background:${esc(domA.color)}"></span>${esc(domA.short || a.category)} &middot; ${esc(String(a.year || ""))}</span>
+            <h3 class="disc-title" style="font-size:0.98rem;">${esc(a.title)}</h3>
+            <p class="disc-abs" style="font-size:0.81rem;">${esc((a.abstract || "").slice(0, 260))}${(a.abstract || "").length > 260 ? "..." : ""}</p>
+            ${discPaperActions(a)}
+          </div>
+          <div class="disc-pair-mid" aria-hidden="true">${midSymbol}</div>
+          <div class="disc-pair-side">
+            <span class="paper-domain-badge"><span class="vdb-domain-dot" style="background:${esc(domB.color)}"></span>${esc(domB.short || b.category)} &middot; ${esc(String(b.year || ""))}</span>
+            <h3 class="disc-title" style="font-size:0.98rem;">${esc(b.title)}</h3>
+            <p class="disc-abs" style="font-size:0.81rem;">${esc((b.abstract || "").slice(0, 260))}${(b.abstract || "").length > 260 ? "..." : ""}</p>
+            ${discPaperActions(b)}
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  function renderDiscoveryTab() {
+    const kpiWrap = document.getElementById("disc-kpis");
+    const grid = document.getElementById("disc-grid");
+    const explain = document.getElementById("disc-lens-explain");
+    const d = state.discoveries;
+    if (!grid) return;
+    if (!d) {
+      grid.innerHTML = `<div class="gp-card" style="grid-column:1/-1;">Loading CoreRank discovery index...</div>`;
+      return;
+    }
+
+    const t = d.telemetry || {};
+    if (kpiWrap) {
+      const surpLift = (Number(t.m1_4b_surprise_top20 || 0) - Number(t.m1_4b_surprise_rand || 0)).toFixed(2);
+      kpiWrap.innerHTML = `
+        <div class="gp-kpi">
+          <div class="gp-kpi-val ok">${t.stage1_scan_sec || 15.6}s</div>
+          <div class="gp-kpi-lbl">Full ${fmtNum(d.corpus_count || 1715)}-Paper Scan</div>
+        </div>
+        <div class="gp-kpi">
+          <div class="gp-kpi-val ok">+${surpLift}</div>
+          <div class="gp-kpi-lbl">4B Surprise Lift vs Random</div>
+        </div>
+        <div class="gp-kpi">
+          <div class="gp-kpi-val">&minus;${t.m3_order_bias_reduction_pct || 53.5}%</div>
+          <div class="gp-kpi-lbl">Stage-2 Order Bias Cut</div>
+        </div>
+        <div class="gp-kpi">
+          <div class="gp-kpi-val">&rho; = ${Number(t.rigor_train_rho || 0.951).toFixed(3)}</div>
+          <div class="gp-kpi-lbl">Rigor Core (Deep V-Dip)</div>
+        </div>
+      `;
+    }
+
+    const radar = d.under_the_radar || {};
+    const radarTotal =
+      (radar.sleeping_beauties || []).length +
+      (radar.quiet_today || []).length +
+      (radar.off_core_outliers || []).length;
+    const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = String(v); };
+    setTxt("disc-cnt-surprising", (d.surprising || []).length);
+    setTxt("disc-cnt-bridges", (d.bridges || []).length);
+    setTxt("disc-cnt-contradictions", (d.contradictions || []).length);
+    setTxt("disc-cnt-radar", radarTotal);
+
+    if (explain) explain.textContent = DISC_LENS_INFO[state.discLens] || "";
+
+    const isPair = state.discLens === "bridges" || state.discLens === "contradictions";
+    grid.classList.toggle("pair-mode", isPair);
+
+    if (state.discLens === "surprising") {
+      grid.innerHTML = (d.surprising || [])
+        .map((p) =>
+          renderDiscoverySingleCard(
+            p,
+            `
+              <span class="disc-chip cyan">4B Surp ${Number(p.surprise_4b) >= 0 ? "+" : ""}${Number(p.surprise_4b).toFixed(2)}</span>
+              <span class="disc-chip emerald">4B Rigor ${Number(p.rigor_4b).toFixed(2)}</span>
+              <span class="disc-chip">Prior NLL ${Number(p.nll_prior).toFixed(2)}</span>
+            `
+          )
+        )
+        .join("");
+    } else if (state.discLens === "bridges") {
+      grid.innerHTML = (d.bridges || []).map((item) => renderDiscoveryPairCard(item, "bridges")).join("");
+    } else if (state.discLens === "contradictions") {
+      grid.innerHTML = (d.contradictions || []).map((item) => renderDiscoveryPairCard(item, "contradictions")).join("");
+    } else {
+      const blocks = [];
+      if ((radar.sleeping_beauties || []).length) {
+        blocks.push(`<h3 class="disc-section-heading">Pre-2026 Sleeping Beauties (&lt; 50 Citations, High Core Rigor, Low Hype)</h3>`);
+        blocks.push(
+          ...(radar.sleeping_beauties || []).map((p) =>
+            renderDiscoverySingleCard(
+              p,
+              `
+                <span class="disc-chip emerald">4B Rigor ${Number(p.rigor_4b).toFixed(2)}</span>
+                <span class="disc-chip violet">Unconv ${Number(p.unconventional_4b).toFixed(2)}</span>
+                <span class="disc-chip amber">${p.citations} cites</span>
+              `
+            )
+          )
+        );
+      }
+      if ((radar.quiet_today || []).length) {
+        blocks.push(`<h3 class="disc-section-heading">Quiet Technical Gems Released Today (High Rigor, Lowest Hype)</h3>`);
+        blocks.push(
+          ...(radar.quiet_today || []).map((p) =>
+            renderDiscoverySingleCard(
+              p,
+              `
+                <span class="disc-chip emerald">Rigor z=${Number(p.z_rigor) >= 0 ? "+" : ""}${Number(p.z_rigor).toFixed(2)}</span>
+                <span class="disc-chip cyan">Hype z=${Number(p.z_hype).toFixed(2)}</span>
+                <span class="disc-chip">4B ${Number(p.rigor_4b).toFixed(2)}</span>
+              `
+            )
+          )
+        );
+      }
+      if ((radar.off_core_outliers || []).length) {
+        blocks.push(`<h3 class="disc-section-heading">Off-Core Orthogonal Causal Outliers (High Energy Outside Rank-1 Core)</h3>`);
+        blocks.push(
+          ...(radar.off_core_outliers || []).map((p) =>
+            renderDiscoverySingleCard(
+              p,
+              `
+                <span class="disc-chip violet">Off-Core z=${Number(p.off_core_norm_z) >= 0 ? "+" : ""}${Number(p.off_core_norm_z).toFixed(2)}</span>
+                <span class="disc-chip">Ratio ${Number(p.off_core_ratio).toFixed(2)}</span>
+                <span class="disc-chip emerald">4B ${Number(p.rigor_4b).toFixed(2)}</span>
+              `
+            )
+          )
+        );
+      }
+      grid.innerHTML = blocks.join("");
+    }
+
+    grid.querySelectorAll("[data-disc-similar]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.similarAnchorId = btn.getAttribute("data-disc-similar");
+        switchTab("search");
+        executeSearch();
+        window.scrollTo({ top: 180, behavior: "smooth" });
+      });
+    });
+    grid.querySelectorAll("[data-disc-atlas]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const p = state.byId.get(btn.getAttribute("data-disc-atlas"));
+        if (!p) return;
+        switchTab("atlas");
+        selectAtlasPaper(p.idx, true);
+      });
+    });
+  }
+
   // ---------- Controls & Bootstrap ----------
   function switchTab(tabName) {
     document.querySelectorAll("[data-vdb-tab]").forEach((btn) => {
@@ -983,6 +1210,14 @@
   function setupControls() {
     document.querySelectorAll("[data-vdb-tab]").forEach((btn) => {
       btn.addEventListener("click", () => switchTab(btn.getAttribute("data-vdb-tab")));
+    });
+
+    document.querySelectorAll("[data-disc-lens]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.discLens = btn.getAttribute("data-disc-lens") || "surprising";
+        document.querySelectorAll("[data-disc-lens]").forEach((b) => b.classList.toggle("active", b === btn));
+        renderDiscoveryTab();
+      });
     });
 
     const input = document.getElementById("vdb-query");
@@ -1065,12 +1300,16 @@
 
     const apiProbe = probeLiveApi();
     try {
-      const [dbRes, binRes] = await Promise.all([
-        fetch("./data/papers-db.json?v=2"),
-        fetch("./data/papers-vectors.f16.bin?v=2").catch(() => null),
+      const [dbRes, binRes, discRes] = await Promise.all([
+        fetch("./data/papers-db.json?v=3"),
+        fetch("./data/papers-vectors.f16.bin?v=3").catch(() => null),
+        fetch("./data/papers-discoveries.json?v=1").catch(() => null),
       ]);
       if (!dbRes.ok) throw new Error(`HTTP ${dbRes.status}`);
       const db = await dbRes.json();
+      if (discRes && discRes.ok) {
+        state.discoveries = await discRes.json();
+      }
       state.db = db;
       state.catMap = new Map((db.categories || []).map((c) => [c.id, c]));
       state.papers = (db.papers || []).map((p, idx) => ({
@@ -1097,6 +1336,7 @@
       renderDomainPills();
       renderAtlasLegend();
       renderApiStatsTab();
+      renderDiscoveryTab();
 
       const params = new URLSearchParams(window.location.search);
       const qParam = (params.get("q") || "").trim();
@@ -1120,7 +1360,7 @@
 
       await apiProbe;
       await executeSearch();
-      if (tabParam === "atlas" || tabParam === "api") switchTab(tabParam);
+      if (tabParam === "discover" || tabParam === "atlas" || tabParam === "api") switchTab(tabParam);
     } catch (err) {
       const grid = document.getElementById("papers-grid");
       if (grid) {

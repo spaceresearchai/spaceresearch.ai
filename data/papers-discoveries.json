@@ -1,0 +1,2418 @@
+{
+  "schema_version": 1,
+  "built_at": "2026-11-24T16:20:00+01:00",
+  "corpus_count": 1715,
+  "models": {
+    "stage1_stage2_ace": "Qwen/Qwen3-1.7B",
+    "cross_validator": "Qwen/Qwen3-Reranker-4B (pruned L22/36)"
+  },
+  "telemetry": {
+    "stage1_scan_sec": 16.7,
+    "mech_scan_sec": 15.6,
+    "rigor_train_rho": 0.951,
+    "rigor_vdip_verdict": "DEEP_CONCEPTUAL_BOTTLENECK",
+    "rigor_vdip_trough": 0.3087,
+    "m1_nll_prior_top20": 4.9051,
+    "m1_nll_prior_ctrl": 3.2015,
+    "m1_4b_surprise_top20": 0.506,
+    "m1_4b_surprise_rand": -1.543,
+    "m1_4b_rigor_top20": 6.758,
+    "m1_4b_rigor_rand": 5.772,
+    "m2_4b_transfer_top20": 8.834,
+    "m2_4b_transfer_rand": 7.969,
+    "m3_contra_auc": 0.94,
+    "m3_order_bias_reduction_pct": 53.5,
+    "m4_cycle_raw_pct": 96.3,
+    "m4_cycle_keep1d_pct": 29.8
+  },
+  "surprising": [
+    {
+      "id": "arxiv-2604.02608",
+      "idx": 1020,
+      "title": "Steerable but Not Decodable: Function Vectors Operate Beyond the Logit Lens",
+      "authors": [
+        "Mohammed Suhail B Nadaf"
+      ],
+      "category": "mech-interp-circuits",
+      "year": 2026,
+      "published_date": "2026-04-03",
+      "venue": "arXiv:2604.02608",
+      "citations": 7,
+      "url": "https://arxiv.org/abs/2604.02608",
+      "pdf_url": "https://arxiv.org/pdf/2604.02608.pdf",
+      "abstract": "Activation steering presupposes that task-relevant behaviors correspond to linear directions in activation space -- directions that should both steer the model and be readable along the unembedding. Function vectors (FVs), extracted as mean differences across ICL demonstrations, are the canonical test case; the prediction: steering and decoding succeed or fail together. Across 12 tasks, 6 models from 3 families, and 4,032 directed cross-template pairs, we find the opposite. FV steering routinely succeeds where the logit lens cannot decode the correct answer at any intermediate layer, while the converse -- decodable without steerable -- is nearly empty (3 of 72). The gap is not representational dialect. A diagonal tuned lens closes 1 of 14 steerable-not-decodable cases; a 2-layer MLP probe with a Hewitt \\& Liang control closes 5 of 10 via nonlinearly encoded...",
+      "m1_score": 5.632,
+      "z_prior": -2.589,
+      "z_rigor": 2.181,
+      "z_hype": -1.765,
+      "nll_prior": 4.837,
+      "info_gain_nats": 4.351,
+      "rigor_4b": 7.506,
+      "surprise_4b": 9.297,
+      "groundedness_4b": 0.9991,
+      "clean_claim": "Function vectors (FVs), extracted as mean differences across ICL demonstrations, are the canonical test case; the prediction: steering and decoding succeed or fail together. Across 12 tasks, 6 models from 3 families, and 4,032 directed cross-template pairs, we find the opposite."
+    },
+    {
+      "id": "arxiv-2611.03992",
+      "idx": 629,
+      "title": "FlagRot: Selective Rotation for Low-Bit KV Caches",
+      "authors": [
+        "Kunming Shao",
+        "Xijie Huang",
+        "Jierun Chen",
+        "Jiaqi Shao"
+      ],
+      "category": "quantization",
+      "year": 2026,
+      "published_date": "2026-11-02",
+      "venue": "arXiv:2611.03992",
+      "citations": 0,
+      "url": "https://arxiv.org/abs/2611.03992",
+      "pdf_url": "https://arxiv.org/pdf/2611.03992.pdf",
+      "abstract": "Long-context inference is bound by the KV cache, which 2-bit codes could shrink about sixfold if their error stays in check. The usual remedy rotates keys before quantizing, assuming rotation always helps. However, we observe that it does not: rotation flattens a spiky piece of a key but can give a flat one a new peak, and both coexist within one key. We therefore propose FlagRot, which stores each 32-channel piece rotated or as is, whichever has the smaller calibrated attention error, and rotates the query instead when reading. We further show that how often to decide follows the quantization axis: per-channel caches such as KIVI need one decision per head, at no write cost, while per-token caches decide per key, with the choice stored in existing sign bits. At 2.5 bits per value, FlagRot lowers the twelve-model KL divergence of KIVI from 18.7 to 12.4 x 10^-3,...",
+      "m1_score": 5.741,
+      "z_prior": -2.464,
+      "z_rigor": 2.362,
+      "z_hype": -2.149,
+      "nll_prior": 4.498,
+      "info_gain_nats": 4.367,
+      "rigor_4b": 7.037,
+      "surprise_4b": 9.157,
+      "groundedness_4b": 0.9985,
+      "clean_claim": "However, we observe that it does not: rotation flattens a spiky piece of a key but can give a flat one a new peak, and both coexist within one key."
+    },
+    {
+      "id": "arxiv-2611.29692",
+      "idx": 426,
+      "title": "Grammar Sparsity Sets How Transformers Learn Random Languages",
+      "authors": [
+        "Edgar Andres Hernandez Moreno",
+        "Francesco Cagnetta"
+      ],
+      "category": "frontier-ai",
+      "year": 2026,
+      "published_date": "2026-11-24",
+      "venue": "arXiv \u00b7 2026-11-24 (cs.CL)",
+      "citations": 0,
+      "url": "https://arxiv.org/abs/2611.29692",
+      "pdf_url": "https://arxiv.org/pdf/2611.29692.pdf",
+      "abstract": "We study language acquisition by transformers trained on the Random Language Model: a synthetic hierarchical grammar with random production rules, whose sparsity is controlled by a single parameter and whose conditional entropies are known exactly. On depth-two grammars, we find that sparsity sets both the order and the speed of learning. Dense grammars are learnt one level at a time: a token is predicted from its sibling after $t\\propto V$ steps and from the full context only after $t\\propto V^{3}$, so the two stages are separated by a plateau that widens with $V$. Sparse grammars are learnt all at once, at $t\\propto\\sqrt V$, with a smaller exponent than even the first stage of a dense one. The exponents $1$ and $1/2$ already appear at depth one, where we derive them for a linear model trained with Adam.",
+      "m1_score": 5.57,
+      "z_prior": -1.56,
+      "z_rigor": 2.573,
+      "z_hype": -1.886,
+      "nll_prior": 4.482,
+      "info_gain_nats": 4.205,
+      "rigor_4b": 8.457,
+      "surprise_4b": 1.739,
+      "groundedness_4b": 0.9918,
+      "clean_claim": "On depth-two grammars, we find that sparsity sets both the order and the speed of learning."
+    },
+    {
+      "id": "arxiv-2605.09887",
+      "idx": 343,
+      "title": "The Geometric Wall: Manifold Structure Predicts Layerwise Sparse Autoencoder Scaling Laws",
+      "authors": [
+        "Eslam Zaher",
+        "Maciej Trzaskowski",
+        "Quan Nguyen",
+        "Fred Roosta"
+      ],
+      "category": "mech-interp-saes",
+      "year": 2026,
+      "published_date": "2026-11-24",
+      "venue": "arXiv \u00b7 2026-11-24 (cs.AI)",
+      "citations": 0,
+      "url": "https://arxiv.org/abs/2605.09887",
+      "pdf_url": "https://arxiv.org/pdf/2605.09887.pdf",
+      "abstract": "SAEs operationalise the linear representation hypothesis: they reconstruct model activations as sparse linear combinations of dictionary atoms hypothesised to represent meaningful linear directions. Their reconstruction error varies sharply across layers in ways that existing scaling laws, fitted at a single layer, do not explain. We contend that this variation is the empirical trace of the changing geometric structure of activation manifolds across depth: as their intrinsic dimension and curvature vary from layer to layer, so does the difficulty of approximating them with sparse linear dictionaries, and SAE width-sparsity scaling becomes a layer-dependent function of manifold structure rather than a single universal law. We conduct the first cross-layer SAE scaling study, fitting per-layer scaling-law surfaces to 844 residual-stream Gemma Scope SAE checkpoints...",
+      "m1_score": 5.211,
+      "z_prior": -2.282,
+      "z_rigor": 2.224,
+      "z_hype": -1.277,
+      "nll_prior": 4.047,
+      "info_gain_nats": 2.863,
+      "rigor_4b": 7.88,
+      "surprise_4b": 2.07,
+      "groundedness_4b": 0.9872,
+      "clean_claim": "Their reconstruction error varies sharply across layers in ways that existing scaling laws, fitted at a single layer, do not explain. We contend that this variation is the empirical trace of the changing geometric structure of activation manifolds across depth: as their intrinsic dimension and curvature vary from layer to layer, so does t"
+    },
+    {
+      "id": "arxiv-2611.29981",
+      "idx": 429,
+      "title": "Language models seek help despite guaranteed score losses in question answering",
+      "authors": [
+        "Jiahao You",
+        "Ziye Jia",
+        "Chao Dong",
+        "Fuhui Zhou"
+      ],
+      "category": "frontier-ai",
+      "year": 2026,
+      "published_date": "2026-11-24",
+      "venue": "arXiv \u00b7 2026-11-24 (cs.CL)",
+      "citations": 0,
+      "url": "https://arxiv.org/abs/2611.29981",
+      "pdf_url": "https://arxiv.org/pdf/2611.29981.pdf",
+      "abstract": "At the highest waiting cost in a multiple-choice question-answering task, all 7 tested open-weight language models still consult an expert even though a correct expert answer earns fewer points than an incorrect independent answer. Pooling over expert accuracy and fixed-fee combinations gives help-seeking rates of 20.8% to 94.1% across models. We test 2,291 questions across 54 combinations of expert accuracy and consultation costs, comparing observed decisions with an expected-score baseline based on independently measured and calibrated model confidence. Help-seeking rates vary across conditions with the same expected consultation score. Fine-tuning reduces decision regret by 59% to 87% on held-out questions within the training range but increases inconsistency at matched expected consultation scores. In a separate task, external routing improves scores by 0.180...",
+      "m1_score": 6.732,
+      "z_prior": -0.915,
+      "z_rigor": 2.33,
+      "z_hype": -2.883,
+      "nll_prior": 4.857,
+      "info_gain_nats": 0.654,
+      "rigor_4b": 8.043,
+      "surprise_4b": 1.56,
+      "groundedness_4b": 0.9196,
+      "clean_claim": "Fine-tuning reduces decision regret by 59% to 87% on held-out questions within the training range but increases inconsistency at matched expected consultation scores. In a separate task, external routing improves scores by 0."
+    },
+    {
+      "id": "arxiv-2611.30835",
+      "idx": 148,
+      "title": "The KL Divergence Is Never Negative, Except in PyTorch",
+      "authors": [
+        "Zhen Yang",
+        "Wei Tang",
+        "Chu Chen",
+        "Rui Qian"
+      ],
+      "category": "frontier-ai",
+      "year": 2026,
+      "published_date": "2026-11-24",
+      "venue": "arXiv \u00b7 2026-11-24 (cs.LG)",
+      "citations": 0,
+      "url": "https://arxiv.org/abs/2611.30835",
+      "pdf_url": "https://arxiv.org/pdf/2611.30835.pdf",
+      "abstract": "A Kullback--Leibler (KL) divergence is never negative, yet PyTorch users have reported negative values for years, and the standard advice is to clamp them at zero. The sign is only the visible part of a silent failure. Many machine-learning applications compare nearby distributions, where conventional KL formulas lose accuracy. On 8.5 million inputs with certified references across 18 closed-form KL families and F.kl_div, we find widespread errors in values and gradients on CPU and GPU. Among scalar families in ordinary parameter ranges, over 85% of FP32 values have at least 1% relative error near KL 10^(-7) (FP16: 10^(-3)), and about 30% become negative at smaller divergences. More precision is not the cure: evaluated one precision higher, the same formulas still leave 7--51% of FP32 values significantly wrong for 22 of 23 configurations. Stable closed-form...",
+      "m1_score": 5.997,
+      "z_prior": -1.987,
+      "z_rigor": 2.625,
+      "z_hype": -3.176,
+      "nll_prior": 5.371,
+      "info_gain_nats": 4.346,
+      "rigor_4b": 4.641,
+      "surprise_4b": 7.654,
+      "groundedness_4b": 0.9973,
+      "clean_claim": "On 8.5 million inputs with certified references across 18 closed-form KL families and F.kl_div, we find widespread errors in values and gradients on CPU and GPU."
+    },
+    {
+      "id": "arxiv-2611.00606",
+      "idx": 631,
+      "title": "Sparse Autoencoder Attribution Graphs Are Decided at the Margin",
+      "authors": [
+        "Karl Li"
+      ],
+      "category": "mech-interp-saes",
+      "year": 2026,
+      "published_date": "2026-10-31",
+      "venue": "arXiv:2611.00606",
+      "citations": 0,
+      "url": "https://arxiv.org/abs/2611.00606",
+      "pdf_url": "https://arxiv.org/pdf/2611.00606.pdf",
+      "abstract": "Attribution graphs predict sparse autoencoder (SAE) ablations to first order on the active features, but a TopK SAE passes only its k largest preactivations, so small changes often swap active features. On five public TopK SAEs, zeroing one feature changes the active set of the next layer's SAE in 74% to 89% of cases. Our margin graph adds the first order change to every downstream preactivation, then selects the k largest again. On Pythia-70M the margin graph cuts the median error of predicted activations, relative to their exact change, from the attribution graph's 0.739 to 0.121, 84% lower. Exact recomputation of 48 interventions runs 3.5 times faster than the margin graph on our GPU. Patched into Pythia-70M with the clean reconstruction error, the margin graph's activations predict the change in the subject verb agreement logit difference with 1.95 times the...",
+      "m1_score": 8.057,
+      "z_prior": -3.061,
+      "z_rigor": 3.018,
+      "z_hype": -3.206,
+      "nll_prior": 4.854,
+      "info_gain_nats": 4.745,
+      "rigor_4b": 7.443,
+      "surprise_4b": 0.25,
+      "groundedness_4b": 0.9945,
+      "clean_claim": "On five public TopK SAEs, zeroing one feature changes the active set of the next layer's SAE in 74% to 89% of cases. Our margin graph adds the first order change to every downstream preactivation, then selects the k largest again."
+    },
+    {
+      "id": "arxiv-2606.01232",
+      "idx": 475,
+      "title": "Residual-Weighted Randomized Jacobi: Sharpened Bounds via Residual Concentration and Asynchronous Extension",
+      "authors": [
+        "Evan Coleman"
+      ],
+      "category": "frontier-ai",
+      "year": 2026,
+      "published_date": "2026-11-24",
+      "venue": "arXiv \u00b7 2026-11-24 (cs.DC)",
+      "citations": 0,
+      "url": "https://arxiv.org/abs/2606.01232",
+      "pdf_url": "https://arxiv.org/pdf/2606.01232.pdf",
+      "abstract": "We study randomized stationary methods for symmetric positive definite linear systems in which component $j$ is selected with probability proportional to $|r_j|^\\ell$. This family interpolates between uniform sampling on the nonzero residual components ($\\ell \\to 0^+$) and Gauss--Southwell relaxation ($\\ell \\to \\infty$). For $\\ell = 2$ we sharpen the one-step analysis using the inverse participation ratio (IPR) of the residual, $\\nu^2(r) = n\\|r\\|_4^4/\\|r\\|_2^4$, which is $1$ for a uniform residual and approaches $n$ as it concentrates. The resulting bound multiplies the guaranteed expected-progress coefficient of uniform sampling by the IPR (and the expected progress, for constant-diagonal $A$). We extend the analysis to asynchronous execution via the Avron--Druinsky--Gupta (ADG) framework, obtaining, under an a priori envelope on the IPR, an epoch-based reduction...",
+      "m1_score": 6.795,
+      "z_prior": -2.945,
+      "z_rigor": 3.059,
+      "z_hype": -2.657,
+      "nll_prior": 2.944,
+      "info_gain_nats": 2.322,
+      "rigor_4b": 8.179,
+      "surprise_4b": -1.886,
+      "groundedness_4b": 0.9936,
+      "clean_claim": "This family interpolates between uniform sampling on the nonzero residual components ($\\ell \\to 0^+$) and Gauss--Southwell relaxation ($\\ell \\to \\infty$). For $\\ell = 2$ we sharpen the one-step analysis using the inverse participation ratio (IPR) of the residual, $\\nu^2(r) = n\\|r\\|_4^4/\\|r\\|_2^4$, which is $1$ for a uniform residual and a"
+    },
+    {
+      "id": "arxiv-2609.20722",
+      "idx": 782,
+      "title": "Deep Noir: Autonomous Steering Discovery via Architectural Chronometry in Transformer Models",
+      "authors": [
+        "Frank E. Bobe",
+        "Gregory D. Vetaw",
+        "Darshan Bryner",
+        "Matthew Cook"
+      ],
+      "category": "mech-interp-circuits",
+      "year": 2026,
+      "published_date": "2026-09-17",
+      "venue": "arXiv:2609.20722",
+      "citations": 0,
+      "url": "https://arxiv.org/abs/2609.20722",
+      "pdf_url": "https://arxiv.org/pdf/2609.20722.pdf",
+      "abstract": "Activation steering modifies LLM behavior at inference time, but identifying where and how strongly to steer remains manual. We introduce Deep Noir, a framework that uses Logit Lens convergence and causal head-level attribution to autonomously discover optimal steering parameters. Across three scales (1B x 3, 2-3B x 2, and 7-9B x 4), our engine achieves 16.7 percentage-point improvement on spam at 1B (standard deviation 4.7; 39 runs), with gains increasing to 21 to 42 percentage points at 7-9B across four architectures. On SST-2 sentiment, it achieves a 13.1 percentage-point improvement with zero code changes. Mechanistic grounding enables automated discovery of intervention points that generalize across tasks and architectures. On sentiment, RepE without head masking fails to improve over baseline, while Deep Noir improves all models (p less than 0.01). We...",
+      "m1_score": 5.607,
+      "z_prior": -3.247,
+      "z_rigor": 1.596,
+      "z_hype": -2.034,
+      "nll_prior": 3.052,
+      "info_gain_nats": 1.92,
+      "rigor_4b": 7.606,
+      "surprise_4b": -1.721,
+      "groundedness_4b": 0.8265,
+      "clean_claim": "Across three scales (1B x 3, 2-3B x 2, and 7-9B x 4), our engine achieves 16.7 percentage-point improvement on spam at 1B (standard deviation 4.7; 39 runs), with gains increasing to 21 to 42 percentage points at 7-9B across four architectures. On SST-2 sentiment, it achieves a 13.1 percentage-point improvement with zero code changes."
+    },
+    {
+      "id": "arxiv-2611.27193",
+      "idx": 548,
+      "title": "cmHC: Balancing Stream Mixing in Hyper-Connections via Geometric Contraction",
+      "authors": [
+        "Haowei He",
+        "Ziwen Zhao",
+        "Chenshuo Pan",
+        "Gang Lin"
+      ],
+      "category": "frontier-ai",
+      "year": 2026,
+      "published_date": "2026-11-19",
+      "venue": "HF Daily \u00b7 arXiv:2611.27193",
+      "citations": 94,
+      "url": "https://arxiv.org/abs/2611.27193",
+      "pdf_url": "https://arxiv.org/pdf/2611.27193.pdf",
+      "abstract": "Manifold-constrained Hyper-Connections (mHC) extends residual connections to multiple streams and stabilizes residual propagation by constraining stream-mixing residual matrices to the Birkhoff polytope, the set of doubly stochastic matrices. In this work, we investigate how to effectively mix residual streams within the Birkhoff polytope. We reveal a mixing trade-off: when under-mixed residual matrices stay close to the vertices of the Birkhoff polytope, hyper-connections will degenerate into a set of nearly independent streams; when over-mixed residual matrices are concentrated around the uniform barycenter of the polytope, streams will become less distinguishable from each other. We theoretically validate our findings by bounding the cumulative residual mixing, stream difference and gradient difference of mixing coefficients across layers. Motivated by these...",
+      "m1_score": 5.447,
+      "z_prior": -2.533,
+      "z_rigor": 1.563,
+      "z_hype": -1.0,
+      "nll_prior": 3.886,
+      "info_gain_nats": 2.045,
+      "rigor_4b": 7.315,
+      "surprise_4b": -0.98,
+      "groundedness_4b": 0.9959,
+      "clean_claim": "We reveal a mixing trade-off: when under-mixed residual matrices stay close to the vertices of the Birkhoff polytope, hyper-connections will degenerate into a set of nearly independent streams; when over-mixed residual matrices are concentrated around the uniform barycenter of the polytope, streams will become less distinguishable from ea"
+    },
+    {
+      "id": "arxiv-2505.18706",
+      "idx": 1379,
+      "title": "Steering LLM Reasoning Through Bias-Only Adaptation",
+      "authors": [
+        "Viacheslav Sinii",
+        "Alexey Gorbatovski",
+        "Artem Cherepanov",
+        "Boris Shaposhnikov"
+      ],
+      "category": "reasoning-alignment",
+      "year": 2025,
+      "published_date": "2025-01-01",
+      "venue": "EMNLP 2025",
+      "citations": 26,
+      "url": "https://arxiv.org/abs/2505.18706",
+      "pdf_url": "https://arxiv.org/pdf/2505.18706.pdf",
+      "abstract": "We show that training a single d -dimensional steering vector per layer with reinforcement learning, while freezing all base weights, matches the accuracy of fully RL-tuned reasoning models on mathematical-reasoning tasks.On an 8 billion-parameter model this adds only \u2248 0.0016% additional parameters and reproduces performance across a range of base models and mathematical-reasoning benchmarks.These results tighten the upper bound on the parameter budget required for high-level chain-of-thought reasoning, indicating that millions of adapter weights are unnecessary.The minimal trainable footprint reduces optimizer memory and inter-GPU communication, lowering the overall cost of fine-tuning.Moreover, a logit-lens analysis shows that the learned vectors amplify coherent token directions, providing clearer insight into the model\u2019s internal computations.",
+      "m1_score": 5.112,
+      "z_prior": -1.581,
+      "z_rigor": 1.072,
+      "z_hype": -1.743,
+      "nll_prior": 4.726,
+      "info_gain_nats": 4.301,
+      "rigor_4b": 7.607,
+      "surprise_4b": -1.865,
+      "groundedness_4b": 0.995,
+      "clean_claim": "We show that training a single d -dimensional steering vector per layer with reinforcement learning, while freezing all base weights, matches the accuracy of fully RL-tuned reasoning models on mathematical-reasoning tasks.On an 8 billion-parameter model this adds only \u2248 0.0016% additional parameters and reproduces performance across a ran"
+    },
+    {
+      "id": "arxiv-2611.28318",
+      "idx": 159,
+      "title": "Selection Policies for Equal-Byte Mixed-Precision Quantization of Small Language Models",
+      "authors": [
+        "Smit Anand"
+      ],
+      "category": "quantization",
+      "year": 2026,
+      "published_date": "2026-11-24",
+      "venue": "arXiv \u00b7 2026-11-24 (cs.LG)",
+      "citations": 0,
+      "url": "https://arxiv.org/abs/2611.28318",
+      "pdf_url": "https://arxiv.org/pdf/2611.28318.pdf",
+      "abstract": "Can changing which matrices receive 2, 4, or 8 bits improve a small language model without increasing its parameter storage? I compare two parent-selection rules in the same genetic algorithm: a binary-tournament variant and an Alternis-inspired rule. A separate baseline samples repaired random allocations without crossover or mutation. All three use the same MLX affine quantizer, byte ceiling, initialization and candidate allowance within each study. An exploratory study on Qwen3.5-2B evaluates 90 allocations per run. The main study on Qwen3-1.7B evaluates 500 distinct allocations per run over 10 paired seeds. Against uniform four-bit, tournament reduces held-out next-token negative log-likelihood (NLL) by 0.0616 on AG News and 0.0152 on IMDb on average, improving all 10 seeds on each corpus at identical parameter storage. Alternis improves five seeds and ties...",
+      "m1_score": 6.645,
+      "z_prior": -2.475,
+      "z_rigor": 2.444,
+      "z_hype": -2.572,
+      "nll_prior": 4.494,
+      "info_gain_nats": 0.538,
+      "rigor_4b": 7.676,
+      "surprise_4b": -2.34,
+      "groundedness_4b": 0.9529,
+      "clean_claim": "Against uniform four-bit, tournament reduces held-out next-token negative log-likelihood (NLL) by 0.0616 on AG News and 0.0152 on IMDb on average, improving all 10 seeds on each corpus at identical parameter storage."
+    },
+    {
+      "id": "arxiv-2611.31113",
+      "idx": 227,
+      "title": "Attention Temperature Confounds Zero-Shot Context Extension",
+      "authors": [
+        "Ruben Navasardyan"
+      ],
+      "category": "architectures",
+      "year": 2026,
+      "published_date": "2026-11-24",
+      "venue": "arXiv \u00b7 2026-11-24 (cs.LG)",
+      "citations": 0,
+      "url": "https://arxiv.org/abs/2611.31113",
+      "pdf_url": "https://arxiv.org/pdf/2611.31113.pdf",
+      "abstract": "A training-time attention change is usually judged for zero-shot context extension against a dense baseline beyond the training length at the default temperature, $\\tau = 1$. The outcome depends on how miscalibrated the baseline is there: the share of perplexity it recovers when its logits are sharpened by one scalar. Under the standard recipe (fp32 master weights), an 8k-trained baseline is 8-15% miscalibrated at 30k in three seed-paired 365M twins; in one of them this makes the block-sparse-trained twin look 7% better, which calibration removes. In pure-bf16 training without master weights the miscalibration is several times larger: an AdamW step ($\\beta_2 = 0.95$) on a gain initialised at 1.0 is below half the bf16 spacing at peak learning rates under $1.7\\times10^{-3}$, so gains never move (22 checkpoints), the baseline is 37-58% miscalibrated, and...",
+      "m1_score": 7.833,
+      "z_prior": -2.303,
+      "z_rigor": 3.149,
+      "z_hype": -3.842,
+      "nll_prior": 4.95,
+      "info_gain_nats": 3.826,
+      "rigor_4b": 6.068,
+      "surprise_4b": 1.645,
+      "groundedness_4b": 0.9941,
+      "clean_claim": "The outcome depends on how miscalibrated the baseline is there: the share of perplexity it recovers when its logits are sharpened by one scalar. Under the standard recipe (fp32 master weights), an 8k-trained baseline is 8-15% miscalibrated at 30k in three seed-paired 365M twins; in one of them this makes the block-sparse-trained twin look"
+    },
+    {
+      "id": "arxiv-2611.29120",
+      "idx": 96,
+      "title": "When Can a Rewiring Control Test LLM Weight Readers? C2 and an Eligibility Protocol",
+      "authors": [
+        "Vaishak Girish Kumar",
+        "Sanika Vilas Najan"
+      ],
+      "category": "frontier-ai",
+      "year": 2026,
+      "published_date": "2026-11-24",
+      "venue": "arXiv \u00b7 2026-11-24 (cs.LG)",
+      "citations": 0,
+      "url": "https://arxiv.org/abs/2611.29120",
+      "pdf_url": "https://arxiv.org/pdf/2611.29120.pdf",
+      "abstract": "Large language models can predict the outputs of small neural networks from raw weights, but success could reflect recognition of weight-space regularities (fingerprints) rather than computation, and function-preserving controls cannot tell these apart. We propose C2, a counterfactual that permutes the columns of a network's final linear readout: every other parameter, and the readout's singular values, norms and entry multiset, are unchanged, and the function can change in an exactly recomputable way; we verify that each evaluated permutation does. C2 separates fingerprinting from computation only under three conditions, which we state as an eligibility protocol: a strategy restricted to C2-invariant summaries must already predict the target; C2 must change a property specific to the rewiring; and the reader's identity must be attested. No natural setting we...",
+      "m1_score": 5.847,
+      "z_prior": -2.528,
+      "z_rigor": 2.208,
+      "z_hype": -1.777,
+      "nll_prior": 4.719,
+      "info_gain_nats": 2.851,
+      "rigor_4b": 6.247,
+      "surprise_4b": 0.588,
+      "groundedness_4b": 0.9952,
+      "clean_claim": "We propose C2, a counterfactual that permutes the columns of a network's final linear readout: every other parameter, and the readout's singular values, norms and entry multiset, are unchanged, and the function can change in an exactly recomputable way; we verify that each evaluated permutation does."
+    },
+    {
+      "id": "arxiv-2610.17117",
+      "idx": 88,
+      "title": "Gluing Local Contexts into Global Meaning: A Sheaf-Theoretic Decomposition of Transformer Representations",
+      "authors": [
+        "Bryce Grant",
+        "Peng Wang"
+      ],
+      "category": "frontier-ai",
+      "year": 2026,
+      "published_date": "2026-11-24",
+      "venue": "arXiv \u00b7 2026-11-24 (cs.LG)",
+      "citations": 0,
+      "url": "https://arxiv.org/abs/2610.17117",
+      "pdf_url": "https://arxiv.org/pdf/2610.17117.pdf",
+      "abstract": "Prior research into interpretability does not test whether a representation stays consistent under paraphrasing. Each pair of paraphrases can be thought of as a local witness that two activations should be the same. From these local witnesses we can build a cellular sheaf on the paraphrase graph. The question of what is consistent under paraphrasing can be answered by the Laplacian $L_\\mathcal{F}$ given a frozen model. No training required. Our kernel $H^0$ gives us a content subspace. We show that with only 20 dims the kernel outperforms the subspace that LEACE retains with all dims on held-out CounterFact fact retrieval by $+17.1$\\,pp on average across 8 models. By constraining all paraphrases of a fact together we see an additional increase of $+6.5$\\,pp. Our spectral complement shows us where the causal influence is concentrated. Ablating the coordinates that...",
+      "m1_score": 5.287,
+      "z_prior": -2.243,
+      "z_rigor": 1.885,
+      "z_hype": -1.265,
+      "nll_prior": 5.199,
+      "info_gain_nats": 0.358,
+      "rigor_4b": 7.525,
+      "surprise_4b": -3.698,
+      "groundedness_4b": 0.9942,
+      "clean_claim": "We show that with only 20 dims the kernel outperforms the subspace that LEACE retains with all dims on held-out CounterFact fact retrieval by $+17.1$\\,pp on average across 8 models."
+    },
+    {
+      "id": "arxiv-2609.09902",
+      "idx": 836,
+      "title": "Contrastive Projection: Reading Transformer Internals by Differencing Logit Lenses",
+      "authors": [
+        "Olli Tuomi"
+      ],
+      "category": "mech-interp-circuits",
+      "year": 2026,
+      "published_date": "2026-06-25",
+      "venue": "arXiv:2609.09902",
+      "citations": 0,
+      "url": "https://arxiv.org/abs/2609.09902",
+      "pdf_url": "https://arxiv.org/pdf/2609.09902.pdf",
+      "abstract": "Reading a transformer\u2019s internal states in token space is easy to do and hard to trust: a logitlens on a single hidden state is dominated, at intermediate layers, by the generic tokens themodel would predict for almost any input. We read the difference instead. Subtracting twoclosely matched prompts\u2019 hidden states and projecting through the unembedding cancels theshared component and surfaces what separates them, an operation equivalent to reading aRepE/ActAdd steering vector through a logit lens. Built into a training-free tracer that reads atevery position, sub-layer, and head and averages over designed baselines, it traces a compound-noun MLP\u2192attention chain in Phi-2, confirmed there by activation patching, with the samedistinction recovered across three architectures by readout and probe rather than by patching;it reads what retrieval surfaces for real versus...",
+      "m1_score": 5.174,
+      "z_prior": -2.029,
+      "z_rigor": 2.072,
+      "z_hype": -1.866,
+      "nll_prior": 6.4,
+      "info_gain_nats": 4.527,
+      "rigor_4b": 6.375,
+      "surprise_4b": -1.89,
+      "groundedness_4b": 0.999,
+      "clean_claim": "We read the difference instead. Subtracting twoclosely matched prompts\u2019 hidden states and projecting through the unembedding cancels theshared component and surfaces what separates them, an operation equivalent to reading aRepE/ActAdd steering vector through a logit lens."
+    }
+  ],
+  "bridges": [
+    {
+      "bge_cosine": 0.7027,
+      "ace_mech_cosine": 0.811,
+      "bge_orth_resid_cosine": 0.4785,
+      "transfer_1_7b": 0.312,
+      "transfer_4b": 14.024,
+      "shared_mechanisms": [
+        [
+          "symmetry_debiasing",
+          2.2
+        ],
+        [
+          "heavy_tail_outliers",
+          1.16
+        ],
+        [
+          "memory_eviction_tiling",
+          0.79
+        ]
+      ],
+      "paper_a": {
+        "id": "arxiv-2611.00606",
+        "idx": 631,
+        "title": "Sparse Autoencoder Attribution Graphs Are Decided at the Margin",
+        "authors": [
+          "Karl Li"
+        ],
+        "category": "mech-interp-saes",
+        "year": 2026,
+        "published_date": "2026-10-31",
+        "venue": "arXiv:2611.00606",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2611.00606",
+        "pdf_url": "https://arxiv.org/pdf/2611.00606.pdf",
+        "abstract": "Attribution graphs predict sparse autoencoder (SAE) ablations to first order on the active features, but a TopK SAE passes only its k largest preactivations, so small changes often swap active features. On five public TopK SAEs, zeroing one feature changes the active set of the next layer's SAE in 74% to 89% of cases. Our margin graph adds the first order change to every downstream preactivation, then selects the k largest again. On Pythia-70M the margin graph cuts the median error of predicted activations, relative to their exact change, from the attribution graph's 0.739 to 0.121, 84% lower. Exact recomputation of 48 interventions runs 3.5 times faster than the margin graph on our GPU. Patched into Pythia-70M with the clean reconstruction error, the margin graph's activations predict the change in the subject verb agreement logit difference with 1.95 times the...",
+        "z_rigor": 3.02
+      },
+      "paper_b": {
+        "id": "arxiv-2609.09902",
+        "idx": 836,
+        "title": "Contrastive Projection: Reading Transformer Internals by Differencing Logit Lenses",
+        "authors": [
+          "Olli Tuomi"
+        ],
+        "category": "mech-interp-circuits",
+        "year": 2026,
+        "published_date": "2026-06-25",
+        "venue": "arXiv:2609.09902",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2609.09902",
+        "pdf_url": "https://arxiv.org/pdf/2609.09902.pdf",
+        "abstract": "Reading a transformer\u2019s internal states in token space is easy to do and hard to trust: a logitlens on a single hidden state is dominated, at intermediate layers, by the generic tokens themodel would predict for almost any input. We read the difference instead. Subtracting twoclosely matched prompts\u2019 hidden states and projecting through the unembedding cancels theshared component and surfaces what separates them, an operation equivalent to reading aRepE/ActAdd steering vector through a logit lens. Built into a training-free tracer that reads atevery position, sub-layer, and head and averages over designed baselines, it traces a compound-noun MLP\u2192attention chain in Phi-2, confirmed there by activation patching, with the samedistinction recovered across three architectures by readout and probe rather than by patching;it reads what retrieval surfaces for real versus...",
+        "z_rigor": 2.07
+      }
+    },
+    {
+      "bge_cosine": 0.6399,
+      "ace_mech_cosine": 0.9118,
+      "bge_orth_resid_cosine": 0.2359,
+      "transfer_1_7b": -0.5,
+      "transfer_4b": 13.272,
+      "shared_mechanisms": [
+        [
+          "symmetry_debiasing",
+          2.39
+        ]
+      ],
+      "paper_a": {
+        "id": "arxiv-2611.30473",
+        "idx": 469,
+        "title": "What Information Survives Authenticated Byzantine Communication?",
+        "authors": [
+          "Arnab Mallick",
+          "Indraveni Chebolu"
+        ],
+        "category": "frontier-ai",
+        "year": 2026,
+        "published_date": "2026-11-24",
+        "venue": "arXiv \u00b7 2026-11-24 (cs.DC)",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2611.30473",
+        "pdf_url": "https://arxiv.org/pdf/2611.30473.pdf",
+        "abstract": "Two principals independently approve actions for a delegate that can choose a route to a goal and carry it out under current policy. A stable work-order receipt records the routes authorized at issuance. For intersection policies, we characterize the leading number of reachable joint configurations under overlapping updates. The lower bound uses the first writer's ability to finish before its peer invokes an update. The matching protocol checks an older route against the changed principal's policy because the unchanged principal already approved each of its steps. When each route has a command unique to it, the count has a closed form in terms of unions of route supports. Two three-command workflows with four possible receipts each have leading counts of $360$ and $328$ under encoded overwrite, and both have append count $1024$. Exact policy read-back forces at...",
+        "z_rigor": 2.64
+      },
+      "paper_b": {
+        "id": "arxiv-2608.25188",
+        "idx": 797,
+        "title": "Transforms for LLM Quantization: The Great Inversion and Format Co-Design",
+        "authors": [
+          "Ehsan Jokar"
+        ],
+        "category": "quantization",
+        "year": 2026,
+        "published_date": "2026-08-25",
+        "venue": "arXiv:2608.25188",
+        "citations": 1,
+        "url": "https://arxiv.org/abs/2608.25188",
+        "pdf_url": "https://arxiv.org/pdf/2608.25188.pdf",
+        "abstract": "Most competitive 4-bit LLM research pipelines now open the same way: apply a linear, function-preserving transform (rotation, scaling, permutation, non-orthogonal affine) so the outlier mass sits more favorably against the group scales, and only then round. Yet we are aware of no survey dedicated to this transform stage, and its literature is quietly re-deriving an older theory. We identify and formalize the principle that organizes it, the Great Inversion: allocation-flexible coding rewards energy concentration, whereas the grouped shared-scale quantization a deployed matrix instruction performs rewards within-group flattening. Classical transform coding (1963: decorrelate, allocate bits, quantize) spends different bits per coordinate at a fixed total rate; for a Gaussian source at high rate the Karhunen-Loeve transform's concentration minimizes distortion. A...",
+        "z_rigor": 1.28
+      }
+    },
+    {
+      "bge_cosine": 0.7064,
+      "ace_mech_cosine": 0.8788,
+      "bge_orth_resid_cosine": 0.3432,
+      "transfer_1_7b": 0.188,
+      "transfer_4b": 12.312,
+      "shared_mechanisms": [
+        [
+          "sparse_gating",
+          2.16
+        ],
+        [
+          "heavy_tail_outliers",
+          1.15
+        ]
+      ],
+      "paper_a": {
+        "id": "arxiv-2606.01509",
+        "idx": 738,
+        "title": "ProbMoE: Differentiable Probabilistic Routing for Mixture-of-Experts",
+        "authors": [
+          "Heng Zhao",
+          "Zilei Shao",
+          "Guy Van den Broeck",
+          "Zhe Zeng"
+        ],
+        "category": "architectures",
+        "year": 2026,
+        "published_date": "2026-09-29",
+        "venue": "ICML 2026",
+        "citations": 2,
+        "url": "https://arxiv.org/abs/2606.01509",
+        "pdf_url": "https://arxiv.org/pdf/2606.01509.pdf",
+        "abstract": "Mixture-of-Experts (MoE) models scale by activating only a small subset of experts per token. However, training such models remains challenging because top-$k$ routing is discrete and non-differentiable, requiring gradient estimators for expert selection whose design remains a central open problem. We introduce ProbMoE, a probabilistic routing framework that models expert selection as a distribution over cardinality-constrained expert subsets and formulates routing as probabilistic inference in this discrete subset space. We first propose ProbMoE Exact-$k$ routing, which samples $k$-expert subsets in the forward pass, and the backward pass uses gradients through each expert's exact marginal probability as a tractable surrogate for the true gradient. ProbMoE naturally generalizes to a dynamic-$k$ routing setting, where both training and inference constrain the...",
+        "z_rigor": 0.83
+      },
+      "paper_b": {
+        "id": "arxiv-2412.06410",
+        "idx": 1445,
+        "title": "BatchTopK Sparse Autoencoders",
+        "authors": [
+          "Bart Bussmann",
+          "Patrick Leask",
+          "Neel Nanda"
+        ],
+        "category": "mech-interp-saes",
+        "year": 2024,
+        "published_date": "2024-12-15",
+        "venue": "arXiv:2412.06410",
+        "citations": 228,
+        "url": "https://arxiv.org/abs/2412.06410",
+        "pdf_url": "https://arxiv.org/pdf/2412.06410.pdf",
+        "abstract": "Sparse autoencoders (SAEs) have emerged as a powerful tool for interpreting language model activations by decomposing them into sparse, interpretable features. A popular approach is the TopK SAE, that uses a fixed number of the most active latents per sample to reconstruct the model activations. We introduce BatchTopK SAEs, a training method that improves upon TopK SAEs by relaxing the top-k constraint to the batch-level, allowing for a variable number of latents to be active per sample. As a result, BatchTopK adaptively allocates more or fewer latents depending on the sample, improving reconstruction without sacrificing average sparsity. We show that BatchTopK SAEs consistently outperform TopK SAEs in reconstructing activations from GPT-2 Small and Gemma 2 2B, and achieve comparable performance to state-of-the-art JumpReLU SAEs. However, an advantage of BatchTopK...",
+        "z_rigor": 0.84
+      }
+    },
+    {
+      "bge_cosine": 0.6658,
+      "ace_mech_cosine": 0.94,
+      "bge_orth_resid_cosine": 0.2209,
+      "transfer_1_7b": -0.5,
+      "transfer_4b": 10.937,
+      "shared_mechanisms": [
+        [
+          "symmetry_debiasing",
+          1.88
+        ],
+        [
+          "heavy_tail_outliers",
+          1.41
+        ],
+        [
+          "memory_eviction_tiling",
+          1.05
+        ]
+      ],
+      "paper_a": {
+        "id": "arxiv-2611.31030",
+        "idx": 461,
+        "title": "Accurate Products, Inaccurate Inverse: Emulated FP64 BLAS in Blocked Triangular Inversion",
+        "authors": [
+          "Erzheng Zhang"
+        ],
+        "category": "frontier-ai",
+        "year": 2026,
+        "published_date": "2026-11-24",
+        "venue": "arXiv \u00b7 2026-11-24 (cs.DC)",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2611.31030",
+        "pdf_url": "https://arxiv.org/pdf/2611.31030.pdf",
+        "abstract": "FP64 emulation on integer tensor units now ships in cuBLAS and GEMMul8, and each emulated matrix product can be checked against an accuracy grade. We ask if a routine built from such products inherits their accuracy, and show that blocked triangular inversion, the core of LAPACK's inverse of a symmetric positive definite matrix, does not. Under fixed-precision emulation every product passes the grade-B error bound of Demmel et al., yet the inverse errs at 7.1e-2, against 2.0e-15 natively. The matrices are well conditioned after diagonal scaling, but the scaling spans 64 binades. The cause is one product, T = X22 L21, whose summed index carries both the diagonal scaling and its inverse, which a grade-B bound does not absorb. Computing those products natively restores native accuracy; leaving any one of them emulated does not. The pattern holds on four GPUs, and on...",
+        "z_rigor": 2.63
+      },
+      "paper_b": {
+        "id": "tct-mathematical-framework-2021",
+        "idx": 1702,
+        "title": "A Mathematical Framework for Transformer Circuits",
+        "authors": [
+          "Nelson Elhage",
+          "Neel Nanda",
+          "Catherine Olsson",
+          "Tom Henighan"
+        ],
+        "category": "mech-interp-circuits",
+        "year": 2021,
+        "published_date": "2021-06-01",
+        "venue": "Transformer Circuits Thread (Anthropic)",
+        "citations": 920,
+        "url": "https://transformer-circuits.pub/2021/framework/index.html",
+        "pdf_url": "https://transformer-circuits.pub/2021/framework/index.html",
+        "abstract": "Introduces a mathematical decomposition of attention-only transformers as sums over computational paths through the residual stream, separating each attention head into Query-Key (QK) attention-pattern circuits and Output-Value (OV) information-copying circuits. Reveals virtual attention heads formed by head composition across layers and documents induction heads as an early mechanistic circuit for in-context learning.",
+        "z_rigor": 1.91
+      }
+    },
+    {
+      "bge_cosine": 0.7045,
+      "ace_mech_cosine": 0.9006,
+      "bge_orth_resid_cosine": 0.3078,
+      "transfer_1_7b": -0.125,
+      "transfer_4b": 10.787,
+      "shared_mechanisms": [
+        [
+          "symmetry_debiasing",
+          1.84
+        ],
+        [
+          "heavy_tail_outliers",
+          1.23
+        ]
+      ],
+      "paper_a": {
+        "id": "arxiv-2611.28318",
+        "idx": 159,
+        "title": "Selection Policies for Equal-Byte Mixed-Precision Quantization of Small Language Models",
+        "authors": [
+          "Smit Anand"
+        ],
+        "category": "quantization",
+        "year": 2026,
+        "published_date": "2026-11-24",
+        "venue": "arXiv \u00b7 2026-11-24 (cs.LG)",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2611.28318",
+        "pdf_url": "https://arxiv.org/pdf/2611.28318.pdf",
+        "abstract": "Can changing which matrices receive 2, 4, or 8 bits improve a small language model without increasing its parameter storage? I compare two parent-selection rules in the same genetic algorithm: a binary-tournament variant and an Alternis-inspired rule. A separate baseline samples repaired random allocations without crossover or mutation. All three use the same MLX affine quantizer, byte ceiling, initialization and candidate allowance within each study. An exploratory study on Qwen3.5-2B evaluates 90 allocations per run. The main study on Qwen3-1.7B evaluates 500 distinct allocations per run over 10 paired seeds. Against uniform four-bit, tournament reduces held-out next-token negative log-likelihood (NLL) by 0.0616 on AG News and 0.0152 on IMDb on average, improving all 10 seeds on each corpus at identical parameter storage. Alternis improves five seeds and ties...",
+        "z_rigor": 2.44
+      },
+      "paper_b": {
+        "id": "tct-mathematical-framework-2021",
+        "idx": 1702,
+        "title": "A Mathematical Framework for Transformer Circuits",
+        "authors": [
+          "Nelson Elhage",
+          "Neel Nanda",
+          "Catherine Olsson",
+          "Tom Henighan"
+        ],
+        "category": "mech-interp-circuits",
+        "year": 2021,
+        "published_date": "2021-06-01",
+        "venue": "Transformer Circuits Thread (Anthropic)",
+        "citations": 920,
+        "url": "https://transformer-circuits.pub/2021/framework/index.html",
+        "pdf_url": "https://transformer-circuits.pub/2021/framework/index.html",
+        "abstract": "Introduces a mathematical decomposition of attention-only transformers as sums over computational paths through the residual stream, separating each attention head into Query-Key (QK) attention-pattern circuits and Output-Value (OV) information-copying circuits. Reveals virtual attention heads formed by head composition across layers and documents induction heads as an early mechanistic circuit for in-context learning.",
+        "z_rigor": 1.91
+      }
+    },
+    {
+      "bge_cosine": 0.6848,
+      "ace_mech_cosine": 0.8073,
+      "bge_orth_resid_cosine": 0.3421,
+      "transfer_1_7b": 0.688,
+      "transfer_4b": 10.136,
+      "shared_mechanisms": [
+        [
+          "symmetry_debiasing",
+          2.42
+        ],
+        [
+          "memory_eviction_tiling",
+          1.26
+        ],
+        [
+          "heavy_tail_outliers",
+          0.94
+        ]
+      ],
+      "paper_a": {
+        "id": "arxiv-2611.30081",
+        "idx": 141,
+        "title": "The Growth Path Is the Missing Half of Neural Networks",
+        "authors": [
+          "Tingan Jin",
+          "Haosong Li"
+        ],
+        "category": "frontier-ai",
+        "year": 2026,
+        "published_date": "2026-11-24",
+        "venue": "arXiv \u00b7 2026-11-24 (cs.LG)",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2611.30081",
+        "pdf_url": "https://arxiv.org/pdf/2611.30081.pdf",
+        "abstract": "An artificial neuron computes and learns, but it does not live: the units of a network are fixed when it is designed, and every one of them is kept and paid for whether it is used or not. We give each neuron a second pathway. Beside its Task Path, the usual computation and gradient learning, a dual-pathway neuron has a Growth Path: a nutrient flows from the outputs back through the network, every layer receives the same fixed budget, and each unit is fed in proportion to how much the units above it use it. A well-fed unit divides and a starving unit dies. This allocation is not a separate analysis or pruning step: it runs throughout training and reads only activations and weights. The task is still learned from labels with the ordinary loss, and the training procedure gains no phase, no schedule and no target size. Because the budget is conserved, the competition...",
+        "z_rigor": 2.39
+      },
+      "paper_b": {
+        "id": "arxiv-2608.13756",
+        "idx": 800,
+        "title": "The Integer Alibi: Localizing Cross-Kernel Divergence in INT8-Quantized LLM Inference",
+        "authors": [
+          "Teng-Ruei Chen"
+        ],
+        "category": "inference-kernels",
+        "year": 2026,
+        "published_date": "2026-08-15",
+        "venue": "arXiv:2608.13756",
+        "citations": 3,
+        "url": "https://arxiv.org/abs/2608.13756",
+        "pdf_url": "https://arxiv.org/pdf/2608.13756.pdf",
+        "abstract": "Two GPU kernels implementing the same scaled INT8 GEMM interface are usually treated as interchangeable. We test that assumption: holding the checkpoint, prompts, hardware, inference engine, decoding, and quantization configuration fixed, we swap only the INT8 linear kernel (CUTLASS versus Triton) inside vLLM. At 1.7B each arm reproduces itself bit-for-bit across cold restarts, yet the arms agree on no sequence in any end-to-end comparison we ran (0/8, 0/16, and 0/64). What makes this more than a benchmark discrepancy is an integer alibi: for shared INT8 operands under a verified no-overflow bound, the INT32 dot product is exact and order-independent, so the accumulator cannot be the source of any difference. Feeding both kernels identical operands from every linear layer of Qwen3-1.7B and 8B (196 and 252 layers), we find bit-identical outputs under power-of-two...",
+        "z_rigor": 2.61
+      }
+    },
+    {
+      "bge_cosine": 0.7063,
+      "ace_mech_cosine": 0.9049,
+      "bge_orth_resid_cosine": 0.4507,
+      "transfer_1_7b": 0.062,
+      "transfer_4b": 10.082,
+      "shared_mechanisms": [
+        [
+          "symmetry_debiasing",
+          1.55
+        ],
+        [
+          "memory_eviction_tiling",
+          1.17
+        ],
+        [
+          "heavy_tail_outliers",
+          1.0
+        ]
+      ],
+      "paper_a": {
+        "id": "arxiv-2611.30081",
+        "idx": 141,
+        "title": "The Growth Path Is the Missing Half of Neural Networks",
+        "authors": [
+          "Tingan Jin",
+          "Haosong Li"
+        ],
+        "category": "frontier-ai",
+        "year": 2026,
+        "published_date": "2026-11-24",
+        "venue": "arXiv \u00b7 2026-11-24 (cs.LG)",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2611.30081",
+        "pdf_url": "https://arxiv.org/pdf/2611.30081.pdf",
+        "abstract": "An artificial neuron computes and learns, but it does not live: the units of a network are fixed when it is designed, and every one of them is kept and paid for whether it is used or not. We give each neuron a second pathway. Beside its Task Path, the usual computation and gradient learning, a dual-pathway neuron has a Growth Path: a nutrient flows from the outputs back through the network, every layer receives the same fixed budget, and each unit is fed in proportion to how much the units above it use it. A well-fed unit divides and a starving unit dies. This allocation is not a separate analysis or pruning step: it runs throughout training and reads only activations and weights. The task is still learned from labels with the ordinary loss, and the training procedure gains no phase, no schedule and no target size. Because the budget is conserved, the competition...",
+        "z_rigor": 2.39
+      },
+      "paper_b": {
+        "id": "arxiv-2611.29066",
+        "idx": 329,
+        "title": "RES: Accelerating Diffusion Language Models with Rolling Entropy Sampling",
+        "authors": [
+          "Patrick Pynadath",
+          "Nicolas Perez-Nieves",
+          "Bobak Shahriari",
+          "Jean Tarbouriech"
+        ],
+        "category": "speculative",
+        "year": 2026,
+        "published_date": "2026-11-24",
+        "venue": "arXiv \u00b7 2026-11-24 (cs.AI)",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2611.29066",
+        "pdf_url": "https://arxiv.org/pdf/2611.29066.pdf",
+        "abstract": "A diffusion language sampler makes two choices for every position in its denoising window: where the next token comes from, and when the position is committed to the KV cache. Using the entropy-bound sampler in DiffusionGemma, we study two extremes of the second choice. Committing each token as soon as it is accepted removes the chance to revise it, which hurts when the entropy bound is relaxed to trade accuracy for speed. When accepted tokens are frozen, macro accuracy falls from 73% to 20% as the bound is relaxed, while the unfrozen sampler stays near 70%. Committing a whole block at once wastes computation, since tokens converge in a largely left-to-right order and more than half of the window holds already-final tokens by twenty denoising steps. These findings motivate the Rolling Entropy Sampler (RES), which commits a contiguous accepted prefix once it...",
+        "z_rigor": 1.98
+      }
+    },
+    {
+      "bge_cosine": 0.7045,
+      "ace_mech_cosine": 0.8005,
+      "bge_orth_resid_cosine": 0.2456,
+      "transfer_1_7b": -0.062,
+      "transfer_4b": 9.067,
+      "shared_mechanisms": [
+        [
+          "symmetry_debiasing",
+          2.62
+        ],
+        [
+          "heavy_tail_outliers",
+          1.48
+        ],
+        [
+          "memory_eviction_tiling",
+          1.13
+        ]
+      ],
+      "paper_a": {
+        "id": "arxiv-2602.00874",
+        "idx": 125,
+        "title": "Sublinear Time Quantum Algorithm for Attention Approximation",
+        "authors": [
+          "Zhao Song",
+          "Jianfei Xue",
+          "Jiahao Zhang",
+          "Lichen Zhang"
+        ],
+        "category": "frontier-ai",
+        "year": 2026,
+        "published_date": "2026-11-24",
+        "venue": "arXiv \u00b7 2026-11-24 (cs.LG)",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2602.00874",
+        "pdf_url": "https://arxiv.org/pdf/2602.00874.pdf",
+        "abstract": "Given the query, key and value matrices $Q, K, V\\in \\mathbb{R}^{n\\times d}$, the attention module is defined as $\\mathrm{Att}(Q, K, V)=D^{-1}AV$ where $A=\\exp(QK^\\top/\\sqrt{d})$ with $\\exp(\\cdot)$ applied entrywise, $D=\\mathrm{diag}(A\\mathbf{1}_n)$. The attention module is the backbone of modern transformers and large language models, but explicitly forming the softmax matrix $D^{-1}A$ incurs $\\Omega(n^2)$ time, motivating numerous approximation schemes that reduce runtime to $\\widetilde O(nd)$ via sparsity or low-rank factorization. We propose a quantum data structure that approximates any row of $\\mathrm{Att}(Q, K, V)$ using only row queries to $Q, K, V$. Our algorithm preprocesses these matrices in $\\widetilde{O}(\\epsilon^{-1} n^{0.5} (s_\\lambda^{3} + s_\\lambda^{2} d + d) + \\epsilon^{-2} s_\\lambda d)$ time, where $\\epsilon$ is the target accuracy and...",
+        "z_rigor": 2.39
+      },
+      "paper_b": {
+        "id": "arxiv-2611.30720",
+        "idx": 321,
+        "title": "Testing Quantized KV-Cache Maintenance: Encoding Layout and Historical Restoration",
+        "authors": [
+          "Ziyang Huang",
+          "Songwei Wu"
+        ],
+        "category": "inference-kernels",
+        "year": 2026,
+        "published_date": "2026-11-24",
+        "venue": "arXiv \u00b7 2026-11-24 (cs.AI)",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2611.30720",
+        "pdf_url": "https://arxiv.org/pdf/2611.30720.pdf",
+        "abstract": "Repeating rows then selecting originals retains layout-dependent drift despite equal encoding counts. We measure when existing checks fail to establish preservation contracts in fixed quantized KV-cache implementations. In four-bit HQQ axis zero at sixteen cycles, median paired relative-L2 increases over same-shape re-encoding are 7.22 percentage points for Qwen3-1.7B and 11.59 for SmolLM3-3B. Matched encoded states cover sixteen shared questions per model at one and sixteen cycles. Axis one matches the shape-preserving control; lazy reorders preserve the initial state. On one known input, fixed update counts retain the difference; preserving group members removes it. Our prefix-view extension passes current-prefix checks yet changes history and next logits in six model/codec settings at residual capacities four and 128. Public lookup reaches this boundary,...",
+        "z_rigor": 3.08
+      }
+    },
+    {
+      "bge_cosine": 0.6758,
+      "ace_mech_cosine": 0.8175,
+      "bge_orth_resid_cosine": 0.2807,
+      "transfer_1_7b": -0.062,
+      "transfer_4b": 9.039,
+      "shared_mechanisms": [
+        [
+          "heavy_tail_outliers",
+          2.4
+        ],
+        [
+          "symmetry_debiasing",
+          2.36
+        ],
+        [
+          "memory_eviction_tiling",
+          0.98
+        ]
+      ],
+      "paper_a": {
+        "id": "arxiv-2606.01232",
+        "idx": 475,
+        "title": "Residual-Weighted Randomized Jacobi: Sharpened Bounds via Residual Concentration and Asynchronous Extension",
+        "authors": [
+          "Evan Coleman"
+        ],
+        "category": "frontier-ai",
+        "year": 2026,
+        "published_date": "2026-11-24",
+        "venue": "arXiv \u00b7 2026-11-24 (cs.DC)",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2606.01232",
+        "pdf_url": "https://arxiv.org/pdf/2606.01232.pdf",
+        "abstract": "We study randomized stationary methods for symmetric positive definite linear systems in which component $j$ is selected with probability proportional to $|r_j|^\\ell$. This family interpolates between uniform sampling on the nonzero residual components ($\\ell \\to 0^+$) and Gauss--Southwell relaxation ($\\ell \\to \\infty$). For $\\ell = 2$ we sharpen the one-step analysis using the inverse participation ratio (IPR) of the residual, $\\nu^2(r) = n\\|r\\|_4^4/\\|r\\|_2^4$, which is $1$ for a uniform residual and approaches $n$ as it concentrates. The resulting bound multiplies the guaranteed expected-progress coefficient of uniform sampling by the IPR (and the expected progress, for constant-diagonal $A$). We extend the analysis to asynchronous execution via the Avron--Druinsky--Gupta (ADG) framework, obtaining, under an a priori envelope on the IPR, an epoch-based reduction...",
+        "z_rigor": 3.06
+      },
+      "paper_b": {
+        "id": "arxiv-2209.05433",
+        "idx": 1686,
+        "title": "FP8 Formats for Deep Learning",
+        "authors": [
+          "Paulius Micikevicius",
+          "Du\u0161an Sto\u0161i\u0107",
+          "Burgess, Neil",
+          "Marius Cornea"
+        ],
+        "category": "quantization",
+        "year": 2022,
+        "published_date": "2022-09-15",
+        "venue": "arXiv:2209.05433",
+        "citations": 626,
+        "url": "https://arxiv.org/abs/2209.05433",
+        "pdf_url": "https://arxiv.org/pdf/2209.05433.pdf",
+        "abstract": "FP8 is a natural progression for accelerating deep learning training inference beyond the 16-bit formats common in modern processors. In this paper we propose an 8-bit floating point (FP8) binary interchange format consisting of two encodings - E4M3 (4-bit exponent and 3-bit mantissa) and E5M2 (5-bit exponent and 2-bit mantissa). While E5M2 follows IEEE 754 conventions for representatio of special values, E4M3's dynamic range is extended by not representing infinities and having only one mantissa bit-pattern for NaNs. We demonstrate the efficacy of the FP8 format on a variety of image and language tasks, effectively matching the result quality achieved by 16-bit training sessions. Our study covers the main modern neural network architectures - CNNs, RNNs, and Transformer-based models, leaving all the hyperparameters unchanged from the 16-bit baseline training...",
+        "z_rigor": 2.17
+      }
+    },
+    {
+      "bge_cosine": 0.6728,
+      "ace_mech_cosine": 0.8883,
+      "bge_orth_resid_cosine": 0.4219,
+      "transfer_1_7b": -0.125,
+      "transfer_4b": 9.037,
+      "shared_mechanisms": [
+        [
+          "memory_eviction_tiling",
+          2.53
+        ],
+        [
+          "symmetry_debiasing",
+          2.26
+        ]
+      ],
+      "paper_a": {
+        "id": "arxiv-2611.29335",
+        "idx": 466,
+        "title": "CXL Coherence Writes Back What Surviving Hosts See, Leaving Flushes Only for Ordering",
+        "authors": [
+          "Harvey Dam",
+          "Ganesh Gopalakrishnan"
+        ],
+        "category": "frontier-ai",
+        "year": 2026,
+        "published_date": "2026-11-24",
+        "venue": "arXiv \u00b7 2026-11-24 (cs.DC)",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2611.29335",
+        "pdf_url": "https://arxiv.org/pdf/2611.29335.pdf",
+        "abstract": "Hosts that share memory over Compute Express Link (CXL) cache its lines, and a host that crashes loses the lines it has modified and not written back. Designs for such memory stop every host when one crashes, assume stored energy, or flush after each operation. We show that when a crashing host's clients die with it, the flushes a host crash requires are those that keep one line from reaching the memory device before a line it depends on, and not those that make a finished operation durable. The reason is a property that CXL requires of the fabric: a modified line is written back before another host accesses it. Whatever a surviving host has seen is then on the device, and our crash condition lets a crash drop operations that only the crashed host observed. We prove the claim for operations that take effect in a single store, and test it on small instances of...",
+        "z_rigor": 3.12
+      },
+      "paper_b": {
+        "id": "arxiv-2611.04222",
+        "idx": 627,
+        "title": "GC-MoE: Overlapping Expert-Parallel Token Dispatch with FP8/FP4 Grouped GEMM via CUDA Green Contexts",
+        "authors": [
+          "Yong Li",
+          "Kan Liu",
+          "Tao Lan"
+        ],
+        "category": "inference-kernels",
+        "year": 2026,
+        "published_date": "2026-11-03",
+        "venue": "arXiv:2611.04222",
+        "citations": 1,
+        "url": "https://arxiv.org/abs/2611.04222",
+        "pdf_url": "https://arxiv.org/pdf/2611.04222.pdf",
+        "abstract": "Under expert parallelism, mixture-of-experts (MoE) layers pay all-to-all token dispatch, grouped GEMMs, and a combine step in every layer. In decode each rank holds only 1-256 tokens: dispatch latency and weight traffic dominate while tensor-core utilization is inherently low. In fused operators such as DeepGEMM's Mega MoE, dispatch and computation overlap only by sharing every SM: dispatch warps compete with TMA/MMA and epilogue warps for registers, shared memory, and issue slots; every phase shares one CTA resource budget, synchronization spans the whole SM array, and every replay ends with a workspace-clean pass and a cross-rank barrier. We present GC-MoE, an open-source FP8/FP4 MoE inference operator for NVIDIA Hopper and Blackwell GPUs that uses CUDA Green Contexts to split the device into a small communication partition and a large compute partition. Each...",
+        "z_rigor": 2.39
+      }
+    },
+    {
+      "bge_cosine": 0.6403,
+      "ace_mech_cosine": 0.9656,
+      "bge_orth_resid_cosine": 0.3125,
+      "transfer_1_7b": -0.375,
+      "transfer_4b": 8.876,
+      "shared_mechanisms": [
+        [
+          "heavy_tail_outliers",
+          2.21
+        ],
+        [
+          "symmetry_debiasing",
+          1.96
+        ]
+      ],
+      "paper_a": {
+        "id": "arxiv-2602.00874",
+        "idx": 125,
+        "title": "Sublinear Time Quantum Algorithm for Attention Approximation",
+        "authors": [
+          "Zhao Song",
+          "Jianfei Xue",
+          "Jiahao Zhang",
+          "Lichen Zhang"
+        ],
+        "category": "frontier-ai",
+        "year": 2026,
+        "published_date": "2026-11-24",
+        "venue": "arXiv \u00b7 2026-11-24 (cs.LG)",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2602.00874",
+        "pdf_url": "https://arxiv.org/pdf/2602.00874.pdf",
+        "abstract": "Given the query, key and value matrices $Q, K, V\\in \\mathbb{R}^{n\\times d}$, the attention module is defined as $\\mathrm{Att}(Q, K, V)=D^{-1}AV$ where $A=\\exp(QK^\\top/\\sqrt{d})$ with $\\exp(\\cdot)$ applied entrywise, $D=\\mathrm{diag}(A\\mathbf{1}_n)$. The attention module is the backbone of modern transformers and large language models, but explicitly forming the softmax matrix $D^{-1}A$ incurs $\\Omega(n^2)$ time, motivating numerous approximation schemes that reduce runtime to $\\widetilde O(nd)$ via sparsity or low-rank factorization. We propose a quantum data structure that approximates any row of $\\mathrm{Att}(Q, K, V)$ using only row queries to $Q, K, V$. Our algorithm preprocesses these matrices in $\\widetilde{O}(\\epsilon^{-1} n^{0.5} (s_\\lambda^{3} + s_\\lambda^{2} d + d) + \\epsilon^{-2} s_\\lambda d)$ time, where $\\epsilon$ is the target accuracy and...",
+        "z_rigor": 2.39
+      },
+      "paper_b": {
+        "id": "arxiv-2002.05202",
+        "idx": 1707,
+        "title": "GLU Variants Improve Transformer",
+        "authors": [
+          "Noam Shazeer"
+        ],
+        "category": "architectures",
+        "year": 2020,
+        "published_date": "2020-02-15",
+        "venue": "arXiv:2002.05202",
+        "citations": 3036,
+        "url": "https://arxiv.org/abs/2002.05202",
+        "pdf_url": "https://arxiv.org/pdf/2002.05202.pdf",
+        "abstract": "Gated Linear Units (arXiv:1612.08083) consist of the component-wise product of two linear projections, one of which is first passed through a sigmoid function. Variations on GLU are possible, using different nonlinear (or even linear) functions in place of sigmoid. We test these variants in the feed-forward sublayers of the Transformer (arXiv:1706.03762) sequence-to-sequence model, and find that some of them yield quality improvements over the typically-used ReLU or GELU activations.",
+        "z_rigor": 1.36
+      }
+    },
+    {
+      "bge_cosine": 0.6571,
+      "ace_mech_cosine": 0.8867,
+      "bge_orth_resid_cosine": 0.3797,
+      "transfer_1_7b": 0.062,
+      "transfer_4b": 8.456,
+      "shared_mechanisms": [
+        [
+          "memory_eviction_tiling",
+          1.66
+        ],
+        [
+          "symmetry_debiasing",
+          1.02
+        ]
+      ],
+      "paper_a": {
+        "id": "arxiv-2611.29915",
+        "idx": 454,
+        "title": "Measuring GPU Memory Traffic on the NVIDIA GB10 Without C2C Telemetry",
+        "authors": [
+          "Deepak Panigrahy",
+          "Sirisha Kota",
+          "Aakash Tyagi",
+          "David Kebo"
+        ],
+        "category": "inference-kernels",
+        "year": 2026,
+        "published_date": "2026-11-24",
+        "venue": "arXiv \u00b7 2026-11-24 (cs.DC)",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2611.29915",
+        "pdf_url": "https://arxiv.org/pdf/2611.29915.pdf",
+        "abstract": "The NVIDIA GB10, used in the DGX Spark and in desktop AI systems from several vendors, joins an Arm CPU die and a Blackwell GPU die with NVLink C2C. The GPU has no local memory, so every GPU access that misses in its L2 cache crosses C2C to the LPDDR5X attached to the CPU die. Yet the software on the systems we tested exposes no counter for this traffic. We show that five L2 sector counters of the GPU, sampled every 10 ms through NVIDIA's CUPTI sampling interface by a process that does not attach to the workload, measure GPU memory traffic live and separate copy engine traffic from the read misses and writes of GPU kernels. For large streaming transfers of known size, the counters agree within 0.28% on an Acer GN100 and within 0.005% on a DGX Spark, track the volume moved regardless of how it is split into copies, and exclude data reused in L2. The GPU's SMMU...",
+        "z_rigor": 2.28
+      },
+      "paper_b": {
+        "id": "arxiv-2209.05433",
+        "idx": 1686,
+        "title": "FP8 Formats for Deep Learning",
+        "authors": [
+          "Paulius Micikevicius",
+          "Du\u0161an Sto\u0161i\u0107",
+          "Burgess, Neil",
+          "Marius Cornea"
+        ],
+        "category": "quantization",
+        "year": 2022,
+        "published_date": "2022-09-15",
+        "venue": "arXiv:2209.05433",
+        "citations": 626,
+        "url": "https://arxiv.org/abs/2209.05433",
+        "pdf_url": "https://arxiv.org/pdf/2209.05433.pdf",
+        "abstract": "FP8 is a natural progression for accelerating deep learning training inference beyond the 16-bit formats common in modern processors. In this paper we propose an 8-bit floating point (FP8) binary interchange format consisting of two encodings - E4M3 (4-bit exponent and 3-bit mantissa) and E5M2 (5-bit exponent and 2-bit mantissa). While E5M2 follows IEEE 754 conventions for representatio of special values, E4M3's dynamic range is extended by not representing infinities and having only one mantissa bit-pattern for NaNs. We demonstrate the efficacy of the FP8 format on a variety of image and language tasks, effectively matching the result quality achieved by 16-bit training sessions. Our study covers the main modern neural network architectures - CNNs, RNNs, and Transformer-based models, leaving all the hyperparameters unchanged from the 16-bit baseline training...",
+        "z_rigor": 2.17
+      }
+    },
+    {
+      "bge_cosine": 0.6905,
+      "ace_mech_cosine": 0.8245,
+      "bge_orth_resid_cosine": 0.3364,
+      "transfer_1_7b": -0.312,
+      "transfer_4b": 8.187,
+      "shared_mechanisms": [
+        [
+          "memory_eviction_tiling",
+          2.1
+        ],
+        [
+          "symmetry_debiasing",
+          0.82
+        ]
+      ],
+      "paper_a": {
+        "id": "arxiv-2611.29915",
+        "idx": 454,
+        "title": "Measuring GPU Memory Traffic on the NVIDIA GB10 Without C2C Telemetry",
+        "authors": [
+          "Deepak Panigrahy",
+          "Sirisha Kota",
+          "Aakash Tyagi",
+          "David Kebo"
+        ],
+        "category": "inference-kernels",
+        "year": 2026,
+        "published_date": "2026-11-24",
+        "venue": "arXiv \u00b7 2026-11-24 (cs.DC)",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2611.29915",
+        "pdf_url": "https://arxiv.org/pdf/2611.29915.pdf",
+        "abstract": "The NVIDIA GB10, used in the DGX Spark and in desktop AI systems from several vendors, joins an Arm CPU die and a Blackwell GPU die with NVLink C2C. The GPU has no local memory, so every GPU access that misses in its L2 cache crosses C2C to the LPDDR5X attached to the CPU die. Yet the software on the systems we tested exposes no counter for this traffic. We show that five L2 sector counters of the GPU, sampled every 10 ms through NVIDIA's CUPTI sampling interface by a process that does not attach to the workload, measure GPU memory traffic live and separate copy engine traffic from the read misses and writes of GPU kernels. For large streaming transfers of known size, the counters agree within 0.28% on an Acer GN100 and within 0.005% on a DGX Spark, track the volume moved regardless of how it is split into copies, and exclude data reused in L2. The GPU's SMMU...",
+        "z_rigor": 2.28
+      },
+      "paper_b": {
+        "id": "arxiv-2609.04526",
+        "idx": 790,
+        "title": "Scale-QLoRA: Code-Invariant Adapter Merging for Native 4-bit Microscaling LLMs",
+        "authors": [
+          "Tung-Ling Li",
+          "Jiale Huang",
+          "Lee-Chi Wang",
+          "Janaki Ram Gotei"
+        ],
+        "category": "quantization",
+        "year": 2026,
+        "published_date": "2026-09-03",
+        "venue": "arXiv:2609.04526",
+        "citations": 2,
+        "url": "https://arxiv.org/abs/2609.04526",
+        "pdf_url": "https://arxiv.org/pdf/2609.04526.pdf",
+        "abstract": "Merging a LoRA adapter into its base model is standard deployment practice: it removes the runtime adapter's per-forward overhead and leaves a single standalone checkpoint any serving stack can load. On a native 4-bit microscaling checkpoint (NVFP4, MXFP4) that step stops being free. The merged weights must be written back through a quantizer, which re-derives the checkpoint's discrete E2M1 code plane (roughly 90% of the artifact's bytes), so the deployed artifact becomes coupled to one quantization convention, and every later code-touching event in its lifecycle can move it. Done naively the step is worse than fragile: it deletes the adaptation, by up to 39 pp, because against an already-on-grid base the reconstruction optimum is that base. Scale-QLoRA instead adapts only the native per-block scale field, trains those scales on the deployment grid, and freezes...",
+        "z_rigor": 1.93
+      }
+    },
+    {
+      "bge_cosine": 0.6572,
+      "ace_mech_cosine": 0.885,
+      "bge_orth_resid_cosine": 0.2744,
+      "transfer_1_7b": 0.0,
+      "transfer_4b": 7.088,
+      "shared_mechanisms": [
+        [
+          "heavy_tail_outliers",
+          1.77
+        ],
+        [
+          "symmetry_debiasing",
+          1.47
+        ]
+      ],
+      "paper_a": {
+        "id": "arxiv-2611.31154",
+        "idx": 152,
+        "title": "Attention Latent Feedback",
+        "authors": [
+          "Xuyuan Xiong",
+          "Siyu Chen",
+          "Mengzhao Chen",
+          "Yue Su"
+        ],
+        "category": "frontier-ai",
+        "year": 2026,
+        "published_date": "2026-11-24",
+        "venue": "arXiv \u00b7 2026-11-24 (cs.LG)",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2611.31154",
+        "pdf_url": "https://arxiv.org/pdf/2611.31154.pdf",
+        "abstract": "During autoregressive decoding, the deeper representations of the previous token have already been computed, yet shallow layers at the current token cannot read them directly because standard self-attention connects positions only at the same depth. We introduce Attention Latent Feedback (ALF), an architecture that allows every sublayer to attend to the outputs of the deeper layers at the previous position. Training unrolls this cross-position recurrence into two parallel passes, whereas decoding remains single-pass using cached previous-token states. Across mixture-of-experts models with up to 4.0B parameters, ALF lowers held-out loss by 0.022-0.024 nats over the standard residual with about 1.1% decoding FLOP overhead, and consistently outperforms prior final-state feedback across all three scales on both standard and attention residual backbones. On MoE-1.6B,...",
+        "z_rigor": 1.84
+      },
+      "paper_b": {
+        "id": "arxiv-2002.05202",
+        "idx": 1707,
+        "title": "GLU Variants Improve Transformer",
+        "authors": [
+          "Noam Shazeer"
+        ],
+        "category": "architectures",
+        "year": 2020,
+        "published_date": "2020-02-15",
+        "venue": "arXiv:2002.05202",
+        "citations": 3036,
+        "url": "https://arxiv.org/abs/2002.05202",
+        "pdf_url": "https://arxiv.org/pdf/2002.05202.pdf",
+        "abstract": "Gated Linear Units (arXiv:1612.08083) consist of the component-wise product of two linear projections, one of which is first passed through a sigmoid function. Variations on GLU are possible, using different nonlinear (or even linear) functions in place of sigmoid. We test these variants in the feed-forward sublayers of the Transformer (arXiv:1706.03762) sequence-to-sequence model, and find that some of them yield quality improvements over the typically-used ReLU or GELU activations.",
+        "z_rigor": 1.36
+      }
+    }
+  ],
+  "contradictions": [
+    {
+      "bge_cosine": 0.9291,
+      "keep1d_sym": 0.181,
+      "z_sym": 21.815,
+      "contradiction_4b": 4.301,
+      "order_diff_4b": 0.5,
+      "paper_a": {
+        "id": "arxiv-2307.13702",
+        "idx": 1642,
+        "title": "Measuring Faithfulness in Chain-of-Thought Reasoning",
+        "authors": [
+          "Tamera Lanham",
+          "Chen, Anna",
+          "Ansh Radhakrishnan",
+          "Benoit Steiner"
+        ],
+        "category": "reasoning-alignment",
+        "year": 2023,
+        "published_date": "2023-07-15",
+        "venue": "arXiv:2307.13702",
+        "citations": 1243,
+        "url": "https://arxiv.org/abs/2307.13702",
+        "pdf_url": "https://arxiv.org/pdf/2307.13702.pdf",
+        "abstract": "Large language models (LLMs) perform better when they produce step-by-step, \"Chain-of-Thought\" (CoT) reasoning before answering a question, but it is unclear if the stated reasoning is a faithful explanation of the model's actual reasoning (i.e., its process for answering the question). We investigate hypotheses for how CoT reasoning may be unfaithful, by examining how the model predictions change when we intervene on the CoT (e.g., by adding mistakes or paraphrasing it). Models show large variation across tasks in how strongly they condition on the CoT when predicting their answer, sometimes relying heavily on the CoT and other times primarily ignoring it. CoT's performance boost does not seem to come from CoT's added test-time compute alone or from information encoded via the particular phrasing of the CoT. As models become larger and more capable, they produce..."
+      },
+      "paper_b": {
+        "id": "arxiv-2305.04388",
+        "idx": 1655,
+        "title": "Language Models Don't Always Say What They Think: Unfaithful Explanations in Chain-of-Thought Prompting",
+        "authors": [
+          "Miles Turpin",
+          "Julian Michael",
+          "Ethan Perez",
+          "Samuel R. Bowman"
+        ],
+        "category": "reasoning-alignment",
+        "year": 2023,
+        "published_date": "2023-05-15",
+        "venue": "neural information processing systems",
+        "citations": 2569,
+        "url": "https://arxiv.org/abs/2305.04388",
+        "pdf_url": "https://arxiv.org/pdf/2305.04388.pdf",
+        "abstract": "Large Language Models (LLMs) can achieve strong performance on many tasks by producing step-by-step reasoning before giving a final output, often referred to as chain-of-thought reasoning (CoT). It is tempting to interpret these CoT explanations as the LLM's process for solving a task. This level of transparency into LLMs' predictions would yield significant safety benefits. However, we find that CoT explanations can systematically misrepresent the true reason for a model's prediction. We demonstrate that CoT explanations can be heavily influenced by adding biasing features to model inputs--e.g., by reordering the multiple-choice options in a few-shot prompt to make the answer always \"(A)\"--which models systematically fail to mention in their explanations. When we bias models toward incorrect answers, they frequently generate CoT explanations rationalizing those..."
+      }
+    },
+    {
+      "bge_cosine": 0.9493,
+      "keep1d_sym": 1.056,
+      "z_sym": 7.644,
+      "contradiction_4b": 3.278,
+      "order_diff_4b": 0.089,
+      "paper_a": {
+        "id": "oa-123e84172ce9",
+        "idx": 1511,
+        "title": "How Speculative Can Speculative Decoding Be?",
+        "authors": [
+          "Zhuorui Liu",
+          "Chen Zhang",
+          "Dawei Song"
+        ],
+        "category": "speculative",
+        "year": 2024,
+        "published_date": "2024-06-01",
+        "venue": "Language Resources and Evaluation Conference (LREC)",
+        "citations": 5,
+        "url": "https://doi.org/10.63317/3k5cxvg7k92d",
+        "pdf_url": "http://www.lrec-conf.org/proceedings/lrec-coling-2024/pdf/2024.main-1.725.pdf",
+        "abstract": "Large language models (LLMs) have drawn great attention from the field of natural language processing and beyond, due to their impressive capability of autoregressive modeling, yet bringing an obvious problem, i.e., the largely increased latency.An emerging idea to alleviate this problem is speculative decoding, which first uses a draft model to draft tokens autoregressively and then makes the target model verify these tokens in parallel.The draft model is typically smaller than the target model, and it essentially trades generation quality for speed.Thereby, speculative decoding can be viewed as a speculative game for the target model in term of verification failures.That is, the lengthy draft tokens proposed by the small draft models could fail in the verification stage.Naturally, a critical question arises: how speculative can speculative decoding be, or in..."
+      },
+      "paper_b": {
+        "id": "arxiv-2402.01528",
+        "idx": 1562,
+        "title": "Decoding Speculative Decoding",
+        "authors": [
+          "Minghao Yan",
+          "Saurabh Agarwal",
+          "Shivaram Venkataraman"
+        ],
+        "category": "speculative",
+        "year": 2025,
+        "published_date": "2024-02-15",
+        "venue": "Conference of the North American Chapter of the Association for Computational Linguistics: Human",
+        "citations": 81,
+        "url": "https://arxiv.org/abs/2402.01528",
+        "pdf_url": "https://arxiv.org/pdf/2402.01528.pdf",
+        "abstract": "Speculative Decoding is a widely used technique to speed up inference for Large Language Models (LLMs) without sacrificing quality. When performing inference, speculative decoding uses a smaller draft model to generate speculative tokens and then uses the target LLM to verify those draft tokens. The speedup provided by speculative decoding heavily depends on the choice of the draft model. In this work, we perform a detailed study comprising over 350 experiments with LLaMA-65B and OPT-66B using speculative decoding and delineate the factors that affect the performance gain provided by speculative decoding. Our experiments indicate that the performance of speculative decoding depends heavily on the latency of the draft model, and the draft model\u2019s capability in language modeling does not correlate strongly with its performance in speculative decoding. Based on these..."
+      }
+    },
+    {
+      "bge_cosine": 0.9358,
+      "keep1d_sym": 0.493,
+      "z_sym": 12.749,
+      "contradiction_4b": 3.233,
+      "order_diff_4b": 0.359,
+      "paper_a": {
+        "id": "arxiv-2606.16939",
+        "idx": 1099,
+        "title": "Scalable Circuit Learning for Interpreting Large Language Models",
+        "authors": [
+          "Naiyu Yin",
+          "Dennis Wei",
+          "Tian Gao",
+          "Amit Dhurandhar"
+        ],
+        "category": "mech-interp-circuits",
+        "year": 2026,
+        "published_date": "2026-01-01",
+        "venue": "Conference on Empirical Methods in Natural Language Processing (EMNLP) (2026)",
+        "citations": 2,
+        "url": "https://arxiv.org/abs/2606.16939",
+        "pdf_url": "https://arxiv.org/pdf/2606.16939.pdf",
+        "abstract": "A prominent research direction in mechanistic interpretability is learning sparse circuits over LLM components to reveal how they jointly produce model behavior. However, raw neurons are polysemantic, making learned circuits hard to interpret. Sparse autoencoder (SAE) features alleviate this, but their high dimensionality makes existing intervention-based circuit-learning methods computationally prohibitive. We propose CircuitLasso, a scalable circuit-learning approach based on sparse linear regression. CircuitLasso recovers circuits whose structural accuracy matches that of state-of-the-art intervention-based methods on the benchmark data, at a fraction of the computational cost. For interpretability, CircuitLasso efficiently uncovers relationships among SAE features, showing how human-interpretable semantic features propagate through the model and influence its..."
+      },
+      "paper_b": {
+        "id": "arxiv-2406.11944",
+        "idx": 1502,
+        "title": "Transcoders find interpretable LLM feature circuits",
+        "authors": [
+          "Jacob Dunefsky",
+          "Philippe Chlenski",
+          "Neel Nanda"
+        ],
+        "category": "mech-interp-circuits",
+        "year": 2024,
+        "published_date": "2024-06-15",
+        "venue": "neural information processing systems",
+        "citations": 304,
+        "url": "https://arxiv.org/abs/2406.11944",
+        "pdf_url": "https://arxiv.org/pdf/2406.11944.pdf",
+        "abstract": "A key goal in mechanistic interpretability is circuit analysis: finding sparse subgraphs of models corresponding to specific behaviors or capabilities. However, MLP sublayers make fine-grained circuit analysis on transformer-based language models difficult. In particular, interpretable features -- such as those found by sparse autoencoders (SAEs) -- are typically linear combinations of extremely many neurons, each with its own nonlinearity to account for. Circuit analysis in this setting thus either yields intractably large circuits or fails to disentangle local and global behavior. To address this we explore transcoders, which seek to faithfully approximate a densely activating MLP layer with a wider, sparsely-activating MLP layer. We introduce a novel method for using transcoders to perform weights-based circuit analysis through MLP sublayers. The resulting..."
+      }
+    },
+    {
+      "bge_cosine": 0.9232,
+      "keep1d_sym": 0.556,
+      "z_sym": 13.145,
+      "contradiction_4b": 3.197,
+      "order_diff_4b": 0.424,
+      "paper_a": {
+        "id": "arxiv-2610.24521",
+        "idx": 641,
+        "title": "Comparing Sparsified MLPs and Transcoders: Many Transcoder Features Are Neurons in Disguise",
+        "authors": [
+          "Stepan Shabalin",
+          "Mateusz Piotrowski"
+        ],
+        "category": "mech-interp-saes",
+        "year": 2026,
+        "published_date": "2026-10-17",
+        "venue": "arXiv:2610.24521",
+        "citations": 2,
+        "url": "https://arxiv.org/abs/2610.24521",
+        "pdf_url": "https://arxiv.org/pdf/2610.24521.pdf",
+        "abstract": "MLP neurons in transformer language models are widely understood to be polysemantic, motivating transcoders - sparse, learned approximations of MLP layers - as interpretable replacement models for mechanistic analysis. However, recent work shows that MLP neurons can be used to recover sparse, interpretable circuits (Arora et al. 2026, Ye et al. 2025), raising the question of whether transcoders are necessary for circuit analysis. We define neuron features as transcoder features whose weights are strongly aligned with individual MLP neurons, and show that they account for a substantial fraction of active features in late layers across 13 open-source transcoders. Only neuron features have a stable correspondence with something in the underlying MLP: other features vary more between training runs, do not match the MLP's Jacobian, and change less significantly from..."
+      },
+      "paper_b": {
+        "id": "arxiv-2406.11944",
+        "idx": 1502,
+        "title": "Transcoders find interpretable LLM feature circuits",
+        "authors": [
+          "Jacob Dunefsky",
+          "Philippe Chlenski",
+          "Neel Nanda"
+        ],
+        "category": "mech-interp-circuits",
+        "year": 2024,
+        "published_date": "2024-06-15",
+        "venue": "neural information processing systems",
+        "citations": 304,
+        "url": "https://arxiv.org/abs/2406.11944",
+        "pdf_url": "https://arxiv.org/pdf/2406.11944.pdf",
+        "abstract": "A key goal in mechanistic interpretability is circuit analysis: finding sparse subgraphs of models corresponding to specific behaviors or capabilities. However, MLP sublayers make fine-grained circuit analysis on transformer-based language models difficult. In particular, interpretable features -- such as those found by sparse autoencoders (SAEs) -- are typically linear combinations of extremely many neurons, each with its own nonlinearity to account for. Circuit analysis in this setting thus either yields intractably large circuits or fails to disentangle local and global behavior. To address this we explore transcoders, which seek to faithfully approximate a densely activating MLP layer with a wider, sparsely-activating MLP layer. We introduce a novel method for using transcoders to perform weights-based circuit analysis through MLP sublayers. The resulting..."
+      }
+    },
+    {
+      "bge_cosine": 0.9148,
+      "keep1d_sym": 0.806,
+      "z_sym": 14.906,
+      "contradiction_4b": 3.097,
+      "order_diff_4b": 1.162,
+      "paper_a": {
+        "id": "arxiv-2410.10781",
+        "idx": 1245,
+        "title": "When Attention Sink Emerges in Language Models: An Empirical View",
+        "authors": [
+          "Xuejing Gu",
+          "Pang, Tianyu",
+          "Du, Chao",
+          "Qian Liu"
+        ],
+        "category": "architectures",
+        "year": 2025,
+        "published_date": "2025-05-01",
+        "venue": "ICLR 2025",
+        "citations": 168,
+        "url": "https://arxiv.org/abs/2410.10781",
+        "pdf_url": "https://arxiv.org/pdf/2410.10781.pdf",
+        "abstract": "Language Models (LMs) assign significant attention to the first token, even if it is not semantically important, which is known as attention sink. This phenomenon has been widely adopted in applications such as streaming/long context generation, KV cache optimization, inference acceleration, model quantization, and others. Despite its widespread use, a deep understanding of attention sink in LMs is still lacking. In this work, we first demonstrate that attention sinks exist universally in LMs with various inputs, even in small models. Furthermore, attention sink is observed to emerge during the LM pre-training, motivating us to investigate how optimization, data distribution, loss function, and model architecture in LM pre-training influence its emergence. We highlight that attention sink emerges after effective optimization on sufficient training data. The sink..."
+      },
+      "paper_b": {
+        "id": "arxiv-2309.17453",
+        "idx": 1514,
+        "title": "Efficient Streaming Language Models with Attention Sinks",
+        "authors": [
+          "Guangxuan Xiao",
+          "Tian, Yuandong",
+          "Beidi Chen",
+          "Song Han"
+        ],
+        "category": "inference-kernels",
+        "year": 2024,
+        "published_date": "2024-05-31",
+        "venue": "International Conference on Learning Representations",
+        "citations": 1683,
+        "url": "https://arxiv.org/abs/2309.17453",
+        "pdf_url": "https://arxiv.org/pdf/2309.17453.pdf",
+        "abstract": "Deploying Large Language Models (LLMs) in streaming applications such as multi-round dialogue, where long interactions are expected, is urgently needed but poses two major challenges. Firstly, during the decoding stage, caching previous tokens' Key and Value states (KV) consumes extensive memory. Secondly, popular LLMs cannot generalize to longer texts than the training sequence length. Window attention, where only the most recent KVs are cached, is a natural approach -- but we show that it fails when the text length surpasses the cache size. We observe an interesting phenomenon, namely attention sink, that keeping the KV of initial tokens will largely recover the performance of window attention. In this paper, we first demonstrate that the emergence of attention sink is due to the strong attention scores towards initial tokens as a \"sink\" even if they are not..."
+      }
+    },
+    {
+      "bge_cosine": 0.9178,
+      "keep1d_sym": 0.806,
+      "z_sym": 6.159,
+      "contradiction_4b": 2.904,
+      "order_diff_4b": 0.621,
+      "paper_a": {
+        "id": "arxiv-2510.13334",
+        "idx": 947,
+        "title": "Taming the Fragility of KV Cache Eviction in LLM Inference",
+        "authors": [
+          "Yuan Feng",
+          "Haoyu Guo",
+          "Junlin Lv",
+          "S. Kevin Zhou"
+        ],
+        "category": "quantization",
+        "year": 2026,
+        "published_date": "2026-04-20",
+        "venue": "International Conference on Learning Representations",
+        "citations": 15,
+        "url": "https://arxiv.org/abs/2510.13334",
+        "pdf_url": "https://arxiv.org/pdf/2510.13334.pdf",
+        "abstract": "Large language models have revolutionized natural language processing, yet their deployment remains hampered by the substantial memory and runtime overhead of the transformer's Key-Value cache. To mitigate this, recent methods employ a scoring-aggregation framework to evict unimportant cache entries, based on the stability assumption-that a fixed subset of entries remains consistently important during generation. However, prior work has largely focused on refining importance indicators for scoring, while defaulting to mean aggregation due to a faithful trust in the stability assumption. In this work, we argue that this underlying assumption is inherently fragile, making mean aggregation highly vulnerable in extreme cases. To counter this, we propose a simple yet elegant defensive aggregation strategy: a two-step, linear-time approach that controls worst-case risk,..."
+      },
+      "paper_b": {
+        "id": "arxiv-2601.18999",
+        "idx": 982,
+        "title": "Randomization Boosts KV Caching, Learning Balances Query Load: A Joint Perspective",
+        "authors": [
+          "Fangzhou Wu",
+          "Sandeep Silwal",
+          "Qiuyi",
+          "Zhang"
+        ],
+        "category": "inference-kernels",
+        "year": 2026,
+        "published_date": "2026-04-20",
+        "venue": "ICLR 2026",
+        "citations": 4,
+        "url": "https://arxiv.org/abs/2601.18999",
+        "pdf_url": "https://arxiv.org/pdf/2601.18999.pdf",
+        "abstract": "KV caching is a fundamental technique for accelerating Large Language Model (LLM) inference by reusing key-value (KV) pairs from previous queries, but its effectiveness under limited memory is highly sensitive to the eviction policy. The default Least Recently Used (LRU) eviction algorithm struggles with dynamic online query arrivals, especially in multi-LLM serving scenarios, where balancing query load across workers and maximizing cache hit rate of each worker are inherently conflicting objectives. We give the first unified mathematical model that captures the core trade-offs between KV cache eviction and query routing. Our analysis reveals the theoretical limitations of existing methods and leads to principled algorithms that integrate provably competitive randomized KV cache eviction with learning-based methods to adaptively route queries with evolving..."
+      }
+    },
+    {
+      "bge_cosine": 0.9111,
+      "keep1d_sym": 0.806,
+      "z_sym": 6.221,
+      "contradiction_4b": 2.76,
+      "order_diff_4b": 1.554,
+      "paper_a": {
+        "id": "arxiv-2310.11511",
+        "idx": 1513,
+        "title": "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection",
+        "authors": [
+          "Akari Asai",
+          "Zeqiu Wu",
+          "Yizhong Wang",
+          "Avirup Sil"
+        ],
+        "category": "reasoning-alignment",
+        "year": 2024,
+        "published_date": "2024-05-31",
+        "venue": "ICLR 2024",
+        "citations": 2382,
+        "url": "https://arxiv.org/abs/2310.11511",
+        "pdf_url": "https://arxiv.org/pdf/2310.11511.pdf",
+        "abstract": "Despite their remarkable capabilities, large language models (LLMs) often produce responses containing factual inaccuracies due to their sole reliance on the parametric knowledge they encapsulate. Retrieval-Augmented Generation (RAG), an ad hoc approach that augments LMs with retrieval of relevant knowledge, decreases such issues. However, indiscriminately retrieving and incorporating a fixed number of retrieved passages, regardless of whether retrieval is necessary, or passages are relevant, diminishes LM versatility or can lead to unhelpful response generation. We introduce a new framework called Self-Reflective Retrieval-Augmented Generation (Self-RAG) that enhances an LM's quality and factuality through retrieval and self-reflection. Our framework trains a single arbitrary LM that adaptively retrieves passages on-demand, and generates and reflects on retrieved..."
+      },
+      "paper_b": {
+        "id": "arxiv-2005.11401",
+        "idx": 1705,
+        "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+        "authors": [
+          "Patrick Lewis",
+          "Ethan Perez",
+          "Aleksandra Piktus",
+          "Fabio Petroni"
+        ],
+        "category": "reasoning-alignment",
+        "year": 2020,
+        "published_date": "2020-05-15",
+        "venue": "arXiv:2005.11401",
+        "citations": 10619,
+        "url": "https://arxiv.org/abs/2005.11401",
+        "pdf_url": "https://arxiv.org/pdf/2005.11401.pdf",
+        "abstract": "Large pre-trained language models have been shown to store factual knowledge in their parameters, and achieve state-of-the-art results when fine-tuned on downstream NLP tasks. However, their ability to access and precisely manipulate knowledge is still limited, and hence on knowledge-intensive tasks, their performance lags behind task-specific architectures. Additionally, providing provenance for their decisions and updating their world knowledge remain open research problems. Pre-trained models with a differentiable access mechanism to explicit non-parametric memory can overcome this issue, but have so far been only investigated for extractive downstream tasks. We explore a general-purpose fine-tuning recipe for retrieval-augmented generation (RAG) -- models which combine pre-trained parametric and non-parametric memory for language generation. We introduce RAG..."
+      }
+    },
+    {
+      "bge_cosine": 0.9433,
+      "keep1d_sym": 0.431,
+      "z_sym": 15.807,
+      "contradiction_4b": 2.674,
+      "order_diff_4b": 1.989,
+      "paper_a": {
+        "id": "arxiv-2501.16615",
+        "idx": 922,
+        "title": "Sparse Autoencoders Trained on the Same Data Learn Different Features",
+        "authors": [
+          "Goncalo Paulo",
+          "Nora Belrose"
+        ],
+        "category": "mech-interp-saes",
+        "year": 2026,
+        "published_date": "2026-04-20",
+        "venue": "ICLR 2026",
+        "citations": 101,
+        "url": "https://arxiv.org/abs/2501.16615",
+        "pdf_url": "https://arxiv.org/pdf/2501.16615.pdf",
+        "abstract": "Sparse autoencoders (SAEs) are a useful tool for uncovering human-interpretable features in the activations of large language models (LLMs). While some expect SAEs to find the true underlying features used by a model, our research shows that SAEs trained on the same model and data, differing only in the random seed used to initialize their weights, identify different sets of features. For example, in an SAE with 131K latents trained on a feedforward network in Llama 3 8B, only 30% of the features were shared across different seeds. We observed this phenomenon across multiple layers of three different LLMs, two datasets, and several SAE architectures. While ReLU SAEs trained with the L1 sparsity loss showed greater stability across seeds, SAEs using the state-of-the-art TopK activation function were more seed-dependent, even when controlling for the level of..."
+      },
+      "paper_b": {
+        "id": "arxiv-2502.16681",
+        "idx": 1156,
+        "title": "Are Sparse Autoencoders Useful? A Case Study in Sparse Probing",
+        "authors": [
+          "Subhash Kantamneni",
+          "Joshua Engels",
+          "Senthooran Rajamanoharan",
+          "Max Tegmark"
+        ],
+        "category": "mech-interp-saes",
+        "year": 2025,
+        "published_date": "2025-10-06",
+        "venue": "International Conference on Machine Learning",
+        "citations": 102,
+        "url": "https://arxiv.org/abs/2502.16681",
+        "pdf_url": "https://arxiv.org/pdf/2502.16681.pdf",
+        "abstract": "Sparse autoencoders (SAEs) are a popular method for interpreting concepts represented in large language model (LLM) activations. However, there is a lack of evidence regarding the validity of their interpretations due to the lack of a ground truth for the concepts used by an LLM, and a growing number of works have presented problems with current SAEs. One alternative source of evidence would be demonstrating that SAEs improve performance on downstream tasks beyond existing baselines. We test this by applying SAEs to the real-world task of LLM activation probing in four regimes: data scarcity, class imbalance, label noise, and covariate shift. Due to the difficulty of detecting concepts in these challenging settings, we hypothesize that SAEs' basis of interpretable, concept-level latents should provide a useful inductive bias. However, although SAEs occasionally..."
+      }
+    },
+    {
+      "bge_cosine": 0.9252,
+      "keep1d_sym": 0.931,
+      "z_sym": 6.437,
+      "contradiction_4b": 2.603,
+      "order_diff_4b": 0.415,
+      "paper_a": {
+        "id": "arxiv-2502.00299",
+        "idx": 1315,
+        "title": "ChunkKV: Semantic-Preserving KV Cache Compression for Efficient Long-Context LLM Inference",
+        "authors": [
+          "Xiang Liu",
+          "Zhenheng Tang",
+          "Peijie Dong",
+          "Zeyu Li"
+        ],
+        "category": "inference-kernels",
+        "year": 2025,
+        "published_date": "2025-02-15",
+        "venue": "neural information processing systems",
+        "citations": 98,
+        "url": "https://arxiv.org/abs/2502.00299",
+        "pdf_url": "https://arxiv.org/pdf/2502.00299.pdf",
+        "abstract": "Large Language Models (LLMs) require significant GPU memory when processing long texts, with the key value (KV) cache consuming up to 70\\% of total memory during inference. Although existing compression methods reduce memory by evaluating the importance of individual tokens, they overlook critical semantic relationships between tokens, resulting in fragmented context and degraded performance. We introduce ChunkKV, which fundamentally reimagines KV cache compression by treating semantic chunks - rather than isolated tokens - as basic compression units. This approach preserves complete linguistic structures and contextual integrity, ensuring that essential meaning is retained even under aggressive compression. Our innovation includes a novel layer-wise index reuse technique that exploits the higher cross-layer similarity of preserved indices in ChunkKV, reducing..."
+      },
+      "paper_b": {
+        "id": "arxiv-2406.02069",
+        "idx": 1499,
+        "title": "PyramidKV: Dynamic KV Cache Compression based on Pyramidal Information Funneling",
+        "authors": [
+          "Zefan Cai",
+          "Yichi Zhang",
+          "Bofei Gao",
+          "Liu, Yuliang"
+        ],
+        "category": "quantization",
+        "year": 2024,
+        "published_date": "2024-06-15",
+        "venue": "arXiv:2406.02069",
+        "citations": 572,
+        "url": "https://arxiv.org/abs/2406.02069",
+        "pdf_url": "https://arxiv.org/pdf/2406.02069.pdf",
+        "abstract": "In this study, we investigate whether attention-based information flow inside large language models (LLMs) is aggregated through noticeable patterns for long context processing. Our observations reveal that LLMs aggregate information through Pyramidal Information Funneling where attention is scattering widely in lower layers, progressively consolidating within specific contexts, and ultimately focusing on critical tokens (a.k.a massive activation or attention sink) in higher layers. Motivated by these insights, we developed PyramidKV, a novel and effective KV cache compression method. This approach dynamically adjusts the KV cache size across different layers, allocating more cache in lower layers and less in higher ones, diverging from traditional methods that maintain a uniform KV cache size. Our experimental evaluations, utilizing the LongBench benchmark, show..."
+      }
+    },
+    {
+      "bge_cosine": 0.9107,
+      "keep1d_sym": 0.931,
+      "z_sym": 13.461,
+      "contradiction_4b": 2.483,
+      "order_diff_4b": 1.044,
+      "paper_a": {
+        "id": "oa-db5f64e53a59",
+        "idx": 868,
+        "title": "ParaThinker: Native Parallel Reasoning for Scaling LLM Test-Time Compute",
+        "authors": [
+          "Hao Wen",
+          "Yifan Su",
+          "Feifei Zhang",
+          "Xinrui Wu"
+        ],
+        "category": "reasoning-alignment",
+        "year": 2026,
+        "published_date": "2026-06-01",
+        "venue": "Findings of the Association for Computational Linguistics: EMNLP (Findings of EMNLP)",
+        "citations": 0,
+        "url": "https://doi.org/10.18653/2026.findings-emnlp.1469",
+        "pdf_url": "https://aclanthology.org/2026.findings-emnlp.1469.pdf",
+        "abstract": "Test-time scaling improves the reasoning capability of large language models by generating longer sequential chains of thought. While effective, this approach reaches a bottleneck as computation increases, resulting in a \u201ctest-time scaling plateau\u201d where further computation provides only marginal gains. We argue that this ceiling reflects a limitation of the scaling strategy rather than model capability, a phenomenon we term Tunnel Vision, where imperfect early steps can lock the model into a suboptimal reasoning path. Motivated by this observation, we propose ParaThinker, an end-to-end parallel reasoning framework that trains LLMs to generate multiple reasoning paths in parallel and aggregate them into a final answer within a single architecture. By exploring different lines of thought, ParaThinker sidesteps the Tunnel Vision issue and unlocks the model\u2019s..."
+      },
+      "paper_b": {
+        "id": "arxiv-2510.17238",
+        "idx": 942,
+        "title": "StreamingThinker: Large Language Models Can Think While Reading",
+        "authors": [
+          "Tong, Junlong",
+          "Yingqi Fan",
+          "Anhao Zhao",
+          "Yunpu Ma"
+        ],
+        "category": "inference-kernels",
+        "year": 2026,
+        "published_date": "2026-04-20",
+        "venue": "ICLR 2026",
+        "citations": 17,
+        "url": "https://arxiv.org/abs/2510.17238",
+        "pdf_url": "https://arxiv.org/pdf/2510.17238.pdf",
+        "abstract": "Large language models (LLMs) have demonstrated remarkable capabilities in chain of thought (CoT) reasoning. However, the current LLM reasoning paradigm initiates thinking only after the entire input is available, which introduces unnecessary latency and weakens attention to earlier information in dynamic scenarios. Inspired by human cognition of thinking while reading, we first design a \\textit{\\textbf{streaming thinking}} paradigm for LLMs, where reasoning unfolds in the order of input and further adjusts its depth once reading is complete. We instantiate this paradigm with \\textit{StreamingThinker}, a framework that enables LLMs to think while reading through the integration of streaming CoT generation, streaming-constraint training, and streaming parallel inference. Specifically, StreamingThinker employs streaming reasoning units with quality control for CoT..."
+      }
+    },
+    {
+      "bge_cosine": 0.9107,
+      "keep1d_sym": 0.743,
+      "z_sym": 7.779,
+      "contradiction_4b": 2.332,
+      "order_diff_4b": 2.363,
+      "paper_a": {
+        "id": "arxiv-2203.15556",
+        "idx": 1695,
+        "title": "Training Compute-Optimal Large Language Models",
+        "authors": [
+          "Jordan Hoffmann",
+          "Sebastian Borgeaud",
+          "Arthur Mensch",
+          "Elena Buchatskaya"
+        ],
+        "category": "architectures",
+        "year": 2022,
+        "published_date": "2022-03-15",
+        "venue": "neural information processing systems",
+        "citations": 6801,
+        "url": "https://arxiv.org/abs/2203.15556",
+        "pdf_url": "https://arxiv.org/pdf/2203.15556.pdf",
+        "abstract": "We investigate the optimal model size and number of tokens for training a transformer language model under a given compute budget. We find that current large language models are significantly undertrained, a consequence of the recent focus on scaling language models whilst keeping the amount of training data constant. By training over 400 language models ranging from 70 million to over 16 billion parameters on 5 to 500 billion tokens, we find that for compute-optimal training, the model size and the number of training tokens should be scaled equally: for every doubling of model size the number of training tokens should also be doubled. We test this hypothesis by training a predicted compute-optimal model, Chinchilla, that uses the same compute budget as Gopher but with 70B parameters and 4$\\times$ more more data. Chinchilla uniformly and significantly outperforms..."
+      },
+      "paper_b": {
+        "id": "arxiv-1909.08053",
+        "idx": 1712,
+        "title": "Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism",
+        "authors": [
+          "Mohammad Shoeybi",
+          "Mostofa Ali Patwary",
+          "Raul Puri",
+          "Patrick LeGresley"
+        ],
+        "category": "inference-kernels",
+        "year": 2019,
+        "published_date": "2019-09-15",
+        "venue": "arXiv:1909.08053",
+        "citations": 4023,
+        "url": "https://arxiv.org/abs/1909.08053",
+        "pdf_url": "https://arxiv.org/pdf/1909.08053.pdf",
+        "abstract": "Recent work in language modeling demonstrates that training large transformer models advances the state of the art in Natural Language Processing applications. However, very large models can be quite difficult to train due to memory constraints. In this work, we present our techniques for training very large transformer models and implement a simple, efficient intra-layer model parallel approach that enables training transformer models with billions of parameters. Our approach does not require a new compiler or library changes, is orthogonal and complimentary to pipeline model parallelism, and can be fully implemented with the insertion of a few communication operations in native PyTorch. We illustrate this approach by converging transformer based models up to 8.3 billion parameters using 512 GPUs. We sustain 15.1 PetaFLOPs across the entire application with 76%..."
+      }
+    },
+    {
+      "bge_cosine": 0.9199,
+      "keep1d_sym": 0.743,
+      "z_sym": 8.087,
+      "contradiction_4b": 2.234,
+      "order_diff_4b": 0.118,
+      "paper_a": {
+        "id": "arxiv-2607.17979",
+        "idx": 813,
+        "title": "Harness Engineering for LLM-Driven GPU Kernel Generation",
+        "authors": [
+          "Yue Shui",
+          "C W",
+          "Haifeng Xu",
+          "Shengzhao Wen"
+        ],
+        "category": "inference-kernels",
+        "year": 2026,
+        "published_date": "2026-07-20",
+        "venue": "MLSys 2026",
+        "citations": 5,
+        "url": "https://arxiv.org/abs/2607.17979",
+        "pdf_url": "https://arxiv.org/pdf/2607.17979.pdf",
+        "abstract": "Large language models (LLMs) can assist GPU kernel generation, but their practical effectiveness depends on whether generated code can be reliably constrained, validated, profiled, and selected. This paper presents a harness-centered system for LLM-driven GPU kernel optimization in the MLSys 2026 FlashInfer AI Kernel Generation Contest on NVIDIA Blackwell B200 GPUs. The system separates an evaluation harness from a profile-backed optimization controller: the harness enforces compilation, correctness, official-aligned timing, and artifact archival, while the controller turns profiler and workload evidence into bounded candidate-generation decisions. Human-authored skills capture operator constraints, references, profiling procedures, and promotion rules, while Codex and Claude Code agents generate candidate kernels inside those constraints. Across five operator..."
+      },
+      "paper_b": {
+        "id": "arxiv-2607.14541",
+        "idx": 816,
+        "title": "Are LLM-Generated GPU Kernels Production-Ready? A Trace-Driven Benchmark and Optimization Agent",
+        "authors": [
+          "L Yang",
+          "Yuxiao Wang",
+          "Shenghao Liang",
+          "L Yang"
+        ],
+        "category": "inference-kernels",
+        "year": 2026,
+        "published_date": "2026-07-15",
+        "venue": "arXiv:2607.14541",
+        "citations": 10,
+        "url": "https://arxiv.org/abs/2607.14541",
+        "pdf_url": "https://arxiv.org/pdf/2607.14541.pdf",
+        "abstract": "Existing GPU kernel generation benchmarks draw problems from synthetic or curated sources that diverge from deployed workloads. We present Atrex-Bench, a benchmark whose 30 operators and 440 shapes are sampled directly from full-cluster production inference traces of compute-limited, memory-rich GPUs. Each problem carries an importance weight derived from its share of observed GPU time, weighted by application card-hours and computed separately for the serving phases in which it runs, together with a per-problem roofline ceiling, so the aggregate score emphasizes the kernels that consume the most serving time. Evaluating six frontier coding agents on Atrex-Bench shows that even the best vanilla model reaches only ${\\sim}10\\%$ of the hardware roofline on production operators; and correctness alone overstates capability, since much of the apparent pass rate comes..."
+      }
+    },
+    {
+      "bge_cosine": 0.9295,
+      "keep1d_sym": 0.681,
+      "z_sym": 9.064,
+      "contradiction_4b": 2.011,
+      "order_diff_4b": 0.258,
+      "paper_a": {
+        "id": "arxiv-2508.15094",
+        "idx": 1196,
+        "title": "Evaluating Sparse Autoencoders for Monosemantic Representation",
+        "authors": [
+          "Moghis Fereidouni",
+          "Muhammad Umair Haider",
+          "Peizhong Ju",
+          "A. B. Siddique"
+        ],
+        "category": "mech-interp-saes",
+        "year": 2026,
+        "published_date": "2025-08-15",
+        "venue": "Findings of the Association for Computational Linguistics: EACL",
+        "citations": 6,
+        "url": "https://arxiv.org/abs/2508.15094",
+        "pdf_url": "https://arxiv.org/pdf/2508.15094.pdf",
+        "abstract": "A key barrier to interpreting large language models is polysemanticity, where neurons activate for multiple unrelated concepts. Sparse autoencoders (SAEs) have been proposed to mitigate this issue by transforming dense activations into sparse, more interpretable features. While prior work suggests that SAEs promote monosemanticity, no quantitative comparison has examined how concept activation distributions differ between SAEs and their base models. This paper provides the first systematic evaluation of SAEs against base models through activation distribution lens. We introduce a fine-grained concept separability score based on the Jensen\u2013Shannon distance, which captures how distinctly a neuron\u2019s activation distributions vary across concepts. Using two large language models (Gemma-2-2B and DeepSeek-R1) and multiple SAE variants across five datasets (including..."
+      },
+      "paper_b": {
+        "id": "arxiv-2506.19382",
+        "idx": 1393,
+        "title": "Measuring and Guiding Monosemanticity",
+        "authors": [
+          "Ruben H\u00e4rle",
+          "F. Friedrich",
+          "Manuel Brack",
+          "Bj\u00f6rn Deiseroth"
+        ],
+        "category": "mech-interp-saes",
+        "year": 2025,
+        "published_date": "2025-01-01",
+        "venue": "NeurIPS 2025",
+        "citations": 19,
+        "url": "https://arxiv.org/abs/2506.19382",
+        "pdf_url": "https://arxiv.org/pdf/2506.19382.pdf",
+        "abstract": "There is growing interest in leveraging mechanistic interpretability and controllability to better understand and influence the internal dynamics of large language models (LLMs). However, current methods face fundamental challenges in reliably localizing and manipulating feature representations. Sparse Autoencoders (SAEs) have recently emerged as a promising direction for feature extraction at scale, yet they, too, are limited by incomplete feature isolation and unreliable monosemanticity. To systematically quantify these limitations, we introduce Feature Monosemanticity Score (FMS), a novel metric to quantify feature monosemanticity in latent representation. Building on these insights, we propose Guided Sparse Autoencoders (G-SAE), a method that conditions latent representations on labeled concepts during training. We demonstrate that reliable localization and..."
+      }
+    },
+    {
+      "bge_cosine": 0.9228,
+      "keep1d_sym": 1.181,
+      "z_sym": 1.53,
+      "contradiction_4b": 1.733,
+      "order_diff_4b": 0.665,
+      "paper_a": {
+        "id": "arxiv-2603.03251",
+        "idx": 951,
+        "title": "Speculative Speculative Decoding",
+        "authors": [
+          "Tanishq Kumar",
+          "Tri Dao",
+          "Avner May"
+        ],
+        "category": "speculative",
+        "year": 2026,
+        "published_date": "2026-04-20",
+        "venue": "International Conference on Learning Representations (2026)",
+        "citations": 14,
+        "url": "https://arxiv.org/abs/2603.03251",
+        "pdf_url": "https://arxiv.org/pdf/2603.03251.pdf",
+        "abstract": "Autoregressive decoding is bottlenecked by its sequential nature. Speculative decoding has become a standard way to accelerate inference by using a fast draft model to predict upcoming tokens from a slower target model, and then verifying them in parallel with a single target model forward pass. However, speculative decoding itself relies on a sequential dependence between speculation and verification. We introduce speculative speculative decoding (SSD) to parallelize these operations. While a verification is ongoing, the draft model predicts likely verification outcomes and prepares speculations pre-emptively for them. If the actual verification outcome is then in the predicted set, a speculation can be returned immediately, eliminating drafting overhead entirely. We identify three key challenges presented by speculative speculative decoding, and suggest..."
+      },
+      "paper_b": {
+        "id": "arxiv-2508.15371",
+        "idx": 1197,
+        "title": "Confidence-Modulated Speculative Decoding for Large Language Models",
+        "authors": [
+          "Jaydip Sen",
+          "Subhasis Dasgupta",
+          "Hetvi Waghela"
+        ],
+        "category": "speculative",
+        "year": 2025,
+        "published_date": "2025-08-15",
+        "venue": "IEEE India Council International Subsections Conference (INDISCON)",
+        "citations": 2,
+        "url": "https://arxiv.org/abs/2508.15371",
+        "pdf_url": "https://arxiv.org/pdf/2508.15371.pdf",
+        "abstract": "Speculative decoding has proven to be a powerful method for speeding up autoregressive inference by allowing tokens to be generated in parallel using a draft-then-verify approach. However, the current techniques tend to rely on fixed lengths for drafting and strict criteria for verification, which limits their flexibility when faced with different levels of model uncertainty or varying input complexities. In this paper, we propose a new framework for speculative decoding, built on the idea of adjusting drafting based on confidence levels. By using entropy and margin-based uncertainty measures derived from the drafter\u2019s output distribution, the approach can dynamically change the number of tokens it generates at each step. This adaptability not only reduces the need for rollbacks but also makes better use of available resources, all while ensuring that the output..."
+      }
+    }
+  ],
+  "under_the_radar": {
+    "sleeping_beauties": [
+      {
+        "id": "arxiv-2506.22696",
+        "idx": 1179,
+        "title": "Residual Matrix Transformers: Scaling the Size of the Residual Stream",
+        "authors": [
+          "Brian Mak",
+          "Flanigan, Jeffrey"
+        ],
+        "category": "mech-interp-circuits",
+        "year": 2025,
+        "published_date": "2025-10-06",
+        "venue": "ICML 2025",
+        "citations": 10,
+        "url": "https://arxiv.org/abs/2506.22696",
+        "pdf_url": "https://arxiv.org/pdf/2506.22696.pdf",
+        "abstract": "The residual stream acts as a memory bus where transformer layers both store and access features (Elhage et al., 2021). We consider changing the mechanism for retrieving and storing information in the residual stream, and replace the residual stream of the transformer with an outer product memory matrix (Kohonen, 1972, Anderson, 1972). We call this model the Residual Matrix Transformer (RMT). We find that the RMT enjoys a number of attractive properties: 1) the size of the residual stream can be scaled independently of compute and model size, improving performance, 2) the RMT can achieve the same loss as the transformer with 58% fewer FLOPS, 25% fewer parameters, and 41% fewer training tokens tokens, and 3) the RMT outperforms the transformer on downstream evaluations. We theoretically analyze the transformer and the RMT, and show that the RMT allows for more...",
+        "lens": "sleeping_beauty",
+        "expected_citations": 31.4,
+        "z_rigor": 1.07,
+        "z_hype": -0.626,
+        "rigor_4b": 7.447,
+        "unconventional_4b": 8.955
+      },
+      {
+        "id": "arxiv-2505.18706",
+        "idx": 1379,
+        "title": "Steering LLM Reasoning Through Bias-Only Adaptation",
+        "authors": [
+          "Viacheslav Sinii",
+          "Alexey Gorbatovski",
+          "Artem Cherepanov",
+          "Boris Shaposhnikov"
+        ],
+        "category": "reasoning-alignment",
+        "year": 2025,
+        "published_date": "2025-01-01",
+        "venue": "EMNLP 2025",
+        "citations": 26,
+        "url": "https://arxiv.org/abs/2505.18706",
+        "pdf_url": "https://arxiv.org/pdf/2505.18706.pdf",
+        "abstract": "We show that training a single d -dimensional steering vector per layer with reinforcement learning, while freezing all base weights, matches the accuracy of fully RL-tuned reasoning models on mathematical-reasoning tasks.On an 8 billion-parameter model this adds only \u2248 0.0016% additional parameters and reproduces performance across a range of base models and mathematical-reasoning benchmarks.These results tighten the upper bound on the parameter budget required for high-level chain-of-thought reasoning, indicating that millions of adapter weights are unnecessary.The minimal trainable footprint reduces optimizer memory and inter-GPU communication, lowering the overall cost of fine-tuning.Moreover, a logit-lens analysis shows that the learned vectors amplify coherent token directions, providing clearer insight into the model\u2019s internal computations.",
+        "lens": "sleeping_beauty",
+        "expected_citations": 75.4,
+        "z_rigor": 1.072,
+        "z_hype": -1.743,
+        "rigor_4b": 7.497,
+        "unconventional_4b": 4.913
+      },
+      {
+        "id": "arxiv-2511.11966",
+        "idx": 1416,
+        "title": "On the Entropy Calibration of Language Models",
+        "authors": [
+          "Steven Cao",
+          "Gregory J. Valiant",
+          "Percy Liang"
+        ],
+        "category": "reasoning-alignment",
+        "year": 2025,
+        "published_date": "2025-01-01",
+        "venue": "NeurIPS 2025",
+        "citations": 8,
+        "url": "https://arxiv.org/abs/2511.11966",
+        "pdf_url": "https://arxiv.org/pdf/2511.11966.pdf",
+        "abstract": "We study the problem of entropy calibration, which asks whether a language model's entropy over generations matches its log loss on human text. Past work found that models are miscalibrated, with entropy per step increasing as generations grow longer, due to error accumulation. To calibrate the model and improve text quality, it has become standard practice to truncate the distribution, but this approach reduces output diversity, which we would like to avoid. Therefore, in this paper, we ask: does miscalibration improve automatically with scale, and if not, is it theoretically possible to calibrate without tradeoffs? To build intuition, we first study a simplified theoretical setting to characterize the scaling behavior of miscalibration with respect to dataset size. We find that the rate of scaling depends on the power law exponent of the data distribution -- in...",
+        "lens": "sleeping_beauty",
+        "expected_citations": 72.4,
+        "z_rigor": 1.02,
+        "z_hype": -1.107,
+        "rigor_4b": 7.952,
+        "unconventional_4b": 3.989
+      },
+      {
+        "id": "arxiv-2504.02976",
+        "idx": 1291,
+        "title": "Localized Definitions and Distributed Reasoning: A Proof-of-Concept Mechanistic Interpretability Study via Activation Patching",
+        "authors": [
+          "Nooshin Bahador"
+        ],
+        "category": "mech-interp-circuits",
+        "year": 2025,
+        "published_date": "2025-04-15",
+        "venue": "arXiv:2504.02976",
+        "citations": 2,
+        "url": "https://arxiv.org/abs/2504.02976",
+        "pdf_url": "https://arxiv.org/pdf/2504.02976.pdf",
+        "abstract": "This study investigates the localization of knowledge representation in fine-tuned GPT-2 models using Causal Layer Attribution via Activation Patching (CLAP), a method that identifies critical neural layers responsible for correct answer generation. The model was fine-tuned on 9,958 PubMed abstracts (epilepsy: 20,595 mentions, EEG: 11,674 mentions, seizure: 13,921 mentions) using two configurations with validation loss monitoring for early stopping. CLAP involved (1) caching clean (correct answer) and corrupted (incorrect answer) activations, (2) computing logit difference to quantify model preference, and (3) patching corrupted activations with clean ones to assess recovery. Results revealed three findings: First, patching the first feedforward layer recovered 56% of correct preference, demonstrating that associative knowledge is distributed across multiple...",
+        "lens": "sleeping_beauty",
+        "expected_citations": 30.1,
+        "z_rigor": 1.311,
+        "z_hype": -1.865,
+        "rigor_4b": 7.533,
+        "unconventional_4b": 3.109
+      },
+      {
+        "id": "arxiv-2410.00161",
+        "idx": 1466,
+        "title": "KV-Compress: Paged KV-Cache Compression with Variable Compression Rates per Attention Head",
+        "authors": [
+          "Isaac Rehg"
+        ],
+        "category": "quantization",
+        "year": 2024,
+        "published_date": "2024-10-15",
+        "venue": "arXiv:2410.00161",
+        "citations": 26,
+        "url": "https://arxiv.org/abs/2410.00161",
+        "pdf_url": "https://arxiv.org/pdf/2410.00161.pdf",
+        "abstract": "Context lengths of Large Language Models (LLMs) have exploded in recent years, with 128k-token context becoming a standard and million-token context becoming a reality. Efficiently supporting long-context inference remains challenging as the memory that must be allocated in key-value (KV) cache for a generation scales with its context length, limiting the number of long-context requests that can be served concurrently under a given memory budget. KV cache compression can mitigate this issue by removing under-utilized KVs from each attention head's cache and reducing its memory footprint. Higher theoretical compression rates can be achieved when the number of removed KVs varies across attention heads, but application of such a strategy within existing inference frameworks adds fragmentation and cannot realize the theoretical compression rates in physical memory. We...",
+        "lens": "sleeping_beauty",
+        "expected_citations": 143.9,
+        "z_rigor": 1.052,
+        "z_hype": -1.532,
+        "rigor_4b": 6.762,
+        "unconventional_4b": 3.728
+      },
+      {
+        "id": "arxiv-2510.01336",
+        "idx": 1187,
+        "title": "HiSpec: Hierarchical Speculative Decoding for LLMs",
+        "authors": [
+          "Kumar, Avinash",
+          "Sujay Sanghavi",
+          "Poulami Das"
+        ],
+        "category": "speculative",
+        "year": 2025,
+        "published_date": "2025-10-01",
+        "venue": "arXiv:2510.01336",
+        "citations": 8,
+        "url": "https://arxiv.org/abs/2510.01336",
+        "pdf_url": "https://arxiv.org/pdf/2510.01336.pdf",
+        "abstract": "Speculative decoding accelerates LLM inference by using a smaller draft model to speculate tokens that a larger target model verifies. Verification is often the bottleneck (e.g. verification is $4\\times$ slower than token generation when a 3B model speculates for a 70B target model), but most prior works focus only on accelerating drafting. $\\textit{``Intermediate\"}$ verification reduces verification time by discarding inaccurate draft tokens early, but existing methods incur substantial training overheads in incorporating the intermediate verifier, increase the memory footprint to orchestrate the intermediate verification step, and compromise accuracy by relying on approximate heuristics. We propose $\\underline{\\textit{Hi}}\\textit{erarchical }\\underline{\\textit{Spec}}\\textit{ulative Decoding (HiSpec)}$, a framework for high-throughput speculative decoding that...",
+        "lens": "sleeping_beauty",
+        "expected_citations": 31.7,
+        "z_rigor": 1.037,
+        "z_hype": -1.827,
+        "rigor_4b": 5.188,
+        "unconventional_4b": 3.535
+      },
+      {
+        "id": "arxiv-2505.20276",
+        "idx": 1232,
+        "title": "Does quantization affect models\u2019 performance on long-context tasks?",
+        "authors": [
+          "Anmol Mekala",
+          "Anirudh Atmakuru",
+          "Yixiao Song",
+          "Marzena Karpinska"
+        ],
+        "category": "quantization",
+        "year": 2025,
+        "published_date": "2025-05-15",
+        "venue": "Conference on Empirical Methods in Natural Language Processing (EMNLP)",
+        "citations": 27,
+        "url": "https://arxiv.org/abs/2505.20276",
+        "pdf_url": "https://arxiv.org/pdf/2505.20276.pdf",
+        "abstract": "Large language models (LLMs) now support context windows exceeding 128K tokens, but this comes with significant memory requirements and high inference latency. Quantization can mitigate these costs, but may degrade performance. In this work, we present the first systematic evaluation of quantized LLMs on tasks with long inputs (\u226564K tokens) and long-form outputs. Our evaluation spans 9.7K test examples, five quantization methods (FP8, GPTQ-int8, AWQ-int4, GPTQ-int4, BNB-nf4), and five models (Llama-3.1 8B and 70B; Qwen-2.5 7B, 32B, and 72B). We find that, on average, 8-bit quantization preserves accuracy (~0.8% drop), whereas 4-bit methods lead to substantial losses, especially for tasks involving long-context inputs (drops of up to 59%). This degradation tends to worsen when the input is in a language other than English. Crucially, the effects of quantization...",
+        "lens": "sleeping_beauty",
+        "expected_citations": 46.4,
+        "z_rigor": 0.73,
+        "z_hype": -1.82,
+        "rigor_4b": 7.244,
+        "unconventional_4b": -0.642
+      }
+    ],
+    "quiet_today": [
+      {
+        "id": "arxiv-2606.01232",
+        "idx": 475,
+        "title": "Residual-Weighted Randomized Jacobi: Sharpened Bounds via Residual Concentration and Asynchronous Extension",
+        "authors": [
+          "Evan Coleman"
+        ],
+        "category": "frontier-ai",
+        "year": 2026,
+        "published_date": "2026-11-24",
+        "venue": "arXiv \u00b7 2026-11-24 (cs.DC)",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2606.01232",
+        "pdf_url": "https://arxiv.org/pdf/2606.01232.pdf",
+        "abstract": "We study randomized stationary methods for symmetric positive definite linear systems in which component $j$ is selected with probability proportional to $|r_j|^\\ell$. This family interpolates between uniform sampling on the nonzero residual components ($\\ell \\to 0^+$) and Gauss--Southwell relaxation ($\\ell \\to \\infty$). For $\\ell = 2$ we sharpen the one-step analysis using the inverse participation ratio (IPR) of the residual, $\\nu^2(r) = n\\|r\\|_4^4/\\|r\\|_2^4$, which is $1$ for a uniform residual and approaches $n$ as it concentrates. The resulting bound multiplies the guaranteed expected-progress coefficient of uniform sampling by the IPR (and the expected progress, for constant-diagonal $A$). We extend the analysis to asynchronous execution via the Avron--Druinsky--Gupta (ADG) framework, obtaining, under an a priori envelope on the IPR, an epoch-based reduction...",
+        "lens": "quiet_today",
+        "z_rigor": 3.059,
+        "z_hype": -2.657,
+        "z_prior": -2.945,
+        "rigor_4b": 8.179,
+        "unconventional_4b": 1.513
+      },
+      {
+        "id": "arxiv-2611.28318",
+        "idx": 159,
+        "title": "Selection Policies for Equal-Byte Mixed-Precision Quantization of Small Language Models",
+        "authors": [
+          "Smit Anand"
+        ],
+        "category": "quantization",
+        "year": 2026,
+        "published_date": "2026-11-24",
+        "venue": "arXiv \u00b7 2026-11-24 (cs.LG)",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2611.28318",
+        "pdf_url": "https://arxiv.org/pdf/2611.28318.pdf",
+        "abstract": "Can changing which matrices receive 2, 4, or 8 bits improve a small language model without increasing its parameter storage? I compare two parent-selection rules in the same genetic algorithm: a binary-tournament variant and an Alternis-inspired rule. A separate baseline samples repaired random allocations without crossover or mutation. All three use the same MLX affine quantizer, byte ceiling, initialization and candidate allowance within each study. An exploratory study on Qwen3.5-2B evaluates 90 allocations per run. The main study on Qwen3-1.7B evaluates 500 distinct allocations per run over 10 paired seeds. Against uniform four-bit, tournament reduces held-out next-token negative log-likelihood (NLL) by 0.0616 on AG News and 0.0152 on IMDb on average, improving all 10 seeds on each corpus at identical parameter storage. Alternis improves five seeds and ties...",
+        "lens": "quiet_today",
+        "z_rigor": 2.444,
+        "z_hype": -2.572,
+        "z_prior": -2.475,
+        "rigor_4b": 7.676,
+        "unconventional_4b": 1.936
+      },
+      {
+        "id": "arxiv-2611.28173",
+        "idx": 281,
+        "title": "Selective Verification in Multi-Agent Orchestration with Large Language Models",
+        "authors": [
+          "Ramesh Krishnamaneni",
+          "Muralidhar Kurni"
+        ],
+        "category": "reasoning-alignment",
+        "year": 2026,
+        "published_date": "2026-11-24",
+        "venue": "arXiv \u00b7 2026-11-24 (cs.DC)",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2611.28173",
+        "pdf_url": "https://arxiv.org/pdf/2611.28173.pdf",
+        "abstract": "Agents can agree because they relied on the same flawed evidence. We use an exact model of nine binary votes to examine when a verifier should intervene. In the main comparison, workers err 20 percent of the time under ordinary conditions, shared failures occur in 10 percent of cases, and the verifier errs 2 percent of the time in either state. When worker error during a shared failure is 80 percent, checking close votes yields 7.93 percent verdict error, compared with 9.06 percent for random checks at the same expected check rate. The ordering reverses at 90 percent worker error during failure. At the matched check rate for that regime, checking close votes yields 9.98 percent error, random checks yield 9.41 percent, and ranking checks by their expected error reduction yields 6.73 percent. The model also shows that passing branch vote counts preserves the flat...",
+        "lens": "quiet_today",
+        "z_rigor": 2.711,
+        "z_hype": -2.646,
+        "z_prior": -1.446,
+        "rigor_4b": 6.822,
+        "unconventional_4b": 2.212
+      },
+      {
+        "id": "arxiv-2611.31113",
+        "idx": 227,
+        "title": "Attention Temperature Confounds Zero-Shot Context Extension",
+        "authors": [
+          "Ruben Navasardyan"
+        ],
+        "category": "architectures",
+        "year": 2026,
+        "published_date": "2026-11-24",
+        "venue": "arXiv \u00b7 2026-11-24 (cs.LG)",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2611.31113",
+        "pdf_url": "https://arxiv.org/pdf/2611.31113.pdf",
+        "abstract": "A training-time attention change is usually judged for zero-shot context extension against a dense baseline beyond the training length at the default temperature, $\\tau = 1$. The outcome depends on how miscalibrated the baseline is there: the share of perplexity it recovers when its logits are sharpened by one scalar. Under the standard recipe (fp32 master weights), an 8k-trained baseline is 8-15% miscalibrated at 30k in three seed-paired 365M twins; in one of them this makes the block-sparse-trained twin look 7% better, which calibration removes. In pure-bf16 training without master weights the miscalibration is several times larger: an AdamW step ($\\beta_2 = 0.95$) on a gain initialised at 1.0 is below half the bf16 spacing at peak learning rates under $1.7\\times10^{-3}$, so gains never move (22 checkpoints), the baseline is 37-58% miscalibrated, and...",
+        "lens": "quiet_today",
+        "z_rigor": 3.149,
+        "z_hype": -3.842,
+        "z_prior": -2.303,
+        "rigor_4b": 6.068,
+        "unconventional_4b": 0.767
+      },
+      {
+        "id": "arxiv-2611.29092",
+        "idx": 508,
+        "title": "One Million Tokens in 20GB: Calibration-Free 2-Bit SRFT KV-Cache Compression for Looped MoE Inference on Apple Silicon",
+        "authors": [
+          "Mohamed Amine Bergach"
+        ],
+        "category": "architectures",
+        "year": 2026,
+        "published_date": "2026-11-24",
+        "venue": "arXiv \u00b7 2026-11-24 (cs.PF)",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2611.29092",
+        "pdf_url": "https://arxiv.org/pdf/2611.29092.pdf",
+        "abstract": "Long-context inference on unified-memory edge machines is governed by KV-cache capacity and memory bandwidth. On a 32 GB Apple M6 Mac mini (26.8 GB Metal working set, 150 GB/s DRAM), the 26.4B looped Mixture-of-Experts model Inkling-2-Mini (48 logical visits, 1M native context) exhausts memory by 64K tokens in stock oMLX (and by 512K even after fixing its 40 sliding-window visits to bounded ring buffers). We show that three structural properties of modern hybrid NoPE architectures -- bounded sliding windows, a 1,024-token banded relative bias whose tail is identically zero, and unit-RMS value normalization -- combine with an orthonormal Subsampled Randomized Fourier Transform (SRFT) to enable calibration-free, scale-free 2.000-bit Value and 2.125-bit Key Lloyd-Max compression (2.0625 effective bits/coordinate, $7.76\\times$ smaller than bf16) on the 8 global...",
+        "lens": "quiet_today",
+        "z_rigor": 2.258,
+        "z_hype": -3.213,
+        "z_prior": -2.982,
+        "rigor_4b": 5.614,
+        "unconventional_4b": 1.171
+      },
+      {
+        "id": "arxiv-2611.31030",
+        "idx": 461,
+        "title": "Accurate Products, Inaccurate Inverse: Emulated FP64 BLAS in Blocked Triangular Inversion",
+        "authors": [
+          "Erzheng Zhang"
+        ],
+        "category": "frontier-ai",
+        "year": 2026,
+        "published_date": "2026-11-24",
+        "venue": "arXiv \u00b7 2026-11-24 (cs.DC)",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2611.31030",
+        "pdf_url": "https://arxiv.org/pdf/2611.31030.pdf",
+        "abstract": "FP64 emulation on integer tensor units now ships in cuBLAS and GEMMul8, and each emulated matrix product can be checked against an accuracy grade. We ask if a routine built from such products inherits their accuracy, and show that blocked triangular inversion, the core of LAPACK's inverse of a symmetric positive definite matrix, does not. Under fixed-precision emulation every product passes the grade-B error bound of Demmel et al., yet the inverse errs at 7.1e-2, against 2.0e-15 natively. The matrices are well conditioned after diagonal scaling, but the scaling spans 64 binades. The cause is one product, T = X22 L21, whose summed index carries both the diagonal scaling and its inverse, which a grade-B bound does not absorb. Computing those products natively restores native accuracy; leaving any one of them emulated does not. The pattern holds on four GPUs, and on...",
+        "lens": "quiet_today",
+        "z_rigor": 2.635,
+        "z_hype": -2.954,
+        "z_prior": -2.921,
+        "rigor_4b": 5.607,
+        "unconventional_4b": 0.977
+      },
+      {
+        "id": "arxiv-2611.30835",
+        "idx": 148,
+        "title": "The KL Divergence Is Never Negative, Except in PyTorch",
+        "authors": [
+          "Zhen Yang",
+          "Wei Tang",
+          "Chu Chen",
+          "Rui Qian"
+        ],
+        "category": "frontier-ai",
+        "year": 2026,
+        "published_date": "2026-11-24",
+        "venue": "arXiv \u00b7 2026-11-24 (cs.LG)",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2611.30835",
+        "pdf_url": "https://arxiv.org/pdf/2611.30835.pdf",
+        "abstract": "A Kullback--Leibler (KL) divergence is never negative, yet PyTorch users have reported negative values for years, and the standard advice is to clamp them at zero. The sign is only the visible part of a silent failure. Many machine-learning applications compare nearby distributions, where conventional KL formulas lose accuracy. On 8.5 million inputs with certified references across 18 closed-form KL families and F.kl_div, we find widespread errors in values and gradients on CPU and GPU. Among scalar families in ordinary parameter ranges, over 85% of FP32 values have at least 1% relative error near KL 10^(-7) (FP16: 10^(-3)), and about 30% become negative at smaller divergences. More precision is not the cure: evaluated one precision higher, the same formulas still leave 7--51% of FP32 values significantly wrong for 22 of 23 configurations. Stable closed-form...",
+        "lens": "quiet_today",
+        "z_rigor": 2.625,
+        "z_hype": -3.176,
+        "z_prior": -1.987,
+        "rigor_4b": 4.641,
+        "unconventional_4b": 0.446
+      },
+      {
+        "id": "arxiv-2611.30720",
+        "idx": 321,
+        "title": "Testing Quantized KV-Cache Maintenance: Encoding Layout and Historical Restoration",
+        "authors": [
+          "Ziyang Huang",
+          "Songwei Wu"
+        ],
+        "category": "inference-kernels",
+        "year": 2026,
+        "published_date": "2026-11-24",
+        "venue": "arXiv \u00b7 2026-11-24 (cs.AI)",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2611.30720",
+        "pdf_url": "https://arxiv.org/pdf/2611.30720.pdf",
+        "abstract": "Repeating rows then selecting originals retains layout-dependent drift despite equal encoding counts. We measure when existing checks fail to establish preservation contracts in fixed quantized KV-cache implementations. In four-bit HQQ axis zero at sixteen cycles, median paired relative-L2 increases over same-shape re-encoding are 7.22 percentage points for Qwen3-1.7B and 11.59 for SmolLM3-3B. Matched encoded states cover sixteen shared questions per model at one and sixteen cycles. Axis one matches the shape-preserving control; lazy reorders preserve the initial state. On one known input, fixed update counts retain the difference; preserving group members removes it. Our prefix-view extension passes current-prefix checks yet changes history and next logits in six model/codec settings at residual capacities four and 128. Public lookup reaches this boundary,...",
+        "lens": "quiet_today",
+        "z_rigor": 3.085,
+        "z_hype": -3.694,
+        "z_prior": -1.536,
+        "rigor_4b": 4.851,
+        "unconventional_4b": -0.611
+      }
+    ],
+    "off_core_outliers": [
+      {
+        "id": "arxiv-2611.30025",
+        "idx": 69,
+        "title": "Damped Atomic Wave Integration Neurons (DAWIN): A Universal Primitive for Continuous-Time Spatiotemporal Learning",
+        "authors": [
+          "Byunggu Yu",
+          "Justin Kim"
+        ],
+        "category": "inference-kernels",
+        "year": 2026,
+        "published_date": "2026-11-24",
+        "venue": "arXiv \u00b7 2026-11-24 (cs.LG)",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2611.30025",
+        "pdf_url": "https://arxiv.org/pdf/2611.30025.pdf",
+        "abstract": "Conventional artificial neurons separate spatial feature aggregation from continuous physical time, limiting their ability to model irregular observations. We introduce the Damped Atomic Wave Integration Neuron (DAWIN), a continuous-time primitive for replacing standard neural layers in MLPs, Transformers, and graph neural networks. DAWIN couples spatial projection with elapsed-time-dependent wave excitation and integrates it into a local complex state through closed-form damped evolution, avoiding numerical differential equation solvers. We show that DAWIN generalizes static sinusoidal and memoryless wave neurons on interval-augmented inputs, derive closed-form gradients, and establish bounded-input bounded-output stability for positive damping and sampling intervals bounded away from zero. An associative Triton prefix-scan implementation, DAWINLinear, uses FP32...",
+        "lens": "off_core_outlier",
+        "off_core_norm_z": 2.105,
+        "off_core_ratio": 2.4,
+        "z_rigor": 0.667,
+        "rigor_4b": 7.86,
+        "unconventional_4b": 8.311
+      },
+      {
+        "id": "arxiv-2611.28277",
+        "idx": 355,
+        "title": "Temporal Logic Tensor Networks: Foundations of Temporal Reasoning in Neural Networks",
+        "authors": [
+          "Edjard Mota",
+          "Artur d'Avila Garcez",
+          "Maria Azevedo",
+          "Odalisio Neto"
+        ],
+        "category": "frontier-ai",
+        "year": 2026,
+        "published_date": "2026-11-24",
+        "venue": "arXiv \u00b7 2026-11-24 (cs.AI)",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2611.28277",
+        "pdf_url": "https://arxiv.org/pdf/2611.28277.pdf",
+        "abstract": "In dynamic scenes---football matches, traffic streams, surgery, or assembly---actions unfold at fundamentally different time scales: in football, a kick happens in milliseconds, a possession lasts seconds, and complex events such as a successful pass followed by a goal combine multiple atomic actions over extended durations. Models trained solely on visual data struggle to learn effectively across different time scales, lacking a principled way of reasoning across fine-grained instants and broader intervals. Neither point-wise nor purely interval semantics suffices: the former fragments events into frame-level snapshots lacking overall event identification; the latter treats intervals as atomic truth-values, ignoring state trajectories. We introduce Temporal Logic Tensor Networks (tLTN), a differentiable neuro-symbolic framework addressing this duality via a...",
+        "lens": "off_core_outlier",
+        "off_core_norm_z": 1.709,
+        "off_core_ratio": 2.973,
+        "z_rigor": 0.627,
+        "rigor_4b": 6.082,
+        "unconventional_4b": 4.529
+      },
+      {
+        "id": "arxiv-2611.29092",
+        "idx": 508,
+        "title": "One Million Tokens in 20GB: Calibration-Free 2-Bit SRFT KV-Cache Compression for Looped MoE Inference on Apple Silicon",
+        "authors": [
+          "Mohamed Amine Bergach"
+        ],
+        "category": "architectures",
+        "year": 2026,
+        "published_date": "2026-11-24",
+        "venue": "arXiv \u00b7 2026-11-24 (cs.PF)",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2611.29092",
+        "pdf_url": "https://arxiv.org/pdf/2611.29092.pdf",
+        "abstract": "Long-context inference on unified-memory edge machines is governed by KV-cache capacity and memory bandwidth. On a 32 GB Apple M6 Mac mini (26.8 GB Metal working set, 150 GB/s DRAM), the 26.4B looped Mixture-of-Experts model Inkling-2-Mini (48 logical visits, 1M native context) exhausts memory by 64K tokens in stock oMLX (and by 512K even after fixing its 40 sliding-window visits to bounded ring buffers). We show that three structural properties of modern hybrid NoPE architectures -- bounded sliding windows, a 1,024-token banded relative bias whose tail is identically zero, and unit-RMS value normalization -- combine with an orthonormal Subsampled Randomized Fourier Transform (SRFT) to enable calibration-free, scale-free 2.000-bit Value and 2.125-bit Key Lloyd-Max compression (2.0625 effective bits/coordinate, $7.76\\times$ smaller than bf16) on the 8 global...",
+        "lens": "off_core_outlier",
+        "off_core_norm_z": 4.098,
+        "off_core_ratio": 1.428,
+        "z_rigor": 2.258,
+        "rigor_4b": 5.614,
+        "unconventional_4b": 1.171
+      },
+      {
+        "id": "arxiv-2505.11594",
+        "idx": 1350,
+        "title": "SageAttention3: Microscaling FP4 Attention for Inference and An Exploration of 8-Bit Training",
+        "authors": [
+          "Jintao Zhang",
+          "Jia wei",
+          "Haoxu Wang",
+          "Pengle Zhang"
+        ],
+        "category": "quantization",
+        "year": 2025,
+        "published_date": "2025-01-01",
+        "venue": "NeurIPS 2025",
+        "citations": 99,
+        "url": "https://arxiv.org/abs/2505.11594",
+        "pdf_url": "https://arxiv.org/pdf/2505.11594.pdf",
+        "abstract": "The efficiency of attention is important due to its quadratic time complexity. We enhance the efficiency of attention through two key contributions: First, we leverage the new FP4 Tensor Cores in Blackwell GPUs to accelerate attention computation. Our implementation achieves 1038 TOPS on RTX5090, which is a 5x speedup over the fastest FlashAttention on RTX5090. Experiments show that our FP4 attention can accelerate inference of various models in a plug-and-play way. Second, we pioneer low-bit attention to training tasks. Existing low-bit attention works like FlashAttention3 and SageAttention focus only on inference. However, the efficiency of training large models is also important. To explore whether low-bit attention can be effectively applied to training tasks, we design an accurate and efficient 8-bit attention for both forward and backward propagation....",
+        "lens": "off_core_outlier",
+        "off_core_norm_z": 2.583,
+        "off_core_ratio": 3.001,
+        "z_rigor": 0.506,
+        "rigor_4b": 5.028,
+        "unconventional_4b": 1.267
+      },
+      {
+        "id": "arxiv-2611.29915",
+        "idx": 454,
+        "title": "Measuring GPU Memory Traffic on the NVIDIA GB10 Without C2C Telemetry",
+        "authors": [
+          "Deepak Panigrahy",
+          "Sirisha Kota",
+          "Aakash Tyagi",
+          "David Kebo"
+        ],
+        "category": "inference-kernels",
+        "year": 2026,
+        "published_date": "2026-11-24",
+        "venue": "arXiv \u00b7 2026-11-24 (cs.DC)",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2611.29915",
+        "pdf_url": "https://arxiv.org/pdf/2611.29915.pdf",
+        "abstract": "The NVIDIA GB10, used in the DGX Spark and in desktop AI systems from several vendors, joins an Arm CPU die and a Blackwell GPU die with NVLink C2C. The GPU has no local memory, so every GPU access that misses in its L2 cache crosses C2C to the LPDDR5X attached to the CPU die. Yet the software on the systems we tested exposes no counter for this traffic. We show that five L2 sector counters of the GPU, sampled every 10 ms through NVIDIA's CUPTI sampling interface by a process that does not attach to the workload, measure GPU memory traffic live and separate copy engine traffic from the read misses and writes of GPU kernels. For large streaming transfers of known size, the counters agree within 0.28% on an Acer GN100 and within 0.005% on a DGX Spark, track the volume moved regardless of how it is split into copies, and exclude data reused in L2. The GPU's SMMU...",
+        "lens": "off_core_outlier",
+        "off_core_norm_z": 3.098,
+        "off_core_ratio": 1.254,
+        "z_rigor": 2.283,
+        "rigor_4b": 5.244,
+        "unconventional_4b": 0.12
+      },
+      {
+        "id": "arxiv-2611.29901",
+        "idx": 484,
+        "title": "Synapse: An HBM-Coordinated HBF Near-Memory Computing Architecture for Pipelined Agentic AI Execution",
+        "authors": [
+          "Juhyeong Jin",
+          "Hyunjun Cho",
+          "Joo-Young Kim"
+        ],
+        "category": "inference-kernels",
+        "year": 2026,
+        "published_date": "2026-11-24",
+        "venue": "arXiv \u00b7 2026-11-24 (cs.AR)",
+        "citations": 0,
+        "url": "https://arxiv.org/abs/2611.29901",
+        "pdf_url": "https://arxiv.org/pdf/2611.29901.pdf",
+        "abstract": "During multi-agent video reasoning, model weights and per-agent key-value caches can exceed high-bandwidth memory (HBM) capacity. High-bandwidth flash (HBF) adds capacity, but agents still wait for GPU execution. Synapse, an HBM-coordinated near-memory computing architecture, overlaps HBF attention and expert execution with GPU computation across agents. It also reduces dispatch delays and unnecessary refreshes. Across three models, Synapse achieves 48.92-66.60% lower end-to-end latency, up to $2.98\\times$ throughput, and up to 64.48% lower modeled energy per output token than GPU execution with passive HBF. Wear simulations project 46% longer HBF lifetime than block-wide refresh at equal workload rates.",
+        "lens": "off_core_outlier",
+        "off_core_norm_z": 1.971,
+        "off_core_ratio": 3.156,
+        "z_rigor": 0.665,
+        "rigor_4b": 4.858,
+        "unconventional_4b": -0.639
+      },
+      {
+        "id": "arxiv-2605.03375",
+        "idx": 895,
+        "title": "Tutti: Making SSD-Backed KV Cache Practical for Long-Context LLM Serving",
+        "authors": [
+          "Shi Qiu",
+          "Yifan Hu",
+          "X. Wang",
+          "Wenhao Zhu"
+        ],
+        "category": "inference-kernels",
+        "year": 2026,
+        "published_date": "2026-05-15",
+        "venue": "arXiv:2605.03375",
+        "citations": 18,
+        "url": "https://arxiv.org/abs/2605.03375",
+        "pdf_url": "https://arxiv.org/pdf/2605.03375.pdf",
+        "abstract": "LLM serving relies on prefix caching to improve inference performance. As growing contexts push key-value (KV) cache footprint far beyond GPU HBM and CPU DRAM capacity, KV cache is increasingly offloaded to NVMe SSDs. Unfortunately, restoring KV cache from SSDs suffers from poor I/O performance and incurs significant GPU stalls. This is primarily because the fragmented GPU memory layout results in a massive number of tiny random I/Os, rendering the low-parallelism CPU a severe bottleneck even with GPU Direct Storage (GDS), which still relies on CPU intervention to initiate each I/O and thus remains CPU-centric. This paper presents Tutti, an efficient SSD-backed KV caching solution that eliminates CPU intervention from the critical data and I/O control paths between HBM and SSDs. At the core of Tutti is a GPU-centric KV cache object store, in which the CPU is only...",
+        "lens": "off_core_outlier",
+        "off_core_norm_z": 2.333,
+        "off_core_ratio": 2.429,
+        "z_rigor": 1.021,
+        "rigor_4b": 3.397,
+        "unconventional_4b": 1.255
+      },
+      {
+        "id": "arxiv-2603.10031",
+        "idx": 1048,
+        "title": "Architecture-Aware LLM Inference Optimization on AMD Instinct GPUs: A Comprehensive Benchmark and Deployment Study",
+        "authors": [
+          "Athos Georgiou"
+        ],
+        "category": "inference-kernels",
+        "year": 2026,
+        "published_date": "2026-02-27",
+        "venue": "MLSys 2026",
+        "citations": 2,
+        "url": "https://arxiv.org/abs/2603.10031",
+        "pdf_url": "https://arxiv.org/pdf/2603.10031.pdf",
+        "abstract": "We present a cross-architecture evaluation of production LLM inference on AMD Instinct MI325X GPUs, benchmarking four models spanning 235B to 1 trillion parameters across three architectural families (MoE+MLA, Dense+GQA, MoE+GQA) on an 8-GPU cluster with 2TB aggregate HBM3e using vLLM v0.14.1. Our results demonstrate that architecture-aware optimization is essential: MLA models require block size 1 and cannot use KV cache offloading, while GQA models benefit from both. The AMD AITER runtime is required for competitive MLA inference throughput and must be selectively disabled for architectures with incompatible attention head configurations. A controlled AITER ablation on Llama-3.1-405B (n=5 per condition) reveals a modest 3-5% throughput benefit at high concurrency but 2-16x higher measurement variability, confirming that AITER's large speedups target MoE/MLA...",
+        "lens": "off_core_outlier",
+        "off_core_norm_z": 2.822,
+        "off_core_ratio": 2.135,
+        "z_rigor": 0.805,
+        "rigor_4b": 5.482,
+        "unconventional_4b": -2.101
+      }
+    ]
+  }
+}

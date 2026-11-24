@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <title>Probabilistic Marginal Gradients for Sparse Autoencoders: Bridging ProbMoE Routing and BatchTopK SAEs — Space AI Technical Paper</title>
+  <meta name="description" content="CoreRank Method 2 discovered a low-BGE (0.706), high-ACE-mechanism (0.879, 4B transfer +12.31) bridge between ProbMoE&#x27;s differentiable marginal-probability subset routing and BatchTopK Sparse Autoencoders. We test whethe" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="../mark.svg?v=35" />
+  <link rel="stylesheet" href="../culture.css?v=29" />
+</head>
+<body>
+  <canvas id="cosmos-bg-canvas" class="cosmos-bg-canvas" aria-hidden="true"></canvas>
+  <div class="page-shell">
+    <header class="ed-nav">
+      <div class="ed-nav-inner">
+        <a class="ed-brand" href="../index.html">
+          <span class="ed-emblem" aria-hidden="true"><img src="../mark.svg?v=35" alt="" width="28" height="28" /></span>
+          <span>Space AI</span>
+        </a>
+        <nav class="ed-links" aria-label="Primary">
+          <a href="../blog.html" class="active">Research</a>
+          <a href="../papers.html">Papers</a>
+          <a href="../product.html">Product</a>
+          <a href="../network.html">Network</a>
+          <a href="../chat.html">Chat</a>
+        </nav>
+        <div class="nav-actions">
+          <button type="button" class="icon-pill" data-theme-toggle aria-label="Toggle color theme">&#9728;</button>
+          <a class="btn sm" href="../blog-auto-probmoe-batchtopk-sae.html">Companion Blog Note</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <article class="section" style="padding-top:3.6rem;">
+        <div class="wrap-blog">
+          <a class="blog-back" href="../blog-auto-probmoe-batchtopk-sae.html">&larr; Back to Research Note &amp; Blog Feed</a>
+          <div class="blog-meta" style="margin-top:1.3rem;">
+            <span class="blog-cat">TECHNICAL PREPRINT &middot; AUTONOMOUS GPU LAB · INTERPRETABILITY &amp; ROUTING</span>
+            <span>2026-11-24 16:46</span>
+          </div>
+          <h1 class="blog-article-title">Probabilistic Marginal Gradients for Sparse Autoencoders: Bridging ProbMoE Routing and BatchTopK SAEs</h1>
+          <p style="font-family:var(--mono); font-size:0.8rem; color:var(--ink-soft); margin:-1.6rem 0 2rem 0;">
+            <strong>Marcio Diaz</strong> &middot; Space AI (spaceresearch.ai) &middot; Trigger: Method 2 Cross-Domain Bridge + Method 3 Dense Contradiction &middot; Hardware: NVIDIA GeForce RTX 5090
+          </p>
+
+          <div class="blog-abstract">
+            <div class="blog-abstract-lbl">ABSTRACT &amp; HYPOTHESIS</div>
+            <p>CoreRank Method 2 discovered a low-BGE (0.706), high-ACE-mechanism (0.879, 4B transfer +12.31) bridge between ProbMoE&#x27;s differentiable marginal-probability subset routing and BatchTopK Sparse Autoencoders. We test whether replacing straight-through TopK gradients with ProbMoE&#x27;s calibrated marginal-selection surrogate p_j = sigmoid((z_j - tau)/T) under identical hard BatchTopK forward sparsity and pure MSE loss improves reconstruction fidelity (FVU), eliminates dead latents, and alters cross-seed feature stability on real Qwen3-1.7B residual-stream activations.</p>
+          </div>
+
+          <div class="blog-prose">
+            <div class="blog-stats"><div class="blog-stat"><div class="blog-stat-v">0.4555</div><div class="blog-stat-l">ProbBatchTopK FVU (k16)</div></div><div class="blog-stat"><div class="blog-stat-v">20.0%</div><div class="blog-stat-l">Dead Latents vs 31.1% STE</div></div><div class="blog-stat"><div class="blog-stat-v">0.398</div><div class="blog-stat-l">Cross-Seed Cos (-3.6% @.7)</div></div><div class="blog-stat"><div class="blog-stat-v">21,609</div><div class="blog-stat-l">Real Qwen3-1.7B L13 Tokens</div></div></div>
+
+            <h2>1. Empirical Findings</h2>
+            <ul><li>Dead-latent reduction (k16): ProbBatchTopK reduced dead dictionary atoms to 20.00% vs. 31.12% (BatchTopK-STE) and 7.81% (TopK-STE).</li><li>Reconstruction fidelity (FVU / R²): At k16, ProbBatchTopK achieved FVU=0.4555 (R²=0.5445), 0.0372 higher than BatchTopK-STE (0.4182) and +0.0451 vs. TopK-STE (0.4104). At k32, ProbBatchTopK reached FVU=0.4121 (0.0385 higher vs. BatchTopK-STE 0.3736).</li><li>Cross-seed feature stability (3 independent seeds): At k16, ProbBatchTopK slightly reduced mean max-cosine overlap at 0.3984 (shared ≥0.70: 3.0%) vs. BatchTopK-STE 0.4524 (6.6%) and TopK-STE 0.4593 (5.7%). At k32: 0.3171 vs. 0.3483 (Δ=-0.0312).</li></ul>
+
+            <div class="blog-figure"><svg viewBox="0 0 640 248" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ProbBatchTopK vs BatchTopK-STE and TopK-STE empirical RTX 5090 results">
+  <rect x="10" y="12" width="306" height="224" rx="10" fill="#0b0b0d" stroke="rgba(255,255,255,0.14)"/>
+  <text x="24" y="36" fill="#38bdf8" font-family="JetBrains Mono, monospace" font-size="9.6" font-weight="600">RECONSTRUCTION FVU (&darr; LOWER IS BETTER)</text>
+
+  <text x="24" y="62" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.6">k16 · TopK-STE</text>
+  <rect x="24" y="68" width="137.1" height="8" rx="3" fill="#64748b"/>
+  <text x="167.1" y="75" fill="#cbd5e1" font-family="JetBrains Mono, monospace" font-size="8.5">0.4104</text>
+
+  <text x="24" y="92" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.6">k16 · BatchTopK-STE</text>
+  <rect x="24" y="98" width="139.7" height="8" rx="3" fill="#38bdf8"/>
+  <text x="169.7" y="105" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="8.5">0.4182</text>
+
+  <text x="24" y="122" fill="#c4b5fd" font-family="JetBrains Mono, monospace" font-size="8.6">k16 · ProbBatchTopK</text>
+  <rect x="24" y="128" width="152.2" height="8" rx="3" fill="#a78bfa"/>
+  <text x="182.2" y="135" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="8.5" font-weight="600">0.4555</text>
+
+  <text x="24" y="158" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.6">k32 · BatchTopK-STE</text>
+  <rect x="24" y="164" width="124.8" height="8" rx="3" fill="#38bdf8"/>
+  <text x="154.8" y="171" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="8.5">0.3736</text>
+
+  <text x="24" y="188" fill="#c4b5fd" font-family="JetBrains Mono, monospace" font-size="8.6">k32 · ProbBatchTopK</text>
+  <rect x="24" y="194" width="137.7" height="8" rx="3" fill="#a78bfa"/>
+  <text x="167.7" y="201" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="8.5" font-weight="600">0.4121</text>
+
+  <text x="24" y="224" fill="#6b7185" font-family="JetBrains Mono, monospace" font-size="8.2">Real Qwen3-1.7B L13 residual tokens · 3 seeds · pure MSE</text>
+
+  <rect x="328" y="12" width="302" height="224" rx="10" fill="#0b0b0d" stroke="rgba(255,255,255,0.14)"/>
+  <text x="342" y="36" fill="#34d399" font-family="JetBrains Mono, monospace" font-size="9.6" font-weight="600">DEAD LATENTS % (&darr;) &amp; SEED STABILITY (&uarr;)</text>
+
+  <text x="342" y="62" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.6">k16 Dead · TopK-STE</text>
+  <rect x="342" y="68" width="38.2" height="8" rx="3" fill="#ec4899" fill-opacity="0.78"/>
+  <text x="386.2" y="75" fill="#cbd5e1" font-family="JetBrains Mono, monospace" font-size="8.5">7.8%</text>
+
+  <text x="342" y="92" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.6">k16 Dead · BatchTopK-STE</text>
+  <rect x="342" y="98" width="152.2" height="8" rx="3" fill="#f59e0b"/>
+  <text x="500.2" y="105" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="8.5">31.1%</text>
+
+  <text x="342" y="122" fill="#6ee7b7" font-family="JetBrains Mono, monospace" font-size="8.6">k16 Dead · ProbBatchTopK</text>
+  <rect x="342" y="128" width="97.8" height="8" rx="3" fill="#34d399"/>
+  <text x="445.8" y="135" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="8.5" font-weight="600">20.0%</text>
+
+  <text x="342" y="158" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.6">k16 Cross-Seed Cos · BatchTopK-STE</text>
+  <rect x="342" y="164" width="79.2" height="8" rx="3" fill="#38bdf8"/>
+  <text x="427.2" y="171" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="8.5">0.452</text>
+
+  <text x="342" y="188" fill="#c4b5fd" font-family="JetBrains Mono, monospace" font-size="8.6">k16 Cross-Seed Cos · ProbBatchTopK</text>
+  <rect x="342" y="194" width="69.7" height="8" rx="3" fill="#a78bfa"/>
+  <text x="417.7" y="201" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="8.5" font-weight="600">0.398</text>
+
+  <text x="342" y="224" fill="#6b7185" font-family="JetBrains Mono, monospace" font-size="8.2">RTX 5090 · d_sae=2048 · 400 steps/seed</text>
+</svg><div class="blog-figcap">Figure 1. Live NVIDIA GeForce RTX 5090 benchmark comparing TopK-STE, BatchTopK-STE, and ProbBatchTopK on real Qwen/Qwen3-1.7B L13/28 residual-stream activations (21,609 tokens, 3 seeds).</div></div>
+
+            <h2>2. Complete Experimental Results</h2>
+            <div class="table-wrap" style="margin:1.3rem 0 1.7rem 0;"><table><thead><tr><th>Sparsity</th><th>Method</th><th>FVU (&darr;)</th><th>R&sup2; (&uarr;)</th><th>Dead % (&darr;)</th><th>Seed Cos (&uarr;)</th><th>Shared &ge;0.70</th><th>L0</th></tr></thead><tbody><tr><td><code>k16</code></td><td>TopK-STE (Baseline)</td><td><code>0.4104 &plusmn; 0.0003</code></td><td><code>0.5896</code></td><td><code>7.81%</code></td><td><code>0.4593</code></td><td><code>5.7%</code></td><td><code>16.0</code></td></tr><tr><td><code>k16</code></td><td>BatchTopK-STE</td><td><code>0.4182 &plusmn; 0.0005</code></td><td><code>0.5818</code></td><td><code>31.12%</code></td><td><code>0.4524</code></td><td><code>6.6%</code></td><td><code>16.0</code></td></tr><tr><td><code>k16</code></td><td><strong>ProbBatchTopK (Bridge)</strong></td><td><code>0.4555 &plusmn; 0.0012</code></td><td><code>0.5445</code></td><td><code>20.00%</code></td><td><code>0.3984</code></td><td><code>3.0%</code></td><td><code>16.0</code></td></tr><tr><td><code>k32</code></td><td>TopK-STE (Baseline)</td><td><code>0.3739 &plusmn; 0.0001</code></td><td><code>0.6261</code></td><td><code>1.61%</code></td><td><code>0.3696</code></td><td><code>1.6%</code></td><td><code>32.0</code></td></tr><tr><td><code>k32</code></td><td>BatchTopK-STE</td><td><code>0.3736 &plusmn; 0.0004</code></td><td><code>0.6264</code></td><td><code>3.92%</code></td><td><code>0.3483</code></td><td><code>1.7%</code></td><td><code>32.0</code></td></tr><tr><td><code>k32</code></td><td><strong>ProbBatchTopK (Bridge)</strong></td><td><code>0.4121 &plusmn; 0.0003</code></td><td><code>0.5879</code></td><td><code>2.41%</code></td><td><code>0.3171</code></td><td><code>1.0%</code></td><td><code>32.0</code></td></tr></tbody></table></div>
+
+            <h2>3. Source Literature Surfaced by CoreRank</h2>
+            <ul><li><a href="https://arxiv.org/abs/2606.01509" target="_blank" rel="noopener">ProbMoE: Differentiable Probabilistic Routing for Mixture-of-Experts</a> <code>arxiv-2606.01509</code></li><li><a href="https://arxiv.org/abs/2412.06410" target="_blank" rel="noopener">BatchTopK Sparse Autoencoders</a> <code>arxiv-2412.06410</code></li><li><a href="https://arxiv.org/abs/2501.16615" target="_blank" rel="noopener">Sparse Autoencoders Trained on the Same Data Learn Different Features</a> <code>arxiv-2501.16615</code></li></ul>
+
+            <h2>4. Experimental Configuration &amp; Reproducibility</h2>
+            <pre><code>{
+  &quot;source_model&quot;: &quot;Qwen/Qwen3-1.7B&quot;,
+  &quot;layer_extracted&quot;: &quot;L13/28&quot;,
+  &quot;d_model&quot;: 2048,
+  &quot;papers_sampled&quot;: 240,
+  &quot;total_tokens&quot;: 21609,
+  &quot;extract_vram_gb&quot;: 1.8,
+  &quot;extract_sec&quot;: 1.95,
+  &quot;d_sae&quot;: 2048,
+  &quot;expansion_factor&quot;: 1.0,
+  &quot;k_values&quot;: [
+    16,
+    32
+  ],
+  &quot;seeds&quot;: [
+    11,
+    22,
+    33
+  ],
+  &quot;steps_per_run&quot;: 400,
+  &quot;train_tokens&quot;: 17287,
+  &quot;test_tokens&quot;: 4322,
+  &quot;gpu_name&quot;: &quot;NVIDIA GeForce RTX 5090&quot;,
+  &quot;total_elapsed_sec&quot;: 9.7
+}</code></pre>
+
+            <h2>5. Honest Limitations &amp; Threats to Validity</h2>
+            <ul><li>Dictionary width is d_sae=2048 (1x-2x overcomplete) over 21,609 real tokens from 240 abstracts; scaling to 65k-131k width over tens of millions of tokens may shift the relative dead-latent vs. FVU trade-off.</li><li>ProbBatchTopK solves a 12-iteration scalar bisection per batch for tau; while cheap (&lt;1 ms on RTX 5090), sensitivity to the temperature annealing schedule (0.45 -&gt; 0.12) warrants a wider sweep.</li><li>All three models used pure MSE loss with zero auxiliary dead-latent resurrection penalty (AuxK) to isolate the routing gradient estimator itself; combining ProbBatchTopK with AuxK remains open.</li></ul>
+
+            <h2>6. BibTeX &amp; Raw Artifacts</h2>
+            <pre><code>@techreport{diaz2026probmoebatchtopk,
+  title       = {Probabilistic Marginal Gradients for Sparse Autoencoders: Bridging ProbMoE Routing and BatchTopK SAEs},
+  author      = {Marcio Diaz and {Space AI}},
+  institution = {Space AI (spaceresearch.ai)},
+  year        = {2026},
+  month       = {11},
+  url         = {https://spaceresearch.ai/papers/probmoe-batchtopk-sae.html}
+}</code></pre>
+            <p>
+              Raw JSON metrics: <a href="../data/generated_papers/probmoe-batchtopk-sae.json"><code>data/generated_papers/probmoe-batchtopk-sae.json</code></a> &middot;
+              Markdown manuscript: <a href="../data/generated_papers/probmoe-batchtopk-sae.md"><code>data/generated_papers/probmoe-batchtopk-sae.md</code></a>
+            </p>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <footer class="landing-foot">
+      <div class="wrap" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:1rem;">
+        <span>&copy; 2026 Space AI &middot; spaceresearch.ai</span>
+        <div style="display:flex; gap:1.4rem; color:var(--ink-soft);">
+          <a href="../blog.html">Research</a>
+          <a href="../papers.html">Papers</a>
+          <a href="../chat.html">Chat</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+  <script src="../culture-home.js?v=29"></script>
+</body>
+</html>

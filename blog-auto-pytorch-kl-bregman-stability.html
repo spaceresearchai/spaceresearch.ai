@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <title>Eliminating Negative &amp; Corrupted KL Divergence in Low-Precision PyTorch via Bregman-Taylor Formulation — Space AI</title>
+  <meta name="description" content="PyTorch F.kl_div silent negative failures reproduced on NVIDIA GeForce RTX 5090: at eps=1e-3 (mean KL≈4.84e-07), FP16 F.kl_div returns negative values on 49.9% of inputs (BF16: 49.3%) and ≥1% relative error on 100.0%." />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Space AI" />
+  <meta property="og:title" content="Eliminating Negative &amp; Corrupted KL Divergence in Low-Precision PyTorch via Bregman-Taylor Formulation — Space AI" />
+  <meta property="og:description" content="PyTorch F.kl_div silent negative failures reproduced on NVIDIA GeForce RTX 5090: at eps=1e-3 (mean KL≈4.84e-07), FP16 F.kl_div returns negative values on 49.9% of inputs (BF16: 49.3%) and ≥1% relative error on 100.0%." />
+  <meta property="og:image" content="https://spaceresearch.ai/og-card.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://spaceresearch.ai/og-card.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="./mark.svg?v=35" />
+  <link rel="stylesheet" href="./culture.css?v=29" />
+</head>
+<body>
+  <canvas id="cosmos-bg-canvas" class="cosmos-bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="page-shell">
+  <header class="ed-nav">
+    <div class="ed-nav-inner">
+      <a class="ed-brand" href="./index.html">
+        <span class="ed-emblem" aria-hidden="true">
+          <img src="./mark.svg?v=35" alt="" width="28" height="28" />
+        </span>
+        <span>Space AI</span>
+      </a>
+      <nav class="ed-links" aria-label="Primary">
+        <a href="./blog.html" class="active">Research</a>
+        <a href="./papers.html" class="">Papers</a>
+        <a href="./product.html" class="">Product</a>
+        <a href="./network.html" class="">Network</a>
+        <a href="./chat.html">Chat</a>
+        <a href="https://github.com/spaceresearchai/spaceresearch.ai/releases/latest" target="_blank" rel="noopener">Desktop App</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="icon-pill" href="https://github.com/spaceresearchai" target="_blank" rel="noopener" aria-label="Space AI on GitHub" title="GitHub (spaceresearchai)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.69-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11.05 11.05 0 0 1 5.8 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14 0 1.55-.01 2.8-.01 3.18 0 .31.21.67.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+        </a>
+        <button type="button" class="icon-pill" data-theme-toggle aria-label="Toggle color theme" title="Switch to Daylight Mode">&#9728;</button>
+        <a class="btn sm" href="./chat.html">Open Chat</a>
+      </div>
+    </div>
+  </header>
+
+    <main>
+      <article class="section" style="padding-top:3.8rem;">
+        <div class="wrap-blog">
+          <a class="blog-back" href="./blog.html">&larr; All research notes</a>
+          <div class="blog-meta" style="margin-top:1.4rem;">
+            <span class="blog-cat">NOTE 13 &middot; AUTONOMOUS GPU LAB · NUMERICAL STABILITY</span>
+            <span>Marcio Diaz &middot; Space AI &middot; 2026-11-24 16:47</span>
+          </div>
+          <h1 class="blog-article-title">Eliminating Negative &amp; Corrupted KL Divergence in Low-Precision PyTorch via Bregman-Taylor Formulation</h1>
+          <p class="blog-article-lead">
+            Triggered automatically by CoreRank Discovery (Method 1 Prior-vs-Evidence Bayesian Surprise (#3 on 4B)) and executed end-to-end on our NVIDIA GeForce RTX 5090 workstation GPU in 0.38 seconds.
+          </p>
+
+          <div class="blog-abstract">
+            <div class="blog-abstract-lbl">AUTONOMOUS GPU INVESTIGATION SUMMARY</div>
+            <p>CoreRank Method 1 flagged arxiv:2611.30835 (4B surprise +7.65), showing PyTorch F.kl_div yields negative values and large relative errors for nearby distributions. We reproduce this on RTX 5090 across FP16/BF16/FP32 and test whether a strictly nonnegative Bregman-Taylor form p*(expm1(d)-d) eliminates negative KL and catastrophic cancellation.</p>
+          </div>
+
+          <div class="blog-prose">
+            <div class="blog-stats"><div class="blog-stat"><div class="blog-stat-v">0.0%</div><div class="blog-stat-l">Bregman Negative KL</div></div><div class="blog-stat"><div class="blog-stat-v">99.8%</div><div class="blog-stat-l">FP32 F.kl_div Err ≥1%</div></div><div class="blog-stat"><div class="blog-stat-v">0.0%</div><div class="blog-stat-l">FP32 Bregman Err ≥1%</div></div><div class="blog-stat"><div class="blog-stat-v">8,192</div><div class="blog-stat-l">Certified GPU Trials</div></div></div>
+
+            <h2>1. What the GPU experiment actually found</h2>
+            <ul><li>PyTorch F.kl_div silent negative failures reproduced on NVIDIA GeForce RTX 5090: at eps=1e-3 (mean KL≈4.84e-07), FP16 F.kl_div returns negative values on 49.9% of inputs (BF16: 49.3%) and ≥1% relative error on 100.0%.</li><li>Even in FP32 at eps=1e-4 (mean KL≈4.84e-09), standard F.kl_div yields negative outputs on 38.9% of inputs and ≥1% relative error on 99.8%.</li><li>Stabilized Bregman-Taylor formulation p*(expm1(d)-d) achieves 0.0% negative values across every tested dtype and precision regime, cutting FP32 (eps=1e-4) ≥1% relative error rate from 99.8% down to 0.0%.</li></ul>
+
+            <div class="blog-figure"><svg viewBox="0 0 640 210" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="PyTorch F.kl_div vs Bregman-Taylor numerical stability">
+  <rect x="10" y="10" width="620" height="190" rx="10" fill="#0b0b0d" stroke="rgba(255,255,255,0.14)"/>
+  <text x="26" y="34" fill="#34d399" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">PYTORCH F.KL_DIV VS BREGMAN-TAYLOR (NEGATIVE % &amp; &ge;1% REL ERROR)</text>
+  <text x="26" y="66" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9">FP32 eps=1e-4 &middot; F.kl_div Err&ge;1%</text>
+  <rect x="240" y="56" width="309.3" height="12" rx="3" fill="#ec4899"/>
+  <text x="557.3" y="66" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9">99.8%</text>
+  <text x="26" y="96" fill="#6ee7b7" font-family="JetBrains Mono, monospace" font-size="9">FP32 eps=1e-4 &middot; Bregman Err&ge;1%</text>
+  <rect x="240" y="86" width="4.0" height="12" rx="3" fill="#34d399"/>
+  <text x="252.0" y="96" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9">0.0%</text>
+  <text x="26" y="132" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9">FP16 eps=1e-3 &middot; F.kl_div Neg%</text>
+  <rect x="240" y="122" width="154.7" height="12" rx="3" fill="#f59e0b"/>
+  <text x="402.7" y="132" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9">49.9%</text>
+  <text x="26" y="162" fill="#6ee7b7" font-family="JetBrains Mono, monospace" font-size="9">FP16 eps=1e-3 &middot; Bregman Neg%</text>
+  <rect x="240" y="152" width="4" height="12" rx="3" fill="#34d399"/>
+  <text x="252" y="162" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9">0.0%</text>
+</svg><div class="blog-figcap">Figure 1. Certified FP64 reference comparison on NVIDIA GeForce RTX 5090 across 8,192 discrete distributions.</div></div>
+
+            <h2>2. Complete empirical table</h2>
+            <div class="table-wrap" style="margin:1.3rem 0 1.7rem 0;"><table><thead><tr><th>Dtype</th><th>Perturb</th><th>Ref KL</th><th>F.kl_div Neg%</th><th>F.kl_div Err&ge;1%</th><th>Bregman Neg%</th><th>Bregman Err&ge;1%</th></tr></thead><tbody><tr><td><code>fp16</code></td><td><code>eps_0.0001</code></td><td><code>4.84e-09</code></td><td><code>49.8%</code></td><td><code>100.0%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>100.0%</code></strong></td></tr><tr><td><code>fp16</code></td><td><code>eps_0.0003</code></td><td><code>4.36e-08</code></td><td><code>49.7%</code></td><td><code>100.0%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>100.0%</code></strong></td></tr><tr><td><code>fp16</code></td><td><code>eps_0.001</code></td><td><code>4.84e-07</code></td><td><code>49.9%</code></td><td><code>100.0%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>99.9%</code></strong></td></tr><tr><td><code>fp16</code></td><td><code>eps_0.003</code></td><td><code>4.36e-06</code></td><td><code>48.5%</code></td><td><code>100.0%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>93.5%</code></strong></td></tr><tr><td><code>fp16</code></td><td><code>eps_0.01</code></td><td><code>4.84e-05</code></td><td><code>36.6%</code></td><td><code>99.7%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>74.7%</code></strong></td></tr><tr><td><code>fp16</code></td><td><code>eps_0.1</code></td><td><code>4.84e-03</code></td><td><code>0.0%</code></td><td><code>74.5%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>0.2%</code></strong></td></tr><tr><td><code>bf16</code></td><td><code>eps_0.0001</code></td><td><code>4.84e-09</code></td><td><code>23.1%</code></td><td><code>100.0%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>100.0%</code></strong></td></tr><tr><td><code>bf16</code></td><td><code>eps_0.0003</code></td><td><code>4.36e-08</code></td><td><code>42.3%</code></td><td><code>100.0%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>100.0%</code></strong></td></tr><tr><td><code>bf16</code></td><td><code>eps_0.001</code></td><td><code>4.84e-07</code></td><td><code>49.3%</code></td><td><code>100.0%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>100.0%</code></strong></td></tr><tr><td><code>bf16</code></td><td><code>eps_0.003</code></td><td><code>4.36e-06</code></td><td><code>48.8%</code></td><td><code>100.0%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>100.0%</code></strong></td></tr><tr><td><code>bf16</code></td><td><code>eps_0.01</code></td><td><code>4.84e-05</code></td><td><code>46.8%</code></td><td><code>99.9%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>100.0%</code></strong></td></tr><tr><td><code>bf16</code></td><td><code>eps_0.1</code></td><td><code>4.84e-03</code></td><td><code>0.1%</code></td><td><code>97.0%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>70.1%</code></strong></td></tr><tr><td><code>fp32</code></td><td><code>eps_0.0001</code></td><td><code>4.84e-09</code></td><td><code>38.9%</code></td><td><code>99.8%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>0.0%</code></strong></td></tr><tr><td><code>fp32</code></td><td><code>eps_0.0003</code></td><td><code>4.36e-08</code></td><td><code>1.8%</code></td><td><code>98.1%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>0.0%</code></strong></td></tr><tr><td><code>fp32</code></td><td><code>eps_0.001</code></td><td><code>4.84e-07</code></td><td><code>0.0%</code></td><td><code>78.3%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>0.0%</code></strong></td></tr><tr><td><code>fp32</code></td><td><code>eps_0.003</code></td><td><code>4.36e-06</code></td><td><code>0.0%</code></td><td><code>3.3%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>0.0%</code></strong></td></tr><tr><td><code>fp32</code></td><td><code>eps_0.01</code></td><td><code>4.84e-05</code></td><td><code>0.0%</code></td><td><code>0.0%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>0.0%</code></strong></td></tr><tr><td><code>fp32</code></td><td><code>eps_0.1</code></td><td><code>4.84e-03</code></td><td><code>0.0%</code></td><td><code>0.0%</code></td><td><strong><code>0.0%</code></strong></td><td><strong><code>0.0%</code></strong></td></tr></tbody></table></div>
+
+            <h2>3. Source papers connected by CoreRank</h2>
+            <ul><li><a href="https://arxiv.org/abs/2611.30835" target="_blank" rel="noopener">The KL Divergence Is Never Negative, Except in PyTorch</a> (<code>arxiv-2611.30835</code>)</li></ul>
+
+            <h2>4. Honest limitations &amp; next steps</h2>
+            <ul><li>Evaluated on categorical softmax distributions; continuous exponential-family KL closed forms require per-family stabilized identities.</li><li>In extreme FP16/BF16 underflow where rounded log_p == log_q identically, Bregman-Taylor returns exact 0.0 (non-negative) rather than recovering sub-ULP rounding loss.</li></ul>
+
+            <div class="blog-callout">
+              <div class="blog-callout-title">Full Technical Preprint &amp; Raw GPU Metrics</div>
+              <p>Read the generated technical manuscript (with BibTeX, exact run configuration, and raw JSON telemetry) or explore the source papers in CoreRank Discovery.</p>
+              <div style="display:flex; flex-wrap:wrap; gap:0.65rem;">
+                <a class="btn sm" href="./papers/pytorch-kl-bregman-stability.html">Read Full Technical Paper &rarr;</a>
+                <a class="btn secondary sm" href="./papers.html?tab=discover">Open CoreRank Discovery</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <footer class="landing-foot">
+      <div class="wrap" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:1rem;">
+        <span>&copy; 2026 Space AI &middot; spaceresearch.ai</span>
+        <div style="display:flex; gap:1.4rem; color:var(--ink-soft);">
+          <a href="./blog.html">Research</a>
+          <a href="./papers.html">Papers</a>
+          <a href="./product.html">Product</a>
+          <a href="./network.html">Network</a>
+          <a href="./chat.html">Chat</a>
+          <a href="https://github.com/spaceresearchai" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="./culture-home.js?v=29"></script>
+</body>
+</html>

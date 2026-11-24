@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <title>CoreRank Discovery: Mining Surprising, Non-Common-Knowledge Findings Across 1,715 AI Papers — Space AI</title>
+  <meta name="description" content="How we adapted Algorithmic Core Extraction (ACE) and Early-Exit CoreRank on a single RTX 5090 to surface counterintuitive results, cross-field mechanism bridges, hidden contradictions, and sleeping beauties across 1,715 AI papers." />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Space AI" />
+  <meta property="og:title" content="CoreRank Discovery: Mining Surprising Findings Across 1,715 AI Papers — Space AI" />
+  <meta property="og:description" content="Why naive 1D 'surprisingness' probes fail (rho=0.098), and how combining Bayesian prior-vs-rigor cores, 8-axis topic-canceled mechanism subspaces, and de-biased Stage-2 Keep-1D surfaces non-common-knowledge science in 15.6 seconds." />
+  <meta property="og:image" content="https://spaceresearch.ai/og-card.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://spaceresearch.ai/og-card.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="./mark.svg?v=35" />
+  <link rel="stylesheet" href="./culture.css?v=29" />
+</head>
+<body>
+  <canvas id="cosmos-bg-canvas" class="cosmos-bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="page-shell">
+  <header class="ed-nav">
+    <div class="ed-nav-inner">
+      <a class="ed-brand" href="./index.html">
+        <span class="ed-emblem" aria-hidden="true">
+          <img src="./mark.svg?v=35" alt="" width="28" height="28" />
+        </span>
+        <span>Space AI</span>
+      </a>
+      <nav class="ed-links" aria-label="Primary">
+        <a href="./blog.html" class="active">Research</a>
+        <a href="./papers.html" class="">Papers</a>
+        <a href="./product.html" class="">Product</a>
+        <a href="./network.html" class="">Network</a>
+        <a href="./chat.html">Chat</a>
+        <a href="https://github.com/spaceresearchai/spaceresearch.ai/releases/latest" target="_blank" rel="noopener">Desktop App</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="icon-pill" href="https://github.com/spaceresearchai" target="_blank" rel="noopener" aria-label="Space AI on GitHub" title="GitHub (spaceresearchai)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.69-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11.05 11.05 0 0 1 5.8 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14 0 1.55-.01 2.8-.01 3.18 0 .31.21.67.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+        </a>
+        <button type="button" class="icon-pill" data-theme-toggle aria-label="Toggle color theme" title="Switch to Daylight Mode">&#9728;</button>
+        <a class="btn sm" href="./chat.html">Open Chat</a>
+      </div>
+    </div>
+  </header>
+
+    <main>
+      <article class="section" style="padding-top:3.8rem;">
+        <div class="wrap-blog">
+          <a class="blog-back" href="./blog.html">&larr; All research notes</a>
+          <div class="blog-meta" style="margin-top:1.4rem;">
+            <span class="blog-cat">NOTE 10 &middot; DISCOVERY &amp; INTERPRETABILITY</span>
+            <span>Marcio Diaz &middot; Space AI &middot; 2026-11-24 &middot; 7 min read</span>
+          </div>
+          <h1 class="blog-article-title">CoreRank Discovery: Mining Surprising, Non-Common-Knowledge Findings Across 1,715 AI Papers</h1>
+          <p class="blog-article-lead">
+            Vector search finds obvious neighbors; citation sorting amplifies consensus. We tested whether Algorithmic Core Extraction (ACE) and Early-Exit CoreRank can invert retrieval &mdash; scanning 1,715 papers in 15.6 seconds on a single RTX 5090 to surface counterintuitive results, cross-field mechanism bridges, and hidden empirical contradictions.
+          </p>
+
+          <div class="blog-abstract">
+            <div class="blog-abstract-lbl">ABSTRACT</div>
+            <p>
+              Can a linear Stage-1 activation core find genuinely surprising science that is <em>not</em> common knowledge? Our empirical V-dip audit on <code>Qwen/Qwen3-1.7B</code> first proves why the naive approach fails: a direct 1D <code>surprise_core</code> calibrated on hype-free claims achieves only <code>&rho; = 0.098</code> because surprise is <em>relational</em> (a delta against a prior), not an intrinsic scalar property of a single abstract. In contrast, fluff-invariant <code>rigor_core</code> forms a verified <strong>Deep Conceptual Bottleneck</strong> (<code>&rho; = 0.951</code>, cross-lexicon Flip AUC plunging to <code>0.309</code> then rebounding <code>+0.214</code>), alongside strong <code>hype_core</code> (<code>&rho; = 0.772</code>) and <code>prior_plausibility</code> (<code>&rho; = 0.515</code>) axes. By combining these into four relational CoreRank discovery mechanisms &mdash; (1) <strong>Prior-vs-Evidence Bayesian Surprise</strong>, (2) <strong>8-Axis Topic-Canceled Cross-Domain Mechanism Bridges</strong>, (3) <strong>De-Biased Stage-2 Keep-1D Dense Contradictions</strong> (<code>AUC = 0.940</code>, <code>&minus;53.5%</code> order bias), and (4) <strong>Citation-Residual &amp; Off-Core Causal Outliers</strong> (slashing tournament Condorcet cycles from <code>96.3% &rarr; 29.8%</code>) &mdash; and independently cross-validating with pruned <code>Qwen3-Reranker-4B</code> (L22), we achieve a <strong>+2.05</strong> 4B surprise lift over random baselines, a <strong>+1.70 nat/tok</strong> prior surprisal gap over top-cited controls, and surface live zero-citation discoveries now searchable in our <a href="./papers.html?tab=discover">CoreRank Discovery tab</a>.
+            </p>
+          </div>
+
+          <div class="blog-prose">
+            <h2>1. The epistemic trap: why naive "surprise" probes fail</h2>
+            <p>
+              Standard scientific search optimizes for <strong>familiarity</strong>: BGE cosine similarity pulls papers using the same vocabulary inside the same subfield, and citation counts reward ideas that have already hardened into consensus. Finding something genuinely surprising requires the exact opposite geometry.
+            </p>
+            <p>
+              Before trusting any discovery score, we ran our <strong>V-Dip Conceptual vs. Lexical Bottleneck Auditor</strong> (<code>corerank/auditor.py</code>) across five distinct comparative lexicons (<code>surprising/obvious</code>, <code>unexpected/predictable</code>, <code>counterintuitive/conventional</code>, <code>unusual/standard</code>, and a <code>Yes/No</code> control) on <code>Qwen/Qwen3-1.7B</code>:
+            </p>
+            <ul>
+              <li><strong>Naive 1D <code>surprise_core</code> fails cleanly:</strong> When calibrated on strictly neutral, hype-free technical claims, rank-1 ACE yielded only <code>train &rho; = 0.098</code> and a weak partial V-dip (rebound <code>+0.052</code>). Worse, raw LLM pairwise prompting on our adversarial hype suite (plain counterintuitive findings vs. buzzword-inflated textbook truisms) suffered <strong>100% positional flip bias</strong>.</li>
+              <li><strong><code>rigor_core</code> and <code>prior_plausibility</code> succeed cleanly:</strong> Calibrated against adversarial buzzword fluff, Stage-1 <code>rigor_core</code> at layer <code>L13/28</code> achieved <code>train &rho; = 0.951</code> and triggered a textbook <strong>Deep Conceptual Bottleneck</strong> (cross-lexicon Flip AUC plunging to <code>0.309</code>, then rebounding <code>+0.214</code> at <code>L28</code>). Across all 1,715 papers, <code>Corr(z_rigor, z_hype) = &minus;0.899</code>, while stripping rhetorical cue words broke the buzzword shortcut (<code>Corr(z_surprise_clean, raw_hype_cue) = +0.092</code>).</li>
+            </ul>
+
+            <div class="blog-stats">
+              <div class="blog-stat">
+                <div class="blog-stat-v">15.6 s</div>
+                <div class="blog-stat-l">1,715-Paper Early-Exit Scan</div>
+              </div>
+              <div class="blog-stat">
+                <div class="blog-stat-v">+2.05</div>
+                <div class="blog-stat-l">4B Surprise Lift vs Random</div>
+              </div>
+              <div class="blog-stat">
+                <div class="blog-stat-v">&minus;53.5%</div>
+                <div class="blog-stat-l">Stage-2 Order Bias Cut</div>
+              </div>
+              <div class="blog-stat">
+                <div class="blog-stat-v">&rho; = 0.951</div>
+                <div class="blog-stat-l">Rigor Core (Deep V-Dip)</div>
+              </div>
+            </div>
+
+            <div class="blog-figure">
+              <svg viewBox="0 0 640 256" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="CoreRank four-method discovery architecture and RTX 5090 benchmark lift">
+                <rect x="10" y="12" width="308" height="232" rx="10" fill="#0b0b0d" stroke="rgba(255,255,255,0.14)"/>
+                <text x="24" y="36" fill="#38bdf8" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">FOUR RELATIONAL CORERANK DISCOVERY LENSES</text>
+
+                <rect x="24" y="50" width="280" height="38" rx="7" fill="#06070a" stroke="rgba(56,189,248,0.42)"/>
+                <text x="34" y="66" fill="#7dd3fc" font-family="JetBrains Mono, monospace" font-size="8.8" font-weight="600">M1 &middot; BAYESIAN SURPRISE (O(N), 15.6s)</text>
+                <text x="34" y="80" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8">-z_prior(clean) + z_rigor - z_hype &rarr; 4B verify</text>
+
+                <rect x="24" y="96" width="280" height="38" rx="7" fill="#06070a" stroke="rgba(167,139,250,0.42)"/>
+                <text x="34" y="112" fill="#c4b5fd" font-family="JetBrains Mono, monospace" font-size="8.8" font-weight="600">M2 &middot; CROSS-DOMAIN BRIDGES (8 AXES, 3.3s)</text>
+                <text x="34" y="126" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8">Low BGE (&lt;0.71) + High ACE Mech (&gt;0.80)</text>
+
+                <rect x="24" y="142" width="280" height="38" rx="7" fill="#06070a" stroke="rgba(245,158,11,0.42)"/>
+                <text x="34" y="158" fill="#fcd34d" font-family="JetBrains Mono, monospace" font-size="8.8" font-weight="600">M3 &middot; DENSE CONTRADICTIONS (L18 KEEP-1D)</text>
+                <text x="34" y="172" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8">High BGE (&gt;0.90) + Symmetric Keep-1D (AUC 0.94)</text>
+
+                <rect x="24" y="188" width="280" height="38" rx="7" fill="#06070a" stroke="rgba(52,211,153,0.42)"/>
+                <text x="34" y="204" fill="#6ee7b7" font-family="JetBrains Mono, monospace" font-size="8.8" font-weight="600">M4 &middot; RESIDUALS &amp; OFF-CORE OUTLIERS</text>
+                <text x="34" y="218" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8">Cite residuals + Q[2:8] energy + Condorcet cycles</text>
+
+                <rect x="330" y="12" width="300" height="232" rx="10" fill="#0b0b0d" stroke="rgba(255,255,255,0.14)"/>
+                <text x="344" y="36" fill="#34d399" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">RTX 5090 QUANTITATIVE VALIDATION (1.7B + 4B)</text>
+
+                <text x="344" y="64" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.8">M1 Prior NLL (Top-20 vs Top-10 Cited)</text>
+                <rect x="344" y="70" width="128" height="8" rx="3" fill="#64748b"/>
+                <text x="478" y="77" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.5">Cited 3.20</text>
+                <rect x="344" y="82" width="196" height="8" rx="3" fill="#38bdf8"/>
+                <text x="546" y="89" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="8.8">M1 4.91 nats</text>
+
+                <text x="344" y="114" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.8">M1 4B Rigor Score (Top-20 vs Rand-40)</text>
+                <rect x="344" y="120" width="150" height="8" rx="3" fill="#64748b"/>
+                <text x="500" y="127" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.5">Rand 5.77</text>
+                <rect x="344" y="132" width="176" height="8" rx="3" fill="#34d399"/>
+                <text x="526" y="139" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="8.8">M1 6.76</text>
+
+                <text x="344" y="164" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.8">M3 Order Bias |m(A,B) - m(B,A)|</text>
+                <rect x="344" y="170" width="188" height="8" rx="3" fill="#ec4899" fill-opacity="0.78"/>
+                <text x="538" y="177" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.5">Raw 0.787</text>
+                <rect x="344" y="182" width="88" height="8" rx="3" fill="#34d399"/>
+                <text x="438" y="189" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="8.8">Keep-1D 0.366 (-53.5%)</text>
+
+                <text x="344" y="212" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.8">M4 Tournament Condorcet Cycle Rate</text>
+                <rect x="344" y="218" width="192" height="8" rx="3" fill="#ec4899" fill-opacity="0.78"/>
+                <text x="542" y="225" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.5">Raw 96.3%</text>
+                <rect x="344" y="230" width="60" height="8" rx="3" fill="#38bdf8"/>
+                <text x="410" y="237" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="8.8">Debiased 29.8%</text>
+              </svg>
+              <div class="blog-figcap">Figure 1. Four CoreRank discovery architectures (left) and empirical validation across all 1,715 indexed papers on RTX 5090 (right).</div>
+            </div>
+
+            <h2>2. Method 1: Prior-vs-Evidence Bayesian Surprise</h2>
+            <p>
+              Instead of asking the model whether an abstract "sounds surprising," we treat the backbone LLM's pretrained weights as a proxy for <strong>common knowledge</strong>. For every paper we extract the core empirical claim sentence with hype vocabulary stripped (<code>surprisingly</code>, <code>novel</code>, <code>breakthrough</code>, <code>contrary to</code>, etc.), then run a single <code>O(N)</code> early-exit multi-rubric pass:
+            </p>
+            <pre><code>M1(i) = &minus;z_prior(clean_claim_i) + 0.8 &middot; z_surprise(clean_claim_i) + 0.9 &middot; z_rigor(paper_i) &minus; 0.6 &middot; z_hype(paper_i)</code></pre>
+            <p>
+              Common knowledge scores high on <code>z_prior</code> and gets suppressed; unbacked hype scores low on <code>z_rigor</code> and high on <code>z_hype</code> and gets rejected. Independently scored by pruned <code>Qwen3-Reranker-4B</code> (L22), the top-20 surfaced papers jumped from <code>&minus;1.54</code> to <code>+0.51</code> on 4B surprise (<strong>+2.05 lift</strong>) with <code>0.97+</code> mean claim groundedness. Highlights buried at 0&ndash;7 citations:
+            </p>
+            <ul>
+              <li><strong><a href="https://arxiv.org/abs/2604.02608" target="_blank" rel="noopener">Steerable but Not Decodable: Function Vectors Operate Beyond the Logit Lens</a></strong> (7 cites, <strong>4B surprise +9.30</strong>, rigor 7.51): Proves across 12 tasks and 6 models that Function Vectors routinely steer outputs accurately even where neither the logit lens nor a tuned lens can decode the answer at any layer &mdash; directly mirroring CoreRank's own Stage-1 vs. unembedding separation.</li>
+              <li><strong><a href="https://arxiv.org/abs/2611.03992" target="_blank" rel="noopener">FlagRot: Selective Rotation for Low-Bit KV Caches</a></strong> (0 cites, <strong>4B surprise +9.16</strong>, rigor 7.04): Refutes the standard assumption that Hadamard/orthogonal rotation always helps low-bit KV quantization &mdash; rotation flattens spiky slices while creating new peaks in flat slices inside the <em>same</em> key vector.</li>
+              <li><strong><a href="https://arxiv.org/abs/2611.30835" target="_blank" rel="noopener">The KL Divergence Is Never Negative, Except in PyTorch</a></strong> (0 cites, <strong>4B surprise +7.65</strong>): Shows across 8.5M certified inputs that clamping negative <code>F.kl_div</code> values hides silent gradient corruption: over 85% of FP32 values have &ge;1% relative error near <code>10^-7</code>, and even promoting one precision leaves 7&ndash;51% wrong across 22 of 23 configs.</li>
+              <li><strong><a href="https://arxiv.org/abs/2611.00606" target="_blank" rel="noopener">Sparse Autoencoder Attribution Graphs Are Decided at the Margin</a></strong> (0 cites, <strong>#1 on 1.7B</strong>, 4B rigor 7.44): Zeroing a single TopK SAE feature swaps the next layer's active set in <strong>74%&ndash;89%</strong> of cases; modeling margin swaps cuts error by 84%, and exact recomputation of 48 interventions runs 3.5&times; faster than the attribution graph itself.</li>
+              <li><strong><a href="https://arxiv.org/abs/2611.31113" target="_blank" rel="noopener">Attention Temperature Confounds Zero-Shot Context Extension</a></strong> (0 cites, lowest hype in the corpus at <code>z = &minus;3.84</code>): Exposes how pure-BF16 AdamW updates on a <code>1.0</code>-initialized gain fall below half a BF16 ULP, leaving gains frozen across 22 checkpoints and inflating apparent sparse-attention context-extension wins by 37&ndash;58%.</li>
+            </ul>
+
+            <h2>3. Method 2: Cross-Domain Mechanism Bridges</h2>
+            <p>
+              To discover Swanson-style <em>undiscovered public knowledge</em> across subfields, we calibrated <strong>eight topic-canceled Stage-1 mechanism cores</strong> (<code>low_rank_spectral</code>, <code>sparse_gating</code>, <code>heavy_tail_outliers</code>, <code>depth_early_exit</code>, <code>causal_intervention</code>, <code>iterative_recurrence</code>, <code>memory_eviction_tiling</code>, and <code>symmetry_debiasing</code>), scored all 1,715 papers in <strong>3.3 seconds</strong>, projected out all 384 BGE topic dimensions via ridge regression, and mined cross-category pairs in the <strong>bottom 25% of BGE cosine similarity</strong> (<code>&lt; 0.71</code>) with high ACE mechanism alignment (<code>&gt; 0.80</code>).
+            </p>
+            <p>
+              Our standout actionable bridge &mdash; invisible to standard cosine retrieval (<code>BGE = 0.706</code>) yet scoring <code>ACE_mech = 0.879</code> and <code>4B Transfer = +12.31</code> (vs. <code>7.97</code> random) &mdash; linked <strong><a href="https://arxiv.org/abs/2606.01509" target="_blank" rel="noopener">ProbMoE: Differentiable Probabilistic Routing for Mixture-of-Experts</a></strong> (<code>architectures</code>) with <strong><a href="https://arxiv.org/abs/2412.06410" target="_blank" rel="noopener">BatchTopK Sparse Autoencoders</a></strong> (<code>mech-interp-saes</code>). Both tackle non-differentiable discrete TopK subset selection from opposite ends, immediately motivating a concrete GPU experiment: importing ProbMoE's exact marginal-probability surrogate gradient into BatchTopK SAE training.
+            </p>
+
+            <h2>4. Method 3 &amp; Method 4: Hidden Contradictions, Sleeping Beauties &amp; Off-Core Outliers</h2>
+            <div class="table-wrap" style="margin:1.3rem 0 1.7rem 0;">
+              <table>
+                <thead>
+                  <tr><th>Discovery Lens</th><th>Standout Finding Surfaced</th><th>CoreRank Telemetry</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Dense Contradiction</strong></td>
+                    <td><em>Many Transcoder Features Are Neurons in Disguise</em> (2026) &ne; <em>Transcoders Find Interpretable Feature Circuits</em> (NeurIPS 2024)</td>
+                    <td>BGE <code>0.923</code> &middot; 4B Conflict <code>+3.20</code></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Dense Contradiction</strong></td>
+                    <td><em>SAEs Trained on the Same Data Learn Different Features</em> (30% seed overlap) &ne; <em>Are SAEs Useful?</em></td>
+                    <td>BGE <code>0.943</code> &middot; 4B Conflict <code>+2.67</code></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Sleeping Beauty (&lt;50 cites)</strong></td>
+                    <td><em>Residual Matrix Transformers</em> (ICML 2025, 10 cites): 58% fewer FLOPs &amp; 41% fewer tokens via outer-product residual stream</td>
+                    <td>4B Rigor <code>7.45</code> &middot; Unconv <code>8.96</code></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Quiet Today Gem</strong></td>
+                    <td><em>Selective Verification in Multi-Agent Orchestration</em>: proves verifying close votes becomes <em>worse than random</em> at 90% correlated error</td>
+                    <td>Rigor <code>+2.71</code> &middot; Hype <code>&minus;2.65</code></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Quiet Today Gem</strong></td>
+                    <td><em>Accurate Products, Inaccurate Inverse</em>: cuBLAS/GEMMul8 emulated FP64 passes Demmel grade-B per matmul yet blows up to <code>7.1e-2</code> on inversion</td>
+                    <td>Rigor <code>+2.63</code> &middot; Prior <code>&minus;2.92</code></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h2>5. Honest limits &amp; closing the autonomous research loop</h2>
+            <p>
+              Testing all four methods live also exposed three real limitations that we explicitly address in our engineering pipeline:
+            </p>
+            <ol>
+              <li><strong>CoreRank is a high-speed discovery funnel, not a truth oracle:</strong> A 1.7B&ndash;4B early-exit pass identifies claims that contradict consensus while reading with concrete mechanistic rigor, but cannot verify mathematical proofs or catch subtle experimental bugs on its own. Every top candidate must pass into actual code execution on real silicon.</li>
+              <li><strong>Non-linear citation baselines matter:</strong> Fitting a naive linear <code>log(citations) ~ year</code> model over-predicted citations for 2019 classics like Multi-Query Attention; capping pre-2026 sleeping beauties at <code>&lt; 50</code> citations isolates truly overlooked work cleanly.</li>
+              <li><strong>Off-core energy detects both paradigm-breakers and OOD noise:</strong> High energy in orthogonal ACE directions <code>Q[2:8]</code> surfaced unconventional architectures (such as continuous-time wave neurons and 2-bit SRFT looped MoE) alongside out-of-domain pure-math arXiv entries &mdash; and large Stage-1&rarr;Stage-2 rank drops cleanly separated the two.</li>
+            </ol>
+            <p>
+              To close the loop from <strong>discovery &rarr; experimental verification &rarr; publication</strong>, we built the <strong>Space AI Autonomous Research Engine</strong> (<code>scripts/research_engine/</code>), which continuously mines our vector DB via CoreRank, checks live GPU VRAM safety headroom, runs bounded PyTorch experiments on our RTX 5090, compiles full technical papers, and publishes timestamped research notes directly into our day-grouped blog feed.
+            </p>
+
+            <div class="blog-callout">
+              <div class="blog-callout-title">Explore all surfaced discoveries live</div>
+              <p>Browse every counterintuitive paper, cross-domain mechanism bridge, dense empirical contradiction, and under-cited gem directly inside the interactive CoreRank Discovery tab.</p>
+              <a class="btn sm" href="./papers.html?tab=discover">Open CoreRank Discovery Tab &rarr;</a>
+            </div>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <footer class="landing-foot">
+      <div class="wrap" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:1rem;">
+        <span>&copy; 2026 Space AI &middot; spaceresearch.ai</span>
+        <div style="display:flex; gap:1.4rem; color:var(--ink-soft);">
+          <a href="./blog.html">Research</a>
+          <a href="./papers.html">Papers</a>
+          <a href="./product.html">Product</a>
+          <a href="./network.html">Network</a>
+          <a href="./chat.html">Chat</a>
+          <a href="https://github.com/spaceresearchai" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="./culture-home.js?v=29"></script>
+</body>
+</html>

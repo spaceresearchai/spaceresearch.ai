@@ -18,6 +18,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/svg+xml" href="./mark.svg?v=35" />
   <link rel="stylesheet" href="./culture.css?v=29" />
+  <link rel="stylesheet" href="./blog.css?v=1" />
 </head>
 <body>
   <canvas id="cosmos-bg-canvas" class="cosmos-bg-canvas" aria-hidden="true"></canvas>
@@ -76,116 +77,276 @@
             </div>
           </div>
 
-          <p class="folio-tag" style="margin-top:3rem;">Notes &amp; Essays</p>
-          <div class="blog-list">
-            <a class="blog-card" href="./blog-open-intelligence.html" data-cluster="3">
-              <div class="blog-meta">
-                <span class="blog-cat">NOTE 01 &middot; LAB THESIS</span>
-                <span>5 min read</span>
+          <div class="blog-controls-shell" aria-label="Research feed controls">
+            <div class="blog-ctrl-top">
+              <input id="blog-search" type="search" class="blog-search-input" placeholder="Filter notes by title, topic, method, or tag..." aria-label="Filter research notes" />
+              <div class="blog-seg" role="group" aria-label="Source filter">
+                <button type="button" class="blog-seg-btn active" data-blog-origin="all">All</button>
+                <button type="button" class="blog-seg-btn" data-blog-origin="lab">Lab</button>
+                <button type="button" class="blog-seg-btn" data-blog-origin="autonomous-gpu">Auto GPU</button>
               </div>
-              <h2 class="blog-card-title">Why We Built Space AI: Open Machine Intelligence for Scientific Discovery</h2>
-              <p class="blog-card-desc">
-                Our research agenda across four linked problems: discovering verifiable science with machines, optimizing models to run lean and transparently, pulling distributed intelligence together, and keeping the entire stack open.
-              </p>
-              <span class="blog-read-more">Read research note &rarr;</span>
-            </a>
-
-            <a class="blog-card" href="./blog-quoridor.html" data-cluster="0">
-              <div class="blog-meta">
-                <span class="blog-cat">NOTE 02 &middot; FORMAL SEARCH &amp; GAME THEORY</span>
-                <span>6 min read</span>
+              <select id="blog-sort" class="blog-select" aria-label="Sort research notes">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="track">By Track</option>
+              </select>
+              <div class="blog-seg" role="group" aria-label="Layout density">
+                <button type="button" class="blog-seg-btn active" data-blog-view="cards" title="Full editorial cards">Cards</button>
+                <button type="button" class="blog-seg-btn" data-blog-view="compact" title="Compact chronological index for busy days">Compact</button>
               </div>
-              <h2 class="blog-card-title">Solving the Maze: Exact Proofs and Neural Grandmasters in Quoridor</h2>
-              <p class="blog-card-desc">
-                Computer-verified phase-transition theorems on 5&times;5 and 7&times;7 Quoridor — including the single vertical wall that flips the exact winner — alongside a 2,600+ Elo neural self-play engine trained in under an hour on one workstation.
-              </p>
-              <span class="blog-read-more">Read research note &rarr;</span>
-            </a>
-
-            <a class="blog-card" href="./blog-interpretability.html" data-cluster="1">
-              <div class="blog-meta">
-                <span class="blog-cat">NOTE 03 &middot; MECHANISTIC INTERPRETABILITY</span>
-                <span>6 min read</span>
-              </div>
-              <h2 class="blog-card-title">Glass-Box Chat: Live Interpretability and Causal Interventions in Space Chat</h2>
-              <p class="blog-card-desc">
-                How we built live token-level decision geometry, 1-click counterfactual forking, antisymmetric paired-swap honesty auditing, and 5-framing sycophancy stress-tests directly into an interactive chat interface.
-              </p>
-              <span class="blog-read-more">Read research note &rarr;</span>
-            </a>
-
-            <a class="blog-card" href="./blog-ace-inference.html" data-cluster="2">
-              <div class="blog-meta">
-                <span class="blog-cat">NOTE 04 &middot; SYSTEMS &amp; OPTIMIZATION</span>
-                <span>6 min read</span>
-              </div>
-              <h2 class="blog-card-title">Algorithmic Core Extraction: Four Inference Speedups on a Single Workstation</h2>
-              <p class="blog-card-desc">
-                Open benchmarks from our ace-inference suite: 484&times; MicroCore offloading, 4&times;&ndash;16&times; balanced-truncation state reduction with fused Triton kernels, +38.9% 4-bit accuracy via anti-inflation scheduling, and lossless cross-family speculative decoding.
-              </p>
-              <span class="blog-read-more">Read research note &rarr;</span>
-            </a>
-
-            <a class="blog-card" href="./blog-private-ai.html" data-cluster="3">
-              <div class="blog-meta">
-                <span class="blog-cat">NOTE 05 &middot; PRIVACY &amp; CRYPTOGRAPHY &middot; SIP-0005</span>
-                <span>5 min read</span>
-              </div>
-              <h2 class="blog-card-title">Auditable Private AI: Air-Gapped Local Mode and Blind-Relay E2EE</h2>
-              <p class="blog-card-desc">
-                Why privacy claims require fail-closed invariants rather than soft logging promises: loopback-only air-gap enforcement, coordinator-blind X25519/AES-256-GCM remote inference (&lt;1 ms overhead), and an honest hardware threat model.
-              </p>
-              <span class="blog-read-more">Read research note &rarr;</span>
-            </a>
-
-            <a class="blog-card" href="./blog-verification.html" data-cluster="0">
-              <div class="blog-meta">
-                <span class="blog-cat">NOTE 06 &middot; VERIFICATION &middot; SIP-0001</span>
-                <span>5 min read</span>
-              </div>
-              <h2 class="blog-card-title">Knowledge Boundary Fingerprinting: Verifying Open Models Without Slow Proofs</h2>
-              <p class="blog-card-desc">
-                How our open network catches silent model downgrades across heterogeneous NVIDIA GPUs and Apple Silicon Macs using open SHA-256 capability-cliff probe packs, signed receipts, and lightweight cross-hardware spot-checks.
-              </p>
-              <span class="blog-read-more">Read research note &rarr;</span>
-            </a>
-
-            <a class="blog-card" href="./blog-blackwell-inference.html" data-cluster="2">
-              <div class="blog-meta">
-                <span class="blog-cat">NOTE 07 &middot; SYSTEMS &amp; GPU KERNELS</span>
-                <span>7 min read</span>
-              </div>
-              <h2 class="blog-card-title">Blackwell Silicon Engineering: Accelerating Inkling-2-Mini and Qwen3.8-27B on RTX 5090</h2>
-              <p class="blog-card-desc">
-                Roofline-driven CUDA 13 kernels, 128-bit PDL MMVQ, on-load NVFP4 coda experts, and VMM ElasticArray KV caches delivering +41.6% prefill, +17.2% decode, and up to 11.2 GiB VRAM savings on a single 32 GiB workstation GPU.
-              </p>
-              <span class="blog-read-more">Read research note &rarr;</span>
-            </a>
-
-            <a class="blog-card" href="./blog-emmas-voice.html" data-cluster="1">
-              <div class="blog-meta">
-                <span class="blog-cat">NOTE 08 &middot; ASSISTIVE AI &amp; ON-DEVICE VISION</span>
-                <span>6 min read</span>
-              </div>
-              <h2 class="blog-card-title">Emma's Voice: Private On-Device Lip, Tongue, and Cheek Tracking for Non-Verbal Autism Imitation</h2>
-              <p class="blog-card-desc">
-                A 100% browser-native tablet companion pairing MediaPipe Face Landmarker, hybrid inner-mouth pink-tongue chroma tracking, 3D cheek-puff geometry, Pixar-style Three.js animal buddies, and local Piper VITS neural speech with zero cloud upload.
-              </p>
-              <span class="blog-read-more">Read research note &rarr;</span>
-            </a>
-
-            <a class="blog-card" href="./blog-btc-quant.html" data-cluster="3">
-              <div class="blog-meta">
-                <span class="blog-cat">NOTE 09 &middot; ONLINE LEARNING &amp; QUANT SYSTEMS</span>
-                <span>6 min read</span>
-              </div>
-              <h2 class="blog-card-title">Space Quant Lab: Causal Meta-Ensembles for Leveraged Bitcoin Trading</h2>
-              <p class="blog-card-desc">
-                A zero-lookahead 24/7 paper-trading and backtesting lab built on Multiplicative-Weights (Hedge) online meta-learning over four orthogonal experts, volatility-targeted leverage (1&times;&ndash;20&times;), and realistic perpetual funding &amp; liquidation mechanics (+34.9% over 90d 4h vs &minus;20.6% B&amp;H, 0 liquidations).
-              </p>
-              <span class="blog-read-more">Read research note &rarr;</span>
-            </a>
+              <button type="button" id="blog-group-day-toggle" class="blog-pill active" title="Group notes by calendar date">By Day</button>
+            </div>
+            <div id="blog-track-pills" class="blog-filter-row" aria-label="Filter by research track"></div>
+            <div id="blog-day-jumps" class="blog-day-jumps" aria-label="Jump to publication date"></div>
           </div>
+
+          <div id="blog-summary-bar" class="blog-summary-bar" aria-live="polite"></div>
+
+          <div id="blog-feed">
+            <!-- BLOG_FEED_START -->
+            <section class="blog-day-group" data-day-section="2026-11-24">
+              <div class="blog-day-header">
+                <div class="blog-day-title-wrap">
+                  <span class="blog-day-date">Tue, Nov 24, 2026</span>
+                  <span class="blog-day-badge today">Latest &middot; 8 notes</span>
+                  <span class="blog-day-span">15:25 – 17:16</span>
+                </div>
+              </div>
+              <div class="blog-list">
+              <article class="blog-card" data-cluster="1">
+                <div class="blog-meta">
+                  <span class="blog-cat"><span class="spec-dot violet" style="margin-right:0.36rem;"></span>NOTE 14 &middot; AUTONOMOUS GPU LAB · MECHANISTIC INTERPRETABILITY</span>
+                  <span class="blog-origin-badge auto">Autonomous GPU Lab</span>
+                  <span class="blog-time-tag">2026-11-24 &middot; 17:16 &middot; 5 min</span>
+                </div>
+                <h2 class="blog-card-title"><a href="./blog-auto-steerable-not-decodable-ace-cores.html" style="color:inherit;text-decoration:none;">Steerable Before Decodable: Testing CoreRank 1D Causal Steering vs. Logit Lens Readability Across Depth</a></h2>
+                <div class="blog-metric-chip">Peak Steer Drop +0.29 @ |cos(q,W_U)|=0.088</div>
+                <p class="blog-card-desc">Planets: Peak cross-lexicon 1D causal steering occurs at L26/28 (Flip-1D AUC drop = +0.292, clean cross-AUC 0.972), where direct Logit Lens AUC is only 0.986 and unembedding alignment |cos(q_l, ΔW_U)| = 0.3472. ACE linear readout crosses 0.85 AUC at L18 vs. Logit Lens at L18.</p>
+                <div class="blog-card-foot">
+                  <a class="blog-read-more" href="./blog-auto-steerable-not-decodable-ace-cores.html">Read research note &rarr;</a>
+                  <a class="blog-paper-link" href="./papers/steerable-not-decodable-ace-cores.html">Full Technical Paper &rarr;</a>
+                </div>
+              </article>
+              <article class="blog-card" data-cluster="2">
+                <div class="blog-meta">
+                  <span class="blog-cat"><span class="spec-dot emerald" style="margin-right:0.36rem;"></span>NOTE 13 &middot; AUTONOMOUS GPU LAB · NUMERICAL STABILITY</span>
+                  <span class="blog-origin-badge auto">Autonomous GPU Lab</span>
+                  <span class="blog-time-tag">2026-11-24 &middot; 16:47 &middot; 5 min</span>
+                </div>
+                <h2 class="blog-card-title"><a href="./blog-auto-pytorch-kl-bregman-stability.html" style="color:inherit;text-decoration:none;">Eliminating Negative &amp; Corrupted KL Divergence in Low-Precision PyTorch via Bregman-Taylor Formulation</a></h2>
+                <div class="blog-metric-chip">0.0% neg KL · FP32 err 100% -&gt; 0%</div>
+                <p class="blog-card-desc">PyTorch F.kl_div silent negative failures reproduced on NVIDIA GeForce RTX 5090: at eps=1e-3 (mean KL≈4.84e-07), FP16 F.kl_div returns negative values on 49.9% of inputs (BF16: 49.3%) and ≥1% relative error on 100.0%.</p>
+                <div class="blog-card-foot">
+                  <a class="blog-read-more" href="./blog-auto-pytorch-kl-bregman-stability.html">Read research note &rarr;</a>
+                  <a class="blog-paper-link" href="./papers/pytorch-kl-bregman-stability.html">Full Technical Paper &rarr;</a>
+                </div>
+              </article>
+              <article class="blog-card" data-cluster="1">
+                <div class="blog-meta">
+                  <span class="blog-cat"><span class="spec-dot violet" style="margin-right:0.36rem;"></span>NOTE 12 &middot; AUTONOMOUS GPU LAB · INTERPRETABILITY &amp; ROUTING</span>
+                  <span class="blog-origin-badge auto">Autonomous GPU Lab</span>
+                  <span class="blog-time-tag">2026-11-24 &middot; 16:46 &middot; 5 min</span>
+                </div>
+                <h2 class="blog-card-title"><a href="./blog-auto-probmoe-batchtopk-sae.html" style="color:inherit;text-decoration:none;">Probabilistic Marginal Gradients for Sparse Autoencoders: Bridging ProbMoE Routing and BatchTopK SAEs</a></h2>
+                <div class="blog-metric-chip">k16 FVU 0.455 vs 0.418 · Dead 20.0% vs 31.1% · Seed cos 0.398</div>
+                <p class="blog-card-desc">Dead-latent reduction (k16): ProbBatchTopK reduced dead dictionary atoms to 20.00% vs. 31.12% (BatchTopK-STE) and 7.81% (TopK-STE).</p>
+                <div class="blog-card-foot">
+                  <a class="blog-read-more" href="./blog-auto-probmoe-batchtopk-sae.html">Read research note &rarr;</a>
+                  <a class="blog-paper-link" href="./papers/probmoe-batchtopk-sae.html">Full Technical Paper &rarr;</a>
+                </div>
+              </article>
+              <article class="blog-card" data-cluster="2">
+                <div class="blog-meta">
+                  <span class="blog-cat"><span class="spec-dot emerald" style="margin-right:0.36rem;"></span>NOTE 11 &middot; TEST-TIME COMPUTE &amp; SYSTEMS</span>
+                  
+                  <span class="blog-time-tag">2026-11-24 &middot; 16:45 &middot; 8 min</span>
+                </div>
+                <h2 class="blog-card-title"><a href="./blog-adaptive-ttc.html" style="color:inherit;text-decoration:none;">Turning Idle GPU Bandwidth Into 3x Reasoning Accuracy (and Two Ideas That Failed)</a></h2>
+                <div class="blog-metric-chip">31.2% -&gt; 93.8% · +8.8% wall time · 598 t/s</div>
+                <p class="blog-card-desc">How intent-aware thinking, 4-slot continuous batching, DeepConf tail-confidence weighting, 3-of-4 early quorum cancellation, and conditional GenRM verification lifted Qwen3.8-27B from 31.2% to 93.8% on 16 hard AIME/code problems for +8.8% wall time — plus two honest negative results.</p>
+                <div class="blog-card-foot">
+                  <a class="blog-read-more" href="./blog-adaptive-ttc.html">Read research note &rarr;</a>
+                  
+                </div>
+              </article>
+              <article class="blog-card" data-cluster="0">
+                <div class="blog-meta">
+                  <span class="blog-cat"><span class="spec-dot cyan" style="margin-right:0.36rem;"></span>NOTE 10 &middot; DISCOVERY &amp; INTERPRETABILITY</span>
+                  
+                  <span class="blog-time-tag">2026-11-24 &middot; 16:40 &middot; 7 min</span>
+                </div>
+                <h2 class="blog-card-title"><a href="./blog-core-discovery.html" style="color:inherit;text-decoration:none;">CoreRank Discovery: Mining Surprising, Non-Common-Knowledge Findings Across 1,715 AI Papers</a></h2>
+                <div class="blog-metric-chip">+2.05 4B lift · -53.5% order bias · 15.6s</div>
+                <p class="blog-card-desc">Why naive 1D surprise probes fail (rho=0.098), and how combining Bayesian prior-vs-rigor cores, 8-axis topic-canceled mechanism bridges, and de-biased Stage-2 Keep-1D contradictions surfaces zero-citation gems (+2.05 4B lift, -53.5% order bias).</p>
+                <div class="blog-card-foot">
+                  <a class="blog-read-more" href="./blog-core-discovery.html">Read research note &rarr;</a>
+                  
+                </div>
+              </article>
+              <article class="blog-card" data-cluster="3">
+                <div class="blog-meta">
+                  <span class="blog-cat"><span class="spec-dot amber" style="margin-right:0.36rem;"></span>NOTE 09 &middot; ONLINE LEARNING &amp; QUANT SYSTEMS</span>
+                  
+                  <span class="blog-time-tag">2026-11-24 &middot; 15:48 &middot; 6 min</span>
+                </div>
+                <h2 class="blog-card-title"><a href="./blog-btc-quant.html" style="color:inherit;text-decoration:none;">Space Quant Lab: Causal Meta-Ensembles for Leveraged Bitcoin Trading</a></h2>
+                <div class="blog-metric-chip">+34.9% 90d · 0 liquidations</div>
+                <p class="blog-card-desc">A zero-lookahead 24/7 paper-trading and backtesting lab built on Multiplicative-Weights (Hedge) online meta-learning over four orthogonal experts, volatility-targeted leverage (1x-20x), and realistic perpetual funding &amp; liquidation mechanics (+34.9% over 90d 4h vs -20.6% B&amp;H, 0 liquidations).</p>
+                <div class="blog-card-foot">
+                  <a class="blog-read-more" href="./blog-btc-quant.html">Read research note &rarr;</a>
+                  
+                </div>
+              </article>
+              <article class="blog-card" data-cluster="1">
+                <div class="blog-meta">
+                  <span class="blog-cat"><span class="spec-dot violet" style="margin-right:0.36rem;"></span>NOTE 08 &middot; ASSISTIVE AI &amp; ON-DEVICE VISION</span>
+                  
+                  <span class="blog-time-tag">2026-11-24 &middot; 15:45 &middot; 6 min</span>
+                </div>
+                <h2 class="blog-card-title"><a href="./blog-emmas-voice.html" style="color:inherit;text-decoration:none;">Emma&#x27;s Voice: Private On-Device Lip, Tongue, and Cheek Tracking for Non-Verbal Autism Imitation</a></h2>
+                <div class="blog-metric-chip">100% local · Zero cloud upload</div>
+                <p class="blog-card-desc">A 100% browser-native tablet companion pairing MediaPipe Face Landmarker, hybrid inner-mouth pink-tongue chroma tracking, 3D cheek-puff geometry, Pixar-style Three.js animal buddies, and local Piper VITS neural speech with zero cloud upload.</p>
+                <div class="blog-card-foot">
+                  <a class="blog-read-more" href="./blog-emmas-voice.html">Read research note &rarr;</a>
+                  
+                </div>
+              </article>
+              <article class="blog-card" data-cluster="2">
+                <div class="blog-meta">
+                  <span class="blog-cat"><span class="spec-dot emerald" style="margin-right:0.36rem;"></span>NOTE 07 &middot; SYSTEMS &amp; GPU KERNELS</span>
+                  
+                  <span class="blog-time-tag">2026-11-24 &middot; 15:25 &middot; 7 min</span>
+                </div>
+                <h2 class="blog-card-title"><a href="./blog-blackwell-inference.html" style="color:inherit;text-decoration:none;">Blackwell Silicon Engineering: Accelerating Inkling-2-Mini and Qwen3.8-27B on RTX 5090</a></h2>
+                <div class="blog-metric-chip">+41.6% prefill · 11.2 GiB saved</div>
+                <p class="blog-card-desc">Roofline-driven CUDA 13 kernels, 128-bit PDL MMVQ, on-load NVFP4 coda experts, and VMM ElasticArray KV caches delivering +41.6% prefill, +17.2% decode, and up to 11.2 GiB VRAM savings on a single 32 GiB workstation GPU.</p>
+                <div class="blog-card-foot">
+                  <a class="blog-read-more" href="./blog-blackwell-inference.html">Read research note &rarr;</a>
+                  
+                </div>
+              </article>
+              </div>
+            </section>
+            <section class="blog-day-group" data-day-section="2026-11-23">
+              <div class="blog-day-header">
+                <div class="blog-day-title-wrap">
+                  <span class="blog-day-date">Mon, Nov 23, 2026</span>
+                  <span class="blog-day-badge">2 notes</span>
+                  <span class="blog-day-span">12:20 – 19:10</span>
+                </div>
+              </div>
+              <div class="blog-list">
+              <article class="blog-card" data-cluster="0">
+                <div class="blog-meta">
+                  <span class="blog-cat"><span class="spec-dot cyan" style="margin-right:0.36rem;"></span>NOTE 06 &middot; VERIFICATION · SIP-0001</span>
+                  
+                  <span class="blog-time-tag">2026-11-23 &middot; 19:10 &middot; 5 min</span>
+                </div>
+                <h2 class="blog-card-title"><a href="./blog-verification.html" style="color:inherit;text-decoration:none;">Knowledge Boundary Fingerprinting: Verifying Open Models Without Slow Proofs</a></h2>
+                <div class="blog-metric-chip">SHA-256 cliffs · Signed receipts</div>
+                <p class="blog-card-desc">How our open network catches silent model downgrades across heterogeneous NVIDIA GPUs and Apple Silicon Macs using open SHA-256 capability-cliff probe packs, signed receipts, and lightweight cross-hardware spot-checks.</p>
+                <div class="blog-card-foot">
+                  <a class="blog-read-more" href="./blog-verification.html">Read research note &rarr;</a>
+                  
+                </div>
+              </article>
+              <article class="blog-card" data-cluster="3">
+                <div class="blog-meta">
+                  <span class="blog-cat"><span class="spec-dot amber" style="margin-right:0.36rem;"></span>NOTE 05 &middot; PRIVACY &amp; CRYPTOGRAPHY · SIP-0005</span>
+                  
+                  <span class="blog-time-tag">2026-11-23 &middot; 12:20 &middot; 5 min</span>
+                </div>
+                <h2 class="blog-card-title"><a href="./blog-private-ai.html" style="color:inherit;text-decoration:none;">Auditable Private AI: Air-Gapped Local Mode and Blind-Relay E2EE</a></h2>
+                <div class="blog-metric-chip">&lt;1 ms E2EE · Fail-closed</div>
+                <p class="blog-card-desc">Why privacy claims require fail-closed invariants rather than soft logging promises: loopback-only air-gap enforcement, coordinator-blind X25519/AES-256-GCM remote inference (&lt;1 ms overhead), and an honest hardware threat model.</p>
+                <div class="blog-card-foot">
+                  <a class="blog-read-more" href="./blog-private-ai.html">Read research note &rarr;</a>
+                  
+                </div>
+              </article>
+              </div>
+            </section>
+            <section class="blog-day-group" data-day-section="2026-11-22">
+              <div class="blog-day-header">
+                <div class="blog-day-title-wrap">
+                  <span class="blog-day-date">Sun, Nov 22, 2026</span>
+                  <span class="blog-day-badge">2 notes</span>
+                  <span class="blog-day-span">11:15 – 17:40</span>
+                </div>
+              </div>
+              <div class="blog-list">
+              <article class="blog-card" data-cluster="2">
+                <div class="blog-meta">
+                  <span class="blog-cat"><span class="spec-dot emerald" style="margin-right:0.36rem;"></span>NOTE 04 &middot; SYSTEMS &amp; OPTIMIZATION</span>
+                  
+                  <span class="blog-time-tag">2026-11-22 &middot; 17:40 &middot; 6 min</span>
+                </div>
+                <h2 class="blog-card-title"><a href="./blog-ace-inference.html" style="color:inherit;text-decoration:none;">Algorithmic Core Extraction: Four Inference Speedups on a Single Workstation</a></h2>
+                <div class="blog-metric-chip">484x MicroCore · +38.9% 4-bit</div>
+                <p class="blog-card-desc">Open benchmarks from our ace-inference suite: 484x MicroCore offloading, 4x-16x balanced-truncation state reduction with fused Triton kernels, +38.9% 4-bit accuracy via anti-inflation scheduling, and lossless cross-family speculative decoding.</p>
+                <div class="blog-card-foot">
+                  <a class="blog-read-more" href="./blog-ace-inference.html">Read research note &rarr;</a>
+                  
+                </div>
+              </article>
+              <article class="blog-card" data-cluster="1">
+                <div class="blog-meta">
+                  <span class="blog-cat"><span class="spec-dot violet" style="margin-right:0.36rem;"></span>NOTE 03 &middot; MECHANISTIC INTERPRETABILITY</span>
+                  
+                  <span class="blog-time-tag">2026-11-22 &middot; 11:15 &middot; 6 min</span>
+                </div>
+                <h2 class="blog-card-title"><a href="./blog-interpretability.html" style="color:inherit;text-decoration:none;">Glass-Box Chat: Live Interpretability and Causal Interventions in Space Chat</a></h2>
+                <div class="blog-metric-chip">~215 ms audit · 0% order bias</div>
+                <p class="blog-card-desc">How we built live token-level decision geometry, 1-click counterfactual forking, antisymmetric paired-swap honesty auditing, and 5-framing sycophancy stress-tests directly into an interactive chat interface.</p>
+                <div class="blog-card-foot">
+                  <a class="blog-read-more" href="./blog-interpretability.html">Read research note &rarr;</a>
+                  
+                </div>
+              </article>
+              </div>
+            </section>
+            <section class="blog-day-group" data-day-section="2026-11-21">
+              <div class="blog-day-header">
+                <div class="blog-day-title-wrap">
+                  <span class="blog-day-date">Sat, Nov 21, 2026</span>
+                  <span class="blog-day-badge">2 notes</span>
+                  <span class="blog-day-span">10:00 – 18:30</span>
+                </div>
+              </div>
+              <div class="blog-list">
+              <article class="blog-card" data-cluster="0">
+                <div class="blog-meta">
+                  <span class="blog-cat"><span class="spec-dot cyan" style="margin-right:0.36rem;"></span>NOTE 02 &middot; FORMAL SEARCH &amp; GAME THEORY</span>
+                  
+                  <span class="blog-time-tag">2026-11-21 &middot; 18:30 &middot; 6 min</span>
+                </div>
+                <h2 class="blog-card-title"><a href="./blog-quoridor.html" style="color:inherit;text-decoration:none;">Solving the Maze: Exact Proofs and Neural Grandmasters in Quoridor</a></h2>
+                <div class="blog-metric-chip">2,600+ Elo · Exact 5x5/7x7 proofs</div>
+                <p class="blog-card-desc">Computer-verified phase-transition theorems on 5x5 and 7x7 Quoridor — including the single vertical wall that flips the exact winner — alongside a 2,600+ Elo neural self-play engine trained in under an hour on one workstation.</p>
+                <div class="blog-card-foot">
+                  <a class="blog-read-more" href="./blog-quoridor.html">Read research note &rarr;</a>
+                  
+                </div>
+              </article>
+              <article class="blog-card" data-cluster="3">
+                <div class="blog-meta">
+                  <span class="blog-cat"><span class="spec-dot amber" style="margin-right:0.36rem;"></span>NOTE 01 &middot; LAB THESIS</span>
+                  
+                  <span class="blog-time-tag">2026-11-21 &middot; 10:00 &middot; 5 min</span>
+                </div>
+                <h2 class="blog-card-title"><a href="./blog-open-intelligence.html" style="color:inherit;text-decoration:none;">Why We Built Space AI: Open Machine Intelligence for Scientific Discovery</a></h2>
+                
+                <p class="blog-card-desc">Our research agenda across four linked problems: discovering verifiable science with machines, optimizing models to run lean and transparently, pulling distributed intelligence together, and keeping the entire stack open.</p>
+                <div class="blog-card-foot">
+                  <a class="blog-read-more" href="./blog-open-intelligence.html">Read research note &rarr;</a>
+                  
+                </div>
+              </article>
+              </div>
+            </section>
+            <!-- BLOG_FEED_END -->
+          </div>
+          <div id="blog-more-wrap" class="blog-more-wrap"></div>
         </div>
       </section>
     </main>
@@ -206,5 +367,6 @@
   </div>
 
   <script src="./culture-home.js?v=29"></script>
+  <script src="./blog.js?v=1"></script>
 </body>
 </html>

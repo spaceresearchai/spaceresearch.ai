@@ -28,3 +28,12 @@
 /data/papers-vectors.f16.bin
   Cache-Control: public, max-age=3600
   Access-Control-Allow-Origin: *
+/data/papers-discoveries.json
+  Cache-Control: public, max-age=300
+  Access-Control-Allow-Origin: *
+/data/blog-posts.json
+  Cache-Control: no-cache, must-revalidate
+  Access-Control-Allow-Origin: *
+/data/generated-papers.json
+  Cache-Control: no-cache, must-revalidate
+  Access-Control-Allow-Origin: *

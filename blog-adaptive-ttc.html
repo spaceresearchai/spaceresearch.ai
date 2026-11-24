@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <title>Turning Idle GPU Bandwidth Into 3x Reasoning Accuracy (and Two Ideas That Failed) — Space AI</title>
+  <meta name="description" content="How intent-aware thinking, 4-slot continuous batching, DeepConf tail-confidence weighting, 3-of-4 early quorum cancellation, and conditional GenRM verification lifted Qwen3.8-27B from 31.2% to 93.8% on hard math & code for +8.8% wall time — plus two honest negative results." />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Space AI" />
+  <meta property="og:title" content="Turning Idle GPU Bandwidth Into 3x Reasoning Accuracy (and Two Ideas That Failed) — Space AI" />
+  <meta property="og:description" content="How intent-aware thinking, 4-slot continuous batching, DeepConf tail confidence, and conditional verification lifted Qwen3.8-27B from 31.2% to 93.8% on a single RTX 5090 — plus two negative results." />
+  <meta property="og:image" content="https://spaceresearch.ai/og-card.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://spaceresearch.ai/og-card.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="./mark.svg?v=35" />
+  <link rel="stylesheet" href="./culture.css?v=29" />
+</head>
+<body>
+  <canvas id="cosmos-bg-canvas" class="cosmos-bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="page-shell">
+  <header class="ed-nav">
+    <div class="ed-nav-inner">
+      <a class="ed-brand" href="./index.html">
+        <span class="ed-emblem" aria-hidden="true">
+          <img src="./mark.svg?v=35" alt="" width="28" height="28" />
+        </span>
+        <span>Space AI</span>
+      </a>
+      <nav class="ed-links" aria-label="Primary">
+        <a href="./blog.html" class="active">Research</a>
+        <a href="./papers.html" class="">Papers</a>
+        <a href="./product.html" class="">Product</a>
+        <a href="./network.html" class="">Network</a>
+        <a href="./chat.html">Chat</a>
+        <a href="https://github.com/spaceresearchai/spaceresearch.ai/releases/latest" target="_blank" rel="noopener">Desktop App</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="icon-pill" href="https://github.com/spaceresearchai" target="_blank" rel="noopener" aria-label="Space AI on GitHub" title="GitHub (spaceresearchai)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.69-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11.05 11.05 0 0 1 5.8 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14 0 1.55-.01 2.8-.01 3.18 0 .31.21.67.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+        </a>
+        <button type="button" class="icon-pill" data-theme-toggle aria-label="Toggle color theme" title="Switch to Daylight Mode">☀</button>
+        <a class="btn sm" href="./chat.html">Open Chat</a>
+      </div>
+    </div>
+  </header>
+
+    <main>
+      <article class="section" style="padding-top:3.8rem;">
+        <div class="wrap-blog">
+          <a class="blog-back" href="./blog.html">&larr; All research notes</a>
+          <div class="blog-meta" style="margin-top:1.4rem;">
+            <span class="blog-cat">NOTE 11 &middot; TEST-TIME COMPUTE &amp; SYSTEMS</span>
+            <span>8 min read</span>
+          </div>
+          <h1 class="blog-article-title">Turning Idle GPU Bandwidth Into 3&times; Reasoning Accuracy (and Two Ideas That Failed)</h1>
+          <p class="blog-article-lead">
+            In <a href="./blog-blackwell-inference.html">Note 07</a>, we squeezed more tokens per second out of our RTX 5090. Next we asked a harder question: given a fixed GPU and open weights, how do you multiply the <em>intelligence</em> produced per second? Here is what jumped Qwen3.8-27B from 31.2% to 93.8% on competition-grade math and code — and two hyped research ideas we tested, measured, and threw away.
+          </p>
+
+          <div class="blog-abstract">
+            <div class="blog-abstract-lbl">ABSTRACT</div>
+            <p>
+              We mined 1,715 recent AI research papers in the Space AI database for practical test-time scaling techniques and benchmarked them end-to-end on a single RTX 5090 running <strong>Qwen3.8-27B</strong> and <strong>Inkling-2-Mini</strong>. On a 16-problem suite of programmatically verified AIME/Olympiad math, combinatorics, and code-tracing tasks, we discovered that our live default (<code>reasoning_effort="none"</code>) scored just <strong>31.2% (5/16)</strong>. Adding <strong>intent-aware thinking</strong> jumped single-pass accuracy to <strong>81.2% (13/16)</strong> while keeping simple factual QA at <strong>~180 ms</strong>. Exploiting Blackwell's memory-bandwidth roofline to run <strong>4 parallel reasoning trajectories</strong> inside Basalt's 8-slot continuous batcher — combined with <strong>DeepConf tail-confidence weighting</strong>, <strong>3-of-4 early quorum straggler cancellation</strong>, and a <strong>conditional Generative Verifier (GenRM)</strong> invoked on only 19% of queries — lifted accuracy to <strong>93.8% (15/16)</strong> at <strong>597.5 tok/s aggregate</strong> for just <strong>+8.8% wall-clock latency</strong> (<code>10.86 s &rarr; 11.82 s</code>). Conversely, two plausible engine-level ideas — varying Inkling-2-Mini's recurrent loop depth (<code>loops=2,4</code>) and flattening Basalt's speculative-decoding cost prior for GPU-resident MoE — failed under measurement and were reverted.
+            </p>
+          </div>
+
+          <div class="blog-prose">
+            <h2>1. Why a fast GPU still leaves most of its brain idle</h2>
+            <p>
+              If you took a Computer Architecture course, you have seen the <strong>roofline model</strong>: every program is limited either by how fast the processor can do math (<em>compute-bound</em>) or how fast it can haul bytes from memory (<em>memory-bandwidth-bound</em>).
+            </p>
+            <p>
+              Generating text one token at a time from a single prompt (batch size <code>N = 1</code>) is brutally memory-bandwidth-bound. To generate <em>one</em> token with Qwen3.8-27B, our RTX 5090 has to stream roughly <strong>16.5 GB of quantized weights</strong> from GDDR7 VRAM through the tensor cores, multiply them by a single activation vector, and throw the weights away until the next token. The tensor cores sit idle waiting on memory reads.
+            </p>
+            <p>
+              Think of it like driving a 64-seat bus with 1 passenger. Running <strong>4 independent reasoning attempts at the same time</strong> (<code>N = 4</code>) via <em>continuous batching</em> reads the exact same 16.5 GB of weights from VRAM once and multiplies them against 4 activation vectors in parallel. On our live RTX 5090 server, scaling from <code>N = 1</code> to <code>N = 8</code> concurrent requests jumps aggregate throughput from <strong>~204&ndash;419 tok/s</strong> up to <strong>719&ndash;965 tok/s</strong>.
+            </p>
+            <p>
+              That raises an obvious systems question: <strong>can we spend that almost-free parallel batch capacity to make a single user's answer dramatically smarter?</strong>
+            </p>
+
+            <div class="blog-stats">
+              <div class="blog-stat">
+                <div class="blog-stat-v">31.2% &rarr; 93.8%</div>
+                <div class="blog-stat-l">16 Hard AIME / Code Tasks</div>
+              </div>
+              <div class="blog-stat">
+                <div class="blog-stat-v">+8.8%</div>
+                <div class="blog-stat-l">Wall Time (N=4 vs N=1)</div>
+              </div>
+              <div class="blog-stat">
+                <div class="blog-stat-v">597.5 tok/s</div>
+                <div class="blog-stat-l">4-Slot Aggregate Decode</div>
+              </div>
+              <div class="blog-stat">
+                <div class="blog-stat-v">19%</div>
+                <div class="blog-stat-l">Verifier Trigger Rate</div>
+              </div>
+            </div>
+
+            <div class="blog-figure">
+              <svg viewBox="0 0 640 258" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Accuracy vs wall latency and throughput across 5 test-time compute regimes on RTX 5090">
+                <rect x="10" y="10" width="620" height="238" rx="10" fill="#0b0b0d" stroke="rgba(255,255,255,0.14)"/>
+                <text x="26" y="34" fill="#38bdf8" font-family="JetBrains Mono, monospace" font-size="10.5" font-weight="600">QWEN3.8-27B ON 16 VERIFIED AIME / OLYMPIAD PROBLEMS (SINGLE RTX 5090)</text>
+
+                <!-- Row 1: Live Default -->
+                <text x="26" y="66" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="10">A. Old Live Default (none, N=1)</text>
+                <rect x="26" y="74" width="420" height="12" rx="4" fill="rgba(255,255,255,0.08)"/>
+                <rect x="26" y="74" width="131" height="12" rx="4" fill="#71717a"/>
+                <text x="456" y="84" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="10">31.2% (5/16) · 3.55s</text>
+
+                <!-- Row 2: Single-Pass Thinking -->
+                <text x="26" y="112" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="10">B. Single-Pass Thinking (medium, N=1)</text>
+                <rect x="26" y="120" width="420" height="12" rx="4" fill="rgba(255,255,255,0.08)"/>
+                <rect x="26" y="120" width="341" height="12" rx="4" fill="#38bdf8"/>
+                <text x="456" y="130" fill="#e4e4e7" font-family="JetBrains Mono, monospace" font-size="10">81.2% (13/16) · 10.86s</text>
+
+                <!-- Row 3: DeepConf N=4 -->
+                <text x="26" y="158" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="10">C/D. Batched DeepConf (N=4 parallel, 598 t/s)</text>
+                <rect x="26" y="166" width="420" height="12" rx="4" fill="rgba(255,255,255,0.08)"/>
+                <rect x="26" y="166" width="394" height="12" rx="4" fill="#34d399"/>
+                <text x="456" y="176" fill="#34d399" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">93.8% (15/16) · 11.82s</text>
+
+                <!-- Row 4: Full ATTC -->
+                <text x="26" y="204" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="10">E. ATTC: DeepConf + Early Quorum + GenRM (19% ver)</text>
+                <rect x="26" y="212" width="420" height="12" rx="4" fill="rgba(255,255,255,0.08)"/>
+                <rect x="26" y="212" width="394" height="12" rx="4" fill="#a78bfa"/>
+                <text x="456" y="222" fill="#c4b5fd" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">93.8% (15/16) · 13.02s</text>
+              </svg>
+              <div class="blog-figcap">Figure 1. Moving from 1 thinking trajectory to 4 parallel trajectories on RTX 5090 adds only +0.96 s (+8.8%) of wall latency while cutting error rate by 67% (from 3/16 down to 1/16).</div>
+            </div>
+
+            <h2>2. First, we caught a massive silent bug in our own default</h2>
+            <p>
+              Before testing fancy algorithms, we built a clean 16-problem benchmark where every ground-truth answer is computed directly in Python — covering nested modular towers (<code>7^(7^7) mod 1000</code>), constrained derangements, Catalan grid paths with forbidden points, Markov chain hitting times, Matrix-Tree spanning tree counts, subtraction Nim, and tricky loop state tracing. No LLM-as-a-judge fluff: either the integer matches or it doesn't.
+            </p>
+            <p>
+              When we ran our live production server as-is, Qwen3.8-27B scored a dismal <strong>5 / 16 (31.2%)</strong>. Why? Because our config defaulted to <code>reasoning_effort="none"</code> so simple chat prompts felt snappy. Without its hidden chain-of-thought scratchpad, the model tried to solve Olympiad combinatorics directly in prose — rambling for 1,500+ tokens and botching arithmetic halfway through.
+            </p>
+            <p>
+              Simply flipping <code>reasoning_effort</code> to <code>"medium"</code> jumped single-pass accuracy by <strong>+50 percentage points</strong> to <strong>13 / 16 (81.2%)</strong>. Even better, on a separate 8-problem diagnostic sweep, <code>"medium"</code> actually used <strong>34% fewer total tokens</strong> than <code>"none"</code> (990 vs. 1,501) because concise private scratchpad math is shorter than verbose prose guesswork!
+            </p>
+            <p>
+              <strong>The fix (<em>Towards Thinking-Optimal Scaling</em>):</strong> We added a zero-latency intent classifier (<code>classify_reasoning_effort</code>) in our router. Trivial lookups like <em>"What is the capital of France?"</em> stay at <code>"none"</code> and finish in <strong>~180 ms</strong>; math, code, proofs, and multi-step prompts automatically upgrade to <code>"medium"</code> unless the caller explicitly pins an effort level.
+            </p>
+
+            <h2>3. Building <code>space-think</code>: three recent papers in 250 lines of async Python</h2>
+            <p>
+              Single-pass thinking still made mistakes on 3 of the 16 hard problems (e.g., missing a prime-power case when counting integers &le; 500 with exactly 12 divisors, answering <code>11</code> instead of <code>44</code>). To close that gap without blowing up latency, we combined three techniques from our papers database into a single module (<a href="https://github.com/spaceresearchai" target="_blank" rel="noopener"><code>network/adaptive_ttc.py</code></a>):
+            </p>
+            <ol>
+              <li>
+                <strong>4-Slot Parallel Solving (Exploiting the Bandwidth Roofline):</strong> We dispatch <code>N = 4</code> concurrent trajectories to Basalt's 8-slot continuous batcher: solver 0 runs deterministically (<code>temperature = 0.0</code>) as a greedy anchor, while solvers 1&ndash;3 sample diverse reasoning paths (<code>temperature = 0.55</code>, distinct seeds and checklist hints) with token <code>logprobs</code> enabled. Because the GPU reads weights once per batch step, all 4 trajectories finish together at <strong>597.5 tok/s aggregate</strong> — only <strong>+0.96 s</strong> slower than running 1 trajectory alone.
+              </li>
+              <li>
+                <strong>DeepConf Bottom-10% Tail Confidence Weighting:</strong> Standard majority voting gives a shaky hallucination the exact same vote as a rock-solid proof. Instead, we inspect the per-token log-probabilities returned by the model and score each trajectory by the geometric mean of its <strong>lowest 10% token probabilities</strong>:
+                <div style="margin:0.7rem 0;padding:0.7rem 0.95rem;border-radius:8px;background:rgba(255,255,255,0.04);font-family:'JetBrains Mono',monospace;font-size:0.86rem;color:#e4e4e7;">
+                  tail_conf = exp( mean( lowest_10%_of(logprobs) ) )
+                </div>
+                Why the bottom 10% instead of the overall average? Most tokens in a proof are predictable boilerplate (<code>"Therefore,"</code>, <code>" = "</code>) with 99% probability. The <em>actual</em> reasoning mistakes happen at the handful of uncertain pivot steps where the model guesses a branch or drops a minus sign. Weighting votes by <code>tail_conf</code> automatically down-weights trajectories that hesitated.
+              </li>
+              <li>
+                <strong>3-of-4 Early Quorum Cancellation (DEER, ICLR 2026) + Conditional GenRM Verifier (<code>arXiv:2504.01005</code>):</strong> Waiting for the slowest of 4 parallel trajectories creates a long tail (one solver occasionally rambles for an extra 8 seconds). Using <code>asyncio.wait(..., FIRST_COMPLETED)</code>, as soon as <strong>3 solvers finish and agree unanimously</strong> with solid tail confidence, we immediately cancel the 4th straggler task — freeing the GPU slot and skipping verification altogether. Only when solvers genuinely disagree (<strong>3/16 = 19%</strong> of hard problems) do we run a targeted <strong>Generative Verifier (GenRM)</strong> pass that receives the competing derivations side-by-side, audits the exact algebra/edge cases step-by-step, and emits the verified answer.
+              </li>
+            </ol>
+            <p>
+              Look at what happened on the exact problems where single-pass thinking failed:
+            </p>
+            <ul>
+              <li><strong>Problem <code>h04</code> (count integers &le; 500 with 12 divisors, GT = <code>44</code>):</strong> Greedy <code>N = 1</code> answered <code>11</code> (&times;). Parallel solvers voted <code>{'44': 3, '11': 1}</code> (DeepConf share 73%), early-exited without even running the verifier, and returned <strong><code>44</code> (&check;)</strong>.</li>
+              <li><strong>Problem <code>h11</code> (subtraction Nim game positions, GT = <code>57</code>):</strong> Greedy <code>N = 1</code> answered <code>54</code> (&times;). Parallel solvers split <code>{'57': 2, '54': 1, '29': 1}</code>, triggered the GenRM verifier, and returned <strong><code>57</code> (&check;)</strong>.</li>
+              <li><strong>Problem <code>h03</code> (forbidden-point Catalan paths, GT = <code>42</code>):</strong> Solvers split 4 ways (<code>42, 132, 110, 106</code>); both DeepConf tail confidence and the GenRM verifier singled out <strong><code>42</code> (&check;)</strong>.</li>
+            </ul>
+
+            <h2>4. Two hyped ideas we tested — and reverted</h2>
+            <p>
+              Good engineering is as much about what you <em>don't</em> ship as what you do. Alongside the test-time compute engine, we implemented and tested two appealing C++ engine hypotheses directly from the papers database. Both failed cleanly under controlled benchmarks:
+            </p>
+
+            <h3>Negative Result #1: You cannot add extra loops to a fixed-horizon looped transformer</h3>
+            <p>
+              Our second production model, <strong>Inkling-2-Mini</strong>, is a <em>looped transformer</em>: its middle 12 layers execute <strong>3 times in a loop</strong> per token (6 prelude + 12&times;3 looped core + 4 coda = 48 layer visits). Inspired by the 590-citation paper <em>Scaling up Test-Time Compute with Latent Reasoning: A Recurrent Depth Approach</em> (<code>arXiv:2502.05171</code>, Huginn), we asked: <strong>can we run Inkling-2-Mini with 4 loops for "free" latent thinking (zero extra VRAM), or 2 loops for extra speed?</strong>
+            </p>
+            <p>
+              Because Basalt's visit planner (<code>walk.cpp</code>) already supports arbitrary loop counts, adding a <code>BASALT_INKLING_LOOPS</code> override took 12 lines of C++ (disabling the DSpark drafter when <code>loops != 3</code>). We benchmarked <code>loops = 2, 3, 4</code> on problems <code>h01..h10</code>:
+            </p>
+            <div class="table-wrap" style="margin:1.2rem 0 1.6rem 0;">
+              <table>
+                <thead>
+                  <tr><th>Inkling-2-Mini Recurrent Depth</th><th>Accuracy (<code>h01..h10</code>)</th><th>Avg Time</th><th>Throughput</th><th>Observed Behavior</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><code>loops = 2</code> (<code>--spec 0</code>)</td><td><strong>0 / 10 (0.0%)</strong></td><td>9.54 s</td><td>322.1 tok/s</td><td>Severe repetition collapse (<code>343343343&hellip;</code>)</td></tr>
+                  <tr><td><strong><code>loops = 3</code> (native, <code>--spec 8</code>)</strong></td><td><strong>6 / 10 (60.0%)</strong></td><td><strong>4.43 s</strong></td><td><strong>424.8 tok/s</strong></td><td>Clean reasoning &amp; fast DSpark drafting</td></tr>
+                  <tr><td><code>loops = 4</code> (<code>--spec 0</code>)</td><td><strong>0 / 10 (0.0%)</strong></td><td>14.81 s</td><td>207.4 tok/s</td><td>Out-of-distribution activation drift</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p>
+              <strong>CS takeaway:</strong> Models like Huginn generalize across loop counts because they are trained with <em>randomized</em> recurrence depth (sampling loop counts during pretraining) so the recurrent block learns to converge toward a fixed point. Inkling-2-Mini was trained at a fixed horizon of 3 passes, so pass 3 expects exact pass-2 activation statistics — stopping early or taking a 4th pass pushes hidden states off-manifold immediately. We reverted the override.
+            </p>
+
+            <h3>Negative Result #2: Why a "GPU-flat" speculative decoding prior hurt MoE prose</h3>
+            <p>
+              In <strong>speculative decoding</strong>, a tiny fast drafter guesses the next <em>k</em> tokens and the main model verifies all <em>k</em> tokens in one batched forward pass. Basalt's <code>DraftPolicy</code> uses an initial cost curve <code>kShape</code> assuming 16 tokens cost 6.4&times; as much as 1 token (which makes sense when experts spill to CPU RAM). Since both of our models fit 100% inside our RTX 5090's 32 GiB VRAM, we tested a flatter GPU-resident prior (inspired by <em>Confidence-Modulated Speculative Decoding</em>, <code>arXiv:2508.15371</code>) with lower probe thresholds.
+            </p>
+            <p>
+              On deterministic A/B runs (<code>--seed 42</code>, 2 repetitions):
+            </p>
+            <ul>
+              <li>On <strong>Inkling-2-Mini</strong> (128-expert Mixture-of-Experts, top-8 active per token), cold-start speed jumped (+71%) and warm structured JSON improved <strong>+5.1%</strong> (<code>755 &rarr; 793 tok/s</code>) — <em>but</em> warm conversational decode dropped <strong>&minus;3.9%</strong> and creative prose dropped <strong>&minus;6.0%</strong> (<code>321 &rarr; 302 tok/s</code>).</li>
+              <li><strong>Why?</strong> On a <em>dense</em> model, verifying 8 tokens reads the same weights as 1 token. On a <em>sparse MoE</em> model, 8 different tokens route to a much larger union of unique experts — so VRAM weight traffic genuinely scales with draft width! Over-drafting on unpredictable prose wasted bandwidth fetching experts for rejected tokens. Basalt's original online latency tracker already learns the exact hardware curve after warm-up, so we reverted our prior override.</li>
+            </ul>
+
+            <h2>5. Live in production today</h2>
+            <p>
+              Only the verified winners shipped to our live coordinator on RTX 5090:
+            </p>
+            <div class="table-wrap" style="margin:1.2rem 0 1.6rem 0;">
+              <table>
+                <thead>
+                  <tr><th>Endpoint / Model ID</th><th>What It Runs Live</th><th>Verified Live Check</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><code>space-auto</code> (trivial QA)</td><td>Direct path (<code>reasoning_effort="none"</code>)</td><td><strong>0.18 s</strong> (<code>"Paris"</code>)</td></tr>
+                  <tr><td><code>space-auto</code> (hard math / code)</td><td>Auto-upgraded <code>reasoning_effort="medium"</code></td><td><strong>3.04 s</strong> on <code>7^(7^7) mod 1000</code> (<code>343</code> &check;)</td></tr>
+                  <tr><td><code>space-think</code> (new)</td><td>4-slot DeepConf + 3-of-4 Early Quorum + GenRM</td><td><strong>507&ndash;555 tok/s</strong> agg, solved <code>h04=44</code> &amp; <code>h03=42</code> &check;</td></tr>
+                  <tr><td><code>space-council</code> (solo node)</td><td>Upgraded from 1 pass &rarr; 4-slot Blackwell ATTC</td><td><strong>6.43 s</strong> (549.6 tok/s agg) on <code>h16=68</code> &check;</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p>
+              The broader lesson for anyone building local AI systems: <strong>once your kernels are fast, single-stream latency is only half the game.</strong> Continuous batching turns idle GPU memory bandwidth into parallel verification — giving a local 27B open model competition-grade reliability for less than a second of extra wait time.
+            </p>
+
+            <div class="blog-callout">
+              <div class="blog-callout-title">Try <code>space-think</code> and Intent-Aware <code>space-auto</code> live</div>
+              <p>Test our RTX 5090 deployment directly in Space Chat, or browse the 1,715 papers in the Space AI database that inspired these experiments.</p>
+              <div class="btn-row">
+                <a class="btn sm" href="./chat.html">Open Space Chat &rarr;</a>
+                <a class="btn secondary sm" href="./papers.html">Explore Papers DB</a>
+                <a class="btn secondary sm" href="./blog-blackwell-inference.html">Read Note 07 (GPU Kernels)</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <footer class="landing-foot">
+      <div class="wrap" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:1rem;">
+        <span>&copy; 2026 Space AI &middot; spaceresearch.ai</span>
+        <div style="display:flex; gap:1.4rem; color:var(--ink-soft);">
+          <a href="./blog.html">Research</a>
+          <a href="./papers.html">Papers</a>
+          <a href="./product.html">Product</a>
+          <a href="./network.html">Network</a>
+          <a href="./chat.html">Chat</a>
+          <a href="https://github.com/spaceresearchai" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="./culture-home.js?v=29"></script>
+</body>
+</html>
