@@ -16,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-latest
+          - os: macos-14
             script: build:mac
           - os: windows-latest
             script: build:win
@@ -46,7 +46,7 @@ jobs:
         run: npm test
 
       - name: Build native installers
-        run: npm run ${{ matrix.script }}
+        run: npm run ${{ matrix.script }} -- --publish never
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
