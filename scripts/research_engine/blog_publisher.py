@@ -61,8 +61,23 @@ def publish_investigation(
             "findings": analysis["findings"],
         }
 
+    # Look up any already-minted production DOI so the companion blog note includes the live Zenodo badge!
+    gen_idx_path = SITE_ROOT / "data" / "generated-papers.json"
+    existing_doi = None
+    existing_zurl = None
+    if gen_idx_path.exists():
+        g_reg = json.loads(gen_idx_path.read_text(encoding="utf-8"))
+        prev_p = next((x for x in g_reg.get("papers", []) if x.get("slug") == slug), None)
+        if prev_p:
+            existing_doi = prev_p.get("doi")
+            existing_zurl = prev_p.get("zenodo_url") or (f"https://doi.org/{existing_doi}" if existing_doi else None)
+
     # 1. Compile full technical paper (Markdown + HTML + academic PDF + JSON archive)
-    paper_res = compile_paper(exp_data, published_at=now_iso, blog_href=blog_href, author=author, email=email, company=company)
+    paper_res = compile_paper(
+        exp_data, published_at=now_iso, blog_href=blog_href,
+        author=author, email=email, company=company,
+        doi=existing_doi, zenodo_url=existing_zurl,
+    )
 
     # 2. Render Space AI Research Note HTML
     stats_html = "".join(
@@ -175,6 +190,7 @@ def publish_investigation(
               <div style="display:flex; flex-wrap:wrap; gap:0.65rem;">
                 <a class="btn sm" href="{html.escape(paper_href)}">Read Full Technical Paper &rarr;</a>
                 <a class="btn secondary sm" href="./papers/{html.escape(slug)}.pdf" target="_blank" rel="noopener">Download PDF &darr;</a>
+                {f'<a class="btn secondary sm" href="{html.escape(existing_zurl or ("https://doi.org/" + existing_doi))}" target="_blank" rel="noopener">Zenodo DOI: {html.escape(existing_doi)} &#8599;</a>' if existing_doi else ''}
                 <a class="btn secondary sm" href="./papers.html?tab=discover">Open CoreRank Discovery</a>
               </div>
             </div>
@@ -244,6 +260,7 @@ def publish_investigation(
             "year": int(pub_date[:4]),
             "published_date": pub_date,
             "venue": f"{company} Technical Paper",
+            "doi": existing_doi,
             "url": f"./papers/{slug}.html",
             "pdf_url": f"./papers/{slug}.pdf",
             "tags": ["space-ai", "autonomous-gpu", "corerank", exp_data["experiment_id"]],

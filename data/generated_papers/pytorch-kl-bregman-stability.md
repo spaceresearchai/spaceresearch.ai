@@ -1,6 +1,7 @@
 # Eliminating Negative & Corrupted KL Divergence in Low-Precision PyTorch via Bregman-Taylor Formulation
 
 **Authors:** Marcio Diaz (`marcio.diaz@gmail.com`), Space AI (`spaceresearch.ai`)  
+**DOI:** `10.5281/zenodo.24508479` (https://zenodo.org/record/24508479)  
 **Published:** 2026-11-24T16:47:28+01:00  
 **Discovery Trigger:** Method 1 Prior-vs-Evidence Bayesian Surprise (#3 on 4B)  
 **Hardware:** NVIDIA GeForce RTX 5090  
@@ -60,6 +61,7 @@ CoreRank Method 1 flagged arxiv:2611.30835 (4B surprise +7.65), showing PyTorch 
   institution = {Space AI (spaceresearch.ai)},
   year        = {2026},
   month       = {11},
+  doi         = {10.5281/zenodo.24508479},
   url         = {https://spaceresearch.ai/papers/pytorch-kl-bregman-stability.html}
 }
 ```

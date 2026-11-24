@@ -315,6 +315,26 @@ def deposit_paper_to_zenodo(
     dep_id = dep["id"]
     bucket_url = dep["links"]["bucket"]
     prereserved_doi = dep.get("metadata", {}).get("prereserve_doi", {}).get("doi", "")
+    expected_record_url = f"https://{'sandbox.' if sandbox else ''}zenodo.org/records/{dep_id}"
+
+    # Stamp the official pre-reserved DOI directly into the PDF/HTML/Markdown BEFORE uploading!
+    if prereserved_doi and not sandbox and client is None:
+        if __package__ in (None, ""):
+            sys.path.insert(0, str(ENGINE_DIR.parent))
+            from research_engine.paper_writer import compile_paper
+        else:
+            from .paper_writer import compile_paper
+        compile_paper(
+            exp_data=exp_data,
+            published_at=exp_data.get("published_at"),
+            blog_href=f"./blog-auto-{slug}.html",
+            author=cfg.get("author", DEFAULT_AUTHOR),
+            email=cfg.get("email", DEFAULT_EMAIL),
+            company=cfg.get("company", DEFAULT_COMPANY),
+            doi=prereserved_doi,
+            zenodo_url=expected_record_url,
+            build_pdf=True,
+        )
 
     uploaded = []
     for fpath in (pdf_path, md_path, arch_path):

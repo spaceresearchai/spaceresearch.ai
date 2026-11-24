@@ -104,7 +104,7 @@ def upsert_paper_into_vdb(paper_record: Dict[str, Any]) -> Dict[str, Any]:
         "category": "space-ai-lab",
         "citations": int(paper_record.get("citations", 0)),
         "arxiv_id": None,
-        "doi": None,
+        "doi": paper_record.get("doi"),
         "url": paper_record["url"],
         "pdf_url": paper_record.get("pdf_url"),
         "tags": paper_record.get("tags", ["space-ai", "autonomous-gpu", "corerank"]),

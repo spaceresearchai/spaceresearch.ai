@@ -1,6 +1,7 @@
 # Steerable Before Decodable: Testing CoreRank 1D Causal Steering vs. Logit Lens Readability Across Depth
 
 **Authors:** Marcio Diaz (`marcio.diaz@gmail.com`), Space AI (`spaceresearch.ai`)  
+**DOI:** `10.5281/zenodo.24508473` (https://zenodo.org/record/24508473)  
 **Published:** 2026-11-24T17:16:34+01:00  
 **Discovery Trigger:** Method 1 Prior-vs-Evidence Bayesian Surprise (#1 on 4B, +9.30)  
 **Hardware:** NVIDIA GeForce RTX 5090  
@@ -84,6 +85,7 @@ CoreRank Method 1 surfaced arxiv:2604.02608 (4B surprise +9.30, #1 overall), sho
   institution = {Space AI (spaceresearch.ai)},
   year        = {2026},
   month       = {11},
+  doi         = {10.5281/zenodo.24508473},
   url         = {https://spaceresearch.ai/papers/steerable-not-decodable-ace-cores.html}
 }
 ```

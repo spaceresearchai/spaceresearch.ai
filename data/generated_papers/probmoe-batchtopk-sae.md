@@ -1,6 +1,7 @@
 # Probabilistic Marginal Gradients for Sparse Autoencoders: Bridging ProbMoE Routing and BatchTopK SAEs
 
 **Authors:** Marcio Diaz (`marcio.diaz@gmail.com`), Space AI (`spaceresearch.ai`)  
+**DOI:** `10.5281/zenodo.24508485` (https://zenodo.org/record/24508485)  
 **Published:** 2026-11-24T16:46:42+01:00  
 **Discovery Trigger:** Method 2 Cross-Domain Bridge + Method 3 Dense Contradiction  
 **Hardware:** NVIDIA GeForce RTX 5090  
@@ -70,6 +71,7 @@ CoreRank Method 2 discovered a low-BGE (0.706), high-ACE-mechanism (0.879, 4B tr
   institution = {Space AI (spaceresearch.ai)},
   year        = {2026},
   month       = {11},
+  doi         = {10.5281/zenodo.24508485},
   url         = {https://spaceresearch.ai/papers/probmoe-batchtopk-sae.html}
 }
 ```
