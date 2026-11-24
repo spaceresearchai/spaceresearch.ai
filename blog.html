@@ -108,16 +108,16 @@
               <div class="blog-day-header">
                 <div class="blog-day-title-wrap">
                   <span class="blog-day-date">Tue, Nov 24, 2026</span>
-                  <span class="blog-day-badge today">Latest &middot; 8 notes</span>
-                  <span class="blog-day-span">15:25 – 19:53</span>
+                  <span class="blog-day-badge today">Latest &middot; 10 notes</span>
+                  <span class="blog-day-span">15:25 – 22:09</span>
                 </div>
               </div>
               <div class="blog-list">
               <article class="blog-card" data-cluster="1">
                 <div class="blog-meta">
-                  <span class="blog-cat"><span class="spec-dot violet" style="margin-right:0.36rem;"></span>NOTE 12 &middot; INTERPRETABILITY &amp; SPARSE CODING · VERSION 2.0</span>
+                  <span class="blog-cat"><span class="spec-dot violet" style="margin-right:0.36rem;"></span>NOTE 12 &middot; INTERPRETABILITY &amp; SPARSE CODING · VERSION 3.0</span>
                   <span class="blog-origin-badge auto">Autonomous GPU Lab</span>
-                  <span class="blog-time-tag">2026-11-24 &middot; 19:53 &middot; 5 min</span>
+                  <span class="blog-time-tag">2026-11-24 &middot; 22:09 &middot; 5 min</span>
                 </div>
                 <h2 class="blog-card-title"><a href="./blog-auto-probmoe-batchtopk-sae.html" style="color:inherit;text-decoration:none;">Margin-Gated Probabilistic Surrogate Gradients for Overcomplete Sparse Autoencoders</a></h2>
                 <div class="blog-metric-chip">MarginProb vs BTK-STE: -0.0047 FVU &amp; -19.9pp dead (p=7.7e-09)</div>
@@ -127,32 +127,60 @@
                   <a class="blog-paper-link" href="./papers/probmoe-batchtopk-sae.html">Full Technical Paper &rarr;</a>
                 </div>
               </article>
-              <article class="blog-card" data-cluster="2">
+              <article class="blog-card" data-cluster="1">
                 <div class="blog-meta">
-                  <span class="blog-cat"><span class="spec-dot emerald" style="margin-right:0.36rem;"></span>NOTE 13 &middot; SYSTEMS FOR ML &amp; NUMERICAL STABILITY · VERSION 2.0</span>
-                  <span class="blog-origin-badge auto">Autonomous GPU Lab</span>
-                  <span class="blog-time-tag">2026-11-24 &middot; 19:53 &middot; 5 min</span>
+                  <span class="blog-cat"><span class="spec-dot violet" style="margin-right:0.36rem;"></span>NOTE 16 &middot; MECHANISTIC INTERPRETABILITY</span>
+                  
+                  <span class="blog-time-tag">2026-11-24 &middot; 22:03 &middot; 8 min</span>
                 </div>
-                <h2 class="blog-card-title"><a href="./blog-auto-pytorch-kl-bregman-stability.html" style="color:inherit;text-decoration:none;">Silent Cancellation and Backward Gradient Corruption in Low-Precision KL Divergence: Analysis and Fused Triton Kernels</a></h2>
-                <div class="blog-metric-chip">Triton 6.5x faster · -80% VRAM @ V=152k · 0.0% neg KL</div>
-                <p class="blog-card-desc">Forward &amp; backward gradient corruption across 36 regimes (Wilcoxon p=1.45e-11): PyTorch F.kl_div returns negative values on up to 50.4% of inputs and corrupts BF16 reverse-KL gradients (eps=1e-2) with 39.1% sign flips (cos=0.589). Clamping F.kl_div.clamp(min=0) induces 50.4% silent zero-gradient dead-zones and 61.8% sign flips (cos=0.371).</p>
+                <h2 class="blog-card-title"><a href="./blog-mental-state-probes.html" style="color:inherit;text-decoration:none;">Reading the Model&#x27;s Mind About Yours: Live Layer-32 User Mental-State Probes in Qwen3.8-27B</a></h2>
+                <div class="blog-metric-chip">0.9992 OOD AUROC · 25/25 min-pairs · ~3 us L32</div>
+                <p class="blog-card-desc">Five orthogonalized Layer-32 Whitened-Fisher probes running at ~3 us inside Basalt expose Qwen3.8-27B&#x27;s hidden user model live in Space Chat: 0.9992 zero-keyword OOD AUROC (+0.174 on sarcasm vs TF-IDF), 25/25 adversarial minimal pairs, prompt-end vs decode-end 69% effect collapse, /mind causal dampeners, and why user-state axes are decodable without being steerable (mean |cos|=0.082 to persona cores).</p>
                 <div class="blog-card-foot">
-                  <a class="blog-read-more" href="./blog-auto-pytorch-kl-bregman-stability.html">Read research note &rarr;</a>
-                  <a class="blog-paper-link" href="./papers/pytorch-kl-bregman-stability.html">Full Technical Paper &rarr;</a>
+                  <a class="blog-read-more" href="./blog-mental-state-probes.html">Read research note &rarr;</a>
+                  
                 </div>
               </article>
               <article class="blog-card" data-cluster="1">
                 <div class="blog-meta">
-                  <span class="blog-cat"><span class="spec-dot violet" style="margin-right:0.36rem;"></span>NOTE 14 &middot; MECHANISTIC INTERPRETABILITY · VERSION 2.0</span>
+                  <span class="blog-cat"><span class="spec-dot violet" style="margin-right:0.36rem;"></span>NOTE 15 &middot; MECHANISTIC INTERPRETABILITY</span>
+                  
+                  <span class="blog-time-tag">2026-11-24 &middot; 21:59 &middot; 8 min</span>
+                </div>
+                <h2 class="blog-card-title"><a href="./blog-personality-cores.html" style="color:inherit;text-decoration:none;">Zero-Prompt Personality Steering: Five Orthogonal ACE Residual Axes on Qwen3.8-27B</a></h2>
+                <div class="blog-metric-chip">100% 0-prompt control · cos=0.0000 · 98.3% reasoning</div>
+                <p class="blog-card-desc">Extracting, causally calibrating, and deploying 5 Löwdin-orthogonalized, epistemic-decoupled personality cores (Warmth, Playfulness, Creativity, Assertiveness, Formality) in Basalt with 0 system-prompt tokens: 100/100 bidirectional control, L27-&gt;L28 causal sign-flip discovery, Turn-8 wins vs. system prompts on 2/3 presets, and 98.3% untruncated reasoning accuracy.</p>
+                <div class="blog-card-foot">
+                  <a class="blog-read-more" href="./blog-personality-cores.html">Read research note &rarr;</a>
+                  
+                </div>
+              </article>
+              <article class="blog-card" data-cluster="1">
+                <div class="blog-meta">
+                  <span class="blog-cat"><span class="spec-dot violet" style="margin-right:0.36rem;"></span>NOTE 14 &middot; MECHANISTIC INTERPRETABILITY · VERSION 3.0</span>
                   <span class="blog-origin-badge auto">Autonomous GPU Lab</span>
-                  <span class="blog-time-tag">2026-11-24 &middot; 19:53 &middot; 5 min</span>
+                  <span class="blog-time-tag">2026-11-24 &middot; 21:47 &middot; 5 min</span>
                 </div>
                 <h2 class="blog-card-title"><a href="./blog-auto-steerable-not-decodable-ace-cores.html" style="color:inherit;text-decoration:none;">Steerable Before Decodable: Multi-Model Causal Evidence of Unembedding-Orthogonal Bottlenecks Beyond the Logit and Tuned Lens</a></h2>
-                <div class="blog-metric-chip">ACE Flip +0.23 vs CAA +0.16 (p=7.3e-04) · Keep-1D wins 12/12</div>
-                <p class="blog-card-desc">Steerable before decodable across 3 architectures (1.7B-7.2B, 2,016 held-out cross-lexicon pairs): At peak causal steering depth, ACE readout (0.766) exceeds both Direct Logit Lens (0.709, p=4.61e-02) and Trained Residual-Affine Tuned Lens (0.708, p=6.47e-02), with mean unembedding alignment |cos(q_l*, dW_U)| = 0.143.</p>
+                <div class="blog-metric-chip">ACE Flip +0.24 vs CAA +0.17 (p=1.5e-04) · Keep-1D wins 16/16</div>
+                <p class="blog-card-desc">Steerable before decodable across 4 architectures (1.7B-7.3B, 2,688 held-out cross-lexicon pairs): At peak causal steering depth, ACE readout (0.765) exceeds Direct Logit Lens (0.727, p=6.49e-02), General-Corpus Tuned Lens (0.697, p=4.67e-02), and Domain Tuned Lens (0.708, p=4.67e-02), with mean |cos(q_l*, dW_U)| = 0.140.</p>
                 <div class="blog-card-foot">
                   <a class="blog-read-more" href="./blog-auto-steerable-not-decodable-ace-cores.html">Read research note &rarr;</a>
                   <a class="blog-paper-link" href="./papers/steerable-not-decodable-ace-cores.html">Full Technical Paper &rarr;</a>
+                </div>
+              </article>
+              <article class="blog-card" data-cluster="2">
+                <div class="blog-meta">
+                  <span class="blog-cat"><span class="spec-dot emerald" style="margin-right:0.36rem;"></span>NOTE 13 &middot; SYSTEMS FOR ML &amp; NUMERICAL STABILITY · VERSION 3.0</span>
+                  <span class="blog-origin-badge auto">Autonomous GPU Lab</span>
+                  <span class="blog-time-tag">2026-11-24 &middot; 20:42 &middot; 5 min</span>
+                </div>
+                <h2 class="blog-card-title"><a href="./blog-auto-pytorch-kl-bregman-stability.html" style="color:inherit;text-decoration:none;">Silent Cancellation and Backward Gradient Corruption in Low-Precision KL Divergence: Theory, Fused Triton Kernels, and LLM Post-Training</a></h2>
+                <div class="blog-metric-chip">Triton 6.5x vs FP32 · 1.81x vs torch.compile · 1.25x E2E Qwen3-1.7B (-754MB)</div>
+                <p class="blog-card-desc">Forward &amp; backward gradient corruption across 36 regimes (Wilcoxon p=1.45e-11): PyTorch F.kl_div returns negative values on up to 50.4% of inputs and corrupts BF16 reverse-KL gradients (eps=1e-2) with 39.1% sign flips (cos=0.589). Clamping F.kl_div.clamp(min=0) induces 50.4% silent zero-gradient dead-zones and 61.8% sign flips (cos=0.371).</p>
+                <div class="blog-card-foot">
+                  <a class="blog-read-more" href="./blog-auto-pytorch-kl-bregman-stability.html">Read research note &rarr;</a>
+                  <a class="blog-paper-link" href="./papers/pytorch-kl-bregman-stability.html">Full Technical Paper &rarr;</a>
                 </div>
               </article>
               <article class="blog-card" data-cluster="2">

@@ -46,7 +46,8 @@ from transformers.masking_utils import create_causal_mask
 from corerank.engine import compute_ace_subspace, roc_auc
 
 SITE_ROOT = Path(__file__).resolve().parents[3]
-FIG_PATH = SITE_ROOT / "papers" / "figures" / "steerable-not-decodable-v2.png"
+PAPERS_JSON = SITE_ROOT / "data" / "papers-db.json"
+FIG_PATH = SITE_ROOT / "papers" / "figures" / "steerable-not-decodable-v3.png"
 
 MODELS: List[Dict[str, Any]] = [
     {
@@ -73,6 +74,15 @@ MODELS: List[Dict[str, Any]] = [
         "family": "Mistral (GQA+SWA)",
         "params_b": 7.2,
         "gpu_layers": 13,  # ~5.5 GB VRAM safely alongside basalt
+        "batch_size": 16,
+        "sweep_layers": [4, 10, 16, 20, 24, 28, 32],
+    },
+    {
+        "id": "allenai/OLMo-2-1124-7B",
+        "short": "OLMo-2-7B",
+        "family": "OLMo-2 (PostNorm+QKNorm)",
+        "params_b": 7.3,
+        "gpu_layers": 12,  # ~5.2 GB VRAM safely alongside basalt
         "batch_size": 16,
         "sweep_layers": [4, 10, 16, 20, 24, 28, 32],
     },
@@ -288,19 +298,57 @@ def fit_caa_vector(H_tr: np.ndarray, y_tr: np.ndarray) -> np.ndarray:
 
 
 def fit_tuned_lens_translator(H_src: np.ndarray, H_final: np.ndarray, alpha: float = 100.0) -> Tuple[np.ndarray, np.ndarray]:
-    """Residual-Affine Tuned Lens T_l(h) = h + (h - mu_l) A_l + b_l (Belrose et al., 2023)."""
-    X = H_src.astype(np.float64)
-    Y = (H_final - H_src).astype(np.float64)
-    mu_x = X.mean(axis=0, keepdims=True)
-    mu_y = Y.mean(axis=0, keepdims=True)
-    Xc = X - mu_x
-    Yc = Y - mu_y
-    N = Xc.shape[0]
-    K = Xc @ Xc.T + alpha * np.eye(N, dtype=np.float64)
-    dual = np.linalg.solve(K, Yc)
-    A = Xc.T @ dual
-    b = (mu_y - mu_x @ A).reshape(-1)
-    return A.astype(np.float32), b.astype(np.float32)
+    """Residual-Affine Tuned Lens T_l(h) = h + (h - mu_l) A_l + b_l (Belrose et al., 2023).
+    Automatically uses primal GPU ridge when N > D (e.g. 3,500+ general-corpus tokens) and dual ridge when N <= D.
+    """
+    N, D = H_src.shape
+    if N <= D:
+        X = H_src.astype(np.float64)
+        Y = (H_final - H_src).astype(np.float64)
+        mu_x = X.mean(axis=0, keepdims=True)
+        mu_y = Y.mean(axis=0, keepdims=True)
+        Xc = X - mu_x
+        Yc = Y - mu_y
+        K = Xc @ Xc.T + alpha * np.eye(N, dtype=np.float64)
+        dual = np.linalg.solve(K, Yc)
+        A = Xc.T @ dual
+        b = (mu_y - mu_x @ A).reshape(-1)
+        return A.astype(np.float32), b.astype(np.float32)
+    dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    X_t = torch.tensor(H_src, dtype=torch.float32, device=dev)
+    Y_t = torch.tensor(H_final - H_src, dtype=torch.float32, device=dev)
+    mu_x = X_t.mean(dim=0, keepdim=True)
+    mu_y = Y_t.mean(dim=0, keepdim=True)
+    Xc = X_t - mu_x
+    Yc = Y_t - mu_y
+    gram = Xc.T @ Xc
+    gram.diagonal().add_(float(alpha))
+    A_t = torch.linalg.solve(gram, Xc.T @ Yc)
+    b_t = (mu_y - mu_x @ A_t).reshape(-1)
+    A_np = A_t.cpu().numpy().astype(np.float32)
+    b_np = b_t.cpu().numpy().astype(np.float32)
+    del X_t, Y_t, Xc, Yc, gram, A_t, b_t
+    if dev.type == "cuda":
+        torch.cuda.empty_cache()
+    return A_np, b_np
+
+
+def load_general_corpus_texts(n_docs: int = 96) -> List[str]:
+    """Load diverse scientific abstract passages (completely disjoint from comparative templates) for General-Corpus Tuned Lens."""
+    if PAPERS_JSON.exists():
+        db = json.loads(PAPERS_JSON.read_text(encoding="utf-8"))
+        out = []
+        for p in db.get("papers", []):
+            abs_txt = (p.get("abstract") or "").strip()
+            if len(abs_txt) >= 120:
+                out.append(f"{p.get('title', '')}. {abs_txt[:260]}")
+            if len(out) >= n_docs:
+                break
+        if len(out) >= 32:
+            return out
+    return [
+        "Gradient descent optimizes differentiable objective functions across high-dimensional parameter manifolds in modern neural networks."
+    ] * 64
 
 
 class HybridCausalModel:
@@ -528,6 +576,182 @@ class HybridCausalModel:
         dw = (w_u[pos_id].detach().float() - w_u[neg_id].detach().float()).cpu().numpy()
         return dw / (float(np.linalg.norm(dw)) + 1e-12)
 
+    @torch.inference_mode()
+    def collect_general_corpus_tokens(
+        self,
+        texts: Sequence[str],
+        capture_layers: Sequence[int],
+        max_len: int = 44,
+        max_tokens: int = 3200,
+    ) -> Dict[int, np.ndarray]:
+        """Collect diverse non-BOS token hidden states across real scientific text for General-Corpus Tuned Lens."""
+        cap_set = set(capture_layers)
+        acc: Dict[int, List[np.ndarray]] = {l: [] for l in capture_layers}
+        n_seen = 0
+        bs = min(self.batch_size, 16)
+        for s in range(0, len(texts), bs):
+            if n_seen >= max_tokens:
+                break
+            batch = list(texts[s : s + bs])
+            enc = self.tokenizer(batch, return_tensors="pt", padding=True, truncation=True, max_length=max_len)
+            ids_g = enc["input_ids"].to(self.gpu_dev)
+            mask_g = enc["attention_mask"].to(self.gpu_dev)
+            B, T = ids_g.shape
+            pos_g = mask_g.long().cumsum(-1) - 1
+            pos_g.masked_fill_(mask_g == 0, 0)
+            cache_pos_g = torch.arange(T, device=self.gpu_dev)
+            valid = mask_g.bool().cpu()
+            valid[:, 0] = False  # drop BOS sink
+
+            h = self.backbone.embed_tokens(ids_g)
+            cmask_g = create_causal_mask(
+                config=self.model.config, inputs_embeds=h, attention_mask=mask_g,
+                cache_position=cache_pos_g, past_key_values=None, position_ids=pos_g,
+            )
+            pe_g = self.backbone.rotary_emb(h, pos_g)
+            cmask_c, pos_c, pe_c = None, None, None
+            moved_cpu = False
+            for idx in range(self.n_layers):
+                l_1idx = idx + 1
+                if idx == self.gpu_n and not self.is_full_gpu:
+                    h = h.to("cpu")
+                    cmask_c = cmask_g.to("cpu") if cmask_g is not None else None
+                    pos_c = pos_g.to("cpu")
+                    pe_c = (pe_g[0].to("cpu"), pe_g[1].to("cpu"))
+                    moved_cpu = True
+                cm = cmask_c if moved_cpu else cmask_g
+                ps = pos_c if moved_cpu else pos_g
+                pe = pe_c if moved_cpu else pe_g
+                out = self.layers[idx](h, attention_mask=cm, position_ids=ps, position_embeddings=pe, use_cache=False)
+                h = out[0] if isinstance(out, tuple) else out
+                if l_1idx in cap_set:
+                    acc[l_1idx].append(h.detach().float().cpu()[valid].numpy())
+            n_seen += int(valid.sum().item())
+
+        return {l: np.concatenate(acc[l], axis=0)[:max_tokens] for l in capture_layers}
+
+    @torch.inference_mode()
+    def eval_freeform_generation_steering(
+        self,
+        prompts: Sequence[str],
+        y_true: np.ndarray,
+        pos_words: Sequence[str],
+        neg_words: Sequence[str],
+        layer_1idx: int,
+        q_vec: np.ndarray,
+        mu_vec: np.ndarray,
+        rand_vec: np.ndarray,
+        max_new_tokens: int = 10,
+    ) -> Dict[str, Any]:
+        """
+        Full-GPU multi-token greedy generation steering audit (Experiment B):
+        Steer at `layer_1idx` on the final prompt position via Flip-1D (ACE vs. Random) and generate
+        `max_new_tokens` freely. Measures clean accuracy, free-form semantic flip rate on correct prompts,
+        and fluency (base-model continuation NLL in nats/token).
+        """
+        if not self.is_full_gpu:
+            return {}
+        q_t = torch.tensor(q_vec, dtype=torch.float32, device=self.gpu_dev)
+        r_t = torch.tensor(rand_vec, dtype=torch.float32, device=self.gpu_dev)
+        mu_t = torch.tensor(mu_vec, dtype=torch.float32, device=self.gpu_dev)
+
+        pos_kw = [w.strip().lower() for w in pos_words]
+        neg_kw = [w.strip().lower() for w in neg_words]
+
+        def classify_gen(txt: str) -> int:
+            low = " " + txt.lower().replace(",", " ").replace(".", " ") + " "
+            p_pos = min((low.find(" " + w) for w in pos_kw if (" " + w) in low), default=10**9)
+            p_neg = min((low.find(" " + w) for w in neg_kw if (" " + w) in low), default=10**9)
+            if p_pos == 10**9 and p_neg == 10**9:
+                return -1
+            return 1 if p_pos < p_neg else 0
+
+        def generate_with_hook(vec_t: Optional[torch.Tensor]) -> Tuple[List[str], float]:
+            texts_out: List[str] = []
+            nlls: List[float] = []
+            prompt_len_ref = [0]
+
+            def hook_fn(_mod, _inp, out):
+                h = out[0] if isinstance(out, tuple) else out
+                # Steer strictly at the prompt-final token position (prefill step when seq_len == prompt_len_ref[0])
+                if vec_t is not None and h.shape[1] == prompt_len_ref[0]:
+                    hs = h[:, -1, :].float()
+                    proj = ((hs - mu_t) @ vec_t).unsqueeze(-1) * vec_t
+                    h = h.clone()
+                    h[:, -1, :] = (hs - 2.0 * proj).to(h.dtype)
+                    return (h,) + out[1:] if isinstance(out, tuple) else h
+                return out
+
+            handle = self.layers[layer_1idx - 1].register_forward_hook(hook_fn) if vec_t is not None else None
+            try:
+                for s in range(0, len(prompts), 28):
+                    batch = list(prompts[s : s + 28])
+                    enc = self.tokenizer(batch, return_tensors="pt", padding=True).to(self.gpu_dev)
+                    prompt_len_ref[0] = int(enc["input_ids"].shape[1])
+                    gen_ids = self.model.generate(
+                        **enc,
+                        max_new_tokens=max_new_tokens,
+                        do_sample=False,
+                        pad_token_id=self.tokenizer.pad_token_id,
+                    )
+                    cont_ids = gen_ids[:, prompt_len_ref[0] :]
+                    for row in cont_ids:
+                        texts_out.append(self.tokenizer.decode(row, skip_special_tokens=True))
+                    # Score continuation fluency under UNPERTURBED base model (temporarily disable hook)
+                    if handle is not None:
+                        handle.remove()
+                        handle = None
+                    full_mask = torch.cat(
+                        [enc["attention_mask"], torch.ones_like(cont_ids)], dim=1
+                    )
+                    logits = self.model(input_ids=gen_ids, attention_mask=full_mask, use_cache=False).logits
+                    shift_logits = logits[:, prompt_len_ref[0] - 1 : -1, :].float()
+                    loss_tok = F.cross_entropy(
+                        shift_logits.reshape(-1, shift_logits.shape[-1]),
+                        cont_ids.reshape(-1),
+                        reduction="mean",
+                    )
+                    nlls.append(float(loss_tok.item()))
+                    if vec_t is not None:
+                        handle = self.layers[layer_1idx - 1].register_forward_hook(hook_fn)
+            finally:
+                if handle is not None:
+                    handle.remove()
+            return texts_out, float(np.mean(nlls)) if nlls else 0.0
+
+        clean_txts, clean_nll = generate_with_hook(None)
+        ace_txts, ace_nll = generate_with_hook(q_t)
+        rnd_txts, rnd_nll = generate_with_hook(r_t)
+
+        c_pred = np.array([classify_gen(t) for t in clean_txts])
+        a_pred = np.array([classify_gen(t) for t in ace_txts])
+        r_pred = np.array([classify_gen(t) for t in rnd_txts])
+
+        valid_clean = c_pred != -1
+        correct_clean = c_pred == y_true
+        n_corr = int(correct_clean.sum())
+        ace_flip_on_corr = float(((a_pred[correct_clean] == (1 - y_true[correct_clean])).mean()) * 100.0) if n_corr > 0 else 0.0
+        rnd_flip_on_corr = float(((r_pred[correct_clean] == (1 - y_true[correct_clean])).mean()) * 100.0) if n_corr > 0 else 0.0
+        ace_any_flip = float(((a_pred[valid_clean] == (1 - c_pred[valid_clean])).mean()) * 100.0) if valid_clean.sum() > 0 else 0.0
+        rnd_any_flip = float(((r_pred[valid_clean] == (1 - c_pred[valid_clean])).mean()) * 100.0) if valid_clean.sum() > 0 else 0.0
+
+        return {
+            "n_prompts": len(prompts),
+            "clean_valid_pct": round(float(valid_clean.mean() * 100.0), 1),
+            "clean_acc_pct": round(float(correct_clean.mean() * 100.0), 1),
+            "ace_flip_correct_pct": round(ace_flip_on_corr, 1),
+            "rand_flip_correct_pct": round(rnd_flip_on_corr, 1),
+            "ace_flip_all_valid_pct": round(ace_any_flip, 1),
+            "rand_flip_all_valid_pct": round(rnd_any_flip, 1),
+            "clean_cont_nll": round(clean_nll, 3),
+            "ace_cont_nll": round(ace_nll, 3),
+            "rand_cont_nll": round(rnd_nll, 3),
+            "sample_examples": [
+                {"prompt": prompts[i], "clean": clean_txts[i].strip()[:48], "ace_flip": ace_txts[i].strip()[:48]}
+                for i in range(min(3, len(prompts)))
+            ],
+        }
+
     def free(self):
         del self.model, self.backbone, self.layers
         gc.collect()
@@ -535,17 +759,17 @@ class HybridCausalModel:
             torch.cuda.empty_cache()
 
 
-def render_v2_figure(results_by_model: Dict[str, Any], out_png: Path) -> None:
+def render_v3_figure(results_by_model: Dict[str, Any], out_png: Path) -> None:
     out_png.parent.mkdir(parents=True, exist_ok=True)
     plt.rcParams.update({
         "font.family": "DejaVu Sans",
-        "font.size": 8.5,
-        "axes.titlesize": 9.4,
+        "font.size": 8.4,
+        "axes.titlesize": 9.2,
         "axes.titleweight": "bold",
-        "axes.labelsize": 8.4,
-        "xtick.labelsize": 7.7,
-        "ytick.labelsize": 7.7,
-        "legend.fontsize": 7.0,
+        "axes.labelsize": 8.2,
+        "xtick.labelsize": 7.4,
+        "ytick.labelsize": 7.5,
+        "legend.fontsize": 6.6,
         "axes.spines.top": False,
         "axes.spines.right": False,
         "figure.facecolor": "white",
@@ -554,10 +778,10 @@ def render_v2_figure(results_by_model: Dict[str, Any], out_png: Path) -> None:
 
     model_keys = list(results_by_model.keys())
     dom_keys = list(DOMAINS.keys())
-    fig, axes = plt.subplots(2, 3, figsize=(11.8, 6.8), dpi=300)
+    fig, axes = plt.subplots(2, 4, figsize=(15.2, 6.9), dpi=300)
 
-    # Row 1: Depth trajectories averaged across all 4 domains per model
-    for col, mkey in enumerate(model_keys):
+    # Row 1 (a-d): Depth trajectories averaged across all 4 domains for all 4 model families!
+    for col, mkey in enumerate(model_keys[:4]):
         ax = axes[0, col]
         mres = results_by_model[mkey]
         n_l = len(mres["domains"][dom_keys[0]]["layers"])
@@ -568,28 +792,27 @@ def render_v2_figure(results_by_model: Dict[str, Any], out_png: Path) -> None:
             return mat.mean(axis=0), mat.std(axis=0) / math.sqrt(len(dom_keys))
 
         ace_m, ace_se = mean_se("ace_readout_auc")
-        tl_m, tl_se = mean_se("tuned_lens_cross_auc")
+        gtl_m, gtl_se = mean_se("gen_tuned_lens_cross_auc")
+        tl_m, _ = mean_se("tuned_lens_cross_auc")
         ll_m, ll_se = mean_se("logit_lens_cross_auc")
         drop_m, drop_se = mean_se("ace_flip_drop")
         wu_m, _ = mean_se("wu_cosine")
 
         ax.axhline(0.5, color="#94a3b8", ls=":", lw=0.9)
-        ax.plot(depths, ace_m, color="#059669", lw=2.1, marker="o", ms=3.5, label="ACE 1D Readout AUC")
-        ax.fill_between(depths, ace_m - 1.96 * ace_se, np.minimum(1.0, ace_m + 1.96 * ace_se), color="#059669", alpha=0.13)
+        ax.plot(depths, ace_m, color="#059669", lw=2.0, marker="o", ms=3.2, label="ACE 1D Readout")
+        ax.fill_between(depths, ace_m - 1.96 * ace_se, np.minimum(1.0, ace_m + 1.96 * ace_se), color="#059669", alpha=0.12)
 
-        ax.plot(depths, tl_m, color="#0284c7", lw=1.8, ls="-.", marker="s", ms=3.0, label="Tuned Lens AUC")
-        ax.fill_between(depths, tl_m - 1.96 * tl_se, np.minimum(1.0, tl_m + 1.96 * tl_se), color="#0284c7", alpha=0.10)
+        ax.plot(depths, gtl_m, color="#0284c7", lw=1.7, ls="-.", marker="s", ms=2.8, label="Gen-Corpus Tuned Lens")
+        ax.fill_between(depths, gtl_m - 1.96 * gtl_se, np.minimum(1.0, gtl_m + 1.96 * gtl_se), color="#0284c7", alpha=0.09)
 
-        ax.plot(depths, ll_m, color="#d97706", lw=1.8, ls="--", marker="^", ms=3.2, label="Direct Logit Lens AUC")
-        ax.fill_between(depths, ll_m - 1.96 * ll_se, np.minimum(1.0, ll_m + 1.96 * ll_se), color="#d97706", alpha=0.10)
-
-        ax.plot(depths, drop_m, color="#7c3aed", lw=2.1, marker="D", ms=3.5, label="1D Causal Steer Drop")
-        ax.fill_between(depths, drop_m - 1.96 * drop_se, drop_m + 1.96 * drop_se, color="#7c3aed", alpha=0.13)
-
-        ax.plot(depths, wu_m, color="#dc2626", lw=1.3, ls=":", label="|cos(q_l, ΔW_U)|")
+        ax.plot(depths, tl_m, color="#0ea5e9", lw=1.2, ls=":", label="Domain Tuned Lens")
+        ax.plot(depths, ll_m, color="#d97706", lw=1.6, ls="--", marker="^", ms=2.9, label="Direct Logit Lens")
+        ax.plot(depths, drop_m, color="#7c3aed", lw=2.0, marker="D", ms=3.0, label="1D Causal Steer Drop")
+        ax.fill_between(depths, drop_m - 1.96 * drop_se, drop_m + 1.96 * drop_se, color="#7c3aed", alpha=0.11)
+        ax.plot(depths, wu_m, color="#dc2626", lw=1.2, ls=":", label="|cos(q_l, ΔW_U)|")
 
         ax.set_title(f"({chr(97+col)}) {mres['short']} ({mres['n_layers']}L, {mres['params_b']}B)")
-        ax.set_xlabel("Relative Layer Depth (l / L)")
+        ax.set_xlabel("Relative Depth (l / L)")
         if col == 0:
             ax.set_ylabel("Cross-Lexicon AUC / Steer Drop")
         ax.set_ylim(-0.04, 1.06)
@@ -597,8 +820,8 @@ def render_v2_figure(results_by_model: Dict[str, Any], out_png: Path) -> None:
         if col == 0:
             ax.legend(loc="lower left", frameon=True, framealpha=0.92)
 
-    # Row 2 (d): 1D Causal Necessity (Flip-1D Drop): ACE vs CAA vs Probe vs Random
-    ax_d = axes[1, 0]
+    # Row 2 (e): 1D Causal Necessity (Flip-1D Drop): ACE vs CAA vs Probe vs Random across all 4 models
+    ax_e = axes[1, 0]
     methods = ["ACE 1D", "CAA", "L2 Probe", "Random"]
     m_fields = ["peak_ace_flip_drop", "peak_caa_flip_drop", "peak_probe_flip_drop", "peak_rand_flip_drop"]
     colors = ["#7c3aed", "#0284c7", "#059669", "#94a3b8"]
@@ -607,54 +830,75 @@ def render_v2_figure(results_by_model: Dict[str, Any], out_png: Path) -> None:
     for mi, (mlbl, mf, colr) in enumerate(zip(methods, m_fields, colors)):
         means = [np.mean([results_by_model[mk]["domains"][dk][mf] for dk in dom_keys]) for mk in model_keys]
         errs = [1.96 * np.std([results_by_model[mk]["domains"][dk][mf] for dk in dom_keys]) / 2.0 for mk in model_keys]
-        ax_d.bar(x + (mi - 1.5) * w, means, w, yerr=errs, capsize=2.5, color=colr, label=mlbl, edgecolor="white", lw=0.5)
-    ax_d.set_xticks(x)
-    ax_d.set_xticklabels([results_by_model[mk]["short"] for mk in model_keys])
-    ax_d.set_ylabel("Mean Cross-Lexicon Flip-1D Drop (↑)")
-    ax_d.set_title("(d) 1D Causal Necessity: ACE vs. Baselines")
-    ax_d.axhline(0.0, color="#475569", lw=0.8)
-    ax_d.grid(axis="y", alpha=0.25, lw=0.6)
-    ax_d.legend(loc="upper left", frameon=True, framealpha=0.92, ncol=2)
+        ax_e.bar(x + (mi - 1.5) * w, means, w, yerr=errs, capsize=2.2, color=colr, label=mlbl, edgecolor="white", lw=0.5)
+    ax_e.set_xticks(x)
+    ax_e.set_xticklabels([results_by_model[mk]["short"] for mk in model_keys], rotation=12)
+    ax_e.set_ylabel("Mean Cross-Lexicon Flip-1D Drop (↑)")
+    ax_e.set_title("(e) 1D Causal Necessity: ACE vs. Baselines")
+    ax_e.axhline(0.0, color="#475569", lw=0.8)
+    ax_e.grid(axis="y", alpha=0.25, lw=0.6)
+    ax_e.legend(loc="upper left", frameon=True, framealpha=0.92, ncol=2)
 
-    # Row 2 (e): Keep-1D Sufficiency & Readout Collapse across 4 Domains
-    ax_e = axes[1, 1]
+    # Row 2 (f): Keep-1D Sufficiency & Readout Collapse across 4 Domains
+    ax_f = axes[1, 1]
     dom_short = ["Physical", "Hazard", "Chronology", "Geography"]
     xd = np.arange(len(dom_keys))
     bw = 0.24
     mid_ace = [np.mean([results_by_model[mk]["domains"][dk]["best_ace_readout_auc"] for mk in model_keys]) for dk in dom_keys]
     keep_1d = [np.mean([results_by_model[mk]["domains"][dk]["peak_keep1d_cross_auc"] for mk in model_keys]) for dk in dom_keys]
     raw_final = [np.mean([results_by_model[mk]["domains"][dk]["clean_cross_auc"] for mk in model_keys]) for dk in dom_keys]
-    ax_e.bar(xd - bw, mid_ace, bw, color="#059669", label="Mid-Layer ACE Readout")
-    ax_e.bar(xd, keep_1d, bw, color="#7c3aed", label="Keep-1D Sufficiency")
-    ax_e.bar(xd + bw, raw_final, bw, color="#f59e0b", label="Final-Layer Clean AUC")
-    ax_e.axhline(0.5, color="#94a3b8", ls=":", lw=0.9)
-    ax_e.set_xticks(xd)
-    ax_e.set_xticklabels(dom_short, rotation=12)
-    ax_e.set_ylim(0.42, 1.05)
-    ax_e.set_ylabel("Held-Out Cross-Lexicon AUC")
-    ax_e.set_title("(e) Causal Sufficiency (Keep-1D) & Readout Collapse")
-    ax_e.grid(axis="y", alpha=0.25, lw=0.6)
-    ax_e.legend(loc="lower right", frameon=True, framealpha=0.92)
-
-    # Row 2 (f): Unembedding Orthogonality vs Peak Causal Steer Drop
-    ax_f = axes[1, 2]
-    markers = ["o", "s", "^"]
-    m_colors = ["#059669", "#0284c7", "#7c3aed"]
-    for mi, mk in enumerate(model_keys):
-        xs = [results_by_model[mk]["domains"][dk]["peak_steer_wu_cosine"] for dk in dom_keys]
-        ys = [results_by_model[mk]["domains"][dk]["peak_ace_flip_drop"] for dk in dom_keys]
-        ax_f.scatter(xs, ys, s=55, marker=markers[mi], color=m_colors[mi], alpha=0.88, edgecolors="white", lw=0.6, label=results_by_model[mk]["short"])
-    ax_f.axvline(0.15, color="#dc2626", ls="--", lw=1.0, alpha=0.7, label="|cos| = 0.15 guide")
-    ax_f.set_xlabel("Unembedding Alignment |cos(q_l*, ΔW_U)|")
-    ax_f.set_ylabel("Peak 1D Causal Steer Drop")
-    ax_f.set_title("(f) Causal Control vs. Unembedding Alignment")
-    ax_f.set_xlim(-0.01, max(0.35, ax_f.get_xlim()[1] * 1.12))
-    ax_f.grid(alpha=0.25, lw=0.6)
+    ax_f.bar(xd - bw, mid_ace, bw, color="#059669", label="Mid-Layer ACE")
+    ax_f.bar(xd, keep_1d, bw, color="#7c3aed", label="Keep-1D Rescue")
+    ax_f.bar(xd + bw, raw_final, bw, color="#f59e0b", label="Final Clean AUC")
+    ax_f.axhline(0.5, color="#94a3b8", ls=":", lw=0.9)
+    ax_f.set_xticks(xd)
+    ax_f.set_xticklabels(dom_short, rotation=12)
+    ax_f.set_ylim(0.42, 1.05)
+    ax_f.set_ylabel("Held-Out Cross-Lexicon AUC")
+    ax_f.set_title("(f) Causal Sufficiency (Keep-1D) & Collapse")
+    ax_f.grid(axis="y", alpha=0.25, lw=0.6)
     ax_f.legend(loc="lower right", frameon=True, framealpha=0.92)
 
+    # Row 2 (g): Unembedding Orthogonality vs Peak Causal Steer Drop (all 16 cells)
+    ax_g = axes[1, 2]
+    markers = ["o", "s", "^", "D"]
+    m_colors = ["#059669", "#0284c7", "#7c3aed", "#ea580c"]
+    for mi, mk in enumerate(model_keys[:4]):
+        xs = [results_by_model[mk]["domains"][dk]["peak_steer_wu_cosine"] for dk in dom_keys]
+        ys = [results_by_model[mk]["domains"][dk]["peak_ace_flip_drop"] for dk in dom_keys]
+        ax_g.scatter(xs, ys, s=50, marker=markers[mi], color=m_colors[mi], alpha=0.88, edgecolors="white", lw=0.6, label=results_by_model[mk]["short"])
+    ax_g.axvline(0.15, color="#dc2626", ls="--", lw=1.0, alpha=0.7, label="|cos| = 0.15")
+    ax_g.set_xlabel("Unembedding Alignment |cos(q_l*, ΔW_U)|")
+    ax_g.set_ylabel("Peak 1D Causal Steer Drop")
+    ax_g.set_title("(g) Causal Control vs. Unembedding Cosine")
+    ax_g.set_xlim(-0.01, max(0.35, ax_g.get_xlim()[1] * 1.12))
+    ax_g.grid(alpha=0.25, lw=0.6)
+    ax_g.legend(loc="lower right", frameon=True, framealpha=0.92)
+
+    # Row 2 (h): Free-Form Multi-Token Generation Steering (ACE Flip-1D vs Random Control)
+    ax_h = axes[1, 3]
+    gen_bars_lbl, gen_ace_vals, gen_rnd_vals = [], [], []
+    for mk in model_keys:
+        fg = results_by_model[mk].get("freeform_generation") or {}
+        for dk, gv in fg.items():
+            gen_bars_lbl.append(f"{mk.split('-')[0]}\n{dk.split('_')[0][:4]}")
+            gen_ace_vals.append(gv["ace_flip_correct_pct"])
+            gen_rnd_vals.append(gv["rand_flip_correct_pct"])
+    if gen_bars_lbl:
+        xg = np.arange(len(gen_bars_lbl))
+        ax_h.bar(xg - 0.19, gen_ace_vals, 0.36, color="#7c3aed", label="ACE Flip-1D")
+        ax_h.bar(xg + 0.19, gen_rnd_vals, 0.36, color="#94a3b8", label="Random Flip-1D")
+        ax_h.set_xticks(xg)
+        ax_h.set_xticklabels(gen_bars_lbl, fontsize=7.0)
+        ax_h.set_ylim(0, 108)
+        ax_h.set_ylabel("Free-Form Answer Flip % (↑)")
+        ax_h.set_title("(h) Multi-Token Generation Steering")
+        ax_h.grid(axis="y", alpha=0.25, lw=0.6)
+        ax_h.legend(loc="upper right", frameon=True, framealpha=0.92)
+
     fig.suptitle(
-        "Steerable Before Decodable: Multi-Model Depth Trajectories, Baselines, and Unembedding Orthogonality (2,016 Held-Out Cross-Lexicon Pairs)",
-        fontsize=10.3, fontweight="bold", y=0.99,
+        "Steerable Before Decodable (v3.0): 4 Architectures (1.7B–7.3B), General-Corpus Tuned Lens, and Free-Form Generation Steering",
+        fontsize=10.5, fontweight="bold", y=0.99,
     )
     fig.tight_layout(rect=[0, 0, 1, 0.96])
     fig.savefig(out_png, dpi=300)
@@ -739,12 +983,22 @@ def run_experiment(out_json: Path | None = None) -> Dict[str, Any]:
                 "cross_data": cross_data,
             }
 
-        # Fit shared Residual-Affine Tuned Lens per layer on the disjoint training entities across all 4 domains
+        # Fit BOTH:
+        #   (1) Domain-Trained Residual-Affine Tuned Lens (pooled disjoint training entities across 4 domains)
+        #   (2) General-Corpus Residual-Affine Tuned Lens (~3,200 diverse scientific text tokens from papers-db.json)
         tuned_lens: Dict[int, Tuple[np.ndarray, np.ndarray]] = {}
+        gen_tuned_lens: Dict[int, Tuple[np.ndarray, np.ndarray]] = {}
         H_tr_final_all = np.concatenate(pooled_tr_H[L], axis=0)
+        gen_texts = load_general_corpus_texts(n_docs=96)
+        gen_H_map = runner.collect_general_corpus_tokens(gen_texts, sweep_layers, max_len=44, max_tokens=3200)
+        n_gen_toks = int(gen_H_map[L].shape[0])
         for l in sweep_layers:
             H_tr_l_all = np.concatenate(pooled_tr_H[l], axis=0)
             tuned_lens[l] = fit_tuned_lens_translator(H_tr_l_all, H_tr_final_all, alpha=100.0)
+            gen_tuned_lens[l] = fit_tuned_lens_translator(gen_H_map[l], gen_H_map[L], alpha=500.0)
+        del gen_H_map
+        gc.collect()
+        print(f"  [{mspec['short']}] Fitted General-Corpus Tuned Lens on {n_gen_toks:,} diverse tokens.", flush=True)
 
         # Ridge regularization ablation at mid-depth
         mid_l = sweep_layers[len(sweep_layers) // 2]
@@ -824,10 +1078,13 @@ def run_experiment(out_json: Path | None = None) -> Dict[str, Any]:
                 prb_read_auc = float(np.mean([auc_from_y(y_te, s) for s in s_prb_list]))
 
                 A_l, b_l = tuned_lens[l]
+                Ag_l, bg_l = gen_tuned_lens[l]
                 m_ll_list = [runner.apply_unembedding(cd["H_map"][l], cd["pos_id"], cd["neg_id"]) for cd in cross_data]
                 m_tl_list = [runner.apply_unembedding(cd["H_map"][l] + cd["H_map"][l] @ A_l + b_l, cd["pos_id"], cd["neg_id"]) for cd in cross_data]
+                m_gtl_list = [runner.apply_unembedding(cd["H_map"][l] + cd["H_map"][l] @ Ag_l + bg_l, cd["pos_id"], cd["neg_id"]) for cd in cross_data]
                 ll_auc, ll_lo, ll_hi = bootstrap_lexicon_auc_ci(y_te, m_ll_list, n_boot=1000, seed=l + 19)
                 tl_auc, tl_lo, tl_hi = bootstrap_lexicon_auc_ci(y_te, m_tl_list, n_boot=1000, seed=l + 31)
+                gtl_auc, gtl_lo, gtl_hi = bootstrap_lexicon_auc_ci(y_te, m_gtl_list, n_boot=1000, seed=l + 41)
 
                 # Fast bit-exact suffix-cached causal interventions (Flip-1D & Keep-1D) across all 3 unseen cross-lexicons!
                 m_flip_list = [
@@ -857,6 +1114,8 @@ def run_experiment(out_json: Path | None = None) -> Dict[str, Any]:
                     "logit_lens_ci95": [round(ll_lo, 4), round(ll_hi, 4)],
                     "tuned_lens_cross_auc": round(tl_auc, 4),
                     "tuned_lens_ci95": [round(tl_lo, 4), round(tl_hi, 4)],
+                    "gen_tuned_lens_cross_auc": round(gtl_auc, 4),
+                    "gen_tuned_lens_ci95": [round(gtl_lo, 4), round(gtl_hi, 4)],
                     "ace_flip_cross_auc": round(flip_ace_auc, 4),
                     "ace_flip_drop": round(ace_drop, 4),
                     "ace_flip_drop_ci95": [round(ace_drop_lo, 4), round(ace_drop_hi, 4)],
@@ -912,6 +1171,7 @@ def run_experiment(out_json: Path | None = None) -> Dict[str, Any]:
                 "peak_steer_ace_readout_auc": peak_row["ace_readout_auc"],
                 "peak_steer_logit_lens_auc": peak_row["logit_lens_cross_auc"],
                 "peak_steer_tuned_lens_auc": peak_row["tuned_lens_cross_auc"],
+                "peak_steer_gen_tuned_lens_auc": peak_row["gen_tuned_lens_cross_auc"],
                 "peak_steer_wu_cosine": peak_row["wu_cosine"],
                 "peak_keep1d_layer": best_keep_row["layer"],
                 "peak_keep1d_cross_auc": best_keep_row["ace_keep1d_cross_auc"],
@@ -919,6 +1179,12 @@ def run_experiment(out_json: Path | None = None) -> Dict[str, Any]:
                 "first_tuned_lens_ge80_depth": first_tl_80,
                 "first_logit_lens_ge80_depth": first_ll_80,
                 "rank_ablation_mid": rank_ablation_mid,
+                "vecs_peak": {
+                    "layer": l_star,
+                    "q_ace": vecs_by_layer[l_star]["ace"].tolist(),
+                    "rand": vecs_by_layer[l_star]["rand"].tolist(),
+                    "mu_te": dc["H_te_src_map"][l_star].mean(axis=0).tolist(),
+                },
                 "layers": layer_rows,
             }
             all_cells_summary.append({
@@ -928,6 +1194,7 @@ def run_experiment(out_json: Path | None = None) -> Dict[str, Any]:
                 "rel_depth": peak_row["rel_depth"],
                 "ace_readout_at_peak": peak_row["ace_readout_auc"],
                 "tuned_lens_at_peak": peak_row["tuned_lens_cross_auc"],
+                "gen_tuned_lens_at_peak": peak_row["gen_tuned_lens_cross_auc"],
                 "logit_lens_at_peak": peak_row["logit_lens_cross_auc"],
                 "ace_drop": peak_row["ace_flip_drop"],
                 "caa_drop": caa_drop,
@@ -946,6 +1213,44 @@ def run_experiment(out_json: Path | None = None) -> Dict[str, Any]:
                 flush=True,
             )
 
+        # Experiment B: Free-form multi-token generation steering on full-GPU 1.7B models (56 held-out pairs x 2 domains)
+        freeform_gen: Dict[str, Any] = {}
+        if runner.is_full_gpu:
+            gen_domains = {
+                "physical_scale": (["larger", "bigger", "greater", "wider", "more massive", "heavier"], ["smaller", "tiny", "less", "narrower", "tinier"]),
+                "hazard_severity": (["dangerous", "severe", "worse", "serious", "harmful", "risky", "deadly"], ["safe", "safer", "mild", "better", "minor", "harmless", "benign"]),
+            }
+            for gd, (p_words, n_words) in gen_domains.items():
+                dspec_g = DOMAINS[gd]
+                te_items_g = dspec_g["items"][1::2]
+                te_vals_g = [v for _, v in te_items_g]
+                src_tmpl_g = dspec_g["source_lexicon"][0]
+                pr_g, pairs_g, _ = build_pairs(te_items_g, src_tmpl_g)
+                y_g = pair_labels(pairs_g, te_vals_g)
+                vp = dom_out[gd]["vecs_peak"]
+                fg_res = runner.eval_freeform_generation_steering(
+                    prompts=pr_g,
+                    y_true=y_g,
+                    pos_words=p_words,
+                    neg_words=n_words,
+                    layer_1idx=int(vp["layer"]),
+                    q_vec=np.asarray(vp["q_ace"], dtype=np.float64),
+                    mu_vec=np.asarray(vp["mu_te"], dtype=np.float64),
+                    rand_vec=np.asarray(vp["rand"], dtype=np.float64),
+                    max_new_tokens=10,
+                )
+                freeform_gen[gd] = fg_res
+                print(
+                    f"  [{mspec['short']:12s} | FREEFORM {gd:15s}] clean_acc={fg_res['clean_acc_pct']:.1f}% | "
+                    f"ACE_flip={fg_res['ace_flip_correct_pct']:.1f}% vs Rand_flip={fg_res['rand_flip_correct_pct']:.1f}% | "
+                    f"NLL clean={fg_res['clean_cont_nll']:.2f} vs ACE={fg_res['ace_cont_nll']:.2f}",
+                    flush=True,
+                )
+
+        # Strip large raw vectors before JSON persistence
+        for d_rec in dom_out.values():
+            d_rec.pop("vecs_peak", None)
+
         results_by_model[mspec["short"]] = {
             "model_id": mid,
             "short": mspec["short"],
@@ -955,7 +1260,9 @@ def run_experiment(out_json: Path | None = None) -> Dict[str, Any]:
             "d_model": D,
             "gpu_vram_gb": round(runner.alloc_gb, 2),
             "elapsed_sec": round(time.perf_counter() - t_m, 1),
+            "gen_tuned_lens_tokens": n_gen_toks,
             "tuned_lens_ridge_ablation_mid": tl_alpha_ablation,
+            "freeform_generation": freeform_gen,
             "domains": dom_out,
         }
         del domain_cache
@@ -964,6 +1271,7 @@ def run_experiment(out_json: Path | None = None) -> Dict[str, Any]:
     arr_ace_read = np.array([c["ace_readout_at_peak"] for c in all_cells_summary])
     arr_ll_peak = np.array([c["logit_lens_at_peak"] for c in all_cells_summary])
     arr_tl_peak = np.array([c["tuned_lens_at_peak"] for c in all_cells_summary])
+    arr_gtl_peak = np.array([c["gen_tuned_lens_at_peak"] for c in all_cells_summary])
     arr_ace_drop = np.array([c["ace_drop"] for c in all_cells_summary])
     arr_caa_drop = np.array([c["caa_drop"] for c in all_cells_summary])
     arr_prb_drop = np.array([c["probe_drop"] for c in all_cells_summary])
@@ -985,11 +1293,14 @@ def run_experiment(out_json: Path | None = None) -> Dict[str, Any]:
         "total_heldout_cross_pairs": int(sum(d["n_test_cross_pairs"] for m in results_by_model.values() for d in m["domains"].values())),
         "mean_ace_readout_at_peak": round(float(arr_ace_read.mean()), 4),
         "mean_tuned_lens_at_peak": round(float(arr_tl_peak.mean()), 4),
+        "mean_gen_tuned_lens_at_peak": round(float(arr_gtl_peak.mean()), 4),
         "mean_logit_lens_at_peak": round(float(arr_ll_peak.mean()), 4),
         "gap_ace_minus_logit_lens_at_peak": round(float((arr_ace_read - arr_ll_peak).mean()), 4),
         "gap_ace_minus_tuned_lens_at_peak": round(float((arr_ace_read - arr_tl_peak).mean()), 4),
+        "gap_ace_minus_gen_tuned_lens_at_peak": round(float((arr_ace_read - arr_gtl_peak).mean()), 4),
         "p_ace_gt_logit_lens": float(f"{safe_wilcoxon(arr_ace_read, arr_ll_peak):.3e}"),
         "p_ace_gt_tuned_lens": float(f"{safe_wilcoxon(arr_ace_read, arr_tl_peak):.3e}"),
+        "p_ace_gt_gen_tuned_lens": float(f"{safe_wilcoxon(arr_ace_read, arr_gtl_peak):.3e}"),
         "mean_ace_flip_drop": round(float(arr_ace_drop.mean()), 4),
         "mean_caa_flip_drop": round(float(arr_caa_drop.mean()), 4),
         "mean_probe_flip_drop": round(float(arr_prb_drop.mean()), 4),
@@ -1006,16 +1317,16 @@ def run_experiment(out_json: Path | None = None) -> Dict[str, Any]:
         "cells": all_cells_summary,
     }
 
-    render_v2_figure(results_by_model, FIG_PATH)
+    render_v3_figure(results_by_model, FIG_PATH)
 
     payload = {
         "experiment_id": "steering_lens",
-        "version": "2.0",
+        "version": "3.0",
         "slug": "steerable-not-decodable-ace-cores",
         "title": "Steerable Before Decodable: Multi-Model Causal Evidence of Unembedding-Orthogonal Bottlenecks Beyond the Logit and Tuned Lens",
         "short_title": "Steerable Before Decodable: Multi-Model Causal Evidence",
-        "category_label": "MECHANISTIC INTERPRETABILITY · VERSION 2.0",
-        "short_cat": "Interpretability · v2",
+        "category_label": "MECHANISTIC INTERPRETABILITY · VERSION 3.0",
+        "short_cat": "Interpretability · v3",
         "track": "interpretability",
         "cluster": 1,
         "dot": "violet",
@@ -1039,12 +1350,11 @@ def run_experiment(out_json: Path | None = None) -> Dict[str, Any]:
         "hypothesis": (
             "We investigate whether comparative conceptual computations in decoder-only language models operate inside "
             "low-dimensional causal subspaces that are strongly steerable layers before becoming decodable through either "
-            "the Direct Logit Lens or a trained Residual-Affine Tuned Lens. Across 3 distinct model families and scales "
-            "(Qwen3-1.7B, SmolLM2-1.7B, Mistral-7B-v0.1), 4 real-world comparative domains, and 2,016 strictly held-out "
-            "cross-lexicon entity pairs (verified 100% single-token across all three tokenizers), we benchmark Paired-Swap "
-            "Algorithmic Core Extraction (ACE) against Direct Logit Lens, Tuned Lens, Contrastive Activation Addition (CAA), "
-            "L2 Logistic Probes, and random orthogonal controls using Flip-1D causal necessity, Keep-1D causal sufficiency, "
-            "and 1,000-sample paired per-lexicon bootstrap confidence intervals."
+            "the Direct Logit Lens, a General-Corpus Tuned Lens (~3,200 diverse scientific text tokens), or a Domain-Trained Residual-Affine Tuned Lens. "
+            "Across 4 distinct model families and scales (Qwen3-1.7B, SmolLM2-1.7B, Mistral-7B-v0.1, OLMo-2-1124-7B; 1.7B-7.3B), "
+            "4 real-world comparative domains, and 2,688 strictly held-out cross-lexicon entity pairs (verified 100% single-token across all four tokenizers), "
+            "we benchmark Paired-Swap Algorithmic Core Extraction (ACE) against Direct Logit Lens, General-Corpus & Domain Tuned Lens, CAA, L2 Logistic Probes, "
+            "and random controls using Flip-1D necessity, Keep-1D sufficiency, and free-form multi-token generation steering."
         ),
         "setup": {
             "models": [m["id"] for m in MODELS],
@@ -1054,9 +1364,9 @@ def run_experiment(out_json: Path | None = None) -> Dict[str, Any]:
             "entities_per_domain": 16,
             "train_test_split": "disjoint 8 train / 8 unseen test entities (56 ordered pairs/lexicon x 3 cross-lexicons = 168/domain)",
             "total_heldout_cross_pairs": stats_summary["total_heldout_cross_pairs"],
-            "baselines": ["Direct Logit Lens", "Residual-Affine Tuned Lens", "CAA Mean-Diff", "L2 Logistic Probe", "Random Unit Vector"],
+            "baselines": ["Direct Logit Lens", "General-Corpus Tuned Lens", "Domain Residual-Affine Tuned Lens", "CAA Mean-Diff", "L2 Logistic Probe", "Random Unit Vector"],
             "bootstrap_resamples": 1000,
-            "figure_png_rel": "papers/figures/steerable-not-decodable-v2.png",
+            "figure_png_rel": "papers/figures/steerable-not-decodable-v3.png",
             "gpu_name": torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU",
             "total_elapsed_sec": round(time.perf_counter() - t_all, 1),
         },
@@ -1064,7 +1374,7 @@ def run_experiment(out_json: Path | None = None) -> Dict[str, Any]:
             "n_models": len(MODELS),
             "n_seeds": 4,
             "n_regimes": len(MODELS) * len(DOMAINS),
-            "n_baselines": 5,
+            "n_baselines": 6,
             "has_confidence_intervals": True,
             "has_p_values": True,
             "has_ablations": True,

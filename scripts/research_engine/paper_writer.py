@@ -388,18 +388,19 @@ def _analyze_steering_lens(data: Dict[str, Any]) -> Dict[str, Any]:
 
 def analyze_experiment(data: Dict[str, Any]) -> Dict[str, Any]:
     eid = data.get("experiment_id", "")
-    is_v2 = str(data.get("version") or "1.0").startswith("2")
+    ver_str = str(data.get("version") or "1.0")
+    is_modern = not ver_str.startswith("1")
     if eid == "kl_pytorch":
-        if is_v2 and "scaling_benchmark" in data:
+        if is_modern and "scaling_benchmark" in data:
             return build_kl_pytorch_v2(data)
         return _analyze_kl_pytorch(data)
     if eid == "probmoe_sae":
-        if is_v2 and "statistical_tests" in data:
+        if is_modern and "statistical_tests" in data:
             from .manuscript_builders import build_probmoe_sae_v2
             return build_probmoe_sae_v2(data)
         return _analyze_probmoe_sae(data)
     if eid == "steering_lens":
-        if is_v2 and "summary_stats" in data:
+        if is_modern and "summary_stats" in data:
             from .manuscript_builders import build_steering_lens_v2
             return build_steering_lens_v2(data)
         return _analyze_steering_lens(data)

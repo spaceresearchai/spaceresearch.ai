@@ -2,7 +2,7 @@
   "papers": [
     {
       "slug": "probmoe-batchtopk-sae",
-      "version": "2.0",
+      "version": "3.0",
       "experiment_id": "probmoe_sae",
       "title": "Margin-Gated Probabilistic Surrogate Gradients for Overcomplete Sparse Autoencoders",
       "authors": [
@@ -10,7 +10,7 @@
         "Space AI"
       ],
       "email": "marcio.diaz@gmail.com",
-      "published_at": "2026-11-24T19:53:36+01:00",
+      "published_at": "2026-11-24T22:09:31+01:00",
       "paper_html": "./papers/probmoe-batchtopk-sae.html",
       "paper_pdf": "./papers/probmoe-batchtopk-sae.pdf",
       "paper_md": "./data/generated_papers/probmoe-batchtopk-sae.md",
@@ -34,57 +34,21 @@
           "url": "https://arxiv.org/abs/2501.16615"
         }
       ],
-      "doi": "10.5281/zenodo.24511852",
-      "zenodo_url": "https://zenodo.org/record/24511852",
+      "doi": "10.5281/zenodo.24515036",
+      "zenodo_url": "https://zenodo.org/record/24515036",
       "zenodo": {
-        "deposition_id": 24511852,
-        "doi": "10.5281/zenodo.24511852",
-        "record_url": "https://zenodo.org/record/24511852",
+        "deposition_id": 24515036,
+        "doi": "10.5281/zenodo.24515036",
+        "record_url": "https://zenodo.org/record/24515036",
         "published": true,
         "sandbox": false,
-        "version": "2.0",
+        "version": "3.0",
         "conceptdoi": "10.5281/zenodo.24508484"
       }
     },
     {
-      "slug": "pytorch-kl-bregman-stability",
-      "version": "2.0",
-      "experiment_id": "kl_pytorch",
-      "title": "Silent Cancellation and Backward Gradient Corruption in Low-Precision KL Divergence: Analysis and Fused Triton Kernels",
-      "authors": [
-        "Marcio Diaz",
-        "Space AI"
-      ],
-      "email": "marcio.diaz@gmail.com",
-      "published_at": "2026-11-24T19:53:33+01:00",
-      "paper_html": "./papers/pytorch-kl-bregman-stability.html",
-      "paper_pdf": "./papers/pytorch-kl-bregman-stability.pdf",
-      "paper_md": "./data/generated_papers/pytorch-kl-bregman-stability.md",
-      "metrics_json": "./data/generated_papers/pytorch-kl-bregman-stability.json",
-      "blog_href": "./blog-auto-pytorch-kl-bregman-stability.html",
-      "metric_chip": "Triton 6.5x faster \u00b7 -80% VRAM @ V=152k \u00b7 0.0% neg KL",
-      "source_papers": [
-        {
-          "id": "arxiv-2611.30835",
-          "title": "The KL Divergence Is Never Negative, Except in PyTorch",
-          "url": "https://arxiv.org/abs/2611.30835"
-        }
-      ],
-      "doi": "10.5281/zenodo.24511854",
-      "zenodo_url": "https://zenodo.org/record/24511854",
-      "zenodo": {
-        "deposition_id": 24511854,
-        "doi": "10.5281/zenodo.24511854",
-        "record_url": "https://zenodo.org/record/24511854",
-        "published": true,
-        "sandbox": false,
-        "version": "2.0",
-        "conceptdoi": "10.5281/zenodo.24508478"
-      }
-    },
-    {
       "slug": "steerable-not-decodable-ace-cores",
-      "version": "2.0",
+      "version": "3.0",
       "experiment_id": "steering_lens",
       "title": "Steerable Before Decodable: Multi-Model Causal Evidence of Unembedding-Orthogonal Bottlenecks Beyond the Logit and Tuned Lens",
       "authors": [
@@ -92,13 +56,13 @@
         "Space AI"
       ],
       "email": "marcio.diaz@gmail.com",
-      "published_at": "2026-11-24T19:53:27+01:00",
+      "published_at": "2026-11-24T21:47:25+01:00",
       "paper_html": "./papers/steerable-not-decodable-ace-cores.html",
       "paper_pdf": "./papers/steerable-not-decodable-ace-cores.pdf",
       "paper_md": "./data/generated_papers/steerable-not-decodable-ace-cores.md",
       "metrics_json": "./data/generated_papers/steerable-not-decodable-ace-cores.json",
       "blog_href": "./blog-auto-steerable-not-decodable-ace-cores.html",
-      "metric_chip": "ACE Flip +0.23 vs CAA +0.16 (p=7.3e-04) \u00b7 Keep-1D wins 12/12",
+      "metric_chip": "ACE Flip +0.24 vs CAA +0.17 (p=1.5e-04) \u00b7 Keep-1D wins 16/16",
       "source_papers": [
         {
           "id": "arxiv-2604.02608",
@@ -106,16 +70,52 @@
           "url": "https://arxiv.org/abs/2604.02608"
         }
       ],
-      "doi": "10.5281/zenodo.24511855",
-      "zenodo_url": "https://zenodo.org/record/24511855",
+      "doi": "10.5281/zenodo.24514497",
+      "zenodo_url": "https://zenodo.org/record/24514497",
       "zenodo": {
-        "deposition_id": 24511855,
-        "doi": "10.5281/zenodo.24511855",
-        "record_url": "https://zenodo.org/record/24511855",
+        "deposition_id": 24514497,
+        "doi": "10.5281/zenodo.24514497",
+        "record_url": "https://zenodo.org/record/24514497",
         "published": true,
         "sandbox": false,
-        "version": "2.0",
+        "version": "3.0",
         "conceptdoi": "10.5281/zenodo.24508472"
+      }
+    },
+    {
+      "slug": "pytorch-kl-bregman-stability",
+      "version": "3.0",
+      "experiment_id": "kl_pytorch",
+      "title": "Silent Cancellation and Backward Gradient Corruption in Low-Precision KL Divergence: Theory, Fused Triton Kernels, and LLM Post-Training",
+      "authors": [
+        "Marcio Diaz",
+        "Space AI"
+      ],
+      "email": "marcio.diaz@gmail.com",
+      "published_at": "2026-11-24T20:42:02+01:00",
+      "paper_html": "./papers/pytorch-kl-bregman-stability.html",
+      "paper_pdf": "./papers/pytorch-kl-bregman-stability.pdf",
+      "paper_md": "./data/generated_papers/pytorch-kl-bregman-stability.md",
+      "metrics_json": "./data/generated_papers/pytorch-kl-bregman-stability.json",
+      "blog_href": "./blog-auto-pytorch-kl-bregman-stability.html",
+      "metric_chip": "Triton 6.5x vs FP32 \u00b7 1.81x vs torch.compile \u00b7 1.25x E2E Qwen3-1.7B (-754MB)",
+      "source_papers": [
+        {
+          "id": "arxiv-2611.30835",
+          "title": "The KL Divergence Is Never Negative, Except in PyTorch",
+          "url": "https://arxiv.org/abs/2611.30835"
+        }
+      ],
+      "doi": "10.5281/zenodo.24513063",
+      "zenodo_url": "https://zenodo.org/record/24513063",
+      "zenodo": {
+        "deposition_id": 24513063,
+        "doi": "10.5281/zenodo.24513063",
+        "record_url": "https://zenodo.org/record/24513063",
+        "published": true,
+        "sandbox": false,
+        "version": "3.0",
+        "conceptdoi": "10.5281/zenodo.24508478"
       }
     }
   ]

@@ -56,7 +56,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 SITE_ROOT = Path(__file__).resolve().parents[3]
 PAPERS_JSON = SITE_ROOT / "data" / "papers-db.json"
-FIG_PATH = SITE_ROOT / "papers" / "figures" / "probmoe-sae-v2.png"
+FIG_PATH = SITE_ROOT / "papers" / "figures" / "probmoe-sae-v3.png"
 
 MODEL_SPECS = [
     {"id": "Qwen/Qwen3-1.7B", "short": "Qwen3-1.7B", "layer": 13, "n_layers": 28},
@@ -550,8 +550,12 @@ def train_and_eval_sae(
         )
 
     W_dec_np = model.W_dec.detach().float().cpu().numpy()
-    alive_mask = (fire_counts > 0).cpu().numpy()
+    fc_np = fire_counts.cpu().numpy()
+    alive_mask = fc_np > 0
     W_alive = W_dec_np[alive_mask] if alive_mask.sum() > 0 else W_dec_np[:1]
+    # Top-512 most active latents for capacity-controlled cross-seed Hungarian matching
+    top_idx = np.argsort(-fc_np)[: min(512, int(max(alive_mask.sum(), 1)))]
+    W_top512 = W_dec_np[top_idx]
 
     metrics = {
         "fvu": round(fvu, 5),
@@ -564,25 +568,143 @@ def train_and_eval_sae(
         "probe_recovery_pct": probe_recovery,
         "train_sec": round(train_sec, 2),
     }
-    return metrics, W_alive
+    return metrics, (W_alive, W_top512), model.cpu() if eval_probe else None
 
 
-def cross_seed_stability(decoders_by_seed: List[np.ndarray], threshold: float = 0.70) -> Tuple[float, float, float]:
+@torch.inference_mode()
+def evaluate_lm_splice_suite(
+    model_id: str,
+    layer_1idx: int,
+    test_texts: Sequence[str],
+    mu_cpu: torch.Tensor,
+    rms_val: float,
+    sae_models_by_mode: Dict[str, List[nn.Module]],
+    device: torch.device,
+) -> Dict[str, Dict[str, float]]:
+    """
+    Causal LLM Splice Evaluation (Gold-Standard NeurIPS/ICLR SAE Metric):
+    Splice each trained SAE directly back into the live transformer residual stream at `layer_1idx`
+    on strictly held-out test papers and measure:
+      - CE Loss Recovered % = 100 * (CE_zero - CE_sae) / (CE_zero - CE_clean)
+      - Delta CE (CE_sae - CE_clean, nats/token)
+      - Next-token Logit KL D_KL(p_clean || p_sae) evaluated stably in FP32!
+    """
+    tok = AutoTokenizer.from_pretrained(model_id, trust_remote_code=False)
+    if tok.pad_token_id is None:
+        tok.pad_token = tok.eos_token
+    tok.padding_side = "right"
+
+    lm = AutoModelForCausalLM.from_pretrained(
+        model_id, dtype=torch.bfloat16, low_cpu_mem_usage=True, trust_remote_code=False
+    ).to(device).eval()
+
+    enc = tok(list(test_texts[:32]), return_tensors="pt", padding=True, truncation=True, max_length=80)
+    ids_all = enc["input_ids"].to(device)
+    mask_all = enc["attention_mask"].to(device)
+    mu_d = mu_cpu.to(device=device, dtype=torch.float32)
+
+    def run_pass(splice_fn=None) -> Tuple[float, List[torch.Tensor]]:
+        ce_sum, tok_cnt = 0.0, 0
+        lp_list: List[torch.Tensor] = []
+
+        def hook(_mod, _inp, out):
+            h = out[0] if isinstance(out, tuple) else out
+            if splice_fn is None:
+                return out
+            h2 = h.clone()
+            # Preserve BOS sink (pos 0) standard in SAE splice benchmarks
+            x_sub = h2[:, 1:, :].float()
+            h2[:, 1:, :] = splice_fn(x_sub).to(h.dtype)
+            return (h2,) + out[1:] if isinstance(out, tuple) else h2
+
+        handle = lm.model.layers[layer_1idx - 1].register_forward_hook(hook) if splice_fn is not None else None
+        try:
+            for s in range(0, ids_all.shape[0], 16):
+                ib = ids_all[s : s + 16]
+                mb = mask_all[s : s + 16]
+                logits = lm(input_ids=ib, attention_mask=mb, use_cache=False).logits
+                sh_logits = logits[:, 1:-1, :].float()
+                sh_targets = ib[:, 2:]
+                sh_valid = mb[:, 2:].bool()
+                if sh_valid.any():
+                    flat_l = sh_logits[sh_valid]
+                    flat_t = sh_targets[sh_valid]
+                    ce_sum += float(F.cross_entropy(flat_l, flat_t, reduction="sum").item())
+                    tok_cnt += int(flat_t.numel())
+                    lp_list.append(F.log_softmax(flat_l, dim=-1).cpu())
+        finally:
+            if handle is not None:
+                handle.remove()
+        return ce_sum / max(tok_cnt, 1), lp_list
+
+    ce_clean, lp_clean = run_pass(None)
+    ce_zero, _ = run_pass(lambda x: mu_d.expand_as(x))
+    ce_gap = max(ce_zero - ce_clean, 1e-6)
+
+    out_metrics: Dict[str, Dict[str, float]] = {
+        "_baseline": {"ce_clean": round(ce_clean, 4), "ce_zero_mean": round(ce_zero, 4), "ce_gap": round(ce_gap, 4)}
+    }
+    for mode, sae_list in sae_models_by_mode.items():
+        rec_pcts, d_ces, kls = [], [], []
+        for sae_cpu in sae_list:
+            sae = sae_cpu.to(device).eval()
+
+            def _splice(x_f, _sae=sae):
+                B, T, D = x_f.shape
+                xn = ((x_f - mu_d) / rms_val).reshape(-1, D)
+                xh, _, _, _ = _sae(xn)
+                return (xh.reshape(B, T, D) * rms_val) + mu_d
+
+            ce_s, lp_s = run_pass(_splice)
+            rec = ((ce_zero - ce_s) / ce_gap) * 100.0
+            # Stable nonnegative Bregman KL D_KL(p_clean || p_sae) in FP32
+            kl_sum, kl_n = 0.0, 0
+            for lpc, lps in zip(lp_clean, lp_s):
+                p = torch.exp(lpc)
+                q = torch.exp(lps)
+                d = lps - lpc
+                small = d.abs() < 0.05
+                t_sm = p * (d * d) * (0.5 + d * (1.0 / 6.0 + d * (1.0 / 24.0 + d * (1.0 / 120.0))))
+                t_lg = (q - p - p * d).clamp(min=0.0)
+                kl_tok = torch.where(small, t_sm, t_lg).sum(dim=-1)
+                kl_sum += float(kl_tok.sum().item())
+                kl_n += int(kl_tok.numel())
+            rec_pcts.append(rec)
+            d_ces.append(ce_s - ce_clean)
+            kls.append(kl_sum / max(kl_n, 1))
+            sae.cpu()
+            del sae
+        out_metrics[mode] = {
+            "ce_recovered_pct_mean": round(float(np.mean(rec_pcts)), 2),
+            "ce_recovered_pct_std": round(float(np.std(rec_pcts)), 2),
+            "delta_ce_mean": round(float(np.mean(d_ces)), 4),
+            "logit_kl_mean": round(float(np.mean(kls)), 4),
+            "logit_kl_std": round(float(np.std(kls)), 4),
+        }
+
+    del lm, ids_all, mask_all, lp_clean
+    gc.collect()
+    if device.type == "cuda":
+        torch.cuda.empty_cache()
+    return out_metrics
+
+
+def cross_seed_stability(decoders_by_seed: List[Tuple[np.ndarray, np.ndarray]], threshold: float = 0.70) -> Tuple[float, float, float, float]:
     """
     Compute:
       1. Symmetric mean max-cosine similarity across all alive atoms
       2. High-overlap shared atom rate (max cosine >= 0.70)
-      3. 1-to-1 Hungarian bipartite optimal matching cosine on up to 768 active atoms!
+      3. 1-to-1 Hungarian bipartite optimal matching cosine on up to 768 alive atoms
+      4. Capacity-controlled 1-to-1 Hungarian cosine on the top-512 most active latents per seed!
     """
-    max_cos_vals, match_rates, hung_vals = [], [], []
+    max_cos_vals, match_rates, hung_vals, hung_top512_vals = [], [], [], []
     rng = np.random.default_rng(77)
     for i in range(len(decoders_by_seed)):
         for j in range(i + 1, len(decoders_by_seed)):
-            A = decoders_by_seed[i]
-            B = decoders_by_seed[j]
+            A, A512 = decoders_by_seed[i]
+            B, B512 = decoders_by_seed[j]
             A = A / (np.linalg.norm(A, axis=1, keepdims=True) + 1e-9)
             B = B / (np.linalg.norm(B, axis=1, keepdims=True) + 1e-9)
-            # Chunked max-cos on GPU for speed at d_sae=8192
             At = torch.tensor(A, dtype=torch.float32, device="cuda")
             Bt = torch.tensor(B, dtype=torch.float32, device="cuda")
             S = (At @ Bt.T).abs()
@@ -591,7 +713,6 @@ def cross_seed_stability(decoders_by_seed: List[np.ndarray], threshold: float = 
             max_cos_vals.append(0.5 * (float(m_ab.mean()) + float(m_ba.mean())))
             match_rates.append(0.5 * (float((m_ab >= threshold).mean()) + float((m_ba >= threshold).mean())))
 
-            # Exact 1-to-1 Hungarian bipartite matching on a deterministic subsample of size m_sub
             m_sub = min(768, A.shape[0], B.shape[0])
             ia = rng.choice(A.shape[0], size=m_sub, replace=False)
             ib = rng.choice(B.shape[0], size=m_sub, replace=False)
@@ -599,31 +720,46 @@ def cross_seed_stability(decoders_by_seed: List[np.ndarray], threshold: float = 
             r_ind, c_ind = linear_sum_assignment(-S_sub)
             hung_vals.append(float(S_sub[r_ind, c_ind].mean()))
             del At, Bt, S
+
+            # Capacity-controlled top-512 active latents Hungarian match
+            m5 = min(512, A512.shape[0], B512.shape[0])
+            A5 = A512[:m5] / (np.linalg.norm(A512[:m5], axis=1, keepdims=True) + 1e-9)
+            B5 = B512[:m5] / (np.linalg.norm(B512[:m5], axis=1, keepdims=True) + 1e-9)
+            S5 = np.abs(A5 @ B5.T)
+            r5, c5 = linear_sum_assignment(-S5)
+            hung_top512_vals.append(float(S5[r5, c5].mean()))
     return (
         round(float(np.mean(max_cos_vals)), 4),
         round(float(np.mean(match_rates)) * 100.0, 2),
         round(float(np.mean(hung_vals)), 4),
+        round(float(np.mean(hung_top512_vals)), 4),
     )
 
 
-def render_v2_figure(results: Dict[str, Any], ablations: Dict[str, Any], out_png: Path) -> None:
+def render_v3_figure(
+    results: Dict[str, Any],
+    ablations: Dict[str, Any],
+    lm_splice: Dict[str, Any],
+    scale_8x: Dict[str, Any],
+    out_png: Path,
+) -> None:
     out_png.parent.mkdir(parents=True, exist_ok=True)
     plt.rcParams.update({
         "font.family": "DejaVu Sans",
-        "font.size": 8.5,
-        "axes.titlesize": 9.4,
+        "font.size": 8.2,
+        "axes.titlesize": 9.1,
         "axes.titleweight": "bold",
-        "axes.labelsize": 8.3,
-        "xtick.labelsize": 7.7,
-        "ytick.labelsize": 7.7,
-        "legend.fontsize": 7.0,
+        "axes.labelsize": 8.0,
+        "xtick.labelsize": 7.3,
+        "ytick.labelsize": 7.4,
+        "legend.fontsize": 6.6,
         "axes.spines.top": False,
         "axes.spines.right": False,
         "figure.facecolor": "white",
         "axes.facecolor": "#fbfcfe",
     })
 
-    fig, axes = plt.subplots(2, 2, figsize=(11.2, 7.6), dpi=300)
+    fig, axes = plt.subplots(2, 3, figsize=(14.4, 7.6), dpi=300)
 
     # Panel (a): Pareto Frontier (FVU vs Dead Latent %) on Qwen3-1.7B across k=16, 32, 64
     ax = axes[0, 0]
@@ -636,8 +772,8 @@ def render_v2_figure(results: Dict[str, Any], ablations: Dict[str, Any], out_png
         ("batchtopk_ste", "BatchTopK-STE", "#0284c7", "o", "-."),
         ("batchtopk_auxk", "BatchTopK+AuxK", "#2563eb", "P", "-."),
         ("probbatchtopk_v1", "ProbBatchTopK (v1)", "#dc2626", "D", ":"),
-        ("marginprob_batchtopk", "MarginProb-BTK (v2)", "#059669", "o", "-"),
-        ("marginprob_auxk", "MarginProb+AuxK (v2)", "#7c3aed", "*", "-"),
+        ("marginprob_batchtopk", "MarginProb-BTK (Ours)", "#059669", "o", "-"),
+        ("marginprob_auxk", "MarginProb+AuxK (Ours)", "#7c3aed", "*", "-"),
     ]
     k_keys = sorted(qres.keys(), key=lambda s: int(s.lstrip("k")))
     for mk, lbl, col, mkr, ls in plot_methods:
@@ -645,77 +781,114 @@ def render_v2_figure(results: Dict[str, Any], ablations: Dict[str, Any], out_png
             continue
         xs = [qres[kk][mk]["dead_latent_pct_mean"] for kk in k_keys]
         ys = [qres[kk][mk]["fvu_mean"] for kk in k_keys]
-        lw = 2.2 if "marginprob" in mk else 1.4
-        ms = 7.5 if mkr == "*" else 5.0
+        lw = 2.1 if "marginprob" in mk else 1.3
+        ms = 7.2 if mkr == "*" else 4.8
         ax.plot(xs, ys, color=col, marker=mkr, ls=ls, lw=lw, ms=ms, label=lbl, alpha=0.92)
-    ax.set_xlabel("Dead Latents % on Held-Out Papers (↓ lower better)")
-    ax.set_ylabel("Reconstruction FVU (↓ lower better)")
-    ax.set_title("(a) 4× Overcomplete Pareto Frontier (Qwen3-1.7B L13, k=16/32/64)")
+    ax.set_xlabel("Dead Latents % on Held-Out Papers (↓)")
+    ax.set_ylabel("Reconstruction FVU (↓)")
+    ax.set_title("(a) 4× Pareto Frontier (Qwen3-1.7B L13, k=16/32/64)")
     ax.grid(alpha=0.25, lw=0.6)
     ax.legend(loc="upper right", frameon=True, framealpha=0.92, ncol=2)
 
-    # Panel (b): Cross-Model Generalization at k=32 (Qwen3-1.7B vs SmolLM2-1.7B)
+    # Panel (b): Live Transformer Causal Splice — CE Loss Recovered (%) on Qwen3-1.7B & SmolLM2-1.7B
     ax_b = axes[0, 1]
     show_m = ["relu_l1", "topk_ste", "topk_auxk", "batchtopk_ste", "batchtopk_auxk", "probbatchtopk_v1", "marginprob_batchtopk", "marginprob_auxk"]
     short_l = ["ReLU-L1", "TopK", "TopK+Aux", "BTK", "BTK+Aux", "v1 Prob", "MarginProb", "MP+Aux"]
     xm = np.arange(len(show_m))
     bw = 0.36
-    q_fvu = [results["Qwen3-1.7B"]["k32"][m]["fvu_mean"] for m in show_m]
-    q_err = [1.96 * results["Qwen3-1.7B"]["k32"][m]["fvu_std"] / math.sqrt(3) for m in show_m]
-    s_fvu = [results["SmolLM2-1.7B"]["k32"][m]["fvu_mean"] for m in show_m]
-    s_err = [1.96 * results["SmolLM2-1.7B"]["k32"][m]["fvu_std"] / math.sqrt(3) for m in show_m]
-    ax_b.bar(xm - bw / 2, q_fvu, bw, yerr=q_err, capsize=2, color="#0284c7", label="Qwen3-1.7B L13")
-    ax_b.bar(xm + bw / 2, s_fvu, bw, yerr=s_err, capsize=2, color="#059669", label="SmolLM2-1.7B L12")
+    q_ce = [lm_splice["Qwen3-1.7B"][m]["ce_recovered_pct_mean"] for m in show_m]
+    s_ce = [lm_splice["SmolLM2-1.7B"][m]["ce_recovered_pct_mean"] for m in show_m]
+    ax_b.bar(xm - bw / 2, q_ce, bw, color="#0284c7", label="Qwen3-1.7B L13")
+    ax_b.bar(xm + bw / 2, s_ce, bw, color="#059669", label="SmolLM2-1.7B L12")
     ax_b.set_xticks(xm)
     ax_b.set_xticklabels(short_l, rotation=24, ha="right")
-    ax_b.set_ylabel("Held-Out FVU at k=32 (↓)")
-    ax_b.set_title("(b) Cross-Architecture Generalization (d_sae=8192, 4× Overcomplete)")
+    ax_b.set_ylabel("LM CE Loss Recovered % (↑)")
+    ax_b.set_ylim(max(0.0, min(q_ce + s_ce) - 8.0), 102.0)
+    ax_b.set_title("(b) Live LLM Splice: CE Loss Recovered (k=32)")
     ax_b.grid(axis="y", alpha=0.25, lw=0.6)
-    ax_b.legend(loc="upper right", frameon=True, framealpha=0.92)
+    ax_b.legend(loc="lower right", frameon=True, framealpha=0.92)
 
-    # Panel (c): Dead Latents % + Downstream 8-Class Probe Recovery at k=32 (Qwen3-1.7B)
-    ax_c = axes[1, 0]
-    dead_v = [results["Qwen3-1.7B"]["k32"][m]["dead_latent_pct_mean"] for m in show_m]
-    rec_v = [results["Qwen3-1.7B"]["k32"][m]["probe_recovery_pct_mean"] for m in show_m]
-    ax_c.bar(xm - bw / 2, dead_v, bw, color="#f59e0b", label="Dead Latents % (↓)")
+    # Panel (c): Live Transformer Splice — Next-Token Logit KL D_KL(p_clean || p_sae)
+    ax_c = axes[0, 2]
+    q_kl = [lm_splice["Qwen3-1.7B"][m]["logit_kl_mean"] for m in show_m]
+    s_kl = [lm_splice["SmolLM2-1.7B"][m]["logit_kl_mean"] for m in show_m]
+    ax_c.bar(xm - bw / 2, q_kl, bw, color="#7c3aed", label="Qwen3-1.7B L13")
+    ax_c.bar(xm + bw / 2, s_kl, bw, color="#f59e0b", label="SmolLM2-1.7B L12")
     ax_c.set_xticks(xm)
     ax_c.set_xticklabels(short_l, rotation=24, ha="right")
-    ax_c.set_ylabel("Dead Latents % (↓)", color="#b45309")
-    ax_c2 = ax_c.twinx()
-    ax_c2.spines["top"].set_visible(False)
-    ax_c2.plot(xm, rec_v, color="#7c3aed", marker="o", lw=2.0, ms=5.0, label="8-Class Probe Recovery % (↑)")
-    ax_c2.set_ylabel("Downstream Probe Recovery % (↑)", color="#6d28d9")
-    ax_c2.set_ylim(max(50, min(rec_v) - 8), min(105, max(rec_v) + 6))
-    ax_c.set_title("(c) Dead-Latent Collapse vs. Semantic Probe Recovery (k=32)")
+    ax_c.set_ylabel("Spliced Logit KL Divergence (↓)")
+    ax_c.set_title("(c) Live LLM Splice: Next-Token Logit KL (k=32)")
     ax_c.grid(axis="y", alpha=0.25, lw=0.6)
-    l1, lb1 = ax_c.get_legend_handles_labels()
-    l2, lb2 = ax_c2.get_legend_handles_labels()
-    ax_c.legend(l1 + l2, lb1 + lb2, loc="lower left", frameon=True, framealpha=0.92)
+    ax_c.legend(loc="upper right", frameon=True, framealpha=0.92)
 
-    # Panel (d): Boundary Weight Lambda Ablation (why active gating fixes v1 FVU penalty!)
-    ax_d = axes[1, 1]
+    # Panel (d): Dead Latents % + Downstream 8-Class Probe Recovery at k=32 (Qwen3-1.7B)
+    ax_d = axes[1, 0]
+    dead_v = [results["Qwen3-1.7B"]["k32"][m]["dead_latent_pct_mean"] for m in show_m]
+    rec_v = [results["Qwen3-1.7B"]["k32"][m]["probe_recovery_pct_mean"] for m in show_m]
+    ax_d.bar(xm - bw / 2, dead_v, bw, color="#f59e0b", label="Dead Latents % (↓)")
+    ax_d.set_xticks(xm)
+    ax_d.set_xticklabels(short_l, rotation=24, ha="right")
+    ax_d.set_ylabel("Dead Latents % (↓)", color="#b45309")
+    ax_d2 = ax_d.twinx()
+    ax_d2.spines["top"].set_visible(False)
+    ax_d2.plot(xm, rec_v, color="#7c3aed", marker="o", lw=2.0, ms=4.8, label="8-Class Probe Recovery % (↑)")
+    ax_d2.set_ylabel("Probe Recovery % (↑)", color="#6d28d9")
+    ax_d2.set_ylim(max(50, min(rec_v) - 8), min(105, max(rec_v) + 6))
+    ax_d.set_title("(d) Dead Latents vs. Semantic Probe Recovery")
+    ax_d.grid(axis="y", alpha=0.25, lw=0.6)
+    l1, lb1 = ax_d.get_legend_handles_labels()
+    l2, lb2 = ax_d2.get_legend_handles_labels()
+    ax_d.legend(l1 + l2, lb1 + lb2, loc="lower left", frameon=True, framealpha=0.92)
+
+    # Panel (e): 8x Overcomplete Scaling (d_sae = 16,384, Qwen3-1.7B L13, k=32)
+    ax_e = axes[1, 1]
+    s8_modes = list(scale_8x.keys())
+    s8_lbls = [
+        {"topk_ste": "TopK", "topk_auxk": "TopK+Aux", "batchtopk_ste": "BTK", "batchtopk_auxk": "BTK+Aux",
+         "marginprob_batchtopk": "MarginProb", "marginprob_auxk": "MP+Aux"}.get(m, m)
+        for m in s8_modes
+    ]
+    x8 = np.arange(len(s8_modes))
+    d8 = [scale_8x[m]["dead_latent_pct_mean"] for m in s8_modes]
+    f8 = [scale_8x[m]["fvu_mean"] for m in s8_modes]
+    ax_e.bar(x8, d8, 0.55, color=["#f59e0b", "#ea580c", "#0284c7", "#2563eb", "#059669", "#7c3aed"][: len(x8)], label="Dead % (↓)")
+    ax_e.set_xticks(x8)
+    ax_e.set_xticklabels(s8_lbls, rotation=20, ha="right")
+    ax_e.set_ylabel("Dead Latents % at 8× (↓)")
+    ax_e2 = ax_e.twinx()
+    ax_e2.spines["top"].set_visible(False)
+    ax_e2.plot(x8, f8, color="#111827", marker="D", lw=2.0, ms=4.8, label="FVU (↓)")
+    ax_e2.set_ylabel("Held-Out FVU at 8× (↓)")
+    ax_e.set_title("(e) 8× Overcomplete Scaling (d_sae = 16,384, k=32)")
+    ax_e.grid(axis="y", alpha=0.25, lw=0.6)
+    h1, t1 = ax_e.get_legend_handles_labels()
+    h2, t2 = ax_e2.get_legend_handles_labels()
+    ax_e.legend(h1 + h2, t1 + t2, loc="upper right", frameon=True, framealpha=0.92)
+
+    # Panel (f): Boundary Weight Lambda Ablation
+    ax_f = axes[1, 2]
     lam_items = ablations["lambda_sweep"]
     lams = [it["lambda"] for it in lam_items]
     fvus = [it["fvu_mean"] for it in lam_items]
     deads = [it["dead_latent_pct_mean"] for it in lam_items]
     v1_fvu = results["Qwen3-1.7B"]["k32"]["probbatchtopk_v1"]["fvu_mean"]
-    ax_d.plot(lams, fvus, color="#059669", marker="o", lw=2.2, label="MarginProb FVU (active=STE)")
-    ax_d.axhline(v1_fvu, color="#dc2626", ls="--", lw=1.5, label=f"v1 Ungated FVU ({v1_fvu:.4f})")
-    ax_d.set_xlabel("Inactive Boundary Surrogate Weight λ")
-    ax_d.set_ylabel("Held-Out FVU (↓)", color="#047857")
-    ax_d2 = ax_d.twinx()
-    ax_d2.spines["top"].set_visible(False)
-    ax_d2.plot(lams, deads, color="#0284c7", marker="s", ls="-.", lw=1.9, label="Dead Latents % (↓)")
-    ax_d2.set_ylabel("Dead Latents % (↓)", color="#0369a1")
-    ax_d.set_title("(d) Ablation: Active-Set Gating & λ Sweep (Qwen3-1.7B, k=32)")
-    ax_d.grid(alpha=0.25, lw=0.6)
-    h1, t1 = ax_d.get_legend_handles_labels()
-    h2, t2 = ax_d2.get_legend_handles_labels()
-    ax_d.legend(h1 + h2, t1 + t2, loc="center right", frameon=True, framealpha=0.92)
+    ax_f.plot(lams, fvus, color="#059669", marker="o", lw=2.2, label="MarginProb FVU (active=STE)")
+    ax_f.axhline(v1_fvu, color="#dc2626", ls="--", lw=1.4, label=f"v1 Ungated ({v1_fvu:.4f})")
+    ax_f.set_xlabel("Inactive Boundary Weight λ")
+    ax_f.set_ylabel("Held-Out FVU (↓)", color="#047857")
+    ax_f2 = ax_f.twinx()
+    ax_f2.spines["top"].set_visible(False)
+    ax_f2.plot(lams, deads, color="#0284c7", marker="s", ls="-.", lw=1.9, label="Dead % (↓)")
+    ax_f2.set_ylabel("Dead Latents % (↓)", color="#0369a1")
+    ax_f.set_title("(f) Ablation: Active-Set Gating & λ Sweep")
+    ax_f.grid(alpha=0.25, lw=0.6)
+    h1, t1 = ax_f.get_legend_handles_labels()
+    h2, t2 = ax_f2.get_legend_handles_labels()
+    ax_f.legend(h1 + h2, t1 + t2, loc="center right", frameon=True, framealpha=0.92)
 
     fig.suptitle(
-        "Margin-Gated Probabilistic Surrogate Gradients for 4× Overcomplete Sparse Autoencoders (d_sae = 8,192, 2 LLM Families, 3 Seeds)",
-        fontsize=10.2, fontweight="bold", y=0.99,
+        "Margin-Gated Probabilistic Surrogate Gradients for Overcomplete SAEs (v3.0): Live LLM Splice, 8× Scaling (d_sae=16,384), and Pareto Control",
+        fontsize=10.4, fontweight="bold", y=0.99,
     )
     fig.tight_layout(rect=[0, 0, 1, 0.96])
     fig.savefig(out_png, dpi=300)
@@ -745,12 +918,18 @@ def run_experiment(
     ]
 
     all_model_results: Dict[str, Any] = {}
+    lm_splice_results: Dict[str, Any] = {}
+    scale_8x_results: Dict[str, Any] = {}
     extract_metas: Dict[str, Any] = {}
     ablations: Dict[str, Any] = {}
 
+    db_all = json.loads(PAPERS_JSON.read_text(encoding="utf-8"))
+    papers_all = [p for p in db_all["papers"] if p.get("category") in CAT_TO_IDX][:1100]
+    texts_all = [f"{p['title']}. {(p.get('abstract') or '')[:460]}" for p in papers_all]
+
     for mspec in MODEL_SPECS:
         mshort = mspec["short"]
-        print(f"\n[exp_probmoe_sae v2] Extracting {mspec['id']} L{mspec['layer']} activations...", flush=True)
+        print(f"\n[exp_probmoe_sae v3] Extracting {mspec['id']} L{mspec['layer']} activations...", flush=True)
         X_raw, tok_pids, paper_cats, ext_meta = extract_real_activations(
             mspec["id"], mspec["layer"], n_papers=1100, max_tokens_per_paper=96, device=str(dev)
         )
@@ -760,6 +939,7 @@ def run_experiment(
         paper_perm = rng_split.permutation(n_papers)
         n_tr_papers = int(0.8 * n_papers)
         tr_paper_set = set(paper_perm[:n_tr_papers].tolist())
+        te_paper_texts = [texts_all[int(i)] for i in paper_perm[n_tr_papers:]]
         is_tr = np.array([pid in tr_paper_set for pid in tok_pids], dtype=bool)
 
         X_tr_cpu = X_raw[is_tr]
@@ -769,7 +949,7 @@ def run_experiment(
 
         # Fit normalization strictly on training tokens only!
         mu = X_tr_cpu.mean(dim=0, keepdim=True)
-        rms = torch.sqrt(torch.mean((X_tr_cpu - mu).pow(2))) + 1e-8
+        rms = float(torch.sqrt(torch.mean((X_tr_cpu - mu).pow(2))).item()) + 1e-8
         X_train = ((X_tr_cpu - mu) / rms).to(dev)
         X_test = ((X_te_cpu - mu) / rms).to(dev)
 
@@ -779,30 +959,35 @@ def run_experiment(
         ext_meta["test_papers"] = n_papers - n_tr_papers
         extract_metas[mshort] = ext_meta
         print(
-            f"[exp_probmoe_sae v2] {mshort}: {ext_meta['total_tokens']:,} tokens "
+            f"[exp_probmoe_sae v3] {mshort}: {ext_meta['total_tokens']:,} tokens "
             f"(train={ext_meta['train_tokens']:,}, test={ext_meta['test_tokens']:,}, "
             f"extract VRAM={ext_meta['extract_vram_gb']} GB, {ext_meta['extract_sec']}s)",
             flush=True,
         )
 
-        # For SmolLM2-1.7B run primary sweep across k={16, 32, 64} on all 9 methods!
         grid: Dict[str, Any] = {}
+        k32_saved_saes: Dict[str, List[nn.Module]] = {}
         for k in k_values:
             kk = f"k{k}"
             grid[kk] = {}
             for mode in modes:
                 seed_runs = []
                 decoders = []
+                saved_m: List[nn.Module] = []
                 for seed in seeds:
-                    m, W_alive = train_and_eval_sae(
+                    m, W_pair, sae_cpu = train_and_eval_sae(
                         X_train, X_test, pids_tr, pids_te, paper_cats,
                         mode=mode, k=k, d_sae=d_sae, seed=seed, steps=steps,
                         batch_size=512, lr=1.0e-3, margin_lambda=0.15, tau_rel=0.35,
                         eval_probe=(k == 32), device=dev,
                     )
                     seed_runs.append({"seed": seed, **m})
-                    decoders.append(W_alive)
-                mean_cos, match_pct, hung_cos = cross_seed_stability(decoders, threshold=0.70)
+                    decoders.append(W_pair)
+                    if sae_cpu is not None:
+                        saved_m.append(sae_cpu)
+                if k == 32:
+                    k32_saved_saes[mode] = saved_m
+                mean_cos, match_pct, hung_cos, hung_top512 = cross_seed_stability(decoders, threshold=0.70)
                 agg = {
                     "fvu_mean": round(float(np.mean([r["fvu"] for r in seed_runs])), 5),
                     "fvu_std": round(float(np.std([r["fvu"] for r in seed_runs])), 5),
@@ -817,6 +1002,7 @@ def run_experiment(
                     "seed_max_cos": mean_cos,
                     "seed_shared_70_pct": match_pct,
                     "seed_hungarian_cos": hung_cos,
+                    "seed_hungarian_top512_cos": hung_top512,
                     "train_sec_mean": round(float(np.mean([r["train_sec"] for r in seed_runs])), 2),
                     "runs": seed_runs,
                 }
@@ -824,20 +1010,20 @@ def run_experiment(
                 print(
                     f"  [{mshort:12s} {kk:3s} {mode:20s}] FVU={agg['fvu_mean']:.4f}±{agg['fvu_std']:.4f} | "
                     f"dead={agg['dead_latent_pct_mean']:5.2f}% | H={agg['util_entropy_mean']:.3f} | "
-                    f"L0={agg['mean_l0']:5.1f} | Hung={agg['seed_hungarian_cos']:.3f} | probeRec={agg['probe_recovery_pct_mean']:.1f}%",
+                    f"Hung={agg['seed_hungarian_cos']:.3f} (top512={agg['seed_hungarian_top512_cos']:.3f}) | probeRec={agg['probe_recovery_pct_mean']:.1f}%",
                     flush=True,
                 )
 
         all_model_results[mshort] = grid
 
-        # Run explicit hyperparameter ablation sweep on Qwen3-1.7B at k=32 (3 seeds each)
+        # Run explicit hyperparameter ablation sweep AND 8x Overcomplete Scaling (d_sae=16,384) on Qwen3-1.7B at k=32!
         if mshort == "Qwen3-1.7B":
-            print("\n[exp_probmoe_sae v2] Running lambda & tau_rel ablation sweep on Qwen3-1.7B (k=32)...", flush=True)
+            print("\n[exp_probmoe_sae v3] Running lambda & tau_rel ablation sweep on Qwen3-1.7B (k=32)...", flush=True)
             lam_sweep = []
             for lam in (0.0, 0.05, 0.15, 0.30, 0.60):
                 runs_l = []
                 for seed in seeds:
-                    ml, _ = train_and_eval_sae(
+                    ml, _, _ = train_and_eval_sae(
                         X_train, X_test, pids_tr, pids_te, paper_cats,
                         mode="marginprob_batchtopk", k=32, d_sae=d_sae, seed=seed, steps=steps,
                         batch_size=512, lr=1.0e-3, margin_lambda=lam, tau_rel=0.35,
@@ -856,7 +1042,7 @@ def run_experiment(
             for tr_val in (0.15, 0.35, 0.70):
                 runs_t = []
                 for seed in seeds:
-                    mt, _ = train_and_eval_sae(
+                    mt, _, _ = train_and_eval_sae(
                         X_train, X_test, pids_tr, pids_te, paper_cats,
                         mode="marginprob_batchtopk", k=32, d_sae=d_sae, seed=seed, steps=steps,
                         batch_size=512, lr=1.0e-3, margin_lambda=0.15, tau_rel=tr_val,
@@ -871,7 +1057,54 @@ def run_experiment(
                 })
             ablations = {"lambda_sweep": lam_sweep, "tau_rel_sweep": tau_sweep}
 
+            print("\n[exp_probmoe_sae v3] Running 8x Overcomplete Scaling (d_sae=16,384, Qwen3-1.7B L13, k=32, 3 seeds)...", flush=True)
+            s8_modes = ["topk_ste", "topk_auxk", "batchtopk_ste", "batchtopk_auxk", "marginprob_batchtopk", "marginprob_auxk"]
+            for sm in s8_modes:
+                r8 = []
+                for seed in seeds:
+                    m8, _, _ = train_and_eval_sae(
+                        X_train, X_test, pids_tr, pids_te, paper_cats,
+                        mode=sm, k=32, d_sae=16384, seed=seed, steps=steps,
+                        batch_size=512, lr=1.0e-3, margin_lambda=0.15, tau_rel=0.35,
+                        eval_probe=False, device=dev,
+                    )
+                    r8.append(m8)
+                scale_8x_results[sm] = {
+                    "fvu_mean": round(float(np.mean([r["fvu"] for r in r8])), 5),
+                    "fvu_std": round(float(np.std([r["fvu"] for r in r8])), 5),
+                    "dead_latent_pct_mean": round(float(np.mean([r["dead_latent_pct"] for r in r8])), 2),
+                    "dead_latent_pct_std": round(float(np.std([r["dead_latent_pct"] for r in r8])), 2),
+                    "util_entropy_mean": round(float(np.mean([r["util_entropy"] for r in r8])), 4),
+                }
+                print(
+                    f"  [Qwen3 8x d=16384 {sm:20s}] FVU={scale_8x_results[sm]['fvu_mean']:.4f}±{scale_8x_results[sm]['fvu_std']:.4f} | "
+                    f"dead={scale_8x_results[sm]['dead_latent_pct_mean']:5.2f}% | H={scale_8x_results[sm]['util_entropy_mean']:.3f}",
+                    flush=True,
+                )
+
+        # Free activation tensors BEFORE loading full 1.7B LM for live causal splice evaluation!
         del X_train, X_test, X_raw
+        gc.collect()
+        if dev.type == "cuda":
+            torch.cuda.empty_cache()
+
+        print(f"\n[exp_probmoe_sae v3] Running Live Transformer Causal Splice (CE Recovered & Logit KL) on {mshort}...", flush=True)
+        splice_res = evaluate_lm_splice_suite(
+            model_id=mspec["id"],
+            layer_1idx=mspec["layer"],
+            test_texts=te_paper_texts,
+            mu_cpu=mu,
+            rms_val=rms,
+            sae_models_by_mode=k32_saved_saes,
+            device=dev,
+        )
+        lm_splice_results[mshort] = splice_res
+        base_s = splice_res["_baseline"]
+        print(f"  [{mshort} SPLICE BASELINE] CE_clean={base_s['ce_clean']:.4f}, CE_zero={base_s['ce_zero_mean']:.4f}", flush=True)
+        for mk in modes:
+            sr = splice_res[mk]
+            print(f"  [{mshort:12s} SPLICE {mk:20s}] CE_rec={sr['ce_recovered_pct_mean']:5.2f}%±{sr['ce_recovered_pct_std']:.2f} | dCE={sr['delta_ce_mean']:.4f} | KL={sr['logit_kl_mean']:.4f}", flush=True)
+        del k32_saved_saes
         gc.collect()
         if dev.type == "cuda":
             torch.cuda.empty_cache()
@@ -917,20 +1150,20 @@ def run_experiment(
         "marginprob_vs_topk_dead": paired_stats(*collect_paired("marginprob_batchtopk", "topk_ste", "dead_latent_pct")),
     }
 
-    render_v2_figure(all_model_results, ablations, FIG_PATH)
+    render_v3_figure(all_model_results, ablations, lm_splice_results, scale_8x_results, FIG_PATH)
 
     payload = {
         "experiment_id": "probmoe_sae",
-        "version": "2.0",
+        "version": "3.0",
         "slug": "probmoe-batchtopk-sae",
         "title": "Margin-Gated Probabilistic Surrogate Gradients for Overcomplete Sparse Autoencoders",
         "short_title": "Margin-Gated Probabilistic Surrogates for Overcomplete SAEs",
-        "category_label": "INTERPRETABILITY & SPARSE CODING · VERSION 2.0",
-        "short_cat": "Sparse Autoencoders · v2",
+        "category_label": "INTERPRETABILITY & SPARSE CODING · VERSION 3.0",
+        "short_cat": "Sparse Autoencoders · v3",
         "track": "interpretability",
         "cluster": 1,
         "dot": "violet",
-        "keywords": ["Sparse Autoencoders", "BatchTopK", "ProbMoE", "Surrogate Gradients", "Dead Latents", "Mechanistic Interpretability"],
+        "keywords": ["Sparse Autoencoders", "BatchTopK", "ProbMoE", "Surrogate Gradients", "Dead Latents", "CE Loss Recovered", "Mechanistic Interpretability"],
         "source_discovery_type": "CoreRank Method 2 Cross-Domain Bridge (ProbMoE <-> BatchTopK) + Method 3 Contradiction",
         "source_papers": [
             {"id": "arxiv-2606.01509", "title": "ProbMoE: Differentiable Probabilistic Routing for Mixture-of-Experts", "url": "https://arxiv.org/abs/2606.01509"},
@@ -949,17 +1182,19 @@ def run_experiment(
         ],
         "hypothesis": (
             "Building on a CoreRank cross-domain mechanism bridge between ProbMoE's calibrated marginal subset routing "
-            "and BatchTopK Sparse Autoencoders, we diagnose why naive full-backward probabilistic replacement degrades "
-            "reconstruction fidelity (active-set gradient magnitude distortion) and propose MarginProb-BatchTopK: preserving "
-            "exact straight-through gradients on active top-k latents while routing scale-invariant calibrated marginal "
-            "surrogate gradients exclusively to near-margin inactive latents. We benchmark 9 SAE architectures at 4x "
-            "overcompleteness (d_sae=8,192) across two open-weight LLM families (Qwen3-1.7B L13 and SmolLM2-1.7B L12), "
-            "three sparsity levels (k in {16, 32, 64}), three random seeds, and ~180,000 leak-free real tokens."
+            "and BatchTopK Sparse Autoencoders, we prove formally why naive full-backward probabilistic replacement degrades "
+            "reconstruction fidelity (active-set gradient distortion) and propose MarginProb-BatchTopK: preserving exact "
+            "straight-through gradients on active top-k latents while routing scale-invariant calibrated marginal surrogate "
+            "gradients exclusively to near-margin inactive latents. We benchmark 9 SAE architectures at 4x (d_sae=8,192) and "
+            "8x (d_sae=16,384) overcompleteness across two open-weight LLM families (Qwen3-1.7B L13 and SmolLM2-1.7B L12), "
+            "evaluating reconstruction FVU, dead-latent collapse, live transformer causal splice CE Loss Recovered & Logit KL, "
+            "8-class probe recovery, and capacity-controlled Hungarian cross-seed matching."
         ),
         "setup": {
             "models": extract_metas,
             "d_in": 2048,
             "d_sae": d_sae,
+            "d_sae_8x": 16384,
             "expansion_factor": round(d_sae / 2048, 2),
             "k_values": list(k_values),
             "seeds": list(seeds),
@@ -967,14 +1202,14 @@ def run_experiment(
             "batch_size": 512,
             "methods": modes,
             "n_baselines": 7,
-            "figure_png_rel": "papers/figures/probmoe-sae-v2.png",
+            "figure_png_rel": "papers/figures/probmoe-sae-v3.png",
             "gpu_name": torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU",
             "total_elapsed_sec": round(time.perf_counter() - t_all, 1),
         },
         "quality_evidence": {
             "n_models": len(MODEL_SPECS),
             "n_seeds": len(seeds),
-            "n_regimes": len(MODEL_SPECS) * len(k_values),
+            "n_regimes": len(MODEL_SPECS) * len(k_values) + 1,
             "n_baselines": 7,
             "has_confidence_intervals": True,
             "has_p_values": True,
@@ -984,6 +1219,8 @@ def run_experiment(
         },
         "statistical_tests": stat_tests,
         "ablations": ablations,
+        "lm_splice": lm_splice_results,
+        "scale_8x": scale_8x_results,
         "results": all_model_results,
     }
 

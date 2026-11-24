@@ -288,8 +288,10 @@ class TestZenodoPublisher(unittest.TestCase):
         self.assertEqual(rep2.recommended_action, "eligible_for_zenodo_publish")
 
     def test_zenodo_new_version_workflow_mocked(self):
-        """Verify Zenodo v2 workflow: newversion -> latest_draft -> delete v1 files -> upload v2 -> publish."""
+        """Verify Zenodo new-version workflow: newversion -> latest_draft -> delete old files -> upload new -> publish."""
         calls = []
+        arch_ver = json.loads((SITE_ROOT / "data" / "generated_papers" / "pytorch-kl-bregman-stability.json").read_text())
+        expected_ver = str(arch_ver["experiment"].get("version") or "2.0")
 
         class FakeResp:
             def __init__(self, payload):
@@ -324,7 +326,7 @@ class TestZenodoPublisher(unittest.TestCase):
                 return FakeResp({"key": url.rsplit("/", 1)[-1]})
             if method == "PUT" and url.endswith("/deposit/depositions/22222"):
                 body = json.loads(req.data.decode("utf-8"))
-                self.assertEqual(body["metadata"]["version"], "2.0")
+                self.assertEqual(body["metadata"]["version"], expected_ver)
                 return FakeResp({"id": 22222, "metadata": body["metadata"]})
             if method == "POST" and url.endswith("/deposit/depositions/22222/actions/publish"):
                 return FakeResp({

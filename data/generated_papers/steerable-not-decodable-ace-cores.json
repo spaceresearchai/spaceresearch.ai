@@ -1,12 +1,12 @@
 {
   "experiment": {
     "experiment_id": "steering_lens",
-    "version": "2.0",
+    "version": "3.0",
     "slug": "steerable-not-decodable-ace-cores",
     "title": "Steerable Before Decodable: Multi-Model Causal Evidence of Unembedding-Orthogonal Bottlenecks Beyond the Logit and Tuned Lens",
     "short_title": "Steerable Before Decodable: Multi-Model Causal Evidence",
-    "category_label": "MECHANISTIC INTERPRETABILITY \u00b7 VERSION 2.0",
-    "short_cat": "Interpretability \u00b7 v2",
+    "category_label": "MECHANISTIC INTERPRETABILITY \u00b7 VERSION 3.0",
+    "short_cat": "Interpretability \u00b7 v3",
     "track": "interpretability",
     "cluster": 1,
     "dot": "violet",
@@ -38,14 +38,15 @@
       "Turner, A. M., Thiergart, L., Leech, G., Udell, D., Vazquez, J. J., Mini, U., & MacDiarmid, M. (2023). Steering Language Models with Activation Engineering. arXiv:2308.10248.",
       "Steerable but Not Decodable: Function Vectors Operate Beyond the Logit Lens (2026). arXiv:2604.02608."
     ],
-    "hypothesis": "We investigate whether comparative conceptual computations in decoder-only language models operate inside low-dimensional causal subspaces that are strongly steerable layers before becoming decodable through either the Direct Logit Lens or a trained Residual-Affine Tuned Lens. Across 3 distinct model families and scales (Qwen3-1.7B, SmolLM2-1.7B, Mistral-7B-v0.1), 4 real-world comparative domains, and 2,016 strictly held-out cross-lexicon entity pairs (verified 100% single-token across all three tokenizers), we benchmark Paired-Swap Algorithmic Core Extraction (ACE) against Direct Logit Lens, Tuned Lens, Contrastive Activation Addition (CAA), L2 Logistic Probes, and random orthogonal controls using Flip-1D causal necessity, Keep-1D causal sufficiency, and 1,000-sample paired per-lexicon bootstrap confidence intervals.",
+    "hypothesis": "We investigate whether comparative conceptual computations in decoder-only language models operate inside low-dimensional causal subspaces that are strongly steerable layers before becoming decodable through either the Direct Logit Lens, a General-Corpus Tuned Lens (~3,200 diverse scientific text tokens), or a Domain-Trained Residual-Affine Tuned Lens. Across 4 distinct model families and scales (Qwen3-1.7B, SmolLM2-1.7B, Mistral-7B-v0.1, OLMo-2-1124-7B; 1.7B-7.3B), 4 real-world comparative domains, and 2,688 strictly held-out cross-lexicon entity pairs (verified 100% single-token across all four tokenizers), we benchmark Paired-Swap Algorithmic Core Extraction (ACE) against Direct Logit Lens, General-Corpus & Domain Tuned Lens, CAA, L2 Logistic Probes, and random controls using Flip-1D necessity, Keep-1D sufficiency, and free-form multi-token generation steering.",
     "setup": {
       "models": [
         "Qwen/Qwen3-1.7B",
         "HuggingFaceTB/SmolLM2-1.7B",
-        "mistralai/Mistral-7B-v0.1"
+        "mistralai/Mistral-7B-v0.1",
+        "allenai/OLMo-2-1124-7B"
       ],
-      "n_models": 3,
+      "n_models": 4,
       "domains": [
         "physical_scale",
         "hazard_severity",
@@ -55,24 +56,25 @@
       "n_domains": 4,
       "entities_per_domain": 16,
       "train_test_split": "disjoint 8 train / 8 unseen test entities (56 ordered pairs/lexicon x 3 cross-lexicons = 168/domain)",
-      "total_heldout_cross_pairs": 2016,
+      "total_heldout_cross_pairs": 2688,
       "baselines": [
         "Direct Logit Lens",
-        "Residual-Affine Tuned Lens",
+        "General-Corpus Tuned Lens",
+        "Domain Residual-Affine Tuned Lens",
         "CAA Mean-Diff",
         "L2 Logistic Probe",
         "Random Unit Vector"
       ],
       "bootstrap_resamples": 1000,
-      "figure_png_rel": "papers/figures/steerable-not-decodable-v2.png",
+      "figure_png_rel": "papers/figures/steerable-not-decodable-v3.png",
       "gpu_name": "NVIDIA GeForce RTX 5090",
-      "total_elapsed_sec": 501.2
+      "total_elapsed_sec": 1272.1
     },
     "quality_evidence": {
-      "n_models": 3,
+      "n_models": 4,
       "n_seeds": 4,
-      "n_regimes": 12,
-      "n_baselines": 5,
+      "n_regimes": 16,
+      "n_baselines": 6,
       "has_confidence_intervals": true,
       "has_p_values": true,
       "has_ablations": true,
@@ -80,28 +82,31 @@
       "non_trivial_finding": true
     },
     "summary_stats": {
-      "n_model_domain_cells": 12,
-      "total_heldout_cross_pairs": 2016,
-      "mean_ace_readout_at_peak": 0.7659,
-      "mean_tuned_lens_at_peak": 0.7075,
-      "mean_logit_lens_at_peak": 0.7094,
-      "gap_ace_minus_logit_lens_at_peak": 0.0565,
-      "gap_ace_minus_tuned_lens_at_peak": 0.0584,
-      "p_ace_gt_logit_lens": 0.04614,
-      "p_ace_gt_tuned_lens": 0.0647,
-      "mean_ace_flip_drop": 0.2263,
-      "mean_caa_flip_drop": 0.1595,
-      "mean_probe_flip_drop": 0.1616,
-      "mean_rand_flip_drop": -0.0015,
-      "p_ace_drop_gt_rand": 0.0002441,
-      "p_ace_drop_gt_caa": 0.0007324,
-      "p_ace_drop_gt_probe": 0.004639,
-      "mean_wu_cosine_at_peak": 0.1429,
+      "n_model_domain_cells": 16,
+      "total_heldout_cross_pairs": 2688,
+      "mean_ace_readout_at_peak": 0.7653,
+      "mean_tuned_lens_at_peak": 0.708,
+      "mean_gen_tuned_lens_at_peak": 0.697,
+      "mean_logit_lens_at_peak": 0.7265,
+      "gap_ace_minus_logit_lens_at_peak": 0.0388,
+      "gap_ace_minus_tuned_lens_at_peak": 0.0573,
+      "gap_ace_minus_gen_tuned_lens_at_peak": 0.0683,
+      "p_ace_gt_logit_lens": 0.06487,
+      "p_ace_gt_tuned_lens": 0.04672,
+      "p_ace_gt_gen_tuned_lens": 0.04672,
+      "mean_ace_flip_drop": 0.2352,
+      "mean_caa_flip_drop": 0.1699,
+      "mean_probe_flip_drop": 0.1793,
+      "mean_rand_flip_drop": -0.0009,
+      "p_ace_drop_gt_rand": 1.526e-05,
+      "p_ace_drop_gt_caa": 0.0001526,
+      "p_ace_drop_gt_probe": 0.003815,
+      "mean_wu_cosine_at_peak": 0.1396,
       "max_wu_cosine_at_peak": 0.3019,
-      "mean_best_ace_readout": 0.8319,
-      "mean_clean_final_auc": 0.7074,
-      "mean_keep1d_auc": 0.7955,
-      "cells_with_readout_collapse_gt_05": 8,
+      "mean_best_ace_readout": 0.8276,
+      "mean_clean_final_auc": 0.7119,
+      "mean_keep1d_auc": 0.7988,
+      "cells_with_readout_collapse_gt_05": 11,
       "cells": [
         {
           "model": "Qwen3-1.7B",
@@ -110,6 +115,7 @@
           "rel_depth": 0.857,
           "ace_readout_at_peak": 0.8537,
           "tuned_lens_at_peak": 0.5765,
+          "gen_tuned_lens_at_peak": 0.5884,
           "logit_lens_at_peak": 0.5897,
           "ace_drop": 0.3793,
           "caa_drop": 0.2226,
@@ -127,6 +133,7 @@
           "rel_depth": 0.714,
           "ace_readout_at_peak": 0.8274,
           "tuned_lens_at_peak": 0.6701,
+          "gen_tuned_lens_at_peak": 0.6454,
           "logit_lens_at_peak": 0.7083,
           "ace_drop": 0.0719,
           "caa_drop": 0.054,
@@ -144,6 +151,7 @@
           "rel_depth": 1.0,
           "ace_readout_at_peak": 0.6241,
           "tuned_lens_at_peak": 0.5723,
+          "gen_tuned_lens_at_peak": 0.5723,
           "logit_lens_at_peak": 0.5723,
           "ace_drop": 0.104,
           "caa_drop": 0.0468,
@@ -161,6 +169,7 @@
           "rel_depth": 0.643,
           "ace_readout_at_peak": 0.9379,
           "tuned_lens_at_peak": 0.8967,
+          "gen_tuned_lens_at_peak": 0.7832,
           "logit_lens_at_peak": 0.9218,
           "ace_drop": 0.3006,
           "caa_drop": 0.2126,
@@ -178,6 +187,7 @@
           "rel_depth": 0.75,
           "ace_readout_at_peak": 0.8044,
           "tuned_lens_at_peak": 0.7347,
+          "gen_tuned_lens_at_peak": 0.5829,
           "logit_lens_at_peak": 0.7211,
           "ace_drop": 0.362,
           "caa_drop": 0.2893,
@@ -195,6 +205,7 @@
           "rel_depth": 0.833,
           "ace_readout_at_peak": 0.7895,
           "tuned_lens_at_peak": 0.7185,
+          "gen_tuned_lens_at_peak": 0.6892,
           "logit_lens_at_peak": 0.6641,
           "ace_drop": 0.2851,
           "caa_drop": 0.1745,
@@ -212,6 +223,7 @@
           "rel_depth": 0.75,
           "ace_readout_at_peak": 0.8023,
           "tuned_lens_at_peak": 0.6327,
+          "gen_tuned_lens_at_peak": 0.4957,
           "logit_lens_at_peak": 0.6841,
           "ace_drop": 0.2164,
           "caa_drop": 0.1535,
@@ -229,6 +241,7 @@
           "rel_depth": 1.0,
           "ace_readout_at_peak": 0.5855,
           "tuned_lens_at_peak": 0.8669,
+          "gen_tuned_lens_at_peak": 0.8669,
           "logit_lens_at_peak": 0.8669,
           "ace_drop": 0.1069,
           "caa_drop": -0.0081,
@@ -246,6 +259,7 @@
           "rel_depth": 0.75,
           "ace_readout_at_peak": 0.7989,
           "tuned_lens_at_peak": 0.699,
+          "gen_tuned_lens_at_peak": 0.682,
           "logit_lens_at_peak": 0.6386,
           "ace_drop": 0.365,
           "caa_drop": 0.3006,
@@ -263,6 +277,7 @@
           "rel_depth": 0.5,
           "ace_readout_at_peak": 0.6305,
           "tuned_lens_at_peak": 0.7032,
+          "gen_tuned_lens_at_peak": 0.7224,
           "logit_lens_at_peak": 0.7071,
           "ace_drop": 0.1414,
           "caa_drop": 0.0765,
@@ -280,6 +295,7 @@
           "rel_depth": 0.625,
           "ace_readout_at_peak": 0.824,
           "tuned_lens_at_peak": 0.7747,
+          "gen_tuned_lens_at_peak": 0.79,
           "logit_lens_at_peak": 0.7985,
           "ace_drop": 0.2385,
           "caa_drop": 0.256,
@@ -297,6 +313,7 @@
           "rel_depth": 0.875,
           "ace_readout_at_peak": 0.7126,
           "tuned_lens_at_peak": 0.6446,
+          "gen_tuned_lens_at_peak": 0.6522,
           "logit_lens_at_peak": 0.6399,
           "ace_drop": 0.145,
           "caa_drop": 0.1354,
@@ -306,6 +323,78 @@
           "best_ace": 0.7759,
           "keep1d": 0.8106,
           "clean_final": 0.6473214285714285
+        },
+        {
+          "model": "OLMo-2-7B",
+          "domain": "physical_scale",
+          "peak_layer": 32,
+          "rel_depth": 1.0,
+          "ace_readout_at_peak": 0.8002,
+          "tuned_lens_at_peak": 0.7151,
+          "gen_tuned_lens_at_peak": 0.7151,
+          "logit_lens_at_peak": 0.7151,
+          "ace_drop": 0.4296,
+          "caa_drop": 0.2736,
+          "probe_drop": 0.3797,
+          "rand_drop": 0.0011,
+          "wu_cos": 0.0924,
+          "best_ace": 0.8963,
+          "keep1d": 0.8418,
+          "clean_final": 0.7151360544217688
+        },
+        {
+          "model": "OLMo-2-7B",
+          "domain": "hazard_severity",
+          "peak_layer": 24,
+          "rel_depth": 0.75,
+          "ace_readout_at_peak": 0.8027,
+          "tuned_lens_at_peak": 0.6947,
+          "gen_tuned_lens_at_peak": 0.7079,
+          "logit_lens_at_peak": 0.7326,
+          "ace_drop": 0.0776,
+          "caa_drop": 0.0438,
+          "probe_drop": -0.0236,
+          "rand_drop": 0.0017,
+          "wu_cos": 0.0937,
+          "best_ace": 0.8278,
+          "keep1d": 0.7385,
+          "clean_final": 0.7217261904761906
+        },
+        {
+          "model": "OLMo-2-7B",
+          "domain": "historical_chronology",
+          "peak_layer": 24,
+          "rel_depth": 0.75,
+          "ace_readout_at_peak": 0.804,
+          "tuned_lens_at_peak": 0.6233,
+          "gen_tuned_lens_at_peak": 0.7415,
+          "logit_lens_at_peak": 0.7355,
+          "ace_drop": 0.2806,
+          "caa_drop": 0.2092,
+          "probe_drop": 0.2406,
+          "rand_drop": -0.0026,
+          "wu_cos": 0.1667,
+          "best_ace": 0.8057,
+          "keep1d": 0.7649,
+          "clean_final": 0.6173469387755103
+        },
+        {
+          "model": "OLMo-2-7B",
+          "domain": "geographic_scale",
+          "peak_layer": 20,
+          "rel_depth": 0.625,
+          "ace_readout_at_peak": 0.6471,
+          "tuned_lens_at_peak": 0.8048,
+          "gen_tuned_lens_at_peak": 0.9167,
+          "logit_lens_at_peak": 0.9277,
+          "ace_drop": 0.2596,
+          "caa_drop": 0.2774,
+          "probe_drop": 0.3323,
+          "rand_drop": 0.0026,
+          "wu_cos": 0.1652,
+          "best_ace": 0.7296,
+          "keep1d": 0.8899,
+          "clean_final": 0.8482142857142857
         }
       ]
     },
@@ -317,12 +406,73 @@
         "params_b": 1.7,
         "n_layers": 28,
         "d_model": 2048,
-        "gpu_vram_gb": 3.21,
-        "elapsed_sec": 29.6,
+        "gpu_vram_gb": 3.2,
+        "elapsed_sec": 33.4,
+        "gen_tuned_lens_tokens": 3200,
         "tuned_lens_ridge_ablation_mid": {
           "alpha_10": 0.7241,
           "alpha_100": 0.7253,
           "alpha_1000": 0.7279
+        },
+        "freeform_generation": {
+          "physical_scale": {
+            "n_prompts": 56,
+            "clean_valid_pct": 35.7,
+            "clean_acc_pct": 32.1,
+            "ace_flip_correct_pct": 5.6,
+            "rand_flip_correct_pct": 0.0,
+            "ace_flip_all_valid_pct": 5.0,
+            "rand_flip_all_valid_pct": 0.0,
+            "clean_cont_nll": 1.041,
+            "ace_cont_nll": 1.028,
+            "rand_cont_nll": 1.022,
+            "sample_examples": [
+              {
+                "prompt": "Comparing physical diameter, a marble compared to a city bus is",
+                "clean": "about how much smaller? - A. 1",
+                "ace_flip": "about how much smaller? - A. 1"
+              },
+              {
+                "prompt": "Comparing physical diameter, a city bus compared to a marble is",
+                "clean": "a classic example of the \"size of a city",
+                "ace_flip": "a classic example of the \"size of a city"
+              },
+              {
+                "prompt": "Comparing physical diameter, a marble compared to Mount Everest is",
+                "clean": "a very small object. But when you look at",
+                "ace_flip": "a very small object. But when you look at"
+              }
+            ]
+          },
+          "hazard_severity": {
+            "n_prompts": 56,
+            "clean_valid_pct": 46.4,
+            "clean_acc_pct": 19.6,
+            "ace_flip_correct_pct": 0.0,
+            "rand_flip_correct_pct": 0.0,
+            "ace_flip_all_valid_pct": 0.0,
+            "rand_flip_all_valid_pct": 0.0,
+            "clean_cont_nll": 0.866,
+            "ace_cont_nll": 0.861,
+            "rand_cont_nll": 0.857,
+            "sample_examples": [
+              {
+                "prompt": "In terms of real-world danger, reading a paperback book compared to forgetting an umbrella is",
+                "clean": "a bit of a stretch, but in terms of",
+                "ace_flip": "a bit of a stretch, but in terms of"
+              },
+              {
+                "prompt": "In terms of real-world danger, forgetting an umbrella compared to reading a paperback book is",
+                "clean": "a big deal. But in terms of the actual",
+                "ace_flip": "a big deal. But in terms of the actual"
+              },
+              {
+                "prompt": "In terms of real-world danger, reading a paperback book compared to walking in light rain is",
+                "clean": "more dangerous. Is this a valid comparison? Why",
+                "ace_flip": "more dangerous. Is this a valid comparison? Why"
+              }
+            ]
+          }
         },
         "domains": {
           "physical_scale": {
@@ -362,6 +512,7 @@
             "peak_steer_ace_readout_auc": 0.8537,
             "peak_steer_logit_lens_auc": 0.5897,
             "peak_steer_tuned_lens_auc": 0.5765,
+            "peak_steer_gen_tuned_lens_auc": 0.5884,
             "peak_steer_wu_cosine": 0.2888,
             "peak_keep1d_layer": 24,
             "peak_keep1d_cross_auc": 0.8295,
@@ -393,6 +544,11 @@
                 "tuned_lens_ci95": [
                   0.4606,
                   0.6333
+                ],
+                "gen_tuned_lens_cross_auc": 0.5808,
+                "gen_tuned_lens_ci95": [
+                  0.4867,
+                  0.6813
                 ],
                 "ace_flip_cross_auc": 0.5891,
                 "ace_flip_drop": 0.0026,
@@ -426,6 +582,11 @@
                   0.3979,
                   0.588
                 ],
+                "gen_tuned_lens_cross_auc": 0.4332,
+                "gen_tuned_lens_ci95": [
+                  0.3754,
+                  0.4996
+                ],
                 "ace_flip_cross_auc": 0.6025,
                 "ace_flip_drop": -0.0108,
                 "ace_flip_drop_ci95": [
@@ -457,6 +618,11 @@
                 "tuned_lens_ci95": [
                   0.4629,
                   0.6363
+                ],
+                "gen_tuned_lens_cross_auc": 0.4188,
+                "gen_tuned_lens_ci95": [
+                  0.3478,
+                  0.4842
                 ],
                 "ace_flip_cross_auc": 0.5449,
                 "ace_flip_drop": 0.0468,
@@ -490,6 +656,11 @@
                   0.4913,
                   0.6807
                 ],
+                "gen_tuned_lens_cross_auc": 0.4392,
+                "gen_tuned_lens_ci95": [
+                  0.3787,
+                  0.509
+                ],
                 "ace_flip_cross_auc": 0.5587,
                 "ace_flip_drop": 0.033,
                 "ace_flip_drop_ci95": [
@@ -521,6 +692,11 @@
                 "tuned_lens_ci95": [
                   0.4983,
                   0.6707
+                ],
+                "gen_tuned_lens_cross_auc": 0.5544,
+                "gen_tuned_lens_ci95": [
+                  0.4679,
+                  0.638
                 ],
                 "ace_flip_cross_auc": 0.5278,
                 "ace_flip_drop": 0.0638,
@@ -554,6 +730,11 @@
                   0.541,
                   0.7041
                 ],
+                "gen_tuned_lens_cross_auc": 0.4486,
+                "gen_tuned_lens_ci95": [
+                  0.3871,
+                  0.5117
+                ],
                 "ace_flip_cross_auc": 0.6964,
                 "ace_flip_drop": -0.1048,
                 "ace_flip_drop_ci95": [
@@ -585,6 +766,11 @@
                 "tuned_lens_ci95": [
                   0.6169,
                   0.8136
+                ],
+                "gen_tuned_lens_cross_auc": 0.5132,
+                "gen_tuned_lens_ci95": [
+                  0.4112,
+                  0.6233
                 ],
                 "ace_flip_cross_auc": 0.2302,
                 "ace_flip_drop": 0.3614,
@@ -618,6 +804,11 @@
                   0.5762,
                   0.7923
                 ],
+                "gen_tuned_lens_cross_auc": 0.4983,
+                "gen_tuned_lens_ci95": [
+                  0.3647,
+                  0.6386
+                ],
                 "ace_flip_cross_auc": 0.2419,
                 "ace_flip_drop": 0.3497,
                 "ace_flip_drop_ci95": [
@@ -649,6 +840,11 @@
                 "tuned_lens_ci95": [
                   0.5291,
                   0.7504
+                ],
+                "gen_tuned_lens_cross_auc": 0.5859,
+                "gen_tuned_lens_ci95": [
+                  0.4645,
+                  0.6988
                 ],
                 "ace_flip_cross_auc": 0.2421,
                 "ace_flip_drop": 0.3495,
@@ -682,6 +878,11 @@
                   0.458,
                   0.6902
                 ],
+                "gen_tuned_lens_cross_auc": 0.5884,
+                "gen_tuned_lens_ci95": [
+                  0.4915,
+                  0.6845
+                ],
                 "ace_flip_cross_auc": 0.2124,
                 "ace_flip_drop": 0.3793,
                 "ace_flip_drop_ci95": [
@@ -714,6 +915,11 @@
                   0.4329,
                   0.6956
                 ],
+                "gen_tuned_lens_cross_auc": 0.5578,
+                "gen_tuned_lens_ci95": [
+                  0.4291,
+                  0.6766
+                ],
                 "ace_flip_cross_auc": 0.2313,
                 "ace_flip_drop": 0.3603,
                 "ace_flip_drop_ci95": [
@@ -745,6 +951,11 @@
                 "tuned_lens_ci95": [
                   0.473,
                   0.7295
+                ],
+                "gen_tuned_lens_cross_auc": 0.5974,
+                "gen_tuned_lens_ci95": [
+                  0.4644,
+                  0.7135
                 ],
                 "ace_flip_cross_auc": 0.273,
                 "ace_flip_drop": 0.3187,
@@ -797,6 +1008,7 @@
             "peak_steer_ace_readout_auc": 0.8274,
             "peak_steer_logit_lens_auc": 0.7083,
             "peak_steer_tuned_lens_auc": 0.6701,
+            "peak_steer_gen_tuned_lens_auc": 0.6454,
             "peak_steer_wu_cosine": 0.0969,
             "peak_keep1d_layer": 14,
             "peak_keep1d_cross_auc": 0.7983,
@@ -828,6 +1040,11 @@
                 "tuned_lens_ci95": [
                   0.3887,
                   0.664
+                ],
+                "gen_tuned_lens_cross_auc": 0.3856,
+                "gen_tuned_lens_ci95": [
+                  0.2955,
+                  0.4791
                 ],
                 "ace_flip_cross_auc": 0.7054,
                 "ace_flip_drop": -0.0034,
@@ -861,6 +1078,11 @@
                   0.249,
                   0.474
                 ],
+                "gen_tuned_lens_cross_auc": 0.4647,
+                "gen_tuned_lens_ci95": [
+                  0.378,
+                  0.5581
+                ],
                 "ace_flip_cross_auc": 0.7054,
                 "ace_flip_drop": -0.0034,
                 "ace_flip_drop_ci95": [
@@ -892,6 +1114,11 @@
                 "tuned_lens_ci95": [
                   0.215,
                   0.4108
+                ],
+                "gen_tuned_lens_cross_auc": 0.46,
+                "gen_tuned_lens_ci95": [
+                  0.3812,
+                  0.544
                 ],
                 "ace_flip_cross_auc": 0.6932,
                 "ace_flip_drop": 0.0087,
@@ -925,6 +1152,11 @@
                   0.4264,
                   0.646
                 ],
+                "gen_tuned_lens_cross_auc": 0.3372,
+                "gen_tuned_lens_ci95": [
+                  0.249,
+                  0.4252
+                ],
                 "ace_flip_cross_auc": 0.676,
                 "ace_flip_drop": 0.0259,
                 "ace_flip_drop_ci95": [
@@ -956,6 +1188,11 @@
                 "tuned_lens_ci95": [
                   0.4529,
                   0.6684
+                ],
+                "gen_tuned_lens_cross_auc": 0.6284,
+                "gen_tuned_lens_ci95": [
+                  0.5454,
+                  0.7127
                 ],
                 "ace_flip_cross_auc": 0.6703,
                 "ace_flip_drop": 0.0317,
@@ -989,6 +1226,11 @@
                   0.5124,
                   0.7409
                 ],
+                "gen_tuned_lens_cross_auc": 0.4145,
+                "gen_tuned_lens_ci95": [
+                  0.3097,
+                  0.526
+                ],
                 "ace_flip_cross_auc": 0.6975,
                 "ace_flip_drop": 0.0045,
                 "ace_flip_drop_ci95": [
@@ -1020,6 +1262,11 @@
                 "tuned_lens_ci95": [
                   0.5615,
                   0.7686
+                ],
+                "gen_tuned_lens_cross_auc": 0.4677,
+                "gen_tuned_lens_ci95": [
+                  0.3746,
+                  0.5684
                 ],
                 "ace_flip_cross_auc": 0.6314,
                 "ace_flip_drop": 0.0706,
@@ -1053,6 +1300,11 @@
                   0.5709,
                   0.7637
                 ],
+                "gen_tuned_lens_cross_auc": 0.6454,
+                "gen_tuned_lens_ci95": [
+                  0.5528,
+                  0.7335
+                ],
                 "ace_flip_cross_auc": 0.6301,
                 "ace_flip_drop": 0.0719,
                 "ace_flip_drop_ci95": [
@@ -1084,6 +1336,11 @@
                 "tuned_lens_ci95": [
                   0.5666,
                   0.7642
+                ],
+                "gen_tuned_lens_cross_auc": 0.6054,
+                "gen_tuned_lens_ci95": [
+                  0.4962,
+                  0.7099
                 ],
                 "ace_flip_cross_auc": 0.6514,
                 "ace_flip_drop": 0.0506,
@@ -1117,6 +1374,11 @@
                   0.572,
                   0.7825
                 ],
+                "gen_tuned_lens_cross_auc": 0.6586,
+                "gen_tuned_lens_ci95": [
+                  0.5624,
+                  0.7539
+                ],
                 "ace_flip_cross_auc": 0.6718,
                 "ace_flip_drop": 0.0302,
                 "ace_flip_drop_ci95": [
@@ -1149,6 +1411,11 @@
                   0.575,
                   0.7855
                 ],
+                "gen_tuned_lens_cross_auc": 0.6798,
+                "gen_tuned_lens_ci95": [
+                  0.5743,
+                  0.7792
+                ],
                 "ace_flip_cross_auc": 0.6711,
                 "ace_flip_drop": 0.0308,
                 "ace_flip_drop_ci95": [
@@ -1180,6 +1447,11 @@
                 "tuned_lens_ci95": [
                   0.6016,
                   0.803
+                ],
+                "gen_tuned_lens_cross_auc": 0.7054,
+                "gen_tuned_lens_ci95": [
+                  0.6051,
+                  0.7995
                 ],
                 "ace_flip_cross_auc": 0.6639,
                 "ace_flip_drop": 0.0381,
@@ -1232,6 +1504,7 @@
             "peak_steer_ace_readout_auc": 0.6241,
             "peak_steer_logit_lens_auc": 0.5723,
             "peak_steer_tuned_lens_auc": 0.5723,
+            "peak_steer_gen_tuned_lens_auc": 0.5723,
             "peak_steer_wu_cosine": 0.1547,
             "peak_keep1d_layer": 12,
             "peak_keep1d_cross_auc": 0.6199,
@@ -1263,6 +1536,11 @@
                 "tuned_lens_ci95": [
                   0.369,
                   0.5901
+                ],
+                "gen_tuned_lens_cross_auc": 0.5536,
+                "gen_tuned_lens_ci95": [
+                  0.4596,
+                  0.6565
                 ],
                 "ace_flip_cross_auc": 0.5787,
                 "ace_flip_drop": -0.0066,
@@ -1296,6 +1574,11 @@
                   0.5673,
                   0.7195
                 ],
+                "gen_tuned_lens_cross_auc": 0.406,
+                "gen_tuned_lens_ci95": [
+                  0.3023,
+                  0.5083
+                ],
                 "ace_flip_cross_auc": 0.5876,
                 "ace_flip_drop": -0.0155,
                 "ace_flip_drop_ci95": [
@@ -1327,6 +1610,11 @@
                 "tuned_lens_ci95": [
                   0.5134,
                   0.725
+                ],
+                "gen_tuned_lens_cross_auc": 0.4452,
+                "gen_tuned_lens_ci95": [
+                  0.3186,
+                  0.5683
                 ],
                 "ace_flip_cross_auc": 0.5814,
                 "ace_flip_drop": -0.0094,
@@ -1360,6 +1648,11 @@
                   0.4998,
                   0.6658
                 ],
+                "gen_tuned_lens_cross_auc": 0.4128,
+                "gen_tuned_lens_ci95": [
+                  0.304,
+                  0.5109
+                ],
                 "ace_flip_cross_auc": 0.5789,
                 "ace_flip_drop": -0.0068,
                 "ace_flip_drop_ci95": [
@@ -1391,6 +1684,11 @@
                 "tuned_lens_ci95": [
                   0.3946,
                   0.5769
+                ],
+                "gen_tuned_lens_cross_auc": 0.4813,
+                "gen_tuned_lens_ci95": [
+                  0.3654,
+                  0.6034
                 ],
                 "ace_flip_cross_auc": 0.5806,
                 "ace_flip_drop": -0.0085,
@@ -1424,6 +1722,11 @@
                   0.3972,
                   0.5927
                 ],
+                "gen_tuned_lens_cross_auc": 0.4511,
+                "gen_tuned_lens_ci95": [
+                  0.342,
+                  0.5739
+                ],
                 "ace_flip_cross_auc": 0.5806,
                 "ace_flip_drop": -0.0085,
                 "ace_flip_drop_ci95": [
@@ -1455,6 +1758,11 @@
                 "tuned_lens_ci95": [
                   0.5232,
                   0.7075
+                ],
+                "gen_tuned_lens_cross_auc": 0.5846,
+                "gen_tuned_lens_ci95": [
+                  0.4937,
+                  0.6782
                 ],
                 "ace_flip_cross_auc": 0.5036,
                 "ace_flip_drop": 0.0685,
@@ -1488,6 +1796,11 @@
                   0.5097,
                   0.678
                 ],
+                "gen_tuned_lens_cross_auc": 0.5804,
+                "gen_tuned_lens_ci95": [
+                  0.5002,
+                  0.6654
+                ],
                 "ace_flip_cross_auc": 0.5304,
                 "ace_flip_drop": 0.0417,
                 "ace_flip_drop_ci95": [
@@ -1519,6 +1832,11 @@
                 "tuned_lens_ci95": [
                   0.4444,
                   0.644
+                ],
+                "gen_tuned_lens_cross_auc": 0.5323,
+                "gen_tuned_lens_ci95": [
+                  0.4571,
+                  0.6098
                 ],
                 "ace_flip_cross_auc": 0.5778,
                 "ace_flip_drop": -0.0057,
@@ -1552,6 +1870,11 @@
                   0.4717,
                   0.6518
                 ],
+                "gen_tuned_lens_cross_auc": 0.5676,
+                "gen_tuned_lens_ci95": [
+                  0.4748,
+                  0.6547
+                ],
                 "ace_flip_cross_auc": 0.5364,
                 "ace_flip_drop": 0.0357,
                 "ace_flip_drop_ci95": [
@@ -1584,6 +1907,11 @@
                   0.4697,
                   0.6364
                 ],
+                "gen_tuned_lens_cross_auc": 0.5153,
+                "gen_tuned_lens_ci95": [
+                  0.4393,
+                  0.5949
+                ],
                 "ace_flip_cross_auc": 0.531,
                 "ace_flip_drop": 0.041,
                 "ace_flip_drop_ci95": [
@@ -1615,6 +1943,11 @@
                 "tuned_lens_ci95": [
                   0.4919,
                   0.653
+                ],
+                "gen_tuned_lens_cross_auc": 0.5723,
+                "gen_tuned_lens_ci95": [
+                  0.5011,
+                  0.648
                 ],
                 "ace_flip_cross_auc": 0.4681,
                 "ace_flip_drop": 0.104,
@@ -1667,6 +2000,7 @@
             "peak_steer_ace_readout_auc": 0.9379,
             "peak_steer_logit_lens_auc": 0.9218,
             "peak_steer_tuned_lens_auc": 0.8967,
+            "peak_steer_gen_tuned_lens_auc": 0.7832,
             "peak_steer_wu_cosine": 0.3019,
             "peak_keep1d_layer": 10,
             "peak_keep1d_cross_auc": 0.9162,
@@ -1698,6 +2032,11 @@
                 "tuned_lens_ci95": [
                   0.4453,
                   0.6667
+                ],
+                "gen_tuned_lens_cross_auc": 0.6135,
+                "gen_tuned_lens_ci95": [
+                  0.5214,
+                  0.7062
                 ],
                 "ace_flip_cross_auc": 0.8865,
                 "ace_flip_drop": 0.0081,
@@ -1731,6 +2070,11 @@
                   0.6811,
                   0.8919
                 ],
+                "gen_tuned_lens_cross_auc": 0.5804,
+                "gen_tuned_lens_ci95": [
+                  0.4813,
+                  0.6894
+                ],
                 "ace_flip_cross_auc": 0.8854,
                 "ace_flip_drop": 0.0091,
                 "ace_flip_drop_ci95": [
@@ -1762,6 +2106,11 @@
                 "tuned_lens_ci95": [
                   0.6873,
                   0.8714
+                ],
+                "gen_tuned_lens_cross_auc": 0.52,
+                "gen_tuned_lens_ci95": [
+                  0.4197,
+                  0.6233
                 ],
                 "ace_flip_cross_auc": 0.8924,
                 "ace_flip_drop": 0.0021,
@@ -1795,6 +2144,11 @@
                   0.7413,
                   0.9087
                 ],
+                "gen_tuned_lens_cross_auc": 0.3776,
+                "gen_tuned_lens_ci95": [
+                  0.2872,
+                  0.4698
+                ],
                 "ace_flip_cross_auc": 0.8929,
                 "ace_flip_drop": 0.0017,
                 "ace_flip_drop_ci95": [
@@ -1826,6 +2180,11 @@
                 "tuned_lens_ci95": [
                   0.7417,
                   0.8998
+                ],
+                "gen_tuned_lens_cross_auc": 0.6097,
+                "gen_tuned_lens_ci95": [
+                  0.5125,
+                  0.7096
                 ],
                 "ace_flip_cross_auc": 0.8992,
                 "ace_flip_drop": -0.0047,
@@ -1859,6 +2218,11 @@
                   0.7393,
                   0.9037
                 ],
+                "gen_tuned_lens_cross_auc": 0.4826,
+                "gen_tuned_lens_ci95": [
+                  0.3963,
+                  0.5753
+                ],
                 "ace_flip_cross_auc": 0.9118,
                 "ace_flip_drop": -0.0172,
                 "ace_flip_drop_ci95": [
@@ -1890,6 +2254,11 @@
                 "tuned_lens_ci95": [
                   0.8389,
                   0.9455
+                ],
+                "gen_tuned_lens_cross_auc": 0.7832,
+                "gen_tuned_lens_ci95": [
+                  0.704,
+                  0.8512
                 ],
                 "ace_flip_cross_auc": 0.594,
                 "ace_flip_drop": 0.3006,
@@ -1923,6 +2292,11 @@
                   0.8274,
                   0.9453
                 ],
+                "gen_tuned_lens_cross_auc": 0.7581,
+                "gen_tuned_lens_ci95": [
+                  0.6786,
+                  0.8291
+                ],
                 "ace_flip_cross_auc": 0.6509,
                 "ace_flip_drop": 0.2436,
                 "ace_flip_drop_ci95": [
@@ -1954,6 +2328,11 @@
                 "tuned_lens_ci95": [
                   0.8201,
                   0.94
+                ],
+                "gen_tuned_lens_cross_auc": 0.7921,
+                "gen_tuned_lens_ci95": [
+                  0.7053,
+                  0.8639
                 ],
                 "ace_flip_cross_auc": 0.682,
                 "ace_flip_drop": 0.2126,
@@ -1987,6 +2366,11 @@
                   0.7923,
                   0.9264
                 ],
+                "gen_tuned_lens_cross_auc": 0.8227,
+                "gen_tuned_lens_ci95": [
+                  0.7307,
+                  0.8972
+                ],
                 "ace_flip_cross_auc": 0.6941,
                 "ace_flip_drop": 0.2005,
                 "ace_flip_drop_ci95": [
@@ -2018,6 +2402,11 @@
                 "tuned_lens_ci95": [
                   0.8272,
                   0.9445
+                ],
+                "gen_tuned_lens_cross_auc": 0.8482,
+                "gen_tuned_lens_ci95": [
+                  0.7663,
+                  0.9162
                 ],
                 "ace_flip_cross_auc": 0.6824,
                 "ace_flip_drop": 0.2122,
@@ -2051,6 +2440,11 @@
                   0.8223,
                   0.9544
                 ],
+                "gen_tuned_lens_cross_auc": 0.8954,
+                "gen_tuned_lens_ci95": [
+                  0.828,
+                  0.9517
+                ],
                 "ace_flip_cross_auc": 0.6182,
                 "ace_flip_drop": 0.2764,
                 "ace_flip_drop_ci95": [
@@ -2075,11 +2469,72 @@
         "n_layers": 24,
         "d_model": 2048,
         "gpu_vram_gb": 3.2,
-        "elapsed_sec": 29.5,
+        "elapsed_sec": 57.5,
+        "gen_tuned_lens_tokens": 3200,
         "tuned_lens_ridge_ablation_mid": {
           "alpha_10": 0.6058,
           "alpha_100": 0.62,
           "alpha_1000": 0.6033
+        },
+        "freeform_generation": {
+          "physical_scale": {
+            "n_prompts": 56,
+            "clean_valid_pct": 25.0,
+            "clean_acc_pct": 17.9,
+            "ace_flip_correct_pct": 0.0,
+            "rand_flip_correct_pct": 0.0,
+            "ace_flip_all_valid_pct": 14.3,
+            "rand_flip_all_valid_pct": 7.1,
+            "clean_cont_nll": 1.153,
+            "ace_cont_nll": 1.186,
+            "rand_cont_nll": 1.175,
+            "sample_examples": [
+              {
+                "prompt": "Comparing physical diameter, a marble compared to a city bus is",
+                "clean": "1:1000000",
+                "ace_flip": "1:1000000"
+              },
+              {
+                "prompt": "Comparing physical diameter, a city bus compared to a marble is",
+                "clean": "100 times larger.\n\nThe",
+                "ace_flip": "a good way to visualize the difference in size."
+              },
+              {
+                "prompt": "Comparing physical diameter, a marble compared to Mount Everest is",
+                "clean": "like a marble compared to the Earth.",
+                "ace_flip": "like a marble compared to the Earth."
+              }
+            ]
+          },
+          "hazard_severity": {
+            "n_prompts": 56,
+            "clean_valid_pct": 10.7,
+            "clean_acc_pct": 8.9,
+            "ace_flip_correct_pct": 0.0,
+            "rand_flip_correct_pct": 0.0,
+            "ace_flip_all_valid_pct": 0.0,
+            "rand_flip_all_valid_pct": 16.7,
+            "clean_cont_nll": 1.501,
+            "ace_cont_nll": 1.491,
+            "rand_cont_nll": 1.488,
+            "sample_examples": [
+              {
+                "prompt": "In terms of real-world danger, reading a paperback book compared to forgetting an umbrella is",
+                "clean": "a pretty good comparison.\n\nThe only thing",
+                "ace_flip": "a pretty good comparison.\n\nThe only thing"
+              },
+              {
+                "prompt": "In terms of real-world danger, forgetting an umbrella compared to reading a paperback book is",
+                "clean": "a lot more dangerous.\n\nThe same is",
+                "ace_flip": "a lot more dangerous.\n\nThe same is"
+              },
+              {
+                "prompt": "In terms of real-world danger, reading a paperback book compared to walking in light rain is",
+                "clean": "a lot safer.\n\nThe same is true",
+                "ace_flip": "a lot safer.\n\nThe same is true"
+              }
+            ]
+          }
         },
         "domains": {
           "physical_scale": {
@@ -2119,6 +2574,7 @@
             "peak_steer_ace_readout_auc": 0.8044,
             "peak_steer_logit_lens_auc": 0.7211,
             "peak_steer_tuned_lens_auc": 0.7347,
+            "peak_steer_gen_tuned_lens_auc": 0.5829,
             "peak_steer_wu_cosine": 0.1187,
             "peak_keep1d_layer": 8,
             "peak_keep1d_cross_auc": 0.8323,
@@ -2150,6 +2606,11 @@
                 "tuned_lens_ci95": [
                   0.6552,
                   0.844
+                ],
+                "gen_tuned_lens_cross_auc": 0.2976,
+                "gen_tuned_lens_ci95": [
+                  0.1893,
+                  0.4073
                 ],
                 "ace_flip_cross_auc": 0.8227,
                 "ace_flip_drop": -0.0068,
@@ -2183,6 +2644,11 @@
                   0.5438,
                   0.7607
                 ],
+                "gen_tuned_lens_cross_auc": 0.4838,
+                "gen_tuned_lens_ci95": [
+                  0.3636,
+                  0.6221
+                ],
                 "ace_flip_cross_auc": 0.8206,
                 "ace_flip_drop": -0.0047,
                 "ace_flip_drop_ci95": [
@@ -2214,6 +2680,11 @@
                 "tuned_lens_ci95": [
                   0.6658,
                   0.8662
+                ],
+                "gen_tuned_lens_cross_auc": 0.5859,
+                "gen_tuned_lens_ci95": [
+                  0.4671,
+                  0.7134
                 ],
                 "ace_flip_cross_auc": 0.7783,
                 "ace_flip_drop": 0.0376,
@@ -2247,6 +2718,11 @@
                   0.3717,
                   0.5973
                 ],
+                "gen_tuned_lens_cross_auc": 0.5727,
+                "gen_tuned_lens_ci95": [
+                  0.47,
+                  0.6728
+                ],
                 "ace_flip_cross_auc": 0.7426,
                 "ace_flip_drop": 0.0733,
                 "ace_flip_drop_ci95": [
@@ -2278,6 +2754,11 @@
                 "tuned_lens_ci95": [
                   0.4863,
                   0.6843
+                ],
+                "gen_tuned_lens_cross_auc": 0.3724,
+                "gen_tuned_lens_ci95": [
+                  0.286,
+                  0.4594
                 ],
                 "ace_flip_cross_auc": 0.71,
                 "ace_flip_drop": 0.1059,
@@ -2311,6 +2792,11 @@
                   0.6301,
                   0.8112
                 ],
+                "gen_tuned_lens_cross_auc": 0.6322,
+                "gen_tuned_lens_ci95": [
+                  0.5402,
+                  0.7162
+                ],
                 "ace_flip_cross_auc": 0.7551,
                 "ace_flip_drop": 0.0608,
                 "ace_flip_drop_ci95": [
@@ -2342,6 +2828,11 @@
                 "tuned_lens_ci95": [
                   0.6145,
                   0.8151
+                ],
+                "gen_tuned_lens_cross_auc": 0.7245,
+                "gen_tuned_lens_ci95": [
+                  0.6761,
+                  0.7691
                 ],
                 "ace_flip_cross_auc": 0.5274,
                 "ace_flip_drop": 0.2885,
@@ -2375,6 +2866,11 @@
                   0.6236,
                   0.8325
                 ],
+                "gen_tuned_lens_cross_auc": 0.5829,
+                "gen_tuned_lens_ci95": [
+                  0.4974,
+                  0.6722
+                ],
                 "ace_flip_cross_auc": 0.4539,
                 "ace_flip_drop": 0.362,
                 "ace_flip_drop_ci95": [
@@ -2406,6 +2902,11 @@
                 "tuned_lens_ci95": [
                   0.6487,
                   0.8719
+                ],
+                "gen_tuned_lens_cross_auc": 0.6905,
+                "gen_tuned_lens_ci95": [
+                  0.5898,
+                  0.7754
                 ],
                 "ace_flip_cross_auc": 0.4815,
                 "ace_flip_drop": 0.3344,
@@ -2439,6 +2940,11 @@
                   0.7,
                   0.8911
                 ],
+                "gen_tuned_lens_cross_auc": 0.7785,
+                "gen_tuned_lens_ci95": [
+                  0.671,
+                  0.8722
+                ],
                 "ace_flip_cross_auc": 0.4732,
                 "ace_flip_drop": 0.3427,
                 "ace_flip_drop_ci95": [
@@ -2470,6 +2976,11 @@
                 "tuned_lens_ci95": [
                   0.7195,
                   0.9047
+                ],
+                "gen_tuned_lens_cross_auc": 0.8202,
+                "gen_tuned_lens_ci95": [
+                  0.7123,
+                  0.9031
                 ],
                 "ace_flip_cross_auc": 0.5157,
                 "ace_flip_drop": 0.3002,
@@ -2522,6 +3033,7 @@
             "peak_steer_ace_readout_auc": 0.7895,
             "peak_steer_logit_lens_auc": 0.6641,
             "peak_steer_tuned_lens_auc": 0.7185,
+            "peak_steer_gen_tuned_lens_auc": 0.6892,
             "peak_steer_wu_cosine": 0.158,
             "peak_keep1d_layer": 22,
             "peak_keep1d_cross_auc": 0.7904,
@@ -2553,6 +3065,11 @@
                 "tuned_lens_ci95": [
                   0.3176,
                   0.5183
+                ],
+                "gen_tuned_lens_cross_auc": 0.4724,
+                "gen_tuned_lens_ci95": [
+                  0.3802,
+                  0.5629
                 ],
                 "ace_flip_cross_auc": 0.6873,
                 "ace_flip_drop": 0.0032,
@@ -2586,6 +3103,11 @@
                   0.4506,
                   0.6936
                 ],
+                "gen_tuned_lens_cross_auc": 0.4422,
+                "gen_tuned_lens_ci95": [
+                  0.3439,
+                  0.5462
+                ],
                 "ace_flip_cross_auc": 0.6915,
                 "ace_flip_drop": -0.0011,
                 "ace_flip_drop_ci95": [
@@ -2617,6 +3139,11 @@
                 "tuned_lens_ci95": [
                   0.5342,
                   0.7842
+                ],
+                "gen_tuned_lens_cross_auc": 0.4617,
+                "gen_tuned_lens_ci95": [
+                  0.4098,
+                  0.5187
                 ],
                 "ace_flip_cross_auc": 0.6849,
                 "ace_flip_drop": 0.0055,
@@ -2650,6 +3177,11 @@
                   0.3803,
                   0.627
                 ],
+                "gen_tuned_lens_cross_auc": 0.4855,
+                "gen_tuned_lens_ci95": [
+                  0.3921,
+                  0.5871
+                ],
                 "ace_flip_cross_auc": 0.692,
                 "ace_flip_drop": -0.0015,
                 "ace_flip_drop_ci95": [
@@ -2681,6 +3213,11 @@
                 "tuned_lens_ci95": [
                   0.5239,
                   0.7291
+                ],
+                "gen_tuned_lens_cross_auc": 0.4957,
+                "gen_tuned_lens_ci95": [
+                  0.3852,
+                  0.6059
                 ],
                 "ace_flip_cross_auc": 0.7073,
                 "ace_flip_drop": -0.0168,
@@ -2714,6 +3251,11 @@
                   0.4943,
                   0.7403
                 ],
+                "gen_tuned_lens_cross_auc": 0.52,
+                "gen_tuned_lens_ci95": [
+                  0.4247,
+                  0.6076
+                ],
                 "ace_flip_cross_auc": 0.7058,
                 "ace_flip_drop": -0.0153,
                 "ace_flip_drop_ci95": [
@@ -2745,6 +3287,11 @@
                 "tuned_lens_ci95": [
                   0.4921,
                   0.7167
+                ],
+                "gen_tuned_lens_cross_auc": 0.4141,
+                "gen_tuned_lens_ci95": [
+                  0.3048,
+                  0.5278
                 ],
                 "ace_flip_cross_auc": 0.5625,
                 "ace_flip_drop": 0.128,
@@ -2778,6 +3325,11 @@
                   0.6333,
                   0.8246
                 ],
+                "gen_tuned_lens_cross_auc": 0.6165,
+                "gen_tuned_lens_ci95": [
+                  0.5222,
+                  0.7034
+                ],
                 "ace_flip_cross_auc": 0.4883,
                 "ace_flip_drop": 0.2022,
                 "ace_flip_drop_ci95": [
@@ -2809,6 +3361,11 @@
                 "tuned_lens_ci95": [
                   0.624,
                   0.8129
+                ],
+                "gen_tuned_lens_cross_auc": 0.6892,
+                "gen_tuned_lens_ci95": [
+                  0.5791,
+                  0.794
                 ],
                 "ace_flip_cross_auc": 0.4054,
                 "ace_flip_drop": 0.2851,
@@ -2842,6 +3399,11 @@
                   0.5915,
                   0.7944
                 ],
+                "gen_tuned_lens_cross_auc": 0.622,
+                "gen_tuned_lens_ci95": [
+                  0.5141,
+                  0.7249
+                ],
                 "ace_flip_cross_auc": 0.4694,
                 "ace_flip_drop": 0.2211,
                 "ace_flip_drop_ci95": [
@@ -2873,6 +3435,11 @@
                 "tuned_lens_ci95": [
                   0.5918,
                   0.7811
+                ],
+                "gen_tuned_lens_cross_auc": 0.693,
+                "gen_tuned_lens_ci95": [
+                  0.5961,
+                  0.7897
                 ],
                 "ace_flip_cross_auc": 0.5028,
                 "ace_flip_drop": 0.1877,
@@ -2925,6 +3492,7 @@
             "peak_steer_ace_readout_auc": 0.8023,
             "peak_steer_logit_lens_auc": 0.6841,
             "peak_steer_tuned_lens_auc": 0.6327,
+            "peak_steer_gen_tuned_lens_auc": 0.4957,
             "peak_steer_wu_cosine": 0.0882,
             "peak_keep1d_layer": 22,
             "peak_keep1d_cross_auc": 0.719,
@@ -2956,6 +3524,11 @@
                 "tuned_lens_ci95": [
                   0.4227,
                   0.6093
+                ],
+                "gen_tuned_lens_cross_auc": 0.4541,
+                "gen_tuned_lens_ci95": [
+                  0.3395,
+                  0.5618
                 ],
                 "ace_flip_cross_auc": 0.5895,
                 "ace_flip_drop": 0.0026,
@@ -2989,6 +3562,11 @@
                   0.4313,
                   0.6186
                 ],
+                "gen_tuned_lens_cross_auc": 0.4855,
+                "gen_tuned_lens_ci95": [
+                  0.3842,
+                  0.5918
+                ],
                 "ace_flip_cross_auc": 0.5903,
                 "ace_flip_drop": 0.0017,
                 "ace_flip_drop_ci95": [
@@ -3020,6 +3598,11 @@
                 "tuned_lens_ci95": [
                   0.4651,
                   0.6612
+                ],
+                "gen_tuned_lens_cross_auc": 0.4494,
+                "gen_tuned_lens_ci95": [
+                  0.3583,
+                  0.5398
                 ],
                 "ace_flip_cross_auc": 0.6037,
                 "ace_flip_drop": -0.0117,
@@ -3053,6 +3636,11 @@
                   0.4703,
                   0.6585
                 ],
+                "gen_tuned_lens_cross_auc": 0.6059,
+                "gen_tuned_lens_ci95": [
+                  0.5174,
+                  0.6909
+                ],
                 "ace_flip_cross_auc": 0.5931,
                 "ace_flip_drop": -0.0011,
                 "ace_flip_drop_ci95": [
@@ -3084,6 +3672,11 @@
                 "tuned_lens_ci95": [
                   0.5061,
                   0.7299
+                ],
+                "gen_tuned_lens_cross_auc": 0.5442,
+                "gen_tuned_lens_ci95": [
+                  0.4318,
+                  0.6576
                 ],
                 "ace_flip_cross_auc": 0.551,
                 "ace_flip_drop": 0.041,
@@ -3117,6 +3710,11 @@
                   0.5317,
                   0.7323
                 ],
+                "gen_tuned_lens_cross_auc": 0.6271,
+                "gen_tuned_lens_ci95": [
+                  0.4907,
+                  0.7436
+                ],
                 "ace_flip_cross_auc": 0.5268,
                 "ace_flip_drop": 0.0653,
                 "ace_flip_drop_ci95": [
@@ -3148,6 +3746,11 @@
                 "tuned_lens_ci95": [
                   0.5628,
                   0.7594
+                ],
+                "gen_tuned_lens_cross_auc": 0.5077,
+                "gen_tuned_lens_ci95": [
+                  0.4146,
+                  0.6052
                 ],
                 "ace_flip_cross_auc": 0.4507,
                 "ace_flip_drop": 0.1414,
@@ -3181,6 +3784,11 @@
                   0.5227,
                   0.7553
                 ],
+                "gen_tuned_lens_cross_auc": 0.4957,
+                "gen_tuned_lens_ci95": [
+                  0.3771,
+                  0.6292
+                ],
                 "ace_flip_cross_auc": 0.3756,
                 "ace_flip_drop": 0.2164,
                 "ace_flip_drop_ci95": [
@@ -3212,6 +3820,11 @@
                 "tuned_lens_ci95": [
                   0.5019,
                   0.7062
+                ],
+                "gen_tuned_lens_cross_auc": 0.5855,
+                "gen_tuned_lens_ci95": [
+                  0.4778,
+                  0.6822
                 ],
                 "ace_flip_cross_auc": 0.3967,
                 "ace_flip_drop": 0.1954,
@@ -3245,6 +3858,11 @@
                   0.5098,
                   0.7093
                 ],
+                "gen_tuned_lens_cross_auc": 0.625,
+                "gen_tuned_lens_ci95": [
+                  0.5436,
+                  0.707
+                ],
                 "ace_flip_cross_auc": 0.422,
                 "ace_flip_drop": 0.1701,
                 "ace_flip_drop_ci95": [
@@ -3276,6 +3894,11 @@
                 "tuned_lens_ci95": [
                   0.483,
                   0.6932
+                ],
+                "gen_tuned_lens_cross_auc": 0.5901,
+                "gen_tuned_lens_ci95": [
+                  0.473,
+                  0.6897
                 ],
                 "ace_flip_cross_auc": 0.5155,
                 "ace_flip_drop": 0.0765,
@@ -3328,6 +3951,7 @@
             "peak_steer_ace_readout_auc": 0.5855,
             "peak_steer_logit_lens_auc": 0.8669,
             "peak_steer_tuned_lens_auc": 0.8669,
+            "peak_steer_gen_tuned_lens_auc": 0.8669,
             "peak_steer_wu_cosine": 0.0444,
             "peak_keep1d_layer": 14,
             "peak_keep1d_cross_auc": 0.9075,
@@ -3359,6 +3983,11 @@
                 "tuned_lens_ci95": [
                   0.3397,
                   0.5519
+                ],
+                "gen_tuned_lens_cross_auc": 0.4524,
+                "gen_tuned_lens_ci95": [
+                  0.3329,
+                  0.5725
                 ],
                 "ace_flip_cross_auc": 0.871,
                 "ace_flip_drop": -0.0085,
@@ -3392,6 +4021,11 @@
                   0.3652,
                   0.609
                 ],
+                "gen_tuned_lens_cross_auc": 0.4371,
+                "gen_tuned_lens_ci95": [
+                  0.3372,
+                  0.5463
+                ],
                 "ace_flip_cross_auc": 0.879,
                 "ace_flip_drop": -0.0166,
                 "ace_flip_drop_ci95": [
@@ -3423,6 +4057,11 @@
                 "tuned_lens_ci95": [
                   0.3019,
                   0.517
+                ],
+                "gen_tuned_lens_cross_auc": 0.4511,
+                "gen_tuned_lens_ci95": [
+                  0.3746,
+                  0.5245
                 ],
                 "ace_flip_cross_auc": 0.8824,
                 "ace_flip_drop": -0.02,
@@ -3456,6 +4095,11 @@
                   0.4413,
                   0.6932
                 ],
+                "gen_tuned_lens_cross_auc": 0.5285,
+                "gen_tuned_lens_ci95": [
+                  0.4162,
+                  0.6426
+                ],
                 "ace_flip_cross_auc": 0.872,
                 "ace_flip_drop": -0.0096,
                 "ace_flip_drop_ci95": [
@@ -3487,6 +4131,11 @@
                 "tuned_lens_ci95": [
                   0.2959,
                   0.5131
+                ],
+                "gen_tuned_lens_cross_auc": 0.5497,
+                "gen_tuned_lens_ci95": [
+                  0.4765,
+                  0.6172
                 ],
                 "ace_flip_cross_auc": 0.8784,
                 "ace_flip_drop": -0.0159,
@@ -3520,6 +4169,11 @@
                   0.4309,
                   0.5807
                 ],
+                "gen_tuned_lens_cross_auc": 0.6029,
+                "gen_tuned_lens_ci95": [
+                  0.5182,
+                  0.6866
+                ],
                 "ace_flip_cross_auc": 0.8788,
                 "ace_flip_drop": -0.0164,
                 "ace_flip_drop_ci95": [
@@ -3551,6 +4205,11 @@
                 "tuned_lens_ci95": [
                   0.8059,
                   0.9278
+                ],
+                "gen_tuned_lens_cross_auc": 0.5872,
+                "gen_tuned_lens_ci95": [
+                  0.4855,
+                  0.6871
                 ],
                 "ace_flip_cross_auc": 0.8697,
                 "ace_flip_drop": -0.0072,
@@ -3584,6 +4243,11 @@
                   0.8411,
                   0.9346
                 ],
+                "gen_tuned_lens_cross_auc": 0.693,
+                "gen_tuned_lens_ci95": [
+                  0.6386,
+                  0.7501
+                ],
                 "ace_flip_cross_auc": 0.8382,
                 "ace_flip_drop": 0.0242,
                 "ace_flip_drop_ci95": [
@@ -3615,6 +4279,11 @@
                 "tuned_lens_ci95": [
                   0.8384,
                   0.9467
+                ],
+                "gen_tuned_lens_cross_auc": 0.8308,
+                "gen_tuned_lens_ci95": [
+                  0.7326,
+                  0.9111
                 ],
                 "ace_flip_cross_auc": 0.7598,
                 "ace_flip_drop": 0.1027,
@@ -3648,6 +4317,11 @@
                   0.8219,
                   0.9383
                 ],
+                "gen_tuned_lens_cross_auc": 0.8975,
+                "gen_tuned_lens_ci95": [
+                  0.8254,
+                  0.9551
+                ],
                 "ace_flip_cross_auc": 0.7938,
                 "ace_flip_drop": 0.0687,
                 "ace_flip_drop_ci95": [
@@ -3680,6 +4354,11 @@
                   0.7867,
                   0.9269
                 ],
+                "gen_tuned_lens_cross_auc": 0.8669,
+                "gen_tuned_lens_ci95": [
+                  0.7846,
+                  0.9293
+                ],
                 "ace_flip_cross_auc": 0.7555,
                 "ace_flip_drop": 0.1069,
                 "ace_flip_drop_ci95": [
@@ -3704,12 +4383,14 @@
         "n_layers": 32,
         "d_model": 4096,
         "gpu_vram_gb": 5.54,
-        "elapsed_sec": 441.1,
+        "elapsed_sec": 585.2,
+        "gen_tuned_lens_tokens": 3200,
         "tuned_lens_ridge_ablation_mid": {
           "alpha_10": 0.7062,
           "alpha_100": 0.6872,
           "alpha_1000": 0.6575
         },
+        "freeform_generation": {},
         "domains": {
           "physical_scale": {
             "n_train_pairs": 56,
@@ -3748,6 +4429,7 @@
             "peak_steer_ace_readout_auc": 0.7989,
             "peak_steer_logit_lens_auc": 0.6386,
             "peak_steer_tuned_lens_auc": 0.699,
+            "peak_steer_gen_tuned_lens_auc": 0.682,
             "peak_steer_wu_cosine": 0.1501,
             "peak_keep1d_layer": 16,
             "peak_keep1d_cross_auc": 0.8499,
@@ -3779,6 +4461,11 @@
                 "tuned_lens_ci95": [
                   0.4367,
                   0.5692
+                ],
+                "gen_tuned_lens_cross_auc": 0.4766,
+                "gen_tuned_lens_ci95": [
+                  0.4073,
+                  0.5482
                 ],
                 "ace_flip_cross_auc": 0.7275,
                 "ace_flip_drop": -0.0153,
@@ -3812,6 +4499,11 @@
                   0.3858,
                   0.5204
                 ],
+                "gen_tuned_lens_cross_auc": 0.3733,
+                "gen_tuned_lens_ci95": [
+                  0.2838,
+                  0.4576
+                ],
                 "ace_flip_cross_auc": 0.7509,
                 "ace_flip_drop": -0.0387,
                 "ace_flip_drop_ci95": [
@@ -3843,6 +4535,11 @@
                 "tuned_lens_ci95": [
                   0.3667,
                   0.5879
+                ],
+                "gen_tuned_lens_cross_auc": 0.4906,
+                "gen_tuned_lens_ci95": [
+                  0.3756,
+                  0.6089
                 ],
                 "ace_flip_cross_auc": 0.4741,
                 "ace_flip_drop": 0.2381,
@@ -3876,6 +4573,11 @@
                   0.5017,
                   0.7373
                 ],
+                "gen_tuned_lens_cross_auc": 0.5765,
+                "gen_tuned_lens_ci95": [
+                  0.4514,
+                  0.6894
+                ],
                 "ace_flip_cross_auc": 0.372,
                 "ace_flip_drop": 0.3401,
                 "ace_flip_drop_ci95": [
@@ -3907,6 +4609,11 @@
                 "tuned_lens_ci95": [
                   0.5935,
                   0.7978
+                ],
+                "gen_tuned_lens_cross_auc": 0.682,
+                "gen_tuned_lens_ci95": [
+                  0.5793,
+                  0.7725
                 ],
                 "ace_flip_cross_auc": 0.3472,
                 "ace_flip_drop": 0.365,
@@ -3940,6 +4647,11 @@
                   0.6276,
                   0.8177
                 ],
+                "gen_tuned_lens_cross_auc": 0.7105,
+                "gen_tuned_lens_ci95": [
+                  0.6179,
+                  0.7939
+                ],
                 "ace_flip_cross_auc": 0.3629,
                 "ace_flip_drop": 0.3493,
                 "ace_flip_drop_ci95": [
@@ -3971,6 +4683,11 @@
                 "tuned_lens_ci95": [
                   0.6241,
                   0.7883
+                ],
+                "gen_tuned_lens_cross_auc": 0.7117,
+                "gen_tuned_lens_ci95": [
+                  0.6245,
+                  0.7889
                 ],
                 "ace_flip_cross_auc": 0.3722,
                 "ace_flip_drop": 0.3399,
@@ -4023,6 +4740,7 @@
             "peak_steer_ace_readout_auc": 0.6305,
             "peak_steer_logit_lens_auc": 0.7071,
             "peak_steer_tuned_lens_auc": 0.7032,
+            "peak_steer_gen_tuned_lens_auc": 0.7224,
             "peak_steer_wu_cosine": 0.0397,
             "peak_keep1d_layer": 10,
             "peak_keep1d_cross_auc": 0.7336,
@@ -4054,6 +4772,11 @@
                 "tuned_lens_ci95": [
                   0.3082,
                   0.5714
+                ],
+                "gen_tuned_lens_cross_auc": 0.4082,
+                "gen_tuned_lens_ci95": [
+                  0.3098,
+                  0.5272
                 ],
                 "ace_flip_cross_auc": 0.729,
                 "ace_flip_drop": -0.0017,
@@ -4087,6 +4810,11 @@
                   0.4065,
                   0.6573
                 ],
+                "gen_tuned_lens_cross_auc": 0.6161,
+                "gen_tuned_lens_ci95": [
+                  0.4994,
+                  0.7283
+                ],
                 "ace_flip_cross_auc": 0.7224,
                 "ace_flip_drop": 0.0049,
                 "ace_flip_drop_ci95": [
@@ -4118,6 +4846,11 @@
                 "tuned_lens_ci95": [
                   0.6184,
                   0.7824
+                ],
+                "gen_tuned_lens_cross_auc": 0.7224,
+                "gen_tuned_lens_ci95": [
+                  0.6319,
+                  0.8026
                 ],
                 "ace_flip_cross_auc": 0.5859,
                 "ace_flip_drop": 0.1414,
@@ -4151,6 +4884,11 @@
                   0.6103,
                   0.8307
                 ],
+                "gen_tuned_lens_cross_auc": 0.6684,
+                "gen_tuned_lens_ci95": [
+                  0.5666,
+                  0.7676
+                ],
                 "ace_flip_cross_auc": 0.6222,
                 "ace_flip_drop": 0.105,
                 "ace_flip_drop_ci95": [
@@ -4181,6 +4919,11 @@
                 "tuned_lens_cross_auc": 0.7066,
                 "tuned_lens_ci95": [
                   0.6059,
+                  0.8086
+                ],
+                "gen_tuned_lens_cross_auc": 0.7028,
+                "gen_tuned_lens_ci95": [
+                  0.5832,
                   0.8086
                 ],
                 "ace_flip_cross_auc": 0.6131,
@@ -4215,6 +4958,11 @@
                   0.5923,
                   0.8077
                 ],
+                "gen_tuned_lens_cross_auc": 0.6947,
+                "gen_tuned_lens_ci95": [
+                  0.5849,
+                  0.7996
+                ],
                 "ace_flip_cross_auc": 0.6299,
                 "ace_flip_drop": 0.0974,
                 "ace_flip_drop_ci95": [
@@ -4246,6 +4994,11 @@
                 "tuned_lens_ci95": [
                   0.6119,
                   0.8216
+                ],
+                "gen_tuned_lens_cross_auc": 0.7287,
+                "gen_tuned_lens_ci95": [
+                  0.6224,
+                  0.829
                 ],
                 "ace_flip_cross_auc": 0.6178,
                 "ace_flip_drop": 0.1095,
@@ -4298,6 +5051,7 @@
             "peak_steer_ace_readout_auc": 0.824,
             "peak_steer_logit_lens_auc": 0.7985,
             "peak_steer_tuned_lens_auc": 0.7747,
+            "peak_steer_gen_tuned_lens_auc": 0.79,
             "peak_steer_wu_cosine": 0.136,
             "peak_keep1d_layer": 20,
             "peak_keep1d_cross_auc": 0.7392,
@@ -4329,6 +5083,11 @@
                 "tuned_lens_ci95": [
                   0.3583,
                   0.5377
+                ],
+                "gen_tuned_lens_cross_auc": 0.4537,
+                "gen_tuned_lens_ci95": [
+                  0.3342,
+                  0.5819
                 ],
                 "ace_flip_cross_auc": 0.6826,
                 "ace_flip_drop": -0.0017,
@@ -4362,6 +5121,11 @@
                   0.332,
                   0.569
                 ],
+                "gen_tuned_lens_cross_auc": 0.3865,
+                "gen_tuned_lens_ci95": [
+                  0.2705,
+                  0.5069
+                ],
                 "ace_flip_cross_auc": 0.6784,
                 "ace_flip_drop": 0.0026,
                 "ace_flip_drop_ci95": [
@@ -4393,6 +5157,11 @@
                 "tuned_lens_ci95": [
                   0.6282,
                   0.8104
+                ],
+                "gen_tuned_lens_cross_auc": 0.6892,
+                "gen_tuned_lens_ci95": [
+                  0.6002,
+                  0.7663
                 ],
                 "ace_flip_cross_auc": 0.4515,
                 "ace_flip_drop": 0.2294,
@@ -4426,6 +5195,11 @@
                   0.6807,
                   0.8561
                 ],
+                "gen_tuned_lens_cross_auc": 0.79,
+                "gen_tuned_lens_ci95": [
+                  0.7109,
+                  0.8663
+                ],
                 "ace_flip_cross_auc": 0.4424,
                 "ace_flip_drop": 0.2385,
                 "ace_flip_drop_ci95": [
@@ -4457,6 +5231,11 @@
                 "tuned_lens_ci95": [
                   0.6479,
                   0.8191
+                ],
+                "gen_tuned_lens_cross_auc": 0.7207,
+                "gen_tuned_lens_ci95": [
+                  0.6237,
+                  0.8052
                 ],
                 "ace_flip_cross_auc": 0.4515,
                 "ace_flip_drop": 0.2294,
@@ -4490,6 +5269,11 @@
                   0.6175,
                   0.8056
                 ],
+                "gen_tuned_lens_cross_auc": 0.6909,
+                "gen_tuned_lens_ci95": [
+                  0.5947,
+                  0.7772
+                ],
                 "ace_flip_cross_auc": 0.4617,
                 "ace_flip_drop": 0.2192,
                 "ace_flip_drop_ci95": [
@@ -4521,6 +5305,11 @@
                 "tuned_lens_ci95": [
                   0.5811,
                   0.7705
+                ],
+                "gen_tuned_lens_cross_auc": 0.682,
+                "gen_tuned_lens_ci95": [
+                  0.5756,
+                  0.7747
                 ],
                 "ace_flip_cross_auc": 0.4809,
                 "ace_flip_drop": 0.2,
@@ -4573,6 +5362,7 @@
             "peak_steer_ace_readout_auc": 0.7126,
             "peak_steer_logit_lens_auc": 0.6399,
             "peak_steer_tuned_lens_auc": 0.6446,
+            "peak_steer_gen_tuned_lens_auc": 0.6522,
             "peak_steer_wu_cosine": 0.1375,
             "peak_keep1d_layer": 16,
             "peak_keep1d_cross_auc": 0.8106,
@@ -4604,6 +5394,11 @@
                 "tuned_lens_ci95": [
                   0.4549,
                   0.6258
+                ],
+                "gen_tuned_lens_cross_auc": 0.5383,
+                "gen_tuned_lens_ci95": [
+                  0.4651,
+                  0.605
                 ],
                 "ace_flip_cross_auc": 0.632,
                 "ace_flip_drop": 0.0153,
@@ -4637,6 +5432,11 @@
                   0.2508,
                   0.3912
                 ],
+                "gen_tuned_lens_cross_auc": 0.3333,
+                "gen_tuned_lens_ci95": [
+                  0.2468,
+                  0.4287
+                ],
                 "ace_flip_cross_auc": 0.6314,
                 "ace_flip_drop": 0.0159,
                 "ace_flip_drop_ci95": [
@@ -4668,6 +5468,11 @@
                 "tuned_lens_ci95": [
                   0.4535,
                   0.5889
+                ],
+                "gen_tuned_lens_cross_auc": 0.6199,
+                "gen_tuned_lens_ci95": [
+                  0.556,
+                  0.6853
                 ],
                 "ace_flip_cross_auc": 0.6052,
                 "ace_flip_drop": 0.0421,
@@ -4701,6 +5506,11 @@
                   0.5273,
                   0.7125
                 ],
+                "gen_tuned_lens_cross_auc": 0.6361,
+                "gen_tuned_lens_ci95": [
+                  0.55,
+                  0.7234
+                ],
                 "ace_flip_cross_auc": 0.5376,
                 "ace_flip_drop": 0.1097,
                 "ace_flip_drop_ci95": [
@@ -4732,6 +5542,11 @@
                 "tuned_lens_ci95": [
                   0.5957,
                   0.7854
+                ],
+                "gen_tuned_lens_cross_auc": 0.6875,
+                "gen_tuned_lens_ci95": [
+                  0.5987,
+                  0.7646
                 ],
                 "ace_flip_cross_auc": 0.5057,
                 "ace_flip_drop": 0.1416,
@@ -4765,6 +5580,11 @@
                   0.5551,
                   0.7326
                 ],
+                "gen_tuned_lens_cross_auc": 0.6522,
+                "gen_tuned_lens_ci95": [
+                  0.5612,
+                  0.7314
+                ],
                 "ace_flip_cross_auc": 0.5023,
                 "ace_flip_drop": 0.145,
                 "ace_flip_drop_ci95": [
@@ -4797,6 +5617,11 @@
                   0.5668,
                   0.7314
                 ],
+                "gen_tuned_lens_cross_auc": 0.6471,
+                "gen_tuned_lens_ci95": [
+                  0.5573,
+                  0.7324
+                ],
                 "ace_flip_cross_auc": 0.5036,
                 "ace_flip_drop": 0.1437,
                 "ace_flip_drop_ci95": [
@@ -4812,40 +5637,1303 @@
             ]
           }
         }
+      },
+      "OLMo-2-7B": {
+        "model_id": "allenai/OLMo-2-1124-7B",
+        "short": "OLMo-2-7B",
+        "family": "OLMo-2 (PostNorm+QKNorm)",
+        "params_b": 7.3,
+        "n_layers": 32,
+        "d_model": 4096,
+        "gpu_vram_gb": 5.31,
+        "elapsed_sec": 594.5,
+        "gen_tuned_lens_tokens": 3200,
+        "tuned_lens_ridge_ablation_mid": {
+          "alpha_10": 0.7248,
+          "alpha_100": 0.7202,
+          "alpha_1000": 0.7303
+        },
+        "freeform_generation": {},
+        "domains": {
+          "physical_scale": {
+            "n_train_pairs": 56,
+            "n_test_cross_pairs": 168,
+            "clean_src_auc": 0.8686,
+            "clean_cross_auc": 0.7151,
+            "clean_cross_ci95": [
+              0.628,
+              0.8034
+            ],
+            "best_ace_readout_layer": 10,
+            "best_ace_readout_auc": 0.8963,
+            "readout_collapse_gap": 0.1812,
+            "peak_steer_layer": 32,
+            "peak_steer_rel_depth": 1.0,
+            "peak_ace_flip_drop": 0.4296,
+            "peak_ace_flip_drop_ci95": [
+              0.2791,
+              0.575
+            ],
+            "peak_caa_flip_drop": 0.2736,
+            "peak_caa_flip_drop_ci95": [
+              0.1939,
+              0.3545
+            ],
+            "peak_probe_flip_drop": 0.3797,
+            "peak_probe_flip_drop_ci95": [
+              0.2815,
+              0.4755
+            ],
+            "peak_rand_flip_drop": 0.0011,
+            "peak_rand_flip_drop_ci95": [
+              -0.0037,
+              0.0064
+            ],
+            "peak_steer_ace_readout_auc": 0.8002,
+            "peak_steer_logit_lens_auc": 0.7151,
+            "peak_steer_tuned_lens_auc": 0.7151,
+            "peak_steer_gen_tuned_lens_auc": 0.7151,
+            "peak_steer_wu_cosine": 0.0924,
+            "peak_keep1d_layer": 16,
+            "peak_keep1d_cross_auc": 0.8418,
+            "first_ace_ge80_depth": 0.312,
+            "first_tuned_lens_ge80_depth": null,
+            "first_logit_lens_ge80_depth": null,
+            "rank_ablation_mid": {
+              "rank_1": 0.8776,
+              "rank_2": 0.9473,
+              "rank_4": 0.9511
+            },
+            "layers": [
+              {
+                "layer": 4,
+                "rel_depth": 0.125,
+                "ace_readout_auc": 0.6509,
+                "ace_readout_ci95": [
+                  0.5034,
+                  0.7856
+                ],
+                "caa_readout_auc": 0.7534,
+                "probe_readout_auc": 0.7649,
+                "logit_lens_cross_auc": 0.4192,
+                "logit_lens_ci95": [
+                  0.3197,
+                  0.5303
+                ],
+                "tuned_lens_cross_auc": 0.4885,
+                "tuned_lens_ci95": [
+                  0.4317,
+                  0.5486
+                ],
+                "gen_tuned_lens_cross_auc": 0.4622,
+                "gen_tuned_lens_ci95": [
+                  0.3647,
+                  0.5526
+                ],
+                "ace_flip_cross_auc": 0.7351,
+                "ace_flip_drop": -0.02,
+                "ace_flip_drop_ci95": [
+                  -0.0421,
+                  0.0014
+                ],
+                "ace_keep1d_cross_auc": 0.7215,
+                "wu_cosine": 0.0014,
+                "cos_ace_caa": 0.8335,
+                "cos_ace_probe": 0.7824,
+                "spectral_gap": 3.2
+              },
+              {
+                "layer": 10,
+                "rel_depth": 0.312,
+                "ace_readout_auc": 0.8963,
+                "ace_readout_ci95": [
+                  0.796,
+                  0.9728
+                ],
+                "caa_readout_auc": 0.8937,
+                "probe_readout_auc": 0.9243,
+                "logit_lens_cross_auc": 0.3788,
+                "logit_lens_ci95": [
+                  0.2784,
+                  0.4755
+                ],
+                "tuned_lens_cross_auc": 0.5693,
+                "tuned_lens_ci95": [
+                  0.4985,
+                  0.6411
+                ],
+                "gen_tuned_lens_cross_auc": 0.4898,
+                "gen_tuned_lens_ci95": [
+                  0.3831,
+                  0.5859
+                ],
+                "ace_flip_cross_auc": 0.7317,
+                "ace_flip_drop": -0.0166,
+                "ace_flip_drop_ci95": [
+                  -0.0417,
+                  0.0074
+                ],
+                "ace_keep1d_cross_auc": 0.7532,
+                "wu_cosine": 0.0094,
+                "cos_ace_caa": 0.9449,
+                "cos_ace_probe": 0.726,
+                "spectral_gap": 1.7
+              },
+              {
+                "layer": 16,
+                "rel_depth": 0.5,
+                "ace_readout_auc": 0.8963,
+                "ace_readout_ci95": [
+                  0.7946,
+                  0.9673
+                ],
+                "caa_readout_auc": 0.9035,
+                "probe_readout_auc": 0.9732,
+                "logit_lens_cross_auc": 0.5272,
+                "logit_lens_ci95": [
+                  0.4089,
+                  0.6352
+                ],
+                "tuned_lens_cross_auc": 0.6348,
+                "tuned_lens_ci95": [
+                  0.5416,
+                  0.7187
+                ],
+                "gen_tuned_lens_cross_auc": 0.6127,
+                "gen_tuned_lens_ci95": [
+                  0.5174,
+                  0.7029
+                ],
+                "ace_flip_cross_auc": 0.5442,
+                "ace_flip_drop": 0.1709,
+                "ace_flip_drop_ci95": [
+                  0.1086,
+                  0.2426
+                ],
+                "ace_keep1d_cross_auc": 0.8418,
+                "wu_cosine": 0.0446,
+                "cos_ace_caa": 0.8204,
+                "cos_ace_probe": 0.7333,
+                "spectral_gap": 2.4
+              },
+              {
+                "layer": 20,
+                "rel_depth": 0.625,
+                "ace_readout_auc": 0.8776,
+                "ace_readout_ci95": [
+                  0.7897,
+                  0.9509
+                ],
+                "caa_readout_auc": 0.9133,
+                "probe_readout_auc": 0.9715,
+                "logit_lens_cross_auc": 0.7343,
+                "logit_lens_ci95": [
+                  0.6487,
+                  0.8161
+                ],
+                "tuned_lens_cross_auc": 0.7321,
+                "tuned_lens_ci95": [
+                  0.6403,
+                  0.8103
+                ],
+                "gen_tuned_lens_cross_auc": 0.8053,
+                "gen_tuned_lens_ci95": [
+                  0.7192,
+                  0.877
+                ],
+                "ace_flip_cross_auc": 0.3095,
+                "ace_flip_drop": 0.4056,
+                "ace_flip_drop_ci95": [
+                  0.2731,
+                  0.5312
+                ],
+                "ace_keep1d_cross_auc": 0.8099,
+                "wu_cosine": 0.1939,
+                "cos_ace_caa": 0.7246,
+                "cos_ace_probe": 0.7837,
+                "spectral_gap": 34.7
+              },
+              {
+                "layer": 24,
+                "rel_depth": 0.75,
+                "ace_readout_auc": 0.8112,
+                "ace_readout_ci95": [
+                  0.6975,
+                  0.9015
+                ],
+                "caa_readout_auc": 0.9116,
+                "probe_readout_auc": 0.9622,
+                "logit_lens_cross_auc": 0.6705,
+                "logit_lens_ci95": [
+                  0.5638,
+                  0.7798
+                ],
+                "tuned_lens_cross_auc": 0.7509,
+                "tuned_lens_ci95": [
+                  0.647,
+                  0.8376
+                ],
+                "gen_tuned_lens_cross_auc": 0.7479,
+                "gen_tuned_lens_ci95": [
+                  0.6355,
+                  0.84
+                ],
+                "ace_flip_cross_auc": 0.3134,
+                "ace_flip_drop": 0.4018,
+                "ace_flip_drop_ci95": [
+                  0.2714,
+                  0.5501
+                ],
+                "ace_keep1d_cross_auc": 0.7866,
+                "wu_cosine": 0.1961,
+                "cos_ace_caa": 0.7417,
+                "cos_ace_probe": 0.7347,
+                "spectral_gap": 80.0
+              },
+              {
+                "layer": 28,
+                "rel_depth": 0.875,
+                "ace_readout_auc": 0.7674,
+                "ace_readout_ci95": [
+                  0.6486,
+                  0.877
+                ],
+                "caa_readout_auc": 0.9107,
+                "probe_readout_auc": 0.9537,
+                "logit_lens_cross_auc": 0.693,
+                "logit_lens_ci95": [
+                  0.5863,
+                  0.7908
+                ],
+                "tuned_lens_cross_auc": 0.713,
+                "tuned_lens_ci95": [
+                  0.611,
+                  0.8137
+                ],
+                "gen_tuned_lens_cross_auc": 0.7662,
+                "gen_tuned_lens_ci95": [
+                  0.6658,
+                  0.8494
+                ],
+                "ace_flip_cross_auc": 0.3204,
+                "ace_flip_drop": 0.3948,
+                "ace_flip_drop_ci95": [
+                  0.2283,
+                  0.541
+                ],
+                "ace_keep1d_cross_auc": 0.7521,
+                "wu_cosine": 0.1586,
+                "cos_ace_caa": 0.706,
+                "cos_ace_probe": 0.6898,
+                "spectral_gap": 151.8
+              },
+              {
+                "layer": 32,
+                "rel_depth": 1.0,
+                "ace_readout_auc": 0.8002,
+                "ace_readout_ci95": [
+                  0.6794,
+                  0.9025
+                ],
+                "caa_readout_auc": 0.9116,
+                "probe_readout_auc": 0.9486,
+                "logit_lens_cross_auc": 0.7151,
+                "logit_lens_ci95": [
+                  0.6159,
+                  0.8051
+                ],
+                "tuned_lens_cross_auc": 0.7151,
+                "tuned_lens_ci95": [
+                  0.6201,
+                  0.8035
+                ],
+                "gen_tuned_lens_cross_auc": 0.7151,
+                "gen_tuned_lens_ci95": [
+                  0.6232,
+                  0.7982
+                ],
+                "ace_flip_cross_auc": 0.2855,
+                "ace_flip_drop": 0.4296,
+                "ace_flip_drop_ci95": [
+                  0.2791,
+                  0.575
+                ],
+                "ace_keep1d_cross_auc": 0.7968,
+                "wu_cosine": 0.0924,
+                "cos_ace_caa": 0.6848,
+                "cos_ace_probe": 0.6808,
+                "spectral_gap": 256.9
+              }
+            ]
+          },
+          "hazard_severity": {
+            "n_train_pairs": 56,
+            "n_test_cross_pairs": 168,
+            "clean_src_auc": 0.5517,
+            "clean_cross_auc": 0.7217,
+            "clean_cross_ci95": [
+              0.6197,
+              0.8163
+            ],
+            "best_ace_readout_layer": 20,
+            "best_ace_readout_auc": 0.8278,
+            "readout_collapse_gap": 0.1061,
+            "peak_steer_layer": 24,
+            "peak_steer_rel_depth": 0.75,
+            "peak_ace_flip_drop": 0.0776,
+            "peak_ace_flip_drop_ci95": [
+              0.0343,
+              0.1239
+            ],
+            "peak_caa_flip_drop": 0.0438,
+            "peak_caa_flip_drop_ci95": [
+              0.0136,
+              0.0797
+            ],
+            "peak_probe_flip_drop": -0.0236,
+            "peak_probe_flip_drop_ci95": [
+              -0.0389,
+              -0.0093
+            ],
+            "peak_rand_flip_drop": 0.0017,
+            "peak_rand_flip_drop_ci95": [
+              -0.0033,
+              0.0077
+            ],
+            "peak_steer_ace_readout_auc": 0.8027,
+            "peak_steer_logit_lens_auc": 0.7326,
+            "peak_steer_tuned_lens_auc": 0.6947,
+            "peak_steer_gen_tuned_lens_auc": 0.7079,
+            "peak_steer_wu_cosine": 0.0937,
+            "peak_keep1d_layer": 10,
+            "peak_keep1d_cross_auc": 0.7385,
+            "first_ace_ge80_depth": 0.625,
+            "first_tuned_lens_ge80_depth": null,
+            "first_logit_lens_ge80_depth": null,
+            "rank_ablation_mid": {
+              "rank_1": 0.8278,
+              "rank_2": 0.7483,
+              "rank_4": 0.7015
+            },
+            "layers": [
+              {
+                "layer": 4,
+                "rel_depth": 0.125,
+                "ace_readout_auc": 0.6114,
+                "ace_readout_ci95": [
+                  0.4688,
+                  0.736
+                ],
+                "caa_readout_auc": 0.6169,
+                "probe_readout_auc": 0.6271,
+                "logit_lens_cross_auc": 0.4749,
+                "logit_lens_ci95": [
+                  0.3685,
+                  0.5691
+                ],
+                "tuned_lens_cross_auc": 0.557,
+                "tuned_lens_ci95": [
+                  0.4503,
+                  0.6569
+                ],
+                "gen_tuned_lens_cross_auc": 0.507,
+                "gen_tuned_lens_ci95": [
+                  0.3861,
+                  0.6274
+                ],
+                "ace_flip_cross_auc": 0.7198,
+                "ace_flip_drop": 0.0019,
+                "ace_flip_drop_ci95": [
+                  -0.0041,
+                  0.0075
+                ],
+                "ace_keep1d_cross_auc": 0.7111,
+                "wu_cosine": 0.0046,
+                "cos_ace_caa": 0.6023,
+                "cos_ace_probe": 0.2849,
+                "spectral_gap": 6.0
+              },
+              {
+                "layer": 10,
+                "rel_depth": 0.312,
+                "ace_readout_auc": 0.4111,
+                "ace_readout_ci95": [
+                  0.3312,
+                  0.4909
+                ],
+                "caa_readout_auc": 0.5557,
+                "probe_readout_auc": 0.6059,
+                "logit_lens_cross_auc": 0.7385,
+                "logit_lens_ci95": [
+                  0.6467,
+                  0.8188
+                ],
+                "tuned_lens_cross_auc": 0.5804,
+                "tuned_lens_ci95": [
+                  0.4648,
+                  0.6935
+                ],
+                "gen_tuned_lens_cross_auc": 0.6726,
+                "gen_tuned_lens_ci95": [
+                  0.5689,
+                  0.7628
+                ],
+                "ace_flip_cross_auc": 0.7015,
+                "ace_flip_drop": 0.0202,
+                "ace_flip_drop_ci95": [
+                  0.0062,
+                  0.0381
+                ],
+                "ace_keep1d_cross_auc": 0.7385,
+                "wu_cosine": 0.0373,
+                "cos_ace_caa": 0.0244,
+                "cos_ace_probe": 0.01,
+                "spectral_gap": 3.6
+              },
+              {
+                "layer": 16,
+                "rel_depth": 0.5,
+                "ace_readout_auc": 0.5791,
+                "ace_readout_ci95": [
+                  0.4657,
+                  0.7016
+                ],
+                "caa_readout_auc": 0.7526,
+                "probe_readout_auc": 0.8567,
+                "logit_lens_cross_auc": 0.77,
+                "logit_lens_ci95": [
+                  0.6757,
+                  0.8543
+                ],
+                "tuned_lens_cross_auc": 0.5986,
+                "tuned_lens_ci95": [
+                  0.4731,
+                  0.7233
+                ],
+                "gen_tuned_lens_cross_auc": 0.6986,
+                "gen_tuned_lens_ci95": [
+                  0.6006,
+                  0.786
+                ],
+                "ace_flip_cross_auc": 0.7009,
+                "ace_flip_drop": 0.0208,
+                "ace_flip_drop_ci95": [
+                  0.009,
+                  0.0346
+                ],
+                "ace_keep1d_cross_auc": 0.6607,
+                "wu_cosine": 0.031,
+                "cos_ace_caa": 0.3635,
+                "cos_ace_probe": 0.1976,
+                "spectral_gap": 4.0
+              },
+              {
+                "layer": 20,
+                "rel_depth": 0.625,
+                "ace_readout_auc": 0.8278,
+                "ace_readout_ci95": [
+                  0.727,
+                  0.9166
+                ],
+                "caa_readout_auc": 0.8006,
+                "probe_readout_auc": 0.926,
+                "logit_lens_cross_auc": 0.7815,
+                "logit_lens_ci95": [
+                  0.6942,
+                  0.8538
+                ],
+                "tuned_lens_cross_auc": 0.7232,
+                "tuned_lens_ci95": [
+                  0.6131,
+                  0.8306
+                ],
+                "gen_tuned_lens_cross_auc": 0.7287,
+                "gen_tuned_lens_ci95": [
+                  0.6505,
+                  0.8032
+                ],
+                "ace_flip_cross_auc": 0.6541,
+                "ace_flip_drop": 0.0676,
+                "ace_flip_drop_ci95": [
+                  0.0346,
+                  0.1047
+                ],
+                "ace_keep1d_cross_auc": 0.7117,
+                "wu_cosine": 0.0582,
+                "cos_ace_caa": 0.7482,
+                "cos_ace_probe": 0.5055,
+                "spectral_gap": 28.8
+              },
+              {
+                "layer": 24,
+                "rel_depth": 0.75,
+                "ace_readout_auc": 0.8027,
+                "ace_readout_ci95": [
+                  0.6896,
+                  0.9061
+                ],
+                "caa_readout_auc": 0.7326,
+                "probe_readout_auc": 0.9022,
+                "logit_lens_cross_auc": 0.7326,
+                "logit_lens_ci95": [
+                  0.6554,
+                  0.8072
+                ],
+                "tuned_lens_cross_auc": 0.6947,
+                "tuned_lens_ci95": [
+                  0.5943,
+                  0.7889
+                ],
+                "gen_tuned_lens_cross_auc": 0.7079,
+                "gen_tuned_lens_ci95": [
+                  0.6293,
+                  0.7825
+                ],
+                "ace_flip_cross_auc": 0.6441,
+                "ace_flip_drop": 0.0776,
+                "ace_flip_drop_ci95": [
+                  0.0343,
+                  0.1239
+                ],
+                "ace_keep1d_cross_auc": 0.7228,
+                "wu_cosine": 0.0937,
+                "cos_ace_caa": 0.6982,
+                "cos_ace_probe": 0.4201,
+                "spectral_gap": 83.4
+              },
+              {
+                "layer": 28,
+                "rel_depth": 0.875,
+                "ace_readout_auc": 0.8053,
+                "ace_readout_ci95": [
+                  0.6884,
+                  0.9049
+                ],
+                "caa_readout_auc": 0.7079,
+                "probe_readout_auc": 0.9009,
+                "logit_lens_cross_auc": 0.7279,
+                "logit_lens_ci95": [
+                  0.6414,
+                  0.8149
+                ],
+                "tuned_lens_cross_auc": 0.7032,
+                "tuned_lens_ci95": [
+                  0.6008,
+                  0.7983
+                ],
+                "gen_tuned_lens_cross_auc": 0.6969,
+                "gen_tuned_lens_ci95": [
+                  0.6046,
+                  0.7873
+                ],
+                "ace_flip_cross_auc": 0.6528,
+                "ace_flip_drop": 0.0689,
+                "ace_flip_drop_ci95": [
+                  0.0339,
+                  0.107
+                ],
+                "ace_keep1d_cross_auc": 0.7183,
+                "wu_cosine": 0.0853,
+                "cos_ace_caa": 0.6528,
+                "cos_ace_probe": 0.3675,
+                "spectral_gap": 71.5
+              },
+              {
+                "layer": 32,
+                "rel_depth": 1.0,
+                "ace_readout_auc": 0.727,
+                "ace_readout_ci95": [
+                  0.6015,
+                  0.8389
+                ],
+                "caa_readout_auc": 0.6718,
+                "probe_readout_auc": 0.8648,
+                "logit_lens_cross_auc": 0.7198,
+                "logit_lens_ci95": [
+                  0.6126,
+                  0.812
+                ],
+                "tuned_lens_cross_auc": 0.7198,
+                "tuned_lens_ci95": [
+                  0.6149,
+                  0.8008
+                ],
+                "gen_tuned_lens_cross_auc": 0.7198,
+                "gen_tuned_lens_ci95": [
+                  0.6163,
+                  0.8098
+                ],
+                "ace_flip_cross_auc": 0.6718,
+                "ace_flip_drop": 0.05,
+                "ace_flip_drop_ci95": [
+                  0.015,
+                  0.0932
+                ],
+                "ace_keep1d_cross_auc": 0.7307,
+                "wu_cosine": 0.0667,
+                "cos_ace_caa": 0.6224,
+                "cos_ace_probe": 0.3453,
+                "spectral_gap": 644.9
+              }
+            ]
+          },
+          "historical_chronology": {
+            "n_train_pairs": 56,
+            "n_test_cross_pairs": 168,
+            "clean_src_auc": 0.7889,
+            "clean_cross_auc": 0.6173,
+            "clean_cross_ci95": [
+              0.5421,
+              0.6949
+            ],
+            "best_ace_readout_layer": 20,
+            "best_ace_readout_auc": 0.8057,
+            "readout_collapse_gap": 0.1884,
+            "peak_steer_layer": 24,
+            "peak_steer_rel_depth": 0.75,
+            "peak_ace_flip_drop": 0.2806,
+            "peak_ace_flip_drop_ci95": [
+              0.1886,
+              0.3764
+            ],
+            "peak_caa_flip_drop": 0.2092,
+            "peak_caa_flip_drop_ci95": [
+              0.0971,
+              0.3229
+            ],
+            "peak_probe_flip_drop": 0.2406,
+            "peak_probe_flip_drop_ci95": [
+              0.1664,
+              0.31
+            ],
+            "peak_rand_flip_drop": -0.0026,
+            "peak_rand_flip_drop_ci95": [
+              -0.0114,
+              0.006
+            ],
+            "peak_steer_ace_readout_auc": 0.804,
+            "peak_steer_logit_lens_auc": 0.7355,
+            "peak_steer_tuned_lens_auc": 0.6233,
+            "peak_steer_gen_tuned_lens_auc": 0.7415,
+            "peak_steer_wu_cosine": 0.1667,
+            "peak_keep1d_layer": 32,
+            "peak_keep1d_cross_auc": 0.7649,
+            "first_ace_ge80_depth": 0.625,
+            "first_tuned_lens_ge80_depth": null,
+            "first_logit_lens_ge80_depth": null,
+            "rank_ablation_mid": {
+              "rank_1": 0.8057,
+              "rank_2": 0.8261,
+              "rank_4": 0.8299
+            },
+            "layers": [
+              {
+                "layer": 4,
+                "rel_depth": 0.125,
+                "ace_readout_auc": 0.3274,
+                "ace_readout_ci95": [
+                  0.1996,
+                  0.4734
+                ],
+                "caa_readout_auc": 0.6471,
+                "probe_readout_auc": 0.6798,
+                "logit_lens_cross_auc": 0.4991,
+                "logit_lens_ci95": [
+                  0.3987,
+                  0.5957
+                ],
+                "tuned_lens_cross_auc": 0.4366,
+                "tuned_lens_ci95": [
+                  0.368,
+                  0.4972
+                ],
+                "gen_tuned_lens_cross_auc": 0.4328,
+                "gen_tuned_lens_ci95": [
+                  0.3271,
+                  0.5366
+                ],
+                "ace_flip_cross_auc": 0.6235,
+                "ace_flip_drop": -0.0062,
+                "ace_flip_drop_ci95": [
+                  -0.0167,
+                  0.0038
+                ],
+                "ace_keep1d_cross_auc": 0.615,
+                "wu_cosine": 0.0148,
+                "cos_ace_caa": 0.3434,
+                "cos_ace_probe": 0.2663,
+                "spectral_gap": 2.5
+              },
+              {
+                "layer": 10,
+                "rel_depth": 0.312,
+                "ace_readout_auc": 0.6526,
+                "ace_readout_ci95": [
+                  0.5165,
+                  0.7791
+                ],
+                "caa_readout_auc": 0.8533,
+                "probe_readout_auc": 0.8967,
+                "logit_lens_cross_auc": 0.6526,
+                "logit_lens_ci95": [
+                  0.5634,
+                  0.7366
+                ],
+                "tuned_lens_cross_auc": 0.5799,
+                "tuned_lens_ci95": [
+                  0.5155,
+                  0.6412
+                ],
+                "gen_tuned_lens_cross_auc": 0.5383,
+                "gen_tuned_lens_ci95": [
+                  0.4322,
+                  0.6454
+                ],
+                "ace_flip_cross_auc": 0.6114,
+                "ace_flip_drop": 0.006,
+                "ace_flip_drop_ci95": [
+                  -0.0141,
+                  0.0282
+                ],
+                "ace_keep1d_cross_auc": 0.6169,
+                "wu_cosine": 0.0199,
+                "cos_ace_caa": 0.4904,
+                "cos_ace_probe": 0.3677,
+                "spectral_gap": 3.7
+              },
+              {
+                "layer": 16,
+                "rel_depth": 0.5,
+                "ace_readout_auc": 0.7436,
+                "ace_readout_ci95": [
+                  0.702,
+                  0.7869
+                ],
+                "caa_readout_auc": 0.733,
+                "probe_readout_auc": 0.7266,
+                "logit_lens_cross_auc": 0.6509,
+                "logit_lens_ci95": [
+                  0.6075,
+                  0.688
+                ],
+                "tuned_lens_cross_auc": 0.611,
+                "tuned_lens_ci95": [
+                  0.5482,
+                  0.6738
+                ],
+                "gen_tuned_lens_cross_auc": 0.5638,
+                "gen_tuned_lens_ci95": [
+                  0.4816,
+                  0.6415
+                ],
+                "ace_flip_cross_auc": 0.4143,
+                "ace_flip_drop": 0.203,
+                "ace_flip_drop_ci95": [
+                  0.1544,
+                  0.2451
+                ],
+                "ace_keep1d_cross_auc": 0.5257,
+                "wu_cosine": 0.0674,
+                "cos_ace_caa": 0.9644,
+                "cos_ace_probe": 0.8929,
+                "spectral_gap": 23.8
+              },
+              {
+                "layer": 20,
+                "rel_depth": 0.625,
+                "ace_readout_auc": 0.8057,
+                "ace_readout_ci95": [
+                  0.7385,
+                  0.8714
+                ],
+                "caa_readout_auc": 0.7781,
+                "probe_readout_auc": 0.8104,
+                "logit_lens_cross_auc": 0.7466,
+                "logit_lens_ci95": [
+                  0.6722,
+                  0.8104
+                ],
+                "tuned_lens_cross_auc": 0.6207,
+                "tuned_lens_ci95": [
+                  0.538,
+                  0.7075
+                ],
+                "gen_tuned_lens_cross_auc": 0.7279,
+                "gen_tuned_lens_ci95": [
+                  0.6383,
+                  0.8101
+                ],
+                "ace_flip_cross_auc": 0.3697,
+                "ace_flip_drop": 0.2477,
+                "ace_flip_drop_ci95": [
+                  0.1771,
+                  0.316
+                ],
+                "ace_keep1d_cross_auc": 0.5748,
+                "wu_cosine": 0.1487,
+                "cos_ace_caa": 0.9641,
+                "cos_ace_probe": 0.9037,
+                "spectral_gap": 122.9
+              },
+              {
+                "layer": 24,
+                "rel_depth": 0.75,
+                "ace_readout_auc": 0.804,
+                "ace_readout_ci95": [
+                  0.7106,
+                  0.8872
+                ],
+                "caa_readout_auc": 0.7003,
+                "probe_readout_auc": 0.8329,
+                "logit_lens_cross_auc": 0.7355,
+                "logit_lens_ci95": [
+                  0.6645,
+                  0.8143
+                ],
+                "tuned_lens_cross_auc": 0.6233,
+                "tuned_lens_ci95": [
+                  0.5441,
+                  0.7088
+                ],
+                "gen_tuned_lens_cross_auc": 0.7415,
+                "gen_tuned_lens_ci95": [
+                  0.6457,
+                  0.8293
+                ],
+                "ace_flip_cross_auc": 0.3367,
+                "ace_flip_drop": 0.2806,
+                "ace_flip_drop_ci95": [
+                  0.1886,
+                  0.3764
+                ],
+                "ace_keep1d_cross_auc": 0.6314,
+                "wu_cosine": 0.1667,
+                "cos_ace_caa": 0.9313,
+                "cos_ace_probe": 0.8457,
+                "spectral_gap": 78.4
+              },
+              {
+                "layer": 28,
+                "rel_depth": 0.875,
+                "ace_readout_auc": 0.7781,
+                "ace_readout_ci95": [
+                  0.6705,
+                  0.8718
+                ],
+                "caa_readout_auc": 0.6705,
+                "probe_readout_auc": 0.8223,
+                "logit_lens_cross_auc": 0.6594,
+                "logit_lens_ci95": [
+                  0.5792,
+                  0.7393
+                ],
+                "tuned_lens_cross_auc": 0.6433,
+                "tuned_lens_ci95": [
+                  0.5611,
+                  0.7304
+                ],
+                "gen_tuned_lens_cross_auc": 0.7003,
+                "gen_tuned_lens_ci95": [
+                  0.6141,
+                  0.7802
+                ],
+                "ace_flip_cross_auc": 0.3599,
+                "ace_flip_drop": 0.2574,
+                "ace_flip_drop_ci95": [
+                  0.1588,
+                  0.3512
+                ],
+                "ace_keep1d_cross_auc": 0.7173,
+                "wu_cosine": 0.1557,
+                "cos_ace_caa": 0.9178,
+                "cos_ace_probe": 0.8117,
+                "spectral_gap": 124.8
+              },
+              {
+                "layer": 32,
+                "rel_depth": 1.0,
+                "ace_readout_auc": 0.7747,
+                "ace_readout_ci95": [
+                  0.6606,
+                  0.8669
+                ],
+                "caa_readout_auc": 0.6548,
+                "probe_readout_auc": 0.8193,
+                "logit_lens_cross_auc": 0.6186,
+                "logit_lens_ci95": [
+                  0.5459,
+                  0.6977
+                ],
+                "tuned_lens_cross_auc": 0.6186,
+                "tuned_lens_ci95": [
+                  0.5425,
+                  0.6952
+                ],
+                "gen_tuned_lens_cross_auc": 0.6186,
+                "gen_tuned_lens_ci95": [
+                  0.5406,
+                  0.6914
+                ],
+                "ace_flip_cross_auc": 0.3508,
+                "ace_flip_drop": 0.2666,
+                "ace_flip_drop_ci95": [
+                  0.1743,
+                  0.3562
+                ],
+                "ace_keep1d_cross_auc": 0.7649,
+                "wu_cosine": 0.1195,
+                "cos_ace_caa": 0.8825,
+                "cos_ace_probe": 0.79,
+                "spectral_gap": 1097.0
+              }
+            ]
+          },
+          "geographic_scale": {
+            "n_train_pairs": 56,
+            "n_test_cross_pairs": 168,
+            "clean_src_auc": 0.9962,
+            "clean_cross_auc": 0.8482,
+            "clean_cross_ci95": [
+              0.7793,
+              0.9124
+            ],
+            "best_ace_readout_layer": 10,
+            "best_ace_readout_auc": 0.7296,
+            "readout_collapse_gap": -0.1186,
+            "peak_steer_layer": 20,
+            "peak_steer_rel_depth": 0.625,
+            "peak_ace_flip_drop": 0.2596,
+            "peak_ace_flip_drop_ci95": [
+              0.0756,
+              0.4497
+            ],
+            "peak_caa_flip_drop": 0.2774,
+            "peak_caa_flip_drop_ci95": [
+              0.0864,
+              0.4733
+            ],
+            "peak_probe_flip_drop": 0.3323,
+            "peak_probe_flip_drop_ci95": [
+              0.2734,
+              0.3969
+            ],
+            "peak_rand_flip_drop": 0.0026,
+            "peak_rand_flip_drop_ci95": [
+              -0.0002,
+              0.0068
+            ],
+            "peak_steer_ace_readout_auc": 0.6471,
+            "peak_steer_logit_lens_auc": 0.9277,
+            "peak_steer_tuned_lens_auc": 0.8048,
+            "peak_steer_gen_tuned_lens_auc": 0.9167,
+            "peak_steer_wu_cosine": 0.1652,
+            "peak_keep1d_layer": 10,
+            "peak_keep1d_cross_auc": 0.8899,
+            "first_ace_ge80_depth": null,
+            "first_tuned_lens_ge80_depth": 0.625,
+            "first_logit_lens_ge80_depth": 0.625,
+            "rank_ablation_mid": {
+              "rank_1": 0.6471,
+              "rank_2": 0.9528,
+              "rank_4": 0.977
+            },
+            "layers": [
+              {
+                "layer": 4,
+                "rel_depth": 0.125,
+                "ace_readout_auc": 0.5489,
+                "ace_readout_ci95": [
+                  0.401,
+                  0.6891
+                ],
+                "caa_readout_auc": 0.7117,
+                "probe_readout_auc": 0.7139,
+                "logit_lens_cross_auc": 0.4851,
+                "logit_lens_ci95": [
+                  0.3846,
+                  0.5949
+                ],
+                "tuned_lens_cross_auc": 0.5693,
+                "tuned_lens_ci95": [
+                  0.495,
+                  0.6458
+                ],
+                "gen_tuned_lens_cross_auc": 0.3946,
+                "gen_tuned_lens_ci95": [
+                  0.295,
+                  0.5048
+                ],
+                "ace_flip_cross_auc": 0.8523,
+                "ace_flip_drop": -0.004,
+                "ace_flip_drop_ci95": [
+                  -0.0177,
+                  0.012
+                ],
+                "ace_keep1d_cross_auc": 0.8665,
+                "wu_cosine": 0.0271,
+                "cos_ace_caa": 0.9009,
+                "cos_ace_probe": 0.875,
+                "spectral_gap": 5.7
+              },
+              {
+                "layer": 10,
+                "rel_depth": 0.312,
+                "ace_readout_auc": 0.7296,
+                "ace_readout_ci95": [
+                  0.5872,
+                  0.8559
+                ],
+                "caa_readout_auc": 0.7321,
+                "probe_readout_auc": 0.7908,
+                "logit_lens_cross_auc": 0.5625,
+                "logit_lens_ci95": [
+                  0.4803,
+                  0.6465
+                ],
+                "tuned_lens_cross_auc": 0.7351,
+                "tuned_lens_ci95": [
+                  0.6323,
+                  0.8316
+                ],
+                "gen_tuned_lens_cross_auc": 0.5884,
+                "gen_tuned_lens_ci95": [
+                  0.4955,
+                  0.6763
+                ],
+                "ace_flip_cross_auc": 0.8423,
+                "ace_flip_drop": 0.006,
+                "ace_flip_drop_ci95": [
+                  -0.0215,
+                  0.038
+                ],
+                "ace_keep1d_cross_auc": 0.8899,
+                "wu_cosine": 0.0111,
+                "cos_ace_caa": 0.9424,
+                "cos_ace_probe": 0.7653,
+                "spectral_gap": 5.3
+              },
+              {
+                "layer": 16,
+                "rel_depth": 0.5,
+                "ace_readout_auc": 0.5408,
+                "ace_readout_ci95": [
+                  0.3966,
+                  0.6876
+                ],
+                "caa_readout_auc": 0.5578,
+                "probe_readout_auc": 0.7742,
+                "logit_lens_cross_auc": 0.6773,
+                "logit_lens_ci95": [
+                  0.585,
+                  0.7578
+                ],
+                "tuned_lens_cross_auc": 0.631,
+                "tuned_lens_ci95": [
+                  0.539,
+                  0.7246
+                ],
+                "gen_tuned_lens_cross_auc": 0.6935,
+                "gen_tuned_lens_ci95": [
+                  0.5858,
+                  0.7932
+                ],
+                "ace_flip_cross_auc": 0.8797,
+                "ace_flip_drop": -0.0315,
+                "ace_flip_drop_ci95": [
+                  -0.1294,
+                  0.0555
+                ],
+                "ace_keep1d_cross_auc": 0.8865,
+                "wu_cosine": 0.0351,
+                "cos_ace_caa": 0.9663,
+                "cos_ace_probe": 0.4678,
+                "spectral_gap": 12.9
+              },
+              {
+                "layer": 20,
+                "rel_depth": 0.625,
+                "ace_readout_auc": 0.6471,
+                "ace_readout_ci95": [
+                  0.4994,
+                  0.7782
+                ],
+                "caa_readout_auc": 0.6514,
+                "probe_readout_auc": 0.9792,
+                "logit_lens_cross_auc": 0.9277,
+                "logit_lens_ci95": [
+                  0.881,
+                  0.9645
+                ],
+                "tuned_lens_cross_auc": 0.8048,
+                "tuned_lens_ci95": [
+                  0.7184,
+                  0.8778
+                ],
+                "gen_tuned_lens_cross_auc": 0.9167,
+                "gen_tuned_lens_ci95": [
+                  0.8655,
+                  0.96
+                ],
+                "ace_flip_cross_auc": 0.5886,
+                "ace_flip_drop": 0.2596,
+                "ace_flip_drop_ci95": [
+                  0.0756,
+                  0.4497
+                ],
+                "ace_keep1d_cross_auc": 0.6743,
+                "wu_cosine": 0.1652,
+                "cos_ace_caa": 0.9914,
+                "cos_ace_probe": 0.5721,
+                "spectral_gap": 75.4
+              },
+              {
+                "layer": 24,
+                "rel_depth": 0.75,
+                "ace_readout_auc": 0.6743,
+                "ace_readout_ci95": [
+                  0.533,
+                  0.8117
+                ],
+                "caa_readout_auc": 0.6858,
+                "probe_readout_auc": 0.9779,
+                "logit_lens_cross_auc": 0.9524,
+                "logit_lens_ci95": [
+                  0.9088,
+                  0.9844
+                ],
+                "tuned_lens_cross_auc": 0.8265,
+                "tuned_lens_ci95": [
+                  0.7409,
+                  0.8953
+                ],
+                "gen_tuned_lens_cross_auc": 0.9481,
+                "gen_tuned_lens_ci95": [
+                  0.9006,
+                  0.9835
+                ],
+                "ace_flip_cross_auc": 0.5969,
+                "ace_flip_drop": 0.2513,
+                "ace_flip_drop_ci95": [
+                  0.0721,
+                  0.439
+                ],
+                "ace_keep1d_cross_auc": 0.6784,
+                "wu_cosine": 0.1705,
+                "cos_ace_caa": 0.9901,
+                "cos_ace_probe": 0.529,
+                "spectral_gap": 59.1
+              },
+              {
+                "layer": 28,
+                "rel_depth": 0.875,
+                "ace_readout_auc": 0.6769,
+                "ace_readout_ci95": [
+                  0.5337,
+                  0.8028
+                ],
+                "caa_readout_auc": 0.6858,
+                "probe_readout_auc": 0.9588,
+                "logit_lens_cross_auc": 0.926,
+                "logit_lens_ci95": [
+                  0.8787,
+                  0.9652
+                ],
+                "tuned_lens_cross_auc": 0.8571,
+                "tuned_lens_ci95": [
+                  0.7829,
+                  0.9214
+                ],
+                "gen_tuned_lens_cross_auc": 0.9082,
+                "gen_tuned_lens_ci95": [
+                  0.8608,
+                  0.9492
+                ],
+                "ace_flip_cross_auc": 0.6161,
+                "ace_flip_drop": 0.2321,
+                "ace_flip_drop_ci95": [
+                  0.0503,
+                  0.4048
+                ],
+                "ace_keep1d_cross_auc": 0.6707,
+                "wu_cosine": 0.1266,
+                "cos_ace_caa": 0.9909,
+                "cos_ace_probe": 0.529,
+                "spectral_gap": 73.4
+              },
+              {
+                "layer": 32,
+                "rel_depth": 1.0,
+                "ace_readout_auc": 0.6735,
+                "ace_readout_ci95": [
+                  0.5266,
+                  0.805
+                ],
+                "caa_readout_auc": 0.6773,
+                "probe_readout_auc": 0.9401,
+                "logit_lens_cross_auc": 0.8474,
+                "logit_lens_ci95": [
+                  0.7738,
+                  0.9049
+                ],
+                "tuned_lens_cross_auc": 0.8474,
+                "tuned_lens_ci95": [
+                  0.7743,
+                  0.9081
+                ],
+                "gen_tuned_lens_cross_auc": 0.8474,
+                "gen_tuned_lens_ci95": [
+                  0.7752,
+                  0.9115
+                ],
+                "ace_flip_cross_auc": 0.6424,
+                "ace_flip_drop": 0.2058,
+                "ace_flip_drop_ci95": [
+                  0.0464,
+                  0.3781
+                ],
+                "ace_keep1d_cross_auc": 0.6735,
+                "wu_cosine": 0.0728,
+                "cos_ace_caa": 0.9875,
+                "cos_ace_probe": 0.4758,
+                "spectral_gap": 775.1
+              }
+            ]
+          }
+        }
       }
     }
   },
   "analysis": {
-    "abstract_text": "Interpretability tools routinely assume that if a transformer represents a concept linearly in its residual stream, that concept can be decoded by projecting intermediate activations through the unembedding matrix (Logit Lens) or a trained affine translator (Tuned Lens). Evaluating 3 distinct open-weight model families spanning 1.7B to 7.2B parameters (Qwen3-1.7B, SmolLM2-1.7B, Mistral-7B) across 4 real-world comparative domains and 2,016 strictly held-out cross-lexicon entity pairs (100% single-token across all three tokenizers), we test this assumption against Paired-Swap Algorithmic Core Extraction (ACE) and four strong baselines (Direct Logit Lens, Residual-Affine Tuned Lens, Contrastive Activation Addition [CAA], and L2 Logistic Probes). Across 12 (model, domain) cells, peak 1D causal steering emerges where ACE linear readout (mean AUC 0.766) significantly outperforms Direct Logit Lens (0.709, gap +0.057, Wilcoxon p=0.046) and consistently trends above Trained Tuned Lens (0.708, gap +0.058, one-sided Wilcoxon p=0.065), while operating largely orthogonal to the unembedding contrast vector (mean |cos(q_l*, dW_U)| = 0.143). On 1D causal necessity (Flip-1D across unseen cross-lexicons), ACE achieves mean AUC reversal +0.226 \u2014 significantly outperforming random controls (-0.002, p=2.44e-04), CAA (+0.160, p=7.32e-04; 11/12 cells), and L2 Logistic Probes (+0.162, p=4.64e-03; 10/12 cells). Most strikingly, on causal sufficiency (Keep-1D \u2014 deleting 2,047-4,095 orthogonal dimensions and retaining only the single 1D ACE coordinate), Keep-1D outperforms the full unperturbed model in 12/12 cells (p=2.44e-04; mean AUC 0.795 vs. 0.707 clean, mean gain +0.088; up to +0.238 on Qwen3-1.7B physical_scale), exposing pervasive late-layer readout collapse.",
+    "abstract_text": "Interpretability tools routinely assume that if a transformer represents a concept linearly in its residual stream, that concept can be decoded by projecting intermediate activations through the unembedding matrix (Logit Lens) or a trained affine translator (Tuned Lens). Evaluating 4 distinct open-weight model families spanning 1.7B to 7.3B parameters (Qwen3-1.7B, SmolLM2-1.7B, Mistral-7B, OLMo-2-7B) across 4 real-world comparative domains and 2,688 strictly held-out cross-lexicon entity pairs (100% single-token across all 4 tokenizers), we test this assumption against Paired-Swap Algorithmic Core Extraction (ACE) and five strong baselines (Direct Logit Lens, General-Corpus Tuned Lens, Domain Residual-Affine Tuned Lens, Contrastive Activation Addition [CAA], and L2 Logistic Probes). Across 16 (model, domain) cells, peak 1D causal steering emerges where ACE linear readout (mean AUC 0.765) consistently exceeds Direct Logit Lens (0.727, gap +0.039, Wilcoxon p=0.065) and General-Corpus Tuned Lens trained on ~3,200 diverse scientific tokens (0.697, gap +0.068, Wilcoxon p=4.67e-02) and significantly outperforms Domain Tuned Lens (0.708, gap +0.057, p=4.67e-02), while operating largely orthogonal to the unembedding contrast vector (mean |cos(q_l*, dW_U)| = 0.140). On 1D causal necessity (Flip-1D across unseen cross-lexicons), ACE achieves mean AUC reversal +0.235 \u2014 significantly outperforming random controls (-0.001, p=1.53e-05), CAA (+0.170, p=1.53e-04; 14/16 cells), and L2 Logistic Probes (+0.179, p=3.81e-03; 13/16 cells). Most strikingly, on causal sufficiency (Keep-1D \u2014 deleting 2,047-4,095 orthogonal dimensions and retaining only the single 1D ACE coordinate), Keep-1D outperforms the full unperturbed model in 16/16 cells (sign-test p=1.53e-05; mean AUC 0.799 vs. 0.712 clean, mean gain +0.087; up to +0.238 on Qwen3-1.7B physical_scale), exposing pervasive late-layer readout collapse. Probing boundary conditions in multi-token free-form greedy generation (Qwen3-1.7B & SmolLM2-1.7B), single-position prefill Flip-1D preserves fluent continuation NLL (0.86-1.49) but flips only 0.0%-5.6% of multi-token base-model completions (vs. 0.0% random) because subsequent generated tokens re-attend to unperturbed entity tokens in the KV cache, clarifying that sustained per-step steering is needed for multi-token generation.",
     "findings": [
-      "Steerable before decodable across 3 architectures (1.7B-7.2B, 2,016 held-out cross-lexicon pairs): At peak causal steering depth, ACE readout (0.766) exceeds both Direct Logit Lens (0.709, p=4.61e-02) and Trained Residual-Affine Tuned Lens (0.708, p=6.47e-02), with mean unembedding alignment |cos(q_l*, dW_U)| = 0.143.",
-      "Gradient-weighted ACE dominates activation-only steering baselines on 1D causal necessity (Flip-1D): Mean cross-lexicon reversal drop = +0.226 vs. CAA +0.160 (p=7.32e-04, wins 11/12), L2 Logistic Probe +0.162 (p=4.64e-03, wins 10/12), and Random Control -0.002 (p=2.44e-04).",
-      "1D causal sufficiency (Keep-1D) rescues late-layer readout collapse: Projecting the 2,048-4,096D residual stream onto only the 1D ACE axis outperforms the full unperturbed model in 12/12 cells (mean Keep-1D AUC 0.795 vs. clean final-layer 0.707, mean gain +0.088; largest rescue 0.592 -> 0.830 on Qwen3-1.7B physical_scale).",
-      "Readout collapse (mid-layer best ACE AUC exceeding final-layer clean cross-lexicon AUC by >= 0.05) occurs in 8/12 cells (mean best mid-layer ACE 0.832 vs. clean 0.707), confirming that models compute accurate latent comparisons internally that are partially lost before lexical decoding."
+      "Steerable before decodable across 4 architectures (1.7B-7.3B, 2,688 held-out cross-lexicon pairs): At peak causal steering depth, ACE readout (0.765) exceeds Direct Logit Lens (0.727, p=6.49e-02), General-Corpus Tuned Lens (0.697, p=4.67e-02), and Domain Tuned Lens (0.708, p=4.67e-02), with mean |cos(q_l*, dW_U)| = 0.140.",
+      "Gradient-weighted ACE dominates activation-only steering baselines on 1D causal necessity (Flip-1D): Mean cross-lexicon reversal drop = +0.235 vs. CAA +0.170 (p=1.53e-04, wins 14/16), L2 Logistic Probe +0.179 (p=3.81e-03, wins 13/16), and Random Control -0.001 (p=1.53e-05).",
+      "1D causal sufficiency (Keep-1D) rescues late-layer readout collapse: Projecting the 2,048-4,096D residual stream onto only the 1D ACE axis outperforms the full unperturbed model in 16/16 cells (mean Keep-1D AUC 0.799 vs. clean final-layer 0.712, mean gain +0.087; largest rescue 0.592 -> 0.830 on Qwen3-1.7B physical_scale).",
+      "Multi-token free-form generation boundary condition (honest negative/scope result): Single-position prefill Flip-1D preserves fluent base-model continuation NLL (0.86-1.49) but flips only 0.0%-5.6% of multi-token greedy answers (vs. 0.0% random) because base models emit multi-token prefixes that re-attend to unperturbed entity tokens in the KV cache, showing sustained per-step steering is required beyond single-token logits."
     ],
-    "metric_chip": "ACE Flip +0.23 vs CAA +0.16 (p=7.3e-04) \u00b7 Keep-1D wins 12/12",
+    "metric_chip": "ACE Flip +0.24 vs CAA +0.17 (p=1.5e-04) \u00b7 Keep-1D wins 16/16",
     "stats": [
       [
-        "0.766 vs 0.708",
+        "0.765 vs 0.708",
         "ACE vs Tuned Lens AUC"
       ],
       [
-        "+0.226 vs +0.160",
+        "+0.235 vs +0.170",
         "1D Flip: ACE vs CAA"
       ],
       [
-        "12/12 (+0.088)",
+        "16/16 (+0.087)",
         "Keep-1D >= Clean Model"
       ],
       [
-        "0.143",
+        "0.140",
         "Mean |cos(q_l*, \u0394W_U)|"
       ]
     ],
-    "table_html": "<div class=\"table-wrap\"><div class=\"table-caption\">Table 1. Multi-model cross-lexicon evaluation across 3 architectures and 4 comparative domains (n = 2,016 strictly held-out entity pairs; 95% paired per-lexicon bootstrap CIs shown for ACE Flip-1D). Random unit-vector control mean drop = -0.0015.</div><table><thead><tr><th>Model</th><th>Domain</th><th>Peak l*</th><th>ACE Read (&uarr;)</th><th>Tuned Lens</th><th>Logit Lens</th><th>ACE Flip (&uarr;)</th><th>CAA Flip</th><th>Probe Flip</th><th>Keep-1D (Clean)</th><th>|cos(W<sub>U</sub>)|</th></tr></thead><tbody><tr><td><strong>Qwen3-1.7B</strong></td><td><code>physical_scale</code></td><td><code>L24 (0.86)</code></td><td><strong><code>0.854</code></strong></td><td><code>0.577</code></td><td><code>0.590</code></td><td><strong><code>+0.379</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.25,+0.51]</span></td><td><code>+0.223</code></td><td><code>+0.301</code></td><td><strong><code>0.830</code></strong> <code>(0.592)</code></td><td><code>0.289</code></td></tr><tr><td><strong>Qwen3-1.7B</strong></td><td><code>hazard_severity</code></td><td><code>L20 (0.71)</code></td><td><strong><code>0.827</code></strong></td><td><code>0.670</code></td><td><code>0.708</code></td><td><strong><code>+0.072</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.04,+0.10]</span></td><td><code>+0.054</code></td><td><code>+0.025</code></td><td><strong><code>0.798</code></strong> <code>(0.702)</code></td><td><code>0.097</code></td></tr><tr><td><strong>Qwen3-1.7B</strong></td><td><code>historical_chronology</code></td><td><code>L28 (1.00)</code></td><td><strong><code>0.624</code></strong></td><td><code>0.572</code></td><td><code>0.572</code></td><td><strong><code>+0.104</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.04,+0.17]</span></td><td><code>+0.047</code></td><td><code>+0.075</code></td><td><strong><code>0.620</code></strong> <code>(0.572)</code></td><td><code>0.155</code></td></tr><tr><td><strong>Qwen3-1.7B</strong></td><td><code>geographic_scale</code></td><td><code>L18 (0.64)</code></td><td><strong><code>0.938</code></strong></td><td><code>0.897</code></td><td><code>0.922</code></td><td><strong><code>+0.301</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.21,+0.40]</span></td><td><code>+0.213</code></td><td><code>+0.137</code></td><td><strong><code>0.916</code></strong> <code>(0.895)</code></td><td><code>0.302</code></td></tr><tr><td><strong>SmolLM2-1.7B</strong></td><td><code>physical_scale</code></td><td><code>L18 (0.75)</code></td><td><strong><code>0.804</code></strong></td><td><code>0.735</code></td><td><code>0.721</code></td><td><strong><code>+0.362</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.22,+0.50]</span></td><td><code>+0.289</code></td><td><code>+0.403</code></td><td><strong><code>0.832</code></strong> <code>(0.816)</code></td><td><code>0.119</code></td></tr><tr><td><strong>SmolLM2-1.7B</strong></td><td><code>hazard_severity</code></td><td><code>L20 (0.83)</code></td><td><strong><code>0.789</code></strong></td><td><code>0.719</code></td><td><code>0.664</code></td><td><strong><code>+0.285</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.18,+0.39]</span></td><td><code>+0.174</code></td><td><code>+0.125</code></td><td><strong><code>0.790</code></strong> <code>(0.691)</code></td><td><code>0.158</code></td></tr><tr><td><strong>SmolLM2-1.7B</strong></td><td><code>historical_chronology</code></td><td><code>L18 (0.75)</code></td><td><strong><code>0.802</code></strong></td><td><code>0.633</code></td><td><code>0.684</code></td><td><strong><code>+0.216</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.13,+0.31]</span></td><td><code>+0.153</code></td><td><code>+0.105</code></td><td><strong><code>0.719</code></strong> <code>(0.592)</code></td><td><code>0.088</code></td></tr><tr><td><strong>SmolLM2-1.7B</strong></td><td><code>geographic_scale</code></td><td><code>L24 (1.00)</code></td><td><strong><code>0.586</code></strong></td><td><code>0.867</code></td><td><code>0.867</code></td><td><strong><code>+0.107</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.04,+0.17]</span></td><td><code>-0.008</code></td><td><code>-0.005</code></td><td><strong><code>0.907</code></strong> <code>(0.863)</code></td><td><code>0.044</code></td></tr><tr><td><strong>Mistral-7B</strong></td><td><code>physical_scale</code></td><td><code>L24 (0.75)</code></td><td><strong><code>0.799</code></strong></td><td><code>0.699</code></td><td><code>0.639</code></td><td><strong><code>+0.365</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.23,+0.49]</span></td><td><code>+0.301</code></td><td><code>+0.351</code></td><td><strong><code>0.850</code></strong> <code>(0.712)</code></td><td><code>0.150</code></td></tr><tr><td><strong>Mistral-7B</strong></td><td><code>hazard_severity</code></td><td><code>L16 (0.50)</code></td><td><strong><code>0.630</code></strong></td><td><code>0.703</code></td><td><code>0.707</code></td><td><strong><code>+0.141</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.08,+0.21]</span></td><td><code>+0.076</code></td><td><code>+0.070</code></td><td><strong><code>0.734</code></strong> <code>(0.727)</code></td><td><code>0.040</code></td></tr><tr><td><strong>Mistral-7B</strong></td><td><code>historical_chronology</code></td><td><code>L20 (0.62)</code></td><td><strong><code>0.824</code></strong></td><td><code>0.775</code></td><td><code>0.798</code></td><td><strong><code>+0.238</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.17,+0.31]</span></td><td><code>+0.256</code></td><td><code>+0.269</code></td><td><strong><code>0.739</code></strong> <code>(0.681)</code></td><td><code>0.136</code></td></tr><tr><td><strong>Mistral-7B</strong></td><td><code>geographic_scale</code></td><td><code>L28 (0.88)</code></td><td><strong><code>0.713</code></strong></td><td><code>0.645</code></td><td><code>0.640</code></td><td><strong><code>+0.145</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.08,+0.21]</span></td><td><code>+0.135</code></td><td><code>+0.084</code></td><td><strong><code>0.811</code></strong> <code>(0.647)</code></td><td><code>0.138</code></td></tr><tr class=\"highlight-row\"><td colspan=\"3\"><strong>Macro-Average (12 cells, n=2,016 pairs)</strong></td><td><strong><code>0.766</code></strong></td><td><code>0.708</code></td><td><code>0.709</code></td><td><strong><code>+0.226</code></strong></td><td><code>+0.160</code></td><td><code>+0.162</code></td><td><strong><code>0.795</code></strong> <code>(0.707)</code></td><td><code>0.143</code></td></tr></tbody></table></div><div class=\"table-wrap\"><div class=\"table-caption\">Table 2. Mid-depth ablation study across all three models: ACE subspace dimensionality (rank 1 vs. 2 vs. 4) and Tuned Lens ridge regularization (&alpha; &isin; {10, 100, 1000}).</div><table><thead><tr><th>Model</th><th>ACE Rank-1</th><th>ACE Rank-2</th><th>ACE Rank-4</th><th>Tuned Lens &alpha;=10</th><th>Tuned Lens &alpha;=100</th><th>Tuned Lens &alpha;=1000</th></tr></thead><tbody><tr><td><strong>Qwen3-1.7B</strong> (1.7B, 28L)</td><td><code>0.830</code></td><td><code>0.852</code></td><td><code>0.854</code></td><td><code>0.724</code></td><td><code>0.725</code></td><td><code>0.728</code></td></tr><tr><td><strong>SmolLM2-1.7B</strong> (1.7B, 24L)</td><td><code>0.648</code></td><td><code>0.779</code></td><td><code>0.826</code></td><td><code>0.606</code></td><td><code>0.620</code></td><td><code>0.603</code></td></tr><tr><td><strong>Mistral-7B</strong> (7.2B, 32L)</td><td><code>0.747</code></td><td><code>0.778</code></td><td><code>0.817</code></td><td><code>0.706</code></td><td><code>0.687</code></td><td><code>0.657</code></td></tr></tbody></table></div>",
-    "table_md": "| Model | Domain | Peak Layer | ACE Readout | Tuned Lens | Logit Lens | ACE Flip Drop | CAA Drop | Probe Drop | Keep-1D (Clean) | |cos(W_U)| |\n|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|\n| Qwen3-1.7B | `physical_scale` | L24 (0.86) | 0.854 | 0.577 | 0.590 | +0.379 [+0.25,+0.51] | +0.223 | +0.301 | 0.830 (0.592) | 0.289 |\n| Qwen3-1.7B | `hazard_severity` | L20 (0.71) | 0.827 | 0.670 | 0.708 | +0.072 [+0.04,+0.10] | +0.054 | +0.025 | 0.798 (0.702) | 0.097 |\n| Qwen3-1.7B | `historical_chronology` | L28 (1.00) | 0.624 | 0.572 | 0.572 | +0.104 [+0.04,+0.17] | +0.047 | +0.075 | 0.620 (0.572) | 0.155 |\n| Qwen3-1.7B | `geographic_scale` | L18 (0.64) | 0.938 | 0.897 | 0.922 | +0.301 [+0.21,+0.40] | +0.213 | +0.137 | 0.916 (0.895) | 0.302 |\n| SmolLM2-1.7B | `physical_scale` | L18 (0.75) | 0.804 | 0.735 | 0.721 | +0.362 [+0.22,+0.50] | +0.289 | +0.403 | 0.832 (0.816) | 0.119 |\n| SmolLM2-1.7B | `hazard_severity` | L20 (0.83) | 0.789 | 0.719 | 0.664 | +0.285 [+0.18,+0.39] | +0.174 | +0.125 | 0.790 (0.691) | 0.158 |\n| SmolLM2-1.7B | `historical_chronology` | L18 (0.75) | 0.802 | 0.633 | 0.684 | +0.216 [+0.13,+0.31] | +0.153 | +0.105 | 0.719 (0.592) | 0.088 |\n| SmolLM2-1.7B | `geographic_scale` | L24 (1.00) | 0.586 | 0.867 | 0.867 | +0.107 [+0.04,+0.17] | -0.008 | -0.005 | 0.907 (0.863) | 0.044 |\n| Mistral-7B | `physical_scale` | L24 (0.75) | 0.799 | 0.699 | 0.639 | +0.365 [+0.23,+0.49] | +0.301 | +0.351 | 0.850 (0.712) | 0.150 |\n| Mistral-7B | `hazard_severity` | L16 (0.50) | 0.630 | 0.703 | 0.707 | +0.141 [+0.08,+0.21] | +0.076 | +0.070 | 0.734 (0.727) | 0.040 |\n| Mistral-7B | `historical_chronology` | L20 (0.62) | 0.824 | 0.775 | 0.798 | +0.238 [+0.17,+0.31] | +0.256 | +0.269 | 0.739 (0.681) | 0.136 |\n| Mistral-7B | `geographic_scale` | L28 (0.88) | 0.713 | 0.645 | 0.640 | +0.145 [+0.08,+0.21] | +0.135 | +0.084 | 0.811 (0.647) | 0.138 |",
-    "figure_png_rel": "papers/figures/steerable-not-decodable-v2.png",
-    "fig_caption": "Figure 1. Multi-model evaluation across Qwen3-1.7B, SmolLM2-1.7B, and Mistral-7B-v0.1 (2,016 strictly held-out cross-lexicon pairs). (a-c) Mean depth trajectories across 4 domains with 95% error bands showing ACE 1D readout, Tuned Lens, Direct Logit Lens, 1D causal steer drop, and |cos(q_l, \u0394W_U)|. (d) 1D causal necessity comparison at peak depth (ACE vs. CAA vs. L2 Probe vs. Random). (e) Keep-1D causal sufficiency rescuing late-layer readout collapse across domains. (f) Peak causal control vs. unembedding cosine alignment.",
+    "table_html": "<div class=\"table-wrap\"><div class=\"table-caption\">Table 1. Multi-model cross-lexicon evaluation across 4 architectures and 4 comparative domains (n = 2,688 strictly held-out entity pairs; Gen-TL = General-Corpus Tuned Lens trained on ~3,200 diverse scientific tokens; Dom-TL = Domain-Trained Tuned Lens). Random unit-vector control mean drop = -0.0009.</div><table><thead><tr><th>Model</th><th>Domain</th><th>Peak l*</th><th>ACE Read</th><th>Gen-TL</th><th>Dom-TL</th><th>Logit Lens</th><th>ACE Flip</th><th>CAA</th><th>Probe</th><th>Keep-1D (Clean)</th><th>|cos(W<sub>U</sub>)|</th></tr></thead><tbody><tr><td><strong>Qwen3-1.7B</strong></td><td><code>physical_scale</code></td><td><code>L24 (0.86)</code></td><td><strong><code>0.854</code></strong></td><td><code>0.588</code></td><td><code>0.577</code></td><td><code>0.590</code></td><td><strong><code>+0.379</code></strong> <span style='font-size:6.5pt;color:#64748b'>[+0.25,+0.51]</span></td><td><code>+0.223</code></td><td><code>+0.301</code></td><td><strong><code>0.830</code></strong> <code>(0.592)</code></td><td><code>0.289</code></td></tr><tr><td><strong>Qwen3-1.7B</strong></td><td><code>hazard_severity</code></td><td><code>L20 (0.71)</code></td><td><strong><code>0.827</code></strong></td><td><code>0.645</code></td><td><code>0.670</code></td><td><code>0.708</code></td><td><strong><code>+0.072</code></strong> <span style='font-size:6.5pt;color:#64748b'>[+0.04,+0.10]</span></td><td><code>+0.054</code></td><td><code>+0.025</code></td><td><strong><code>0.798</code></strong> <code>(0.702)</code></td><td><code>0.097</code></td></tr><tr><td><strong>Qwen3-1.7B</strong></td><td><code>historical_chronology</code></td><td><code>L28 (1.00)</code></td><td><strong><code>0.624</code></strong></td><td><code>0.572</code></td><td><code>0.572</code></td><td><code>0.572</code></td><td><strong><code>+0.104</code></strong> <span style='font-size:6.5pt;color:#64748b'>[+0.04,+0.17]</span></td><td><code>+0.047</code></td><td><code>+0.075</code></td><td><strong><code>0.620</code></strong> <code>(0.572)</code></td><td><code>0.155</code></td></tr><tr><td><strong>Qwen3-1.7B</strong></td><td><code>geographic_scale</code></td><td><code>L18 (0.64)</code></td><td><strong><code>0.938</code></strong></td><td><code>0.783</code></td><td><code>0.897</code></td><td><code>0.922</code></td><td><strong><code>+0.301</code></strong> <span style='font-size:6.5pt;color:#64748b'>[+0.21,+0.40]</span></td><td><code>+0.213</code></td><td><code>+0.137</code></td><td><strong><code>0.916</code></strong> <code>(0.895)</code></td><td><code>0.302</code></td></tr><tr><td><strong>SmolLM2-1.7B</strong></td><td><code>physical_scale</code></td><td><code>L18 (0.75)</code></td><td><strong><code>0.804</code></strong></td><td><code>0.583</code></td><td><code>0.735</code></td><td><code>0.721</code></td><td><strong><code>+0.362</code></strong> <span style='font-size:6.5pt;color:#64748b'>[+0.22,+0.50]</span></td><td><code>+0.289</code></td><td><code>+0.403</code></td><td><strong><code>0.832</code></strong> <code>(0.816)</code></td><td><code>0.119</code></td></tr><tr><td><strong>SmolLM2-1.7B</strong></td><td><code>hazard_severity</code></td><td><code>L20 (0.83)</code></td><td><strong><code>0.789</code></strong></td><td><code>0.689</code></td><td><code>0.719</code></td><td><code>0.664</code></td><td><strong><code>+0.285</code></strong> <span style='font-size:6.5pt;color:#64748b'>[+0.18,+0.39]</span></td><td><code>+0.174</code></td><td><code>+0.125</code></td><td><strong><code>0.790</code></strong> <code>(0.691)</code></td><td><code>0.158</code></td></tr><tr><td><strong>SmolLM2-1.7B</strong></td><td><code>historical_chronology</code></td><td><code>L18 (0.75)</code></td><td><strong><code>0.802</code></strong></td><td><code>0.496</code></td><td><code>0.633</code></td><td><code>0.684</code></td><td><strong><code>+0.216</code></strong> <span style='font-size:6.5pt;color:#64748b'>[+0.13,+0.31]</span></td><td><code>+0.153</code></td><td><code>+0.105</code></td><td><strong><code>0.719</code></strong> <code>(0.592)</code></td><td><code>0.088</code></td></tr><tr><td><strong>SmolLM2-1.7B</strong></td><td><code>geographic_scale</code></td><td><code>L24 (1.00)</code></td><td><strong><code>0.586</code></strong></td><td><code>0.867</code></td><td><code>0.867</code></td><td><code>0.867</code></td><td><strong><code>+0.107</code></strong> <span style='font-size:6.5pt;color:#64748b'>[+0.04,+0.17]</span></td><td><code>-0.008</code></td><td><code>-0.005</code></td><td><strong><code>0.907</code></strong> <code>(0.863)</code></td><td><code>0.044</code></td></tr><tr><td><strong>Mistral-7B</strong></td><td><code>physical_scale</code></td><td><code>L24 (0.75)</code></td><td><strong><code>0.799</code></strong></td><td><code>0.682</code></td><td><code>0.699</code></td><td><code>0.639</code></td><td><strong><code>+0.365</code></strong> <span style='font-size:6.5pt;color:#64748b'>[+0.23,+0.49]</span></td><td><code>+0.301</code></td><td><code>+0.351</code></td><td><strong><code>0.850</code></strong> <code>(0.712)</code></td><td><code>0.150</code></td></tr><tr><td><strong>Mistral-7B</strong></td><td><code>hazard_severity</code></td><td><code>L16 (0.50)</code></td><td><strong><code>0.630</code></strong></td><td><code>0.722</code></td><td><code>0.703</code></td><td><code>0.707</code></td><td><strong><code>+0.141</code></strong> <span style='font-size:6.5pt;color:#64748b'>[+0.08,+0.21]</span></td><td><code>+0.076</code></td><td><code>+0.070</code></td><td><strong><code>0.734</code></strong> <code>(0.727)</code></td><td><code>0.040</code></td></tr><tr><td><strong>Mistral-7B</strong></td><td><code>historical_chronology</code></td><td><code>L20 (0.62)</code></td><td><strong><code>0.824</code></strong></td><td><code>0.790</code></td><td><code>0.775</code></td><td><code>0.798</code></td><td><strong><code>+0.238</code></strong> <span style='font-size:6.5pt;color:#64748b'>[+0.17,+0.31]</span></td><td><code>+0.256</code></td><td><code>+0.269</code></td><td><strong><code>0.739</code></strong> <code>(0.681)</code></td><td><code>0.136</code></td></tr><tr><td><strong>Mistral-7B</strong></td><td><code>geographic_scale</code></td><td><code>L28 (0.88)</code></td><td><strong><code>0.713</code></strong></td><td><code>0.652</code></td><td><code>0.645</code></td><td><code>0.640</code></td><td><strong><code>+0.145</code></strong> <span style='font-size:6.5pt;color:#64748b'>[+0.08,+0.21]</span></td><td><code>+0.135</code></td><td><code>+0.084</code></td><td><strong><code>0.811</code></strong> <code>(0.647)</code></td><td><code>0.138</code></td></tr><tr><td><strong>OLMo-2-7B</strong></td><td><code>physical_scale</code></td><td><code>L32 (1.00)</code></td><td><strong><code>0.800</code></strong></td><td><code>0.715</code></td><td><code>0.715</code></td><td><code>0.715</code></td><td><strong><code>+0.430</code></strong> <span style='font-size:6.5pt;color:#64748b'>[+0.28,+0.57]</span></td><td><code>+0.274</code></td><td><code>+0.380</code></td><td><strong><code>0.842</code></strong> <code>(0.715)</code></td><td><code>0.092</code></td></tr><tr><td><strong>OLMo-2-7B</strong></td><td><code>hazard_severity</code></td><td><code>L24 (0.75)</code></td><td><strong><code>0.803</code></strong></td><td><code>0.708</code></td><td><code>0.695</code></td><td><code>0.733</code></td><td><strong><code>+0.078</code></strong> <span style='font-size:6.5pt;color:#64748b'>[+0.03,+0.12]</span></td><td><code>+0.044</code></td><td><code>-0.024</code></td><td><strong><code>0.739</code></strong> <code>(0.722)</code></td><td><code>0.094</code></td></tr><tr><td><strong>OLMo-2-7B</strong></td><td><code>historical_chronology</code></td><td><code>L24 (0.75)</code></td><td><strong><code>0.804</code></strong></td><td><code>0.742</code></td><td><code>0.623</code></td><td><code>0.736</code></td><td><strong><code>+0.281</code></strong> <span style='font-size:6.5pt;color:#64748b'>[+0.19,+0.38]</span></td><td><code>+0.209</code></td><td><code>+0.241</code></td><td><strong><code>0.765</code></strong> <code>(0.617)</code></td><td><code>0.167</code></td></tr><tr><td><strong>OLMo-2-7B</strong></td><td><code>geographic_scale</code></td><td><code>L20 (0.62)</code></td><td><strong><code>0.647</code></strong></td><td><code>0.917</code></td><td><code>0.805</code></td><td><code>0.928</code></td><td><strong><code>+0.260</code></strong> <span style='font-size:6.5pt;color:#64748b'>[+0.08,+0.45]</span></td><td><code>+0.277</code></td><td><code>+0.332</code></td><td><strong><code>0.890</code></strong> <code>(0.848)</code></td><td><code>0.165</code></td></tr><tr class=\"highlight-row\"><td colspan=\"3\"><strong>Macro-Average (16 cells, n=2,688 pairs)</strong></td><td><strong><code>0.765</code></strong></td><td><code>0.697</code></td><td><code>0.708</code></td><td><code>0.727</code></td><td><strong><code>+0.235</code></strong></td><td><code>+0.170</code></td><td><code>+0.179</code></td><td><strong><code>0.799</code></strong> <code>(0.712)</code></td><td><code>0.140</code></td></tr></tbody></table></div><div class=\"table-wrap\"><div class=\"table-caption\">Table 2. Mid-depth ablation study across all three models: ACE subspace dimensionality (rank 1 vs. 2 vs. 4) and Tuned Lens ridge regularization (&alpha; &isin; {10, 100, 1000}).</div><table><thead><tr><th>Model</th><th>ACE Rank-1</th><th>ACE Rank-2</th><th>ACE Rank-4</th><th>Tuned Lens &alpha;=10</th><th>Tuned Lens &alpha;=100</th><th>Tuned Lens &alpha;=1000</th></tr></thead><tbody><tr><td><strong>Qwen3-1.7B</strong> (1.7B, 28L)</td><td><code>0.830</code></td><td><code>0.852</code></td><td><code>0.854</code></td><td><code>0.724</code></td><td><code>0.725</code></td><td><code>0.728</code></td></tr><tr><td><strong>SmolLM2-1.7B</strong> (1.7B, 24L)</td><td><code>0.648</code></td><td><code>0.779</code></td><td><code>0.826</code></td><td><code>0.606</code></td><td><code>0.620</code></td><td><code>0.603</code></td></tr><tr><td><strong>Mistral-7B</strong> (7.2B, 32L)</td><td><code>0.747</code></td><td><code>0.778</code></td><td><code>0.817</code></td><td><code>0.706</code></td><td><code>0.687</code></td><td><code>0.657</code></td></tr><tr><td><strong>OLMo-2-7B</strong> (7.3B, 32L)</td><td><code>0.790</code></td><td><code>0.869</code></td><td><code>0.865</code></td><td><code>0.725</code></td><td><code>0.720</code></td><td><code>0.730</code></td></tr></tbody></table></div><div class=\"table-wrap\"><div class=\"table-caption\">Table 3. Free-form multi-token greedy generation steering (10 generated tokens, n = 56 strictly unseen test pairs per cell) comparing 1D ACE Flip-1D vs. Random orthogonal Flip-1D at peak layer l*, plus base-model continuation NLL (fluency preservation).</div><table><thead><tr><th>Model</th><th>Domain</th><th>Clean Acc %</th><th>ACE Flip % (&uarr;)</th><th>Rand Flip %</th><th>Clean NLL</th><th>ACE NLL</th></tr></thead><tbody><tr><td><strong>Qwen3-1.7B</strong></td><td><code>physical_scale</code></td><td><code>32.1%</code></td><td><strong><code>5.6%</code></strong></td><td><code>0.0%</code></td><td><code>1.04</code></td><td><code>1.03</code></td></tr><tr><td><strong>Qwen3-1.7B</strong></td><td><code>hazard_severity</code></td><td><code>19.6%</code></td><td><strong><code>0.0%</code></strong></td><td><code>0.0%</code></td><td><code>0.87</code></td><td><code>0.86</code></td></tr><tr><td><strong>SmolLM2-1.7B</strong></td><td><code>physical_scale</code></td><td><code>17.9%</code></td><td><strong><code>0.0%</code></strong></td><td><code>0.0%</code></td><td><code>1.15</code></td><td><code>1.19</code></td></tr><tr><td><strong>SmolLM2-1.7B</strong></td><td><code>hazard_severity</code></td><td><code>8.9%</code></td><td><strong><code>0.0%</code></strong></td><td><code>0.0%</code></td><td><code>1.50</code></td><td><code>1.49</code></td></tr></tbody></table></div>",
+    "table_md": "| Model | Domain | Peak l* | ACE Read | Gen-TL | Dom-TL | Logit Lens | ACE Flip | CAA | Probe | Keep-1D (Clean) | |cos(W_U)| |\n|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|\n| Qwen3-1.7B | `physical_scale` | L24 (0.86) | 0.854 | 0.588 | 0.577 | 0.590 | +0.379 [+0.25,+0.51] | +0.223 | +0.301 | 0.830 (0.592) | 0.289 |\n| Qwen3-1.7B | `hazard_severity` | L20 (0.71) | 0.827 | 0.645 | 0.670 | 0.708 | +0.072 [+0.04,+0.10] | +0.054 | +0.025 | 0.798 (0.702) | 0.097 |\n| Qwen3-1.7B | `historical_chronology` | L28 (1.00) | 0.624 | 0.572 | 0.572 | 0.572 | +0.104 [+0.04,+0.17] | +0.047 | +0.075 | 0.620 (0.572) | 0.155 |\n| Qwen3-1.7B | `geographic_scale` | L18 (0.64) | 0.938 | 0.783 | 0.897 | 0.922 | +0.301 [+0.21,+0.40] | +0.213 | +0.137 | 0.916 (0.895) | 0.302 |\n| SmolLM2-1.7B | `physical_scale` | L18 (0.75) | 0.804 | 0.583 | 0.735 | 0.721 | +0.362 [+0.22,+0.50] | +0.289 | +0.403 | 0.832 (0.816) | 0.119 |\n| SmolLM2-1.7B | `hazard_severity` | L20 (0.83) | 0.789 | 0.689 | 0.719 | 0.664 | +0.285 [+0.18,+0.39] | +0.174 | +0.125 | 0.790 (0.691) | 0.158 |\n| SmolLM2-1.7B | `historical_chronology` | L18 (0.75) | 0.802 | 0.496 | 0.633 | 0.684 | +0.216 [+0.13,+0.31] | +0.153 | +0.105 | 0.719 (0.592) | 0.088 |\n| SmolLM2-1.7B | `geographic_scale` | L24 (1.00) | 0.586 | 0.867 | 0.867 | 0.867 | +0.107 [+0.04,+0.17] | -0.008 | -0.005 | 0.907 (0.863) | 0.044 |\n| Mistral-7B | `physical_scale` | L24 (0.75) | 0.799 | 0.682 | 0.699 | 0.639 | +0.365 [+0.23,+0.49] | +0.301 | +0.351 | 0.850 (0.712) | 0.150 |\n| Mistral-7B | `hazard_severity` | L16 (0.50) | 0.630 | 0.722 | 0.703 | 0.707 | +0.141 [+0.08,+0.21] | +0.076 | +0.070 | 0.734 (0.727) | 0.040 |\n| Mistral-7B | `historical_chronology` | L20 (0.62) | 0.824 | 0.790 | 0.775 | 0.798 | +0.238 [+0.17,+0.31] | +0.256 | +0.269 | 0.739 (0.681) | 0.136 |\n| Mistral-7B | `geographic_scale` | L28 (0.88) | 0.713 | 0.652 | 0.645 | 0.640 | +0.145 [+0.08,+0.21] | +0.135 | +0.084 | 0.811 (0.647) | 0.138 |\n| OLMo-2-7B | `physical_scale` | L32 (1.00) | 0.800 | 0.715 | 0.715 | 0.715 | +0.430 [+0.28,+0.57] | +0.274 | +0.380 | 0.842 (0.715) | 0.092 |\n| OLMo-2-7B | `hazard_severity` | L24 (0.75) | 0.803 | 0.708 | 0.695 | 0.733 | +0.078 [+0.03,+0.12] | +0.044 | -0.024 | 0.739 (0.722) | 0.094 |\n| OLMo-2-7B | `historical_chronology` | L24 (0.75) | 0.804 | 0.742 | 0.623 | 0.736 | +0.281 [+0.19,+0.38] | +0.209 | +0.241 | 0.765 (0.617) | 0.167 |\n| OLMo-2-7B | `geographic_scale` | L20 (0.62) | 0.647 | 0.917 | 0.805 | 0.928 | +0.260 [+0.08,+0.45] | +0.277 | +0.332 | 0.890 (0.848) | 0.165 |\n\n| Model | Domain | Clean Acc % | ACE Flip-1D % (\u2191) | Random Flip % | Clean NLL | ACE Steered NLL |\n|---|---|---:|---:|---:|---:|---:|\n| Qwen3-1.7B | `physical_scale` | 32.1% | 5.6% | 0.0% | 1.04 | 1.03 |\n| Qwen3-1.7B | `hazard_severity` | 19.6% | 0.0% | 0.0% | 0.87 | 0.86 |\n| SmolLM2-1.7B | `physical_scale` | 17.9% | 0.0% | 0.0% | 1.15 | 1.19 |\n| SmolLM2-1.7B | `hazard_severity` | 8.9% | 0.0% | 0.0% | 1.50 | 1.49 |",
+    "figure_png_rel": "papers/figures/steerable-not-decodable-v3.png",
+    "fig_caption": "Figure 1. Version 3.0 evaluation across 4 architectures (Qwen3-1.7B, SmolLM2-1.7B, Mistral-7B-v0.1, OLMo-2-7B; 2,688 strictly held-out cross-lexicon pairs). (a-d) Depth trajectories with 95% bands comparing ACE 1D readout, General-Corpus Tuned Lens, Domain Tuned Lens, Direct Logit Lens, 1D causal steer drop, and |cos(q_l, \u0394W_U)|. (e) Flip-1D causal necessity across all 4 models. (f) Keep-1D sufficiency & collapse rescue. (g) Causal control vs. unembedding alignment. (h) Free-form multi-token generation steering flip rate (ACE vs. Random).",
     "limitations": [
       "Evaluated on 4 structured single-token comparative domains; free-form multi-step reasoning may recruit higher-rank subspaces.",
       "Residual-Affine Tuned Lens was trained on pooled disjoint training-entity activations rather than a massive general pretraining corpus.",

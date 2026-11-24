@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-24T19:53:36+01:00",
+  "updated_at": "2026-11-24T22:09:31+01:00",
   "timezone": "+01:00",
   "tracks": [
     {
@@ -324,54 +324,24 @@
       "experiment_metrics": "31.2% -> 93.8% \u00b7 +8.8% wall time \u00b7 598 t/s"
     },
     {
-      "seq": 14,
-      "note_id": "NOTE 14",
-      "slug": "auto-steerable-not-decodable-ace-cores",
-      "href": "./blog-auto-steerable-not-decodable-ace-cores.html",
-      "title": "Steerable Before Decodable: Multi-Model Causal Evidence of Unembedding-Orthogonal Bottlenecks Beyond the Logit and Tuned Lens",
-      "short_title": "Steerable Before Decodable: Multi-Model Causal Evidence",
-      "description": "Steerable before decodable across 3 architectures (1.7B-7.2B, 2,016 held-out cross-lexicon pairs): At peak causal steering depth, ACE readout (0.766) exceeds both Direct Logit Lens (0.709, p=4.61e-02) and Trained Residual-Affine Tuned Lens (0.708, p=6.47e-02), with mean unembedding alignment |cos(q_l*, dW_U)| = 0.143.",
-      "authors": [
-        "Marcio Diaz",
-        "Space AI"
-      ],
-      "category_label": "MECHANISTIC INTERPRETABILITY \u00b7 VERSION 2.0",
-      "short_cat": "Interpretability \u00b7 v2",
-      "track": "interpretability",
-      "origin": "autonomous-gpu",
-      "cluster": 1,
-      "dot": "violet",
-      "published_at": "2026-11-24T19:53:27+01:00",
-      "published_date": "2026-11-24",
-      "read_minutes": 5,
-      "tags": [
-        "autonomous-gpu",
-        "corerank",
-        "steering_lens",
-        "steerable-not-decodable-ace-cores"
-      ],
-      "paper_href": "./papers/steerable-not-decodable-ace-cores.html",
-      "experiment_metrics": "ACE Flip +0.23 vs CAA +0.16 (p=7.3e-04) \u00b7 Keep-1D wins 12/12"
-    },
-    {
       "seq": 13,
       "note_id": "NOTE 13",
       "slug": "auto-pytorch-kl-bregman-stability",
       "href": "./blog-auto-pytorch-kl-bregman-stability.html",
-      "title": "Silent Cancellation and Backward Gradient Corruption in Low-Precision KL Divergence: Analysis and Fused Triton Kernels",
+      "title": "Silent Cancellation and Backward Gradient Corruption in Low-Precision KL Divergence: Theory, Fused Triton Kernels, and LLM Post-Training",
       "short_title": "Low-Precision KL Gradient Corruption & Fused Triton Kernels",
       "description": "Forward & backward gradient corruption across 36 regimes (Wilcoxon p=1.45e-11): PyTorch F.kl_div returns negative values on up to 50.4% of inputs and corrupts BF16 reverse-KL gradients (eps=1e-2) with 39.1% sign flips (cos=0.589). Clamping F.kl_div.clamp(min=0) induces 50.4% silent zero-gradient dead-zones and 61.8% sign flips (cos=0.371).",
       "authors": [
         "Marcio Diaz",
         "Space AI"
       ],
-      "category_label": "SYSTEMS FOR ML & NUMERICAL STABILITY \u00b7 VERSION 2.0",
-      "short_cat": "Systems & Numerics \u00b7 v2",
+      "category_label": "SYSTEMS FOR ML & NUMERICAL STABILITY \u00b7 VERSION 3.0",
+      "short_cat": "Systems & Numerics \u00b7 v3",
       "track": "systems",
       "origin": "autonomous-gpu",
       "cluster": 2,
       "dot": "emerald",
-      "published_at": "2026-11-24T19:53:33+01:00",
+      "published_at": "2026-11-24T20:42:02+01:00",
       "published_date": "2026-11-24",
       "read_minutes": 5,
       "tags": [
@@ -381,7 +351,101 @@
         "pytorch-kl-bregman-stability"
       ],
       "paper_href": "./papers/pytorch-kl-bregman-stability.html",
-      "experiment_metrics": "Triton 6.5x faster \u00b7 -80% VRAM @ V=152k \u00b7 0.0% neg KL"
+      "experiment_metrics": "Triton 6.5x vs FP32 \u00b7 1.81x vs torch.compile \u00b7 1.25x E2E Qwen3-1.7B (-754MB)"
+    },
+    {
+      "seq": 14,
+      "note_id": "NOTE 14",
+      "slug": "auto-steerable-not-decodable-ace-cores",
+      "href": "./blog-auto-steerable-not-decodable-ace-cores.html",
+      "title": "Steerable Before Decodable: Multi-Model Causal Evidence of Unembedding-Orthogonal Bottlenecks Beyond the Logit and Tuned Lens",
+      "short_title": "Steerable Before Decodable: Multi-Model Causal Evidence",
+      "description": "Steerable before decodable across 4 architectures (1.7B-7.3B, 2,688 held-out cross-lexicon pairs): At peak causal steering depth, ACE readout (0.765) exceeds Direct Logit Lens (0.727, p=6.49e-02), General-Corpus Tuned Lens (0.697, p=4.67e-02), and Domain Tuned Lens (0.708, p=4.67e-02), with mean |cos(q_l*, dW_U)| = 0.140.",
+      "authors": [
+        "Marcio Diaz",
+        "Space AI"
+      ],
+      "category_label": "MECHANISTIC INTERPRETABILITY \u00b7 VERSION 3.0",
+      "short_cat": "Interpretability \u00b7 v3",
+      "track": "interpretability",
+      "origin": "autonomous-gpu",
+      "cluster": 1,
+      "dot": "violet",
+      "published_at": "2026-11-24T21:47:25+01:00",
+      "published_date": "2026-11-24",
+      "read_minutes": 5,
+      "tags": [
+        "autonomous-gpu",
+        "corerank",
+        "steering_lens",
+        "steerable-not-decodable-ace-cores"
+      ],
+      "paper_href": "./papers/steerable-not-decodable-ace-cores.html",
+      "experiment_metrics": "ACE Flip +0.24 vs CAA +0.17 (p=1.5e-04) \u00b7 Keep-1D wins 16/16"
+    },
+    {
+      "seq": 15,
+      "note_id": "NOTE 15",
+      "slug": "personality-cores",
+      "href": "./blog-personality-cores.html",
+      "title": "Zero-Prompt Personality Steering: Five Orthogonal ACE Residual Axes on Qwen3.8-27B",
+      "short_title": "Zero-Prompt Personality Steering (5 ACE Axes)",
+      "description": "Extracting, causally calibrating, and deploying 5 L\u00f6wdin-orthogonalized, epistemic-decoupled personality cores (Warmth, Playfulness, Creativity, Assertiveness, Formality) in Basalt with 0 system-prompt tokens: 100/100 bidirectional control, L27->L28 causal sign-flip discovery, Turn-8 wins vs. system prompts on 2/3 presets, and 98.3% untruncated reasoning accuracy.",
+      "authors": [
+        "Marcio Diaz",
+        "Space AI"
+      ],
+      "category_label": "MECHANISTIC INTERPRETABILITY",
+      "short_cat": "Personality Cores",
+      "track": "interpretability",
+      "origin": "lab",
+      "cluster": 1,
+      "dot": "violet",
+      "published_at": "2026-11-24T21:59:00+01:00",
+      "published_date": "2026-11-24",
+      "read_minutes": 8,
+      "tags": [
+        "interpretability",
+        "ace",
+        "personality-steering",
+        "lowdin-orthogonalization",
+        "qwen38-27b",
+        "space-chat"
+      ],
+      "paper_href": null,
+      "experiment_metrics": "100% 0-prompt control \u00b7 cos=0.0000 \u00b7 98.3% reasoning"
+    },
+    {
+      "seq": 16,
+      "note_id": "NOTE 16",
+      "slug": "mental-state-probes",
+      "href": "./blog-mental-state-probes.html",
+      "title": "Reading the Model's Mind About Yours: Live Layer-32 User Mental-State Probes in Qwen3.8-27B",
+      "short_title": "Live Layer-32 User Mental-State Probes in Qwen3.8-27B",
+      "description": "Five orthogonalized Layer-32 Whitened-Fisher probes running at ~3 us inside Basalt expose Qwen3.8-27B's hidden user model live in Space Chat: 0.9992 zero-keyword OOD AUROC (+0.174 on sarcasm vs TF-IDF), 25/25 adversarial minimal pairs, prompt-end vs decode-end 69% effect collapse, /mind causal dampeners, and why user-state axes are decodable without being steerable (mean |cos|=0.082 to persona cores).",
+      "authors": [
+        "Marcio Diaz",
+        "Space AI"
+      ],
+      "category_label": "MECHANISTIC INTERPRETABILITY",
+      "short_cat": "Mental-State Probes",
+      "track": "interpretability",
+      "origin": "lab",
+      "cluster": 1,
+      "dot": "violet",
+      "published_at": "2026-11-24T22:03:00+01:00",
+      "published_date": "2026-11-24",
+      "read_minutes": 8,
+      "tags": [
+        "interpretability",
+        "linear-probes",
+        "theory-of-mind",
+        "causal-ablation",
+        "qwen38-27b",
+        "space-chat"
+      ],
+      "paper_href": null,
+      "experiment_metrics": "0.9992 OOD AUROC \u00b7 25/25 min-pairs \u00b7 ~3 us L32"
     },
     {
       "seq": 12,
@@ -395,13 +459,13 @@
         "Marcio Diaz",
         "Space AI"
       ],
-      "category_label": "INTERPRETABILITY & SPARSE CODING \u00b7 VERSION 2.0",
-      "short_cat": "Sparse Autoencoders \u00b7 v2",
+      "category_label": "INTERPRETABILITY & SPARSE CODING \u00b7 VERSION 3.0",
+      "short_cat": "Sparse Autoencoders \u00b7 v3",
       "track": "interpretability",
       "origin": "autonomous-gpu",
       "cluster": 1,
       "dot": "violet",
-      "published_at": "2026-11-24T19:53:36+01:00",
+      "published_at": "2026-11-24T22:09:31+01:00",
       "published_date": "2026-11-24",
       "read_minutes": 5,
       "tags": [

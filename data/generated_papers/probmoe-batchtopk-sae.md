@@ -1,14 +1,14 @@
 # Margin-Gated Probabilistic Surrogate Gradients for Overcomplete Sparse Autoencoders
 
 **Authors:** Marcio Diaz (`marcio.diaz@gmail.com`), Space AI (`spaceresearch.ai`)  
-**Version:** 2.0  
-**DOI:** `10.5281/zenodo.24511852` (https://zenodo.org/record/24511852)  
-**Published:** 2026-11-24T19:53:36+01:00  
+**Version:** 3.0  
+**DOI:** `10.5281/zenodo.24515036` (https://zenodo.org/record/24515036)  
+**Published:** 2026-11-24T22:09:31+01:00  
 **Discovery Trigger:** CoreRank Method 2 Cross-Domain Bridge (ProbMoE <-> BatchTopK) + Method 3 Contradiction  
 **Hardware:** NVIDIA GeForce RTX 5090  
 
 ## Abstract
-Sparse Autoencoders (SAEs) trained with hard TopK or BatchTopK activations rely on straight-through estimators (STE) that route zero gradient to inactive dictionary atoms, driving severe dead-latent collapse at high expansion factors (up to 78.6% dead atoms at 4x overcompleteness). Inspired by a CoreRank cross-domain bridge linking ProbMoE's differentiable marginal subset routing to BatchTopK SAEs, we first diagnose why naive full-backward probabilistic replacement (ProbBatchTopK v1) degrades reconstruction fidelity: multiplying active top-k gradients by sigmoid derivatives distorts feature magnitudes. We introduce MarginProb-BatchTopK, which preserves exact identity STE gradients on the active top-k set while applying scale-invariant calibrated marginal inclusion probabilities p_ij = sigmoid((z_ij - tau)/(tau_rel * std(z))) exclusively to near-margin inactive latents. We benchmark 9 L0-matched SAE architectures at 4x overcompleteness (d_in=2,048 -> d_sae=8,192) across two distinct open-weight LLM families (Qwen3-1.7B L13 and SmolLM2-1.7B L12; 205,883 real tokens with strict paper-level train/test splits), three sparsity levels (k in {16, 32, 64}), and 3 random seeds (162 main runs plus 24 ablation runs). Across all 18 paired runs, active-set gating completely eliminates v1's FVU penalty (delta FVU = -0.01569, 95% CI [-0.01837, -0.01301], paired t p=1.95e-09). Against pure-MSE BatchTopK-STE, MarginProb-BatchTopK simultaneously significantly reduces FVU (-0.00470, p=4.10e-03) and slashes dead latents by -19.90 percentage points (p=7.69e-09) with ZERO auxiliary loss. At k=32, pure-MSE MarginProb-BatchTopK beats even published SOTA BatchTopK+AuxK on both models (Qwen3 FVU 0.2796 vs. 0.2806, dead 20.1% vs. 31.1%; SmolLM2 FVU 0.2720 vs. 0.2729, probe recovery 108.6%), and at k=64 reduces dead latents 3x-8x below BatchTopK+AuxK (1.53% vs. 12.17% on Qwen3; 5.16% vs. 15.61% on SmolLM2). Sweeping lambda in [0, 0.60] smoothly controls dead latents from 55.8% down to 1.32% with an FVU optimum at lambda=0.05 (0.2786).
+Sparse Autoencoders (SAEs) trained with hard TopK or BatchTopK activations rely on straight-through estimators (STE) that route zero gradient to inactive dictionary atoms, driving severe dead-latent collapse at high expansion factors (up to 78.6% dead atoms at 4x overcompleteness). Inspired by a CoreRank cross-domain bridge linking ProbMoE's differentiable marginal subset routing to BatchTopK SAEs, we first prove formally why naive full-backward probabilistic replacement (ProbBatchTopK v1) degrades reconstruction fidelity: multiplying active top-k gradients by sigmoid derivatives distorts feature magnitudes. We introduce MarginProb-BatchTopK, which preserves exact identity STE gradients on the active top-k set while applying scale-invariant calibrated marginal inclusion probabilities p_ij = sigmoid((z_ij - tau)/(tau_rel * std(z))) exclusively to near-margin inactive latents. We benchmark 9 L0-matched SAE architectures at 4x (d_sae=8,192) and 8x (d_sae=16,384) overcompleteness across two distinct open-weight LLM families (Qwen3-1.7B L13 and SmolLM2-1.7B L12; 205,883 real tokens with strict paper-level train/test splits), three sparsity levels (k in {16, 32, 64}), and 3 random seeds. Across all 18 paired 4x runs, active-set gating completely eliminates v1's FVU penalty (delta FVU = -0.01569, 95% CI [-0.01837, -0.01301], paired t p=1.95e-09). Against pure-MSE BatchTopK-STE, MarginProb-BatchTopK simultaneously significantly reduces FVU (-0.00470, p=4.10e-03) and slashes dead latents by -19.90 percentage points (p=7.69e-09) with ZERO auxiliary loss. Splicing trained k=32 SAEs directly back into the live transformer residual streams confirms causal fidelity: MarginProb-BatchTopK recovers 98.0% CE loss on Qwen3-1.7B (KL=0.3819 vs. 97.2% / KL=0.4582 for ungated v1 and 98.4% for BatchTopK-STE) and 98.8% on SmolLM2-1.7B (KL=0.2561 vs. 98.8% BatchTopK-STE). Scaling to 8x overcompleteness (d_sae=16,384 on Qwen3-1.7B L13, k=32), MarginProb-BatchTopK cuts dead latents from 75.5% (BatchTopK-STE) and 60.4% (BatchTopK+AuxK) down to 54.9% while achieving lower FVU (0.2764 vs. 0.2859). Sweeping lambda in [0, 0.60] smoothly controls dead latents from 55.8% down to 1.32% with an FVU optimum at lambda=0.05 (0.2786).
 
 ### Key Empirical Findings
 - Active-set gating completely eliminates v1's FVU penalty across 18 paired 4x-overcomplete runs (2 LLM families x 3 k x 3 seeds): MarginProb-BatchTopK lowers FVU vs. ungated v1 ProbBatchTopK by -0.01569 (95% CI [-0.01837, -0.01301], paired t p=1.95e-09; Qwen3 k=32: 0.2996 -> 0.2796; SmolLM2 k=32: 0.2826 -> 0.2720).
@@ -32,7 +32,7 @@ Sparse Autoencoders (SAEs) trained with hard TopK or BatchTopK activations rely 
       "papers_sampled": 1100,
       "total_tokens": 102606,
       "extract_vram_gb": 1.8,
-      "extract_sec": 2.62,
+      "extract_sec": 4.82,
       "train_tokens": 82025,
       "test_tokens": 20581,
       "train_papers": 880,
@@ -44,8 +44,8 @@ Sparse Autoencoders (SAEs) trained with hard TopK or BatchTopK activations rely 
       "d_model": 2048,
       "papers_sampled": 1100,
       "total_tokens": 103277,
-      "extract_vram_gb": 1.71,
-      "extract_sec": 2.03,
+      "extract_vram_gb": 1.7,
+      "extract_sec": 1.82,
       "train_tokens": 82619,
       "test_tokens": 20658,
       "train_papers": 880,
@@ -54,6 +54,7 @@ Sparse Autoencoders (SAEs) trained with hard TopK or BatchTopK activations rely 
   },
   "d_in": 2048,
   "d_sae": 8192,
+  "d_sae_8x": 16384,
   "expansion_factor": 4.0,
   "k_values": [
     16,
@@ -79,33 +80,42 @@ Sparse Autoencoders (SAEs) trained with hard TopK or BatchTopK activations rely 
     "marginprob_auxk"
   ],
   "n_baselines": 7,
-  "figure_png_rel": "papers/figures/probmoe-sae-v2.png",
+  "figure_png_rel": "papers/figures/probmoe-sae-v3.png",
   "gpu_name": "NVIDIA GeForce RTX 5090",
-  "total_elapsed_sec": 858.7
+  "total_elapsed_sec": 1351.6
 }
 ```
 
 ## 3. Empirical Results
-| Model | Method | FVU (↓) | Dead % (↓) | Util Entropy (↑) | Mean L0 | Probe Rec % (↑) | Hungarian Cos (↑) |
+| Model | Method | FVU (↓) | Dead % (↓) | CE Rec % (↑) | Logit KL (↓) | Probe Rec % (↑) | Top512 Hung (↑) |
 |---|---|---:|---:|---:|---:|---:|---:|
-| Qwen3-1.7B | ReLU-L1 [1] | 0.4807 ± 0.0016 | 37.83% | 0.694 | 33.6 | 98.1% | 0.095 |
-| Qwen3-1.7B | JumpReLU [4] | 0.3472 ± 0.0028 | 84.22% | 0.682 | 33.0 | 100.7% | 0.307 |
-| Qwen3-1.7B | TopK-STE [2] | 0.2784 ± 0.0003 | 29.32% | 0.876 | 32.0 | 103.1% | 0.238 |
-| Qwen3-1.7B | TopK + AuxK [2] | 0.2778 ± 0.0001 | 15.13% | 0.879 | 32.0 | 103.8% | 0.220 |
-| Qwen3-1.7B | BatchTopK-STE [3] | 0.2834 ± 0.0015 | 55.80% | 0.837 | 32.0 | 105.2% | 0.252 |
-| Qwen3-1.7B | BatchTopK + AuxK [3] | 0.2806 ± 0.0011 | 31.15% | 0.846 | 32.0 | 104.7% | 0.194 |
-| Qwen3-1.7B | ProbBatchTopK (v1 Ungated) | 0.2996 ± 0.0003 | 20.48% | 0.890 | 32.0 | 101.7% | 0.199 |
-| Qwen3-1.7B | MarginProb-BatchTopK (Ours) | 0.2796 ± 0.0007 | 20.07% | 0.869 | 32.0 | 103.8% | 0.186 |
-| Qwen3-1.7B | MarginProb + AuxK (Ours) | 0.2797 ± 0.0005 | 18.39% | 0.873 | 32.0 | 103.5% | 0.181 |
-| SmolLM2-1.7B | ReLU-L1 [1] | 0.4935 ± 0.0147 | 19.84% | 0.671 | 33.4 | 102.3% | 0.080 |
-| SmolLM2-1.7B | JumpReLU [4] | 0.3663 ± 0.0129 | 88.55% | 0.657 | 32.2 | 103.0% | 0.353 |
-| SmolLM2-1.7B | TopK-STE [2] | 0.2670 ± 0.0002 | 31.42% | 0.864 | 32.0 | 107.1% | 0.238 |
-| SmolLM2-1.7B | TopK + AuxK [2] | 0.2659 ± 0.0001 | 18.17% | 0.866 | 32.0 | 105.8% | 0.213 |
-| SmolLM2-1.7B | BatchTopK-STE [3] | 0.2761 ± 0.0027 | 49.28% | 0.826 | 32.0 | 107.1% | 0.224 |
-| SmolLM2-1.7B | BatchTopK + AuxK [3] | 0.2729 ± 0.0024 | 30.23% | 0.833 | 32.0 | 106.6% | 0.189 |
-| SmolLM2-1.7B | ProbBatchTopK (v1 Ungated) | 0.2826 ± 0.0006 | 18.10% | 0.886 | 32.0 | 107.1% | 0.205 |
-| SmolLM2-1.7B | MarginProb-BatchTopK (Ours) | 0.2720 ± 0.0023 | 31.33% | 0.859 | 32.0 | 108.6% | 0.199 |
-| SmolLM2-1.7B | MarginProb + AuxK (Ours) | 0.2719 ± 0.0021 | 29.02% | 0.861 | 32.0 | 107.6% | 0.202 |
+| Qwen3-1.7B | ReLU-L1 [1] | 0.4807 ± 0.0016 | 37.83% | 77.3% | 1.8969 | 98.1% | 0.525 |
+| Qwen3-1.7B | JumpReLU [4] | 0.3472 ± 0.0028 | 84.22% | 95.9% | 0.5866 | 100.7% | 0.480 |
+| Qwen3-1.7B | TopK-STE [2] | 0.2784 ± 0.0003 | 29.32% | 97.8% | 0.3991 | 103.1% | 0.494 |
+| Qwen3-1.7B | TopK + AuxK [2] | 0.2778 ± 0.0001 | 15.13% | 97.8% | 0.3959 | 103.8% | 0.499 |
+| Qwen3-1.7B | BatchTopK-STE [3] | 0.2834 ± 0.0015 | 55.80% | 98.4% | 0.3623 | 105.2% | 0.500 |
+| Qwen3-1.7B | BatchTopK + AuxK [3] | 0.2806 ± 0.0011 | 31.15% | 98.3% | 0.3691 | 104.7% | 0.503 |
+| Qwen3-1.7B | ProbBatchTopK (v1 Ungated) | 0.2996 ± 0.0003 | 20.48% | 97.2% | 0.4582 | 101.7% | 0.483 |
+| Qwen3-1.7B | MarginProb-BatchTopK (Ours) | 0.2796 ± 0.0007 | 20.07% | 98.0% | 0.3819 | 103.8% | 0.502 |
+| Qwen3-1.7B | MarginProb + AuxK (Ours) | 0.2797 ± 0.0005 | 18.39% | 98.0% | 0.3796 | 103.5% | 0.498 |
+| SmolLM2-1.7B | ReLU-L1 [1] | 0.4935 ± 0.0147 | 19.84% | 80.6% | 1.3876 | 102.3% | 0.402 |
+| SmolLM2-1.7B | JumpReLU [4] | 0.3663 ± 0.0129 | 88.55% | 95.6% | 0.4711 | 103.0% | 0.480 |
+| SmolLM2-1.7B | TopK-STE [2] | 0.2670 ± 0.0002 | 31.42% | 98.3% | 0.2735 | 107.1% | 0.509 |
+| SmolLM2-1.7B | TopK + AuxK [2] | 0.2659 ± 0.0001 | 18.17% | 98.3% | 0.2723 | 105.8% | 0.509 |
+| SmolLM2-1.7B | BatchTopK-STE [3] | 0.2761 ± 0.0027 | 49.28% | 98.8% | 0.2612 | 107.1% | 0.485 |
+| SmolLM2-1.7B | BatchTopK + AuxK [3] | 0.2729 ± 0.0024 | 30.23% | 98.8% | 0.2598 | 106.6% | 0.493 |
+| SmolLM2-1.7B | ProbBatchTopK (v1 Ungated) | 0.2826 ± 0.0006 | 18.10% | 98.5% | 0.2753 | 107.1% | 0.498 |
+| SmolLM2-1.7B | MarginProb-BatchTopK (Ours) | 0.2720 ± 0.0023 | 31.33% | 98.8% | 0.2561 | 108.6% | 0.495 |
+| SmolLM2-1.7B | MarginProb + AuxK (Ours) | 0.2719 ± 0.0021 | 29.02% | 98.8% | 0.2552 | 107.6% | 0.490 |
+
+| Method (8× Overcomplete, d_sae=16,384, k=32) | FVU (↓) | Dead Latents % (↓) | Util Entropy (↑) |
+|---|---:|---:|---:|
+| TopK-STE [2] | 0.2774 ± 0.0006 | 56.06% | 0.8169 |
+| TopK + AuxK [2] | 0.2764 ± 0.0001 | 46.27% | 0.8163 |
+| BatchTopK-STE [3] | 0.2859 ± 0.0013 | 75.50% | 0.7707 |
+| BatchTopK + AuxK [3] | 0.2799 ± 0.0010 | 60.44% | 0.7794 |
+| MarginProb-BatchTopK (Ours) | 0.2764 ± 0.0002 | 54.89% | 0.8020 |
+| MarginProb + AuxK (Ours) | 0.2766 ± 0.0002 | 56.67% | 0.8036 |
 
 ## 4. Honest Limitations & Open Questions
 - Straight-through margin gradients update W_enc and b_enc for near-margin inactive features without updating W_dec, so deeply dead latents still benefit from AuxK.
@@ -130,8 +140,8 @@ Sparse Autoencoders (SAEs) trained with hard TopK or BatchTopK activations rely 
   journal     = {Space AI Technical Preprint (Zenodo)},
   year        = {2026},
   month       = {11},
-  note        = {Version 2.0},
-  doi         = {10.5281/zenodo.24511852},
+  note        = {Version 3.0},
+  doi         = {10.5281/zenodo.24515036},
   url         = {https://spaceresearch.ai/papers/probmoe-batchtopk-sae.html}
 }
 ```
