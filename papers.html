@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <title>AI Research Papers Vector DB — Space AI</title>
+  <meta name="description" content="Live semantic vector database of 1,700+ AI research papers from today's arXiv releases, NeurIPS, ICLR, ICML, ACL, and MLSys — spanning GPU inference kernels to mechanistic interpretability." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Space AI" />
+  <meta property="og:title" content="AI Research Papers Vector DB — Space AI" />
+  <meta property="og:description" content="Search 1,700+ AI papers including today's arXiv drops, NeurIPS, ICLR, ICML, and landmark kernel & mechanistic interpretability research in 384-dim BGE vector space." />
+  <meta property="og:url" content="https://spaceresearch.ai/papers.html" />
+  <meta property="og:image" content="https://spaceresearch.ai/og-card.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://spaceresearch.ai/og-card.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://api.spaceresearch.ai" crossorigin />
+  <link rel="icon" type="image/svg+xml" href="./mark.svg?v=35" />
+  <link rel="stylesheet" href="./culture.css?v=29" />
+  <link rel="stylesheet" href="./papers.css?v=2" />
+</head>
+<body>
+  <canvas id="cosmos-bg-canvas" class="cosmos-bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="page-shell">
+    <header class="ed-nav">
+      <div class="ed-nav-inner">
+        <a class="ed-brand" href="./index.html">
+          <span class="ed-emblem" aria-hidden="true">
+            <img src="./mark.svg?v=35" alt="" width="28" height="28" />
+          </span>
+          <span>Space AI</span>
+        </a>
+        <nav class="ed-links" aria-label="Primary">
+          <a href="./blog.html" class="">Research</a>
+          <a href="./papers.html" class="active">Papers</a>
+          <a href="./product.html" class="">Product</a>
+          <a href="./network.html" class="">Network</a>
+          <a href="./chat.html">Chat</a>
+        </nav>
+        <div class="nav-actions">
+          <a class="icon-pill" href="https://github.com/spaceresearchai" target="_blank" rel="noopener" aria-label="Space AI on GitHub" title="GitHub (spaceresearchai)">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.69-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11.05 11.05 0 0 1 5.8 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14 0 1.55-.01 2.8-.01 3.18 0 .31.21.67.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+          </a>
+          <button type="button" class="icon-pill" data-theme-toggle aria-label="Toggle color theme" title="Switch to Daylight Mode">☀</button>
+          <a class="btn sm" href="./chat.html">Open Chat</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="section-tight" style="padding-top:3.4rem; padding-bottom:4.5rem;">
+        <div class="papers-wrap">
+          <div class="papers-hero-head">
+            <div>
+              <p class="folio-tag" style="margin-bottom:0.28rem;">Live Vector Knowledge Base &middot; arXiv Today &middot; NeurIPS &middot; ICLR &middot; ICML</p>
+              <h1 class="display-h2" style="margin:0;">AI Research Papers</h1>
+              <p class="papers-hero-sub">
+                Live vector index from today's arXiv releases and latest NeurIPS, ICLR, ICML, ACL, EMNLP, and systems conferences — spanning GPU inference kernels, low-bit quantization, speculative decoding, frontier architectures, and mechanistic interpretability.
+              </p>
+            </div>
+            <span class="pill-status" id="vdb-status-pill"><span class="dot"></span><span id="vdb-status-text">Initializing Vector DB...</span></span>
+          </div>
+
+          <div class="vdb-stats-strip">
+            <div class="fleet-stat hi">
+              <div class="metric-val" id="stat-papers">&mdash;</div>
+              <div class="metric-lbl">Indexed Papers</div>
+            </div>
+            <div class="fleet-stat">
+              <div class="metric-val" id="stat-today">&mdash;</div>
+              <div class="metric-lbl" id="stat-today-lbl">Released Today (arXiv)</div>
+            </div>
+            <div class="fleet-stat">
+              <div class="metric-val" id="stat-confs">&mdash;</div>
+              <div class="metric-lbl">NeurIPS &middot; ICLR &middot; ICML &middot; ACL</div>
+            </div>
+            <div class="fleet-stat">
+              <div class="metric-val" id="stat-dims">384-d</div>
+              <div class="metric-lbl">BGE Cosine Vector Space</div>
+            </div>
+          </div>
+
+          <div class="net-subnav" role="navigation" aria-label="Paper database views">
+            <div class="net-tabs" role="tablist">
+              <button type="button" class="net-tab active" data-vdb-tab="search" role="tab" aria-selected="true">Semantic Search &amp; Library</button>
+              <button type="button" class="net-tab" data-vdb-tab="atlas" role="tab" aria-selected="false">2D Embedding Atlas</button>
+              <button type="button" class="net-tab" data-vdb-tab="api" role="tab" aria-selected="false">Vector DB &amp; API</button>
+            </div>
+          </div>
+
+          <!-- VIEW 1: SEMANTIC SEARCH & LIBRARY -->
+          <div class="net-view active" data-vdb-view="search">
+            <div class="vdb-search-card">
+              <div class="vdb-search-row">
+                <div class="vdb-input-wrap">
+                  <span class="vdb-search-icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                  </span>
+                  <input
+                    id="vdb-query"
+                    type="search"
+                    class="vdb-search-input"
+                    placeholder="Semantic vector search across arXiv today &amp; NeurIPS/ICLR/ICML — e.g. 'Blackwell FP4 Triton kernels', 'sparse autoencoders', 'KV cache'..."
+                    autocomplete="off"
+                    aria-label="Search AI research papers"
+                  />
+                  <button type="button" id="vdb-clear" class="vdb-clear-btn" aria-label="Clear search">&times;</button>
+                </div>
+                <div class="vdb-mode-group" role="group" aria-label="Search mode">
+                  <button type="button" class="vdb-mode-btn active" data-search-mode="hybrid" title="Dense Vector KNN + BM25 Reciprocal Rank Fusion">Hybrid</button>
+                  <button type="button" class="vdb-mode-btn" data-search-mode="vector" title="Pure 384-dim cosine similarity">Vector</button>
+                  <button type="button" class="vdb-mode-btn" data-search-mode="lexical" title="Exact keyword & BM25 match">Keyword</button>
+                </div>
+              </div>
+
+              <div class="vdb-presets" aria-label="Example semantic queries">
+                <span class="vdb-presets-lbl">Try:</span>
+                <button type="button" class="vdb-preset-chip" data-preset="fused GPU attention kernels Triton CUDA Blackwell">GPU attention kernels</button>
+                <button type="button" class="vdb-preset-chip" data-preset="FP4 FP8 4-bit quantization without activation outliers">FP4 / FP8 quantization</button>
+                <button type="button" class="vdb-preset-chip" data-preset="KV cache eviction compression long context decoding">KV-cache compression</button>
+                <button type="button" class="vdb-preset-chip" data-preset="speculative decoding dynamic draft tree verification">Speculative decoding</button>
+                <button type="button" class="vdb-preset-chip" data-preset="induction heads transformer circuits activation patching">Circuits &amp; patching</button>
+                <button type="button" class="vdb-preset-chip" data-preset="sparse autoencoders monosemantic dictionary learning">Sparse autoencoders</button>
+                <button type="button" class="vdb-preset-chip" data-preset="linear representation hypothesis steering vectors refusal">Steering &amp; linear reps</button>
+                <button type="button" class="vdb-preset-chip" data-preset="reinforcement learning test-time compute reasoning agents">Reasoning &amp; RL</button>
+              </div>
+            </div>
+
+            <div id="vdb-venues" class="vdb-venues" role="tablist" aria-label="Conferences and freshness"></div>
+            <div id="vdb-domains" class="vdb-domains" role="tablist" aria-label="Research domains"></div>
+
+            <div id="vdb-anchor-banner" class="vdb-anchor-banner" role="status">
+              <div>
+                <div class="vdb-anchor-title" id="vdb-anchor-title">Nearest vectors to...</div>
+                <div class="vdb-anchor-meta" id="vdb-anchor-meta">Exact 384-dim cosine similarity across indexed embeddings</div>
+              </div>
+              <button type="button" id="vdb-anchor-clear" class="paper-act-btn primary">&times; Exit Similar View</button>
+            </div>
+
+            <div class="vdb-toolbar">
+              <div id="vdb-result-meta">Loading research database...</div>
+              <div class="vdb-toolbar-controls">
+                <select id="vdb-year-filter" class="vdb-select" aria-label="Filter by year">
+                  <option value="all">All Years</option>
+                  <option value="2026-2026">2026 Only</option>
+                  <option value="2025-2026">2025 &ndash; 2026</option>
+                  <option value="2024-2026">2024+</option>
+                  <option value="2015-2023">Foundational (&le;2023)</option>
+                </select>
+                <select id="vdb-sort" class="vdb-select" aria-label="Sort papers">
+                  <option value="newest">Sort: Newest Released</option>
+                  <option value="relevance">Sort: Relevance / Impact</option>
+                  <option value="citations">Sort: Most Cited</option>
+                  <option value="oldest">Sort: Oldest First</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="papers-grid" class="papers-grid" aria-live="polite"></div>
+
+            <div class="vdb-load-more">
+              <button type="button" id="btn-load-more" class="btn secondary sm" style="display:none;">Load more papers</button>
+            </div>
+          </div>
+
+          <!-- VIEW 2: 2D EMBEDDING ATLAS -->
+          <div class="net-view" data-vdb-view="atlas">
+            <div class="atlas-layout">
+              <div class="atlas-stage">
+                <div class="atlas-hud-top">
+                  <span class="atlas-hud-label" id="atlas-hud-info">384-d BGE &rarr; 2D Manifold &middot; Click any paper to trace vector neighbors</span>
+                  <div class="atlas-controls">
+                    <button type="button" id="atlas-zoom-in" class="map-ctrl-btn" title="Zoom in">+</button>
+                    <button type="button" id="atlas-zoom-out" class="map-ctrl-btn" title="Zoom out">&minus;</button>
+                    <button type="button" id="atlas-zoom-reset" class="map-ctrl-btn" title="Reset view">Reset</button>
+                  </div>
+                </div>
+                <canvas id="atlas-canvas" aria-label="Interactive 2D semantic map of AI research papers"></canvas>
+                <div id="atlas-tooltip" class="atlas-tooltip"></div>
+                <div id="atlas-legend" class="atlas-legend"></div>
+              </div>
+
+              <aside class="atlas-inspector" id="atlas-inspector">
+                <p class="folio-tag" style="margin-bottom:0.35rem;">Manifold Inspector</p>
+                <h2 class="gp-title" style="font-size:1.2rem; margin-bottom:0.55rem;" id="atlas-sel-title">Select a paper on the manifold</h2>
+                <div id="atlas-sel-meta" style="font-family:var(--mono); font-size:0.72rem; color:var(--ink-muted); margin-bottom:0.75rem;">
+                  Hover over clusters to explore domains from GPU inference kernels to sparse autoencoders. Click a point to inspect its abstract and exact 384-dim cosine neighbors.
+                </div>
+                <p id="atlas-sel-abstract" style="font-size:0.86rem; color:var(--ink-soft); line-height:1.6; margin:0 0 0.85rem 0;"></p>
+                <div id="atlas-sel-actions" style="display:flex; flex-wrap:wrap; gap:0.4rem; margin-bottom:1rem;"></div>
+                <div id="atlas-neighbors-wrap" style="display:none;">
+                  <p class="folio-tag" style="margin-bottom:0.3rem;">Nearest Cosine Neighbors (384-d)</p>
+                  <div id="atlas-neighbor-list" class="atlas-neighbor-list"></div>
+                </div>
+              </aside>
+            </div>
+          </div>
+
+          <!-- VIEW 3: VECTOR DB & API -->
+          <div class="net-view" data-vdb-view="api">
+            <div class="gp-card">
+              <div class="gp-head">
+                <div>
+                  <p class="folio-tag" style="margin-bottom:0.15rem;">Architecture</p>
+                  <h2 class="gp-title">Vector Database Specification</h2>
+                </div>
+                <span class="pool-badge" id="api-engine-badge">sqlite-vec + Float16 Web Matrix</span>
+              </div>
+              <div class="gp-kpis">
+                <div class="gp-kpi">
+                  <div class="gp-kpi-val ok">BAAI/bge-small-en-v1.5</div>
+                  <div class="gp-kpi-lbl">Dense Retrieval Encoder</div>
+                </div>
+                <div class="gp-kpi">
+                  <div class="gp-kpi-val">384-d L2 Cosine</div>
+                  <div class="gp-kpi-lbl">Vector Geometry</div>
+                </div>
+                <div class="gp-kpi">
+                  <div class="gp-kpi-val">sqlite-vec vec0 + FTS5</div>
+                  <div class="gp-kpi-lbl">Hybrid Index Backend</div>
+                </div>
+                <div class="gp-kpi">
+                  <div class="gp-kpi-val" id="api-built-at">&mdash;</div>
+                  <div class="gp-kpi-lbl">Latest Indexed Release</div>
+                </div>
+              </div>
+              <p style="font-size:0.88rem; color:#d2d7e6; margin:0;">
+                Ingests today's live arXiv RSS releases (<code>cs.LG</code>, <code>cs.AI</code>, <code>cs.CL</code>, <code>cs.DC</code>, <code>cs.AR</code>, <code>cs.PF</code>), HuggingFace Daily Papers, and verified NeurIPS / ICLR / ICML / ACL / EMNLP / ASPLOS / MLSys proceedings via OpenAlex. Every paper is embedded into L2-normalized 384-d vectors with <code>BAAI/bge-small-en-v1.5</code> and indexed in SQLite + <code>sqlite-vec</code> + <code>FTS5</code> on <code>api.spaceresearch.ai</code>.
+              </p>
+            </div>
+
+            <div class="vdb-arch-grid">
+              <div class="gp-card" style="margin-bottom:0;">
+                <p class="folio-tag" style="margin-bottom:0.2rem;">Corpus Coverage</p>
+                <h3 class="gp-title" style="font-size:1.15rem; margin-bottom:1rem;">Papers by Research Domain</h3>
+                <div id="api-domain-bars" class="vdb-bar-list"></div>
+              </div>
+              <div class="gp-card" style="margin-bottom:0;">
+                <p class="folio-tag" style="margin-bottom:0.2rem;">Temporal Distribution</p>
+                <h3 class="gp-title" style="font-size:1.15rem; margin-bottom:0.4rem;">Publications by Year</h3>
+                <div id="api-year-bars" class="vdb-year-bars"></div>
+              </div>
+            </div>
+
+            <div class="gp-card">
+              <div class="gp-head">
+                <div>
+                  <p class="folio-tag" style="margin-bottom:0.15rem;">Open Endpoints</p>
+                  <h2 class="gp-title">Query the Vector Database Directly</h2>
+                </div>
+              </div>
+              <p style="font-size:0.86rem; color:var(--ink-soft); margin:0 0 0.7rem 0;">
+                Search today's arXiv releases or filter by conference (<code>venue=arxiv-today|neurips|iclr|icml|acl-emnlp|systems-conf</code>):
+              </p>
+              <pre class="mono-box">curl -s "https://api.spaceresearch.ai/v1/papers/search?q=FP4+attention+kernel&amp;venue=arxiv-today&amp;mode=hybrid&amp;k=5" | jq '.results[] | {published_date, title, vector_score, arxiv_id}'</pre>
+
+              <p style="font-size:0.86rem; color:var(--ink-soft); margin:1rem 0 0.7rem 0;">
+                Search NeurIPS / ICLR / ICML mechanistic interpretability papers:
+              </p>
+              <pre class="mono-box">curl -s "https://api.spaceresearch.ai/v1/papers/search?q=sparse+autoencoder+circuits&amp;venue=neurips&amp;k=5" | jq '.results[] | {venue, title, vector_score}'</pre>
+
+              <p style="font-size:0.86rem; color:var(--ink-soft); margin:1rem 0 0.7rem 0;">
+                Direct Python query against the persistent SQLite + <code>sqlite-vec</code> database:
+              </p>
+              <pre class="mono-box">from network.papers_db import PapersVectorDB
+
+db = PapersVectorDB("artifacts/papers_vectordb.sqlite")
+res = db.search("Blackwell FP4 Triton attention kernel", venue="arxiv-today", k=8)
+for p in res["results"]:
+    print(f"[{p['vector_score']:.3f}] {p['published_date']} · {p['title']}")</pre>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="landing-foot">
+      <div class="wrap" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:1rem;">
+        <span>&copy; 2026 Space AI &middot; spaceresearch.ai</span>
+        <div style="display:flex; gap:1.4rem; color:var(--ink-soft);">
+          <a href="./blog.html">Research</a>
+          <a href="./papers.html">Papers</a>
+          <a href="./product.html">Product</a>
+          <a href="./network.html">Network</a>
+          <a href="./chat.html">Chat</a>
+          <a href="https://github.com/spaceresearchai" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <div id="vdb-toast" class="vdb-toast" role="status" aria-live="polite"></div>
+
+  <script src="./culture-home.js?v=29"></script>
+  <script src="./papers.js?v=2"></script>
+</body>
+</html>

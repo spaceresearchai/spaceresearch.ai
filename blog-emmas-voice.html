@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <title>Emma's Voice: Private On-Device Lip, Tongue, and Cheek Tracking for Autism Speech Imitation — Space AI</title>
+  <meta name="description" content="How we built Emma's Voice, a 100% on-device tablet web app pairing MediaPipe Face Landmarker, hybrid inner-mouth tongue chroma tracking, Three.js plush buddies, and local Piper VITS neural speech for non-verbal autistic children." />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Space AI" />
+  <meta property="og:title" content="Emma's Voice: Private On-Device Lip, Tongue, and Cheek Tracking for Autism Speech Imitation — Space AI" />
+  <meta property="og:description" content="A 100% private, browser-native oral-motor and early-speech imitation companion combining hybrid webcam vision, Three.js plush 3D coaches, and local WASM neural voices." />
+  <meta property="og:image" content="https://spaceresearch.ai/og-card.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://spaceresearch.ai/og-card.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="./mark.svg?v=35" />
+  <link rel="stylesheet" href="./culture.css?v=29" />
+</head>
+<body>
+  <canvas id="cosmos-bg-canvas" class="cosmos-bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="page-shell">
+  <header class="ed-nav">
+    <div class="ed-nav-inner">
+      <a class="ed-brand" href="./index.html">
+        <span class="ed-emblem" aria-hidden="true">
+          <img src="./mark.svg?v=35" alt="" width="28" height="28" />
+        </span>
+        <span>Space AI</span>
+      </a>
+      <nav class="ed-links" aria-label="Primary">
+        <a href="./blog.html" class="active">Research</a>
+        <a href="./papers.html" class="">Papers</a>
+        <a href="./product.html" class="">Product</a>
+        <a href="./network.html" class="">Network</a>
+        <a href="./chat.html">Chat</a>
+        <a href="https://github.com/spaceresearchai/spaceresearch.ai/releases/latest" target="_blank" rel="noopener">Desktop App</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="icon-pill" href="https://github.com/spaceresearchai" target="_blank" rel="noopener" aria-label="Space AI on GitHub" title="GitHub (spaceresearchai)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.69-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11.05 11.05 0 0 1 5.8 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14 0 1.55-.01 2.8-.01 3.18 0 .31.21.67.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+        </a>
+        <button type="button" class="icon-pill" data-theme-toggle aria-label="Toggle color theme" title="Switch to Daylight Mode">☀</button>
+        <a class="btn sm" href="./chat.html">Open Chat</a>
+      </div>
+    </div>
+  </header>
+
+    <main>
+      <article class="section" style="padding-top:3.8rem;">
+        <div class="wrap-blog">
+          <a class="blog-back" href="./blog.html">&larr; All research notes</a>
+          <div class="blog-meta" style="margin-top:1.4rem;">
+            <span class="blog-cat">NOTE 08 &middot; ASSISTIVE AI &amp; ON-DEVICE VISION</span>
+            <span>6 min read</span>
+          </div>
+          <h1 class="blog-article-title">Emma's Voice: Private On-Device Lip, Tongue, and Cheek Tracking for Non-Verbal Autism Imitation</h1>
+          <p class="blog-article-lead">
+            Teaching a non-verbal autistic child to imitate mouth movements and early words requires immediate, joyful feedback—and zero cloud surveillance of a child's face. We built an open, browser-native tablet companion that runs 478-point facial vision, hybrid tongue-chroma estimation, Pixar-style Three.js animal buddies, and neural speech synthesis completely locally.
+          </p>
+
+          <div class="blog-abstract">
+            <div class="blog-abstract-lbl">ABSTRACT</div>
+            <p>
+              We present <strong>Emma's Voice</strong>, an open-source, zero-backend tablet web application designed to help non-verbal autistic children practice playful <strong>lip, tongue, and cheek imitation</strong> (<em>Moves Mode</em>) and transition into <strong>early spoken words</strong> (<em>Words Mode</em>). Because standard browser face-mesh models lack 3D tongue landmarks and under-report subtle child tongue and cheek-puff gestures on real webcams, we introduce a calibrated hybrid vision pipeline combining <strong>MediaPipe Face Landmarker</strong> (478 landmarks + 52 ARKit blendshapes) with an adaptive <strong>inner-mouth pink-tongue chroma tracker</strong> and <strong>3D mid-cheek expansion geometry</strong>. On the feedback side, we pair visible color-coded camera tracking lines with procedurally sculpted <strong>Three.js plush animal buddies</strong> (Teddy Bear, Sunny Puppy, Cozy Bunny), private <strong>IndexedDB parent video recording</strong>, and local <strong>Piper VITS WebAssembly neural speech</strong>—achieving sub-frame tracking, 0-byte cloud transmission, and immediate sensory-safe felicitation on standard tablets.
+            </p>
+          </div>
+
+          <div class="blog-prose">
+            <h2>1. Start with playful moves, then bridge to words</h2>
+            <p>
+              When building assistive tools for a non-verbal autistic child, jumping straight into multi-syllable word drills often creates friction before joint attention and mirror imitation are established. At the same time, speech-language pathology (SLP) literature—including ASHA clinical guidance—emphasizes that non-speech oral-motor exercises alone do not replace functional communication practice.
+            </p>
+            <p>
+              Emma's Voice therefore organizes practice into a single-tap <strong>two-stage loop</strong>:
+            </p>
+            <ul>
+              <li><strong>Stage 1 — Moves Mode (Default):</strong> Nine concrete, visually unmistakable oral-motor moves grouped across <em>Lips</em> (Open Wide, Kiss Lips, Big Smile, Press &amp; Pop), <em>Tongue</em> (Tongue Out, Tongue Wiggle, Tongue Up, Tongue Down), and <em>Cheeks</em> (Puff Cheeks). Matching any move triggers an immediate sunburst halo, confetti celebration, musical fanfare, and enthusiastic spoken cheer.</li>
+              <li><strong>Stage 2 — Words Mode:</strong> Eighteen high-motivation early core words (<em>Mama, Dada, More, Ball, Water, Milk, Open, Bubbles, Help…</em>) plus custom parent words in multiple languages. Whenever the child moves her lips intentionally above an adaptive resting baseline, the app immediately models the target word out loud—requiring zero vocal sound, which is critical for non-verbal learners.</li>
+            </ul>
+
+            <div class="blog-stats">
+              <div class="blog-stat">
+                <div class="blog-stat-v">100%</div>
+                <div class="blog-stat-l">On-Device Private</div>
+              </div>
+              <div class="blog-stat">
+                <div class="blog-stat-v">478 + 52</div>
+                <div class="blog-stat-l">Landmarks &amp; Blendshapes</div>
+              </div>
+              <div class="blog-stat">
+                <div class="blog-stat-v">9 + 18</div>
+                <div class="blog-stat-l">Oral Moves &amp; Core Words</div>
+              </div>
+              <div class="blog-stat">
+                <div class="blog-stat-v">0 ms</div>
+                <div class="blog-stat-l">3D Buddy Startup</div>
+              </div>
+            </div>
+
+            <div class="blog-figure">
+              <svg viewBox="0 0 640 236" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="On-device browser pipeline for Emma's Voice">
+                <rect x="10" y="14" width="188" height="208" rx="10" fill="#0b0b0d" stroke="rgba(255,255,255,0.14)"/>
+                <text x="24" y="38" fill="#38bdf8" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">01 &middot; CAMERA + VISION</text>
+                <rect x="24" y="54" width="160" height="42" rx="7" fill="rgba(56,189,248,0.12)" stroke="#38bdf8"/>
+                <text x="34" y="72" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">Mirrored Front Camera</text>
+                <text x="34" y="86" fill="#94a3b8" font-family="JetBrains Mono, monospace" font-size="8.5">Exact cover-fit canvas map</text>
+                <rect x="24" y="108" width="160" height="46" rx="7" fill="rgba(52,211,153,0.12)" stroke="#34d399"/>
+                <text x="34" y="126" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">MediaPipe FaceLandmarker</text>
+                <text x="34" y="141" fill="#94a3b8" font-family="JetBrains Mono, monospace" font-size="8.5">478 pts + 52 ARKit shapes</text>
+                <rect x="24" y="166" width="160" height="42" rx="7" fill="rgba(236,72,153,0.14)" stroke="#ec4899"/>
+                <text x="34" y="184" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">GPU &rarr; CPU Auto-Fallback</text>
+                <text x="34" y="198" fill="#94a3b8" font-family="JetBrains Mono, monospace" font-size="8.5">Monotonic ms timestamp loop</text>
+
+                <path d="M202 118 L222 118" stroke="#34d399" stroke-width="2" stroke-dasharray="3 3"/>
+                <polygon points="222,113 230,118 222,123" fill="#34d399"/>
+
+                <rect x="232" y="14" width="184" height="208" rx="10" fill="#0b0b0d" stroke="rgba(255,255,255,0.14)"/>
+                <text x="246" y="38" fill="#34d399" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">02 &middot; HYBRID DETECTORS</text>
+                <rect x="246" y="54" width="156" height="42" rx="7" fill="rgba(245,158,11,0.12)" stroke="#f59e0b"/>
+                <text x="256" y="72" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">Adaptive Lip Baseline</text>
+                <text x="256" y="86" fill="#94a3b8" font-family="JetBrains Mono, monospace" font-size="8.5">Open, Kiss, Smile, Pop</text>
+                <rect x="246" y="108" width="156" height="46" rx="7" fill="rgba(236,72,153,0.14)" stroke="#ec4899"/>
+                <text x="256" y="126" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">Inner-Mouth Tongue ROI</text>
+                <text x="256" y="141" fill="#94a3b8" font-family="JetBrains Mono, monospace" font-size="8.5">Lighting-adaptive pink chroma</text>
+                <rect x="246" y="166" width="156" height="42" rx="7" fill="rgba(167,139,250,0.14)" stroke="#a78bfa"/>
+                <text x="256" y="184" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">3D Cheek-Puff Geometry</text>
+                <text x="256" y="198" fill="#94a3b8" font-family="JetBrains Mono, monospace" font-size="8.5">Span + Z-bulge + cheekPuff</text>
+
+                <path d="M420 118 L440 118" stroke="#fbbf24" stroke-width="2" stroke-dasharray="3 3"/>
+                <polygon points="440,113 448,118 440,123" fill="#fbbf24"/>
+
+                <rect x="450" y="14" width="180" height="208" rx="10" fill="#0b0b0d" stroke="rgba(255,255,255,0.14)"/>
+                <text x="464" y="38" fill="#fbbf24" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">03 &middot; MODEL &amp; REWARD</text>
+                <rect x="464" y="54" width="152" height="42" rx="7" fill="rgba(56,189,248,0.12)" stroke="#38bdf8"/>
+                <text x="474" y="72" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">Three.js Plush Buddies</text>
+                <text x="474" y="86" fill="#94a3b8" font-family="JetBrains Mono, monospace" font-size="8.5">Bear, Puppy, Bunny + Arrows</text>
+                <rect x="464" y="108" width="152" height="46" rx="7" fill="rgba(52,211,153,0.12)" stroke="#34d399"/>
+                <text x="474" y="126" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">Piper VITS WASM Voice</text>
+                <text x="474" y="141" fill="#94a3b8" font-family="JetBrains Mono, monospace" font-size="8.5">Local OPFS neural audio</text>
+                <rect x="464" y="166" width="152" height="42" rx="7" fill="rgba(245,158,11,0.14)" stroke="#f59e0b"/>
+                <text x="474" y="184" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">Felicitation + Calm Mode</text>
+                <text x="474" y="198" fill="#94a3b8" font-family="JetBrains Mono, monospace" font-size="8.5">Confetti, fanfare, IndexedDB</text>
+              </svg>
+              <div class="blog-figcap">Figure 1. End-to-end zero-cloud architecture of Emma's Voice running inside a standard tablet browser.</div>
+            </div>
+
+            <h2>2. Hybrid vision: fixing real-webcam blind spots for lips, tongue, and cheeks</h2>
+            <p>
+              Live testing on real webcams exposed three failure modes that rarely show up in synthetic benchmarks—each requiring a concrete engineering fix:
+            </p>
+            <ol>
+              <li><strong>Monotonic timestamp safety for MediaPipe VIDEO mode:</strong> Mixing <code>performance.now()</code> on startup with <code>requestAnimationFrame</code> vsync timestamps caused a timestamp regression on frame 2, halting tracking with frozen lip contours. Enforcing strictly monotonic integer timestamps (<code>Math.max(lastDetectTs + 1, Math.floor(performance.now()))</code>), decoupling frame stepping from stalled <code>video.currentTime</code> on live <code>MediaStream</code>s, and adding automatic GPU &rarr; CPU fallback made tracking lock onto real lips continuously.</li>
+              <li><strong>Hybrid Inner-Mouth Tongue Chroma Tracker:</strong> Out of the box, MediaPipe Face Landmarker provides no 3D tongue landmarks, and its neural <code>tongueOut</code> blendshape typically peaks around <code>0.10&ndash;0.25</code> on ordinary webcams. Inspired by oral-motor rehab pipelines such as <strong>ORAR</strong> and <strong>LAOLA</strong>, we crop a <code>56&times;48</code> offscreen canvas tightly around the <em>inner</em> lip ellipse (excluding outer lip skin), sample local chin skin tone to adapt to lighting, filter out dark oral-cavity shadow and bright white teeth, and track the centroid of warm pink tongue pixels inside and just below the mouth opening. Combining amplified neural <code>tongueOut</code> with this inner-mouth pink fill reliably tracks <em>Tongue Out</em>, <em>Tongue Wiggle</em>, <em>Tongue Up</em>, and <em>Tongue Down</em> while drawing a live magenta tongue vector on the camera feed.</li>
+              <li><strong>3D Cheek-Expansion Puff Detection:</strong> MediaPipe's <code>cheekPuff</code> blendshape is similarly conservative (<code>0.08&ndash;0.22</code>). Pairing amplified <code>cheekPuff</code> with an adaptive baseline of mid-cheek 2D span (landmarks <code>187</code> &harr; <code>411</code> normalized by inter-ocular distance) and forward Z-bulge toward the camera—gated by closed lips—turns <em>Puff Cheeks</em> into a responsive, playful target with glowing cheek arcs drawn live over the face.</li>
+            </ol>
+
+            <h2>3. Why we replaced a photorealistic 3D human with Pixar-style plush buddies</h2>
+            <p>
+              Negative UX results matter just as much as negative benchmark results. Our first Three.js iteration rendered a photorealistic 3D human scan (<code>avaturn.glb</code>) driven by 72 ARKit blendshapes and an articulated 3D tongue. Technically, it worked on the first try with zero console errors—yet watching a hyper-realistic 3D scanned human stick out a glossy tongue and puff its cheeks landed squarely in the <strong>uncanny valley</strong>, feeling eerie rather than warm and inviting for a young child.
+            </p>
+            <p>
+              We pivoted to procedurally sculpted, velvet-shaded <strong>Pixar-style 3D plush animal buddies</strong> in Three.js—<strong>Teddy Bear</strong>, <strong>Sunny Puppy</strong>, and <strong>Cozy Bunny</strong>—selectable in one tap right on the Watch &amp; Copy card:
+            </p>
+            <ul>
+              <li><strong>Zero uncanny valley, instant 0 ms load:</strong> No 14 MB model download delay; soft <code>MeshPhysicalMaterial</code> plush sheen, big glossy eyes with dual catchlights, wiggling ears, inflatable 3D rosy cheeks, seamless continuous coral lips, and a clear glossy 3D pink tongue with pulsing directional guide arrows.</li>
+              <li><strong>Real human video modeling when you want it:</strong> Because pediatric autism research identifies <strong>parent/caregiver video modeling</strong> as the gold standard, any move or word can be swapped in one tap using the built-in <strong>Record Video</strong> (or Upload) button—stored privately in IndexedDB—with a matching <strong>Remove Video</strong> button to return to the 3D buddy anytime.</li>
+            </ul>
+
+            <h2>4. Warm local neural speech—without sounding sad or robotic</h2>
+            <p>
+              Browser <code>speechSynthesis</code> varies wildly across devices and frequently drops to robotic <code>espeak</code> voices on Linux and older tablets. To guarantee natural human speech everywhere without sending audio to cloud TTS APIs, we integrated <strong>Piper VITS WebAssembly</strong> (<code>@diffusionstudio/vits-web</code>), caching the ONNX voice model permanently in the browser's Origin Private File System (OPFS) and caching generated WAV blobs in memory for 0 ms replays.
+            </p>
+            <p>
+              Real-world listening caught a subtle emotional issue: our initial default voice (<code>en_US-amy-medium</code> at <code>0.85&times;</code>) came from a calm audiobook corpus and sounded slightly melancholy during celebrations. Switching the default to <strong>Kristin (<code>en_US-kristin-medium</code>)</strong> at an upbeat <code>1.04&times;</code> tempo—with subtle pitch brightness during felicitation cheers and 10 selectable multilingual voices across English, Spanish, Portuguese, and French—transformed the app's tone into warm, joyful encouragement.
+            </p>
+
+            <h2>5. Grounded in autism &amp; oral-motor vision literature</h2>
+            <div class="table-wrap" style="margin:1.4rem 0 1.8rem 0;">
+              <table>
+                <thead>
+                  <tr><th>Research / System</th><th>Key Finding</th><th>How It Shaped Emma's Voice</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><strong>Drimalla et al. (2021)</strong> &middot; <em>Molecular Autism</em></td><td>Autistic individuals accurately imitate modeled facial/mouth shapes when explicitly shown, but move more slowly.</td><td>Built-in <code>0.5&times;</code> Slow Coach toggle, forgiving hold windows, and 1&ndash;10 sensitivity slider.</td></tr>
+                  <tr><td><strong>JEMImE &amp; LIFEisGAME</strong></td><td>Webcam serious games with live visual match gauges and expressive avatars improve ASD imitation engagement.</td><td>Live Move Match gauge, circular hold-to-match ring, and non-punitive felicitation banners (no red-X failure cues).</td></tr>
+                  <tr><td><strong>CAMI-2D / CAMI-2DNet</strong></td><td>A single standard 2D front webcam reliably tracks child motor imitation without depth hardware.</td><td>Zero-hardware tablet web app running over HTTPS with exact cover-fit mirror calibration.</td></tr>
+                  <tr><td><strong>LAOLA &amp; ORAR</strong></td><td>MediaPipe Face Mesh lacks native 3D tongue landmarks and benefits from cropped mouth-ROI vision stages.</td><td>Hybrid MediaPipe + inner-mouth pink-tongue chroma tracker + 3D cheek-expansion detector.</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h2>6. Try Emma's Voice live on any tablet</h2>
+            <p>
+              Emma's Voice is completely open-source and runs privately inside Safari (iPad), Chrome (Android), or desktop browsers—add it to a tablet's Home Screen for full-screen standalone use. As always in clinical practice, it is built as a joyful home companion alongside a licensed Speech-Language Pathologist and your child's preferred communication/AAC tools.
+            </p>
+
+            <div class="blog-callout">
+              <div class="blog-callout-title">Launch Emma's Voice or inspect the code</div>
+              <p>Everything runs 100% locally in the browser—camera frames, neural speech, and parent-recorded videos never leave your device.</p>
+              <div class="btn-row">
+                <a class="btn sm" href="https://spaceresearchai.github.io/emmas-voice/" target="_blank" rel="noopener">Open Emma's Voice &#8599;</a>
+                <a class="btn secondary sm" href="https://spaceresearchai.github.io/emmas-voice/about.html" target="_blank" rel="noopener">About &amp; Research &#8599;</a>
+                <a class="btn secondary sm" href="https://github.com/spaceresearchai/emmas-voice" target="_blank" rel="noopener">GitHub Source &#8599;</a>
+                <a class="btn secondary sm" href="./blog.html">All Research Notes</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <footer class="landing-foot">
+      <div class="wrap" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:1rem;">
+        <span>&copy; 2026 Space AI &middot; spaceresearch.ai</span>
+        <div style="display:flex; gap:1.4rem; color:var(--ink-soft);">
+          <a href="./blog.html">Research</a>
+          <a href="./papers.html">Papers</a>
+          <a href="./product.html">Product</a>
+          <a href="./network.html">Network</a>
+          <a href="./chat.html">Chat</a>
+          <a href="https://github.com/spaceresearchai" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="./culture-home.js?v=29"></script>
+</body>
+</html>

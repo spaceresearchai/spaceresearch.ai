@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <title>Space Quant Lab: Causal Meta-Ensembles for Leveraged Bitcoin Trading — Space AI</title>
+  <meta name="description" content="How we built a 24/7 zero-lookahead leveraged BTC paper-trading & backtesting engine using causal Multiplicative-Weights (Hedge) meta-learning, 2-state Kalman filtering, and volatility-targeted leverage." />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Space AI" />
+  <meta property="og:title" content="Space Quant Lab: Causal Meta-Ensembles for Leveraged Bitcoin Trading — Space AI" />
+  <meta property="og:description" content="Zero-lookahead online Hedge meta-learning over four orthogonal alpha experts, volatility-targeted dynamic leverage up to 20x, and a 24/7 glass-box paper trading lab." />
+  <meta property="og:image" content="https://spaceresearch.ai/og-card.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://spaceresearch.ai/og-card.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="./mark.svg?v=35" />
+  <link rel="stylesheet" href="./culture.css?v=29" />
+</head>
+<body>
+  <canvas id="cosmos-bg-canvas" class="cosmos-bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="page-shell">
+  <header class="ed-nav">
+    <div class="ed-nav-inner">
+      <a class="ed-brand" href="./index.html">
+        <span class="ed-emblem" aria-hidden="true">
+          <img src="./mark.svg?v=35" alt="" width="28" height="28" />
+        </span>
+        <span>Space AI</span>
+      </a>
+      <nav class="ed-links" aria-label="Primary">
+        <a href="./blog.html" class="active">Research</a>
+        <a href="./papers.html" class="">Papers</a>
+        <a href="./product.html" class="">Product</a>
+        <a href="./network.html" class="">Network</a>
+        <a href="./chat.html">Chat</a>
+        <a href="https://github.com/spaceresearchai/spaceresearch.ai/releases/latest" target="_blank" rel="noopener">Desktop App</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="icon-pill" href="https://github.com/spaceresearchai" target="_blank" rel="noopener" aria-label="Space AI on GitHub" title="GitHub (spaceresearchai)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.69-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11.05 11.05 0 0 1 5.8 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14 0 1.55-.01 2.8-.01 3.18 0 .31.21.67.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+        </a>
+        <button type="button" class="icon-pill" data-theme-toggle aria-label="Toggle color theme" title="Switch to Daylight Mode">☀</button>
+        <a class="btn sm" href="./chat.html">Open Chat</a>
+      </div>
+    </div>
+  </header>
+
+    <main>
+      <article class="section" style="padding-top:3.8rem;">
+        <div class="wrap-blog">
+          <a class="blog-back" href="./blog.html">&larr; All research notes</a>
+          <div class="blog-meta" style="margin-top:1.4rem;">
+            <span class="blog-cat">NOTE 09 &middot; ONLINE LEARNING &amp; QUANT SYSTEMS</span>
+            <span>6 min read</span>
+          </div>
+          <h1 class="blog-article-title">Space Quant Lab: Causal Meta-Ensembles for Leveraged Bitcoin Trading</h1>
+          <p class="blog-article-lead">
+            Most retail crypto trading bots hide fragile curve-fitted rules behind opaque dashboards and unrealistic frictionless backtests. We built an open, zero-dependency 24/7 paper-trading and backtesting laboratory that treats Bitcoin perpetuals as an online non-stationary learning problem — with strict zero-lookahead proofs, realistic liquidation &amp; funding math, and glass-box telemetry.
+          </p>
+
+          <div class="blog-abstract">
+            <div class="blog-abstract-lbl">ABSTRACT</div>
+            <p>
+              We present <strong>Space Research / Quant Lab</strong>, a self-hosted leveraged Bitcoin algorithmic trading platform combining six strictly causal strategies, a perpetual-futures margin engine (<code>1&times;&ndash;20&times;</code> leverage, Isolated/Cross liquidation, taker fees, directional slippage, and live 8-hour Binance Futures funding), and a 24/7 <code>systemd</code> paper-trading daemon backed by permanent SQLite trade and session archiving. Our flagship algorithm, <strong>Space Neural Meta-Ensemble (<code>space_neural_manifold</code>)</strong>, runs a causal Multiplicative-Weights (Hedge) online meta-learner over four orthogonal alpha experts &mdash; 2-state log-price Kalman filtering, Donchian compression breakouts, aggressive taker order-flow imbalance, and statistical Z-score reversion &mdash; gated by a fee-aware volatility floor and post-stop anti-whipsaw cooldowns. Across live Binance BTC/USDT historical windows (capped at <code>5&times;</code> dynamic leverage), <code>Space Meta-Ensemble</code> delivers <strong>+5.99%</strong> over 7d <code>15m</code> (Sharpe <code>+5.97</code>, Max DD <code>4.50%</code> vs. <code>&minus;6.24%</code> Buy &amp; Hold), <strong>+8.33%</strong> over 30d <code>1h</code> (Sharpe <code>+2.48</code> vs. <code>&minus;25.05%</code>), and <strong>+34.93%</strong> over 90d <code>4h</code> (Sharpe <code>+3.26</code>, Max DD <code>7.08%</code> vs. <code>&minus;20.58%</code>) &mdash; with <strong>zero liquidations</strong> across every horizon.
+            </p>
+          </div>
+
+          <div class="blog-prose">
+            <h2>1. Treating markets like a glass-box scientific instrument</h2>
+            <p>
+              Applying the same engineering principles we use in Space Chat and Basalt to financial time series means enforcing three non-negotiable invariants before writing a single strategy rule:
+            </p>
+            <ul>
+              <li><strong>Zero-lookahead prefix invariance:</strong> Signals computed at bar <code>t</code> must be bit-for-bit identical whether bars <code>t+1..N</code> exist or not. Every bar <code>t&minus;1</code> close signal executes strictly at bar <code>t</code> open, enforced automatically by prefix-invariance unit tests across all six strategies.</li>
+              <li><strong>Exact perpetual-futures friction:</strong> Both backtests and live paper trades charge round-trip taker fees (<code>4 bps/side</code>), directional slippage (<code>2 bps</code>), and prorated 8-hour perpetual funding rates (pulled live from Binance Futures <code>premiumIndex</code>), and check intra-bar highs/lows conservatively in order: <strong>Liquidation &rarr; Stop-Loss / Trailing Stop &rarr; Take-Profit</strong>.</li>
+              <li><strong>Permanent, tamper-proof paper history:</strong> Every paper trade, funding accrual, and engine event persists in SQLite. Even resetting a paper account archives the completed session into <code>paper_sessions</code> rather than deleting past trades &mdash; eliminating survivorship bias in our own live experiments.</li>
+            </ul>
+
+            <div class="blog-stats">
+              <div class="blog-stat">
+                <div class="blog-stat-v">+34.93%</div>
+                <div class="blog-stat-l">90d 4h vs &minus;20.6% B&amp;H</div>
+              </div>
+              <div class="blog-stat">
+                <div class="blog-stat-v">+5.97</div>
+                <div class="blog-stat-l">7d 15m Sharpe Ratio</div>
+              </div>
+              <div class="blog-stat">
+                <div class="blog-stat-v">0</div>
+                <div class="blog-stat-l">Liquidations @ 5&times; Max</div>
+              </div>
+              <div class="blog-stat">
+                <div class="blog-stat-v">6 Algos</div>
+                <div class="blog-stat-l">Prefix-Invariant Causal</div>
+              </div>
+            </div>
+
+            <div class="blog-figure">
+              <svg viewBox="0 0 640 248" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Space Meta-Ensemble vs BTC Buy and Hold across 7d, 30d, and 90d Binance windows">
+                <rect x="10" y="12" width="308" height="224" rx="10" fill="#0b0b0d" stroke="rgba(255,255,255,0.14)"/>
+                <text x="24" y="36" fill="#34d399" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">SPACE META-ENSEMBLE VS BUY &amp; HOLD (5x DYN)</text>
+
+                <text x="24" y="64" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9.5">7d (15m · 792 bars)</text>
+                <rect x="24" y="70" width="44" height="8" rx="3" fill="#ec4899" fill-opacity="0.72"/>
+                <text x="74" y="77" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9">B&amp;H -6.24%</text>
+                <rect x="24" y="82" width="136" height="8" rx="3" fill="#34d399"/>
+                <text x="166" y="89" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">+5.99% (Sharpe 5.97)</text>
+
+                <text x="24" y="118" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9.5">30d (1h · 840 bars)</text>
+                <rect x="24" y="124" width="122" height="8" rx="3" fill="#ec4899" fill-opacity="0.72"/>
+                <text x="152" y="131" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9">B&amp;H -25.05%</text>
+                <rect x="24" y="136" width="154" height="8" rx="3" fill="#38bdf8"/>
+                <text x="184" y="143" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">+8.33% (+33.4% α)</text>
+
+                <text x="24" y="172" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9.5">90d (4h · 660 bars)</text>
+                <rect x="24" y="178" width="104" height="8" rx="3" fill="#ec4899" fill-opacity="0.72"/>
+                <text x="134" y="185" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9">B&amp;H -20.58%</text>
+                <rect x="24" y="190" width="194" height="8" rx="3" fill="#34d399"/>
+                <text x="224" y="197" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">+34.93% (DD 7.1%)</text>
+
+                <text x="24" y="222" fill="#6b7185" font-family="JetBrains Mono, monospace" font-size="8.5">Zero liquidations · 4 bps taker · 2 bps slip · 8h funding</text>
+
+                <rect x="330" y="12" width="300" height="224" rx="10" fill="#0b0b0d" stroke="rgba(255,255,255,0.14)"/>
+                <text x="344" y="36" fill="#38bdf8" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">ONLINE HEDGE META-LEARNER ARCHITECTURE</text>
+
+                <rect x="344" y="52" width="124" height="32" rx="6" fill="#050507" stroke="rgba(56,189,248,0.45)"/>
+                <text x="352" y="66" fill="#38bdf8" font-family="JetBrains Mono, monospace" font-size="8.5">E0 · KALMAN STATE</text>
+                <text x="352" y="78" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8">Log velocity + ST</text>
+
+                <rect x="344" y="92" width="124" height="32" rx="6" fill="#050507" stroke="rgba(52,211,153,0.45)"/>
+                <text x="352" y="106" fill="#34d399" font-family="JetBrains Mono, monospace" font-size="8.5">E1 · DONCHIAN/DI</text>
+                <text x="352" y="118" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8">Compression break</text>
+
+                <rect x="344" y="132" width="124" height="32" rx="6" fill="#050507" stroke="rgba(255,255,255,0.35)"/>
+                <text x="352" y="146" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="8.5">E2 · ORDER FLOW</text>
+                <text x="352" y="158" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8">Taker OFI + VWAP</text>
+
+                <rect x="344" y="172" width="124" height="32" rx="6" fill="#050507" stroke="rgba(236,72,153,0.45)"/>
+                <text x="352" y="186" fill="#ec4899" font-family="JetBrains Mono, monospace" font-size="8.5">E3 · Z-SCORE REV</text>
+                <text x="352" y="198" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8">BB/RSI ADX-damped</text>
+
+                <line x1="468" y1="68" x2="500" y2="112" stroke="rgba(255,255,255,0.32)" stroke-width="1.2"/>
+                <line x1="468" y1="108" x2="500" y2="122" stroke="rgba(255,255,255,0.32)" stroke-width="1.2"/>
+                <line x1="468" y1="148" x2="500" y2="132" stroke="rgba(255,255,255,0.32)" stroke-width="1.2"/>
+                <line x1="468" y1="188" x2="500" y2="142" stroke="rgba(255,255,255,0.32)" stroke-width="1.2"/>
+
+                <rect x="500" y="92" width="116" height="72" rx="8" fill="#121215" stroke="rgba(255,255,255,0.45)"/>
+                <text x="510" y="112" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9" font-weight="600">HEDGE SOFTMAX</text>
+                <text x="510" y="126" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8">decay = 0.96</text>
+                <text x="510" y="138" fill="#34d399" font-family="JetBrains Mono, monospace" font-size="8">ATR &ge; 20 bps gate</text>
+                <text x="510" y="150" fill="#38bdf8" font-family="JetBrains Mono, monospace" font-size="8">Vol-scaled L_eff</text>
+
+                <text x="344" y="222" fill="#6b7185" font-family="JetBrains Mono, monospace" font-size="8.5">Weights update causally every bar from [t-4 &rarr; t] reward</text>
+              </svg>
+              <div class="blog-figcap">Figure 1. Live Binance BTC/USDT backtests (left) and the causal Multiplicative-Weights online meta-ensemble architecture (right).</div>
+            </div>
+
+            <h2>2. Space Neural Meta-Ensemble: Online Hedge learning across regimes</h2>
+            <p>
+              Bitcoin alternates violently between persistent directional expansions, liquidity-sweep mean reversion, and dead low-volatility chop. Any single static indicator &mdash; momentum or reversion &mdash; gets bled dry during its opposite regime. Our flagship <code>space_neural_manifold</code> strategy treats regime adaptation as an online prediction-with-expert-advice problem (the classic <strong>Hedge / Multiplicative Weights</strong> algorithm):
+            </p>
+            <ol>
+              <li><strong>Four orthogonal causal experts:</strong> Every bar produces bounded scores <code>e_k &isin; [&minus;1, +1]</code> from (<em>E0</em>) a 2-state constant-velocity Kalman Filter on <code>log(close)</code> combined with SuperTrend, (<em>E1</em>) a causal 20-bar Donchian breakout + directional <code>+DI/&minus;DI</code> momentum expert, (<em>E2</em>) Binance aggressive taker buy/sell Order-Flow Imbalance (OFI) plus rolling VWAP drift, and (<em>E3</em>) an ADX-damped Bollinger/RSI Z-score mean-reversion expert.</li>
+              <li><strong>Causal exponential feedback:</strong> At bar <code>i</code>, once the 4-bar horizon from <code>i&minus;4</code> to <code>i</code> resolves, each expert's log-weight updates strictly from past features: <code>log_w[k] &larr; 0.96 &middot; log_w[k] + 0.28 &middot; e_k(i&minus;4) &middot; clip(&Delta;P / ATR, &minus;2.5, 2.5)</code>, then maps through softmax with a diversity floor so no expert permanently dies before its regime returns.</li>
+              <li><strong>Fee-aware volatility floor &amp; macro alignment:</strong> Entries are suppressed whenever <code>ATR / close &lt; 20 bps</code> (preventing fee churn in dead chop) and demand stronger conviction (<code>0.48</code> vs. <code>0.34</code>) to trade against the 144-bar macro EMA.</li>
+            </ol>
+
+            <h2>3. Volatility-targeted leverage &amp; perpetual risk mechanics</h2>
+            <p>
+              Static high leverage is catastrophic in crypto because volatility clusters. Instead of applying fixed leverage into liquidation cascades, our margin engine scales effective leverage inversely with annualized realized volatility and proportionally to signal conviction:
+            </p>
+            <pre><code>L_eff = clamp( L_max &times; clamp(&sigma;_target / &sigma;_realized, 0.35, 1.25) &times; (0.45 + 0.55 &times; confidence), 1.0, L_max )</code></pre>
+            <p>
+              Every leveraged position computes exact perpetual liquidation thresholds (<code>P_entry &times; (1 &minus; Collateral / Notional + MMR)</code> for Longs and <code>P_entry &times; (1 + Collateral / Notional &minus; MMR)</code> for Shorts under Isolated or Cross margin), pairs initial ATR stop-loss and take-profit levels with a ratcheting ATR trailing stop activated at <code>+1.0 ATR</code>, and enforces a <code>40%</code> max-drawdown circuit breaker.
+            </p>
+
+            <h2>4. Complete six-algorithm benchmark on live Binance data</h2>
+            <p>
+              We benchmarked all six zero-lookahead strategies side-by-side on identical paginated Binance Spot BTC/USDT candles (up to <code>5&times;</code> volatility-targeted dynamic leverage, <code>35%</code> margin/trade, <code>4 bps</code> taker fee, <code>2 bps</code> slippage, <code>0.01%</code> 8h funding):
+            </p>
+            <div class="table-wrap" style="margin:1.4rem 0 1.8rem 0;">
+              <table>
+                <thead>
+                  <tr><th>Algorithm</th><th>7d (15m)</th><th>30d (1h)</th><th>90d (4h)</th><th>Liqs</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><strong>Space Meta-Ensemble (Hedge)</strong></td><td><strong>+5.99%</strong> (Sh 5.97)</td><td><strong>+8.33%</strong> (Sh 2.48)</td><td><strong>+34.93%</strong> (Sh 3.26)</td><td><strong>0</strong></td></tr>
+                  <tr><td>Adaptive Regime Ensemble</td><td>+0.48% (Sh 0.74)</td><td>+12.87% (Sh 3.07)</td><td>+15.76% (Sh 1.52)</td><td>0</td></tr>
+                  <tr><td>Vol Squeeze &amp; Donchian</td><td>+1.60% (Sh 1.82)</td><td>+18.08% (Sh 3.43)</td><td>&minus;22.99% (Sh &minus;2.02)</td><td>0</td></tr>
+                  <tr><td>Online ML (AdaGrad Logistic)</td><td>&minus;6.58% (Sh &minus;10.9)</td><td><strong>+15.38%</strong> (Sh 4.64)</td><td>&minus;14.21% (Sh &minus;1.65)</td><td>0</td></tr>
+                  <tr><td>Statistical Z-Score Reversion</td><td>&minus;9.99% (Sh &minus;14.3)</td><td>+0.53% (Sh 0.35)</td><td>+18.89% (Sh 2.58)</td><td>0</td></tr>
+                  <tr><td>Kalman + Order-Flow Momentum</td><td>&minus;7.14% (Sh &minus;4.85)</td><td>+8.83% (Sh 1.84)</td><td>&minus;14.88% (Sh &minus;1.04)</td><td>0</td></tr>
+                  <tr><td><em>Benchmark: BTC Buy &amp; Hold</em></td><td><em>&minus;6.24%</em></td><td><em>&minus;25.05%</em></td><td><em>&minus;20.58%</em></td><td><em>&mdash;</em></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p>
+              Notice the structural takeaway: specialized strategies shine in specific horizons (<code>Online ML</code> led 30d <code>1h</code> at Sharpe <code>4.64</code>; <code>Z-Score Reversion</code> captured <code>+18.89%</code> on 90d <code>4h</code>), while <strong>Space Meta-Ensemble</strong> is the only strategy consistently profitable with Sharpe <code>&gt; 2.4</code> and max drawdown <code>&le; 8.1%</code> across <em>every</em> tested horizon simultaneously.
+            </p>
+
+            <h2>5. Real live paper telemetry &amp; the whipsaw bug we fixed</h2>
+            <p>
+              Because our paper engine records every live execution permanently in SQLite, its very first overnight run caught a subtle real-world failure mode immediately:
+            </p>
+            <ul>
+              <li><strong><code>PAPER-0001</code> (Win):</strong> Opened a <code>3.74&times;</code> leveraged <code>SHORT</code> at <code>$60,363.98</code> and locked in <strong>+$680.76</strong> via our ATR trailing stop at <code>$60,002.80</code>.</li>
+              <li><strong><code>PAPER-0002</code> (Whipsaw):</strong> Sixty seconds later, on the very next bar, the previous regime strategy immediately re-entered <code>SHORT</code> at <code>$59,993.75</code> right at the local bottom and got squeezed out on signal flip for <strong>&minus;$1,153.57</strong>.</li>
+            </ul>
+            <p>
+              That single live observation prompted our <strong>3-bar causal post-stop cooldown</strong> (blocking same-direction re-entry after any <code>STOP_LOSS</code>, <code>TRAILING_STOP</code>, or <code>LIQUIDATION</code> exit) and the rollout of <code>Space Meta-Ensemble</code> as our live default &mdash; immediately flipping 7d <code>15m</code> paper-regime performance from negative chop to <code>+5.99%</code> (Sharpe <code>5.97</code>).
+            </p>
+
+            <h2>6. 24/7 autonomous daemon &amp; mobile-first glass-box UI</h2>
+            <p>
+              The entire stack runs in pure Python 3.14 standard library + high-DPI HTML5 Canvas with zero external package bloat. It runs 24/7 as a persistent Linux <code>systemd --user</code> daemon (<code>Linger=yes</code>) behind a Cloudflare HTTPS tunnel, streams live ticks and expert softmax weights over Server-Sent Events (SSE), archives every trade and reset session permanently in SQLite with CSV export, and includes a mobile-native bottom navigation bar with touch-scrubbable candlestick &amp; equity charts.
+            </p>
+
+            <div class="blog-callout">
+              <div class="blog-callout-title">Inspect the live Space Quant Lab</div>
+              <p>Watch the live 24/7 paper engine, inspect real-time Hedge expert allocation weights, browse permanent SQLite trade history, or run multi-algorithm leveraged backtests directly from your browser or phone (simulated paper money only).</p>
+              <div class="btn-row">
+                <a class="btn sm" href="https://retrieved-switched-authentication-transmission.trycloudflare.com" target="_blank" rel="noopener">Open Live Quant Lab &#8599;</a>
+                <a class="btn secondary sm" href="./blog.html">All Research Notes</a>
+                <a class="btn secondary sm" href="./index.html">Space AI Home</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <footer class="landing-foot">
+      <div class="wrap" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:1rem;">
+        <span>&copy; 2026 Space AI &middot; spaceresearch.ai</span>
+        <div style="display:flex; gap:1.4rem; color:var(--ink-soft);">
+          <a href="./blog.html">Research</a>
+          <a href="./papers.html">Papers</a>
+          <a href="./product.html">Product</a>
+          <a href="./network.html">Network</a>
+          <a href="./chat.html">Chat</a>
+          <a href="https://github.com/spaceresearchai" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="./culture-home.js?v=29"></script>
+</body>
+</html>

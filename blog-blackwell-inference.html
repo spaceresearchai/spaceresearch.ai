@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <title>Blackwell Silicon Engineering: Accelerating Inkling-2-Mini and Qwen3.8-27B on RTX 5090 — Space AI</title>
+  <meta name="description" content="Roofline-driven CUDA 13 and VMM memory optimizations on RTX 5090 (sm_120): +41.6% prefill, +17.2% decode, and up to 11.2 GiB VRAM saved on Inkling-2-Mini and Qwen3.8-27B." />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Space AI" />
+  <meta property="og:title" content="Blackwell Silicon Engineering: Accelerating Inkling-2-Mini and Qwen3.8-27B on RTX 5090 — Space AI" />
+  <meta property="og:description" content="Roofline-driven CUDA 13 and VMM memory optimizations on RTX 5090 (sm_120): +41.6% prefill, +17.2% decode, and up to 11.2 GiB VRAM saved on Inkling-2-Mini and Qwen3.8-27B." />
+  <meta property="og:image" content="https://spaceresearch.ai/og-card.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://spaceresearch.ai/og-card.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="./mark.svg?v=35" />
+  <link rel="stylesheet" href="./culture.css?v=29" />
+</head>
+<body>
+  <canvas id="cosmos-bg-canvas" class="cosmos-bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="page-shell">
+  <header class="ed-nav">
+    <div class="ed-nav-inner">
+      <a class="ed-brand" href="./index.html">
+        <span class="ed-emblem" aria-hidden="true">
+          <img src="./mark.svg?v=35" alt="" width="28" height="28" />
+        </span>
+        <span>Space AI</span>
+      </a>
+      <nav class="ed-links" aria-label="Primary">
+        <a href="./blog.html" class="active">Research</a>
+        <a href="./papers.html" class="">Papers</a>
+        <a href="./product.html" class="">Product</a>
+        <a href="./network.html" class="">Network</a>
+        <a href="./chat.html">Chat</a>
+        <a href="https://github.com/spaceresearchai/spaceresearch.ai/releases/latest" target="_blank" rel="noopener">Desktop App</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="icon-pill" href="https://github.com/spaceresearchai" target="_blank" rel="noopener" aria-label="Space AI on GitHub" title="GitHub (spaceresearchai)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.69-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11.05 11.05 0 0 1 5.8 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14 0 1.55-.01 2.8-.01 3.18 0 .31.21.67.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+        </a>
+        <button type="button" class="icon-pill" data-theme-toggle aria-label="Toggle color theme" title="Switch to Daylight Mode">☀</button>
+        <a class="btn sm" href="./chat.html">Open Chat</a>
+      </div>
+    </div>
+  </header>
+
+    <main>
+      <article class="section" style="padding-top:3.8rem;">
+        <div class="wrap-blog">
+          <a class="blog-back" href="./blog.html">&larr; All research notes</a>
+          <div class="blog-meta" style="margin-top:1.4rem;">
+            <span class="blog-cat">NOTE 07 &middot; SYSTEMS &amp; GPU KERNELS</span>
+            <span>7 min read</span>
+          </div>
+          <h1 class="blog-article-title">Blackwell Silicon Engineering: Accelerating Inkling-2-Mini and Qwen3.8-27B on a Single RTX 5090</h1>
+          <p class="blog-article-lead">
+            Serving frontier looped MoE and hybrid state-space models on a single 32 GiB workstation GPU leaves no room for wasted bytes or under-occupied warps. Here is how seven roofline-guided CUDA 13 iterations cut live VRAM by up to 11.2 GiB while pushing Inkling-2-Mini to 415&ndash;783 tok/s and Qwen3.8-27B to 267&ndash;867 tok/s.
+          </p>
+
+          <div class="blog-abstract">
+            <div class="blog-abstract-lbl">ABSTRACT</div>
+            <p>
+              We profile and iteratively optimize our live Basalt inference engine on an NVIDIA GeForce RTX 5090 (Blackwell <code>sm_120</code>, 32,607 MiB GDDR7, 170 SMs, 1,792 GB/s, CUDA 13.0) across both production models powering Space Chat: <strong>Inkling-2-Mini</strong> (26.4B / 3.5B-active looped MoE with DSpark speculative drafting) and <strong>Qwen3.8-27B</strong> (64-layer dense hybrid GDN/GQA with DFlash 2 block drafting). Through targeted kernel fixes, 128-bit warp-per-row <code>q8_planes</code> MMVQ with Programmatic Dependent Launch (PDL), hardware PTX <code>tanh.approx.f32</code> softcapping, on-load NVFP4 re-quantization of Q8_0 coda experts, and CUDA VMM demand-backed <code>ElasticArray</code> KV caches paired with on-demand prefill arenas, we achieve <strong>+41.6% prefill</strong> (<code>19,455 tok/s</code>), <strong>+17.2% conversational decode</strong> (<code>415.2 tok/s</code>), and <strong>&minus;4.1 to &minus;11.2 GiB VRAM</strong> on Inkling-2-Mini, alongside <strong>+7.4%&ndash;8.5% decode</strong> and <strong>&minus;5.7 GiB live production VRAM</strong> (<code>29,232 &rarr; 23,387 MiB</code> across 8 parallel slots) on Qwen3.8-27B — with zero greedy oracle regressions.
+            </p>
+          </div>
+
+          <div class="blog-prose">
+            <h2>1. Two very different architectures on one 32 GiB card</h2>
+            <p>
+              Our live Space AI workstation node serves two complementary open models on a single RTX 5090:
+            </p>
+            <ul>
+              <li><strong>Inkling-2-Mini</strong> (<code>Inkling-2-Mini-NVFP4-DQ8.basalt</code>): a 26.4B-parameter / 3.5B-active looped Mixture-of-Experts transformer (6 prelude layers, 12 core layers looped 3&times;, and 4 coda layers = <strong>48 visits per token</strong>, 128 routed experts top-8) paired with a 3-layer DSpark drafter.</li>
+              <li><strong>Qwen3.8-27B</strong> (<code>Qwen3.8-27B-QUASAR-NVFP4.basalt</code>): a 64-layer dense hybrid Gated DeltaNet (48 GDN layers) + Grouped-Query Attention (16 GQA layers) architecture paired with a 5-layer DFlash 2 block drafter.</li>
+            </ul>
+            <p>
+              Before optimization, our deployed Basalt v0.5.5 runtime left <code>Qwen3.8-27B</code> sitting at <strong>29,232 MiB</strong> out of 32,607 MiB in its 8-slot production configuration (leaving barely 3 GiB of headroom for dynamic vision encoding or long contexts), while <code>Inkling-2-Mini</code> suffered from both idle prefill/KV memory bloat and subtle decode kernel bottlenecks across its 48 per-token visits.
+            </p>
+
+            <div class="blog-stats">
+              <div class="blog-stat">
+                <div class="blog-stat-v">+41.6%</div>
+                <div class="blog-stat-l">Inkling-2 Prefill</div>
+              </div>
+              <div class="blog-stat">
+                <div class="blog-stat-v">415 / 783</div>
+                <div class="blog-stat-l">Inkling conv / struct t/s</div>
+              </div>
+              <div class="blog-stat">
+                <div class="blog-stat-v">&minus;11.2 GiB</div>
+                <div class="blog-stat-l">Inkling 131K&times;4 VRAM</div>
+              </div>
+              <div class="blog-stat">
+                <div class="blog-stat-v">&minus;5.7 GiB</div>
+                <div class="blog-stat-l">Qwen 27B Live VRAM</div>
+              </div>
+            </div>
+
+            <div class="blog-figure">
+              <svg viewBox="0 0 640 250" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Before and after throughput and VRAM comparison on RTX 5090">
+                <rect x="10" y="12" width="304" height="226" rx="10" fill="#0b0b0d" stroke="rgba(255,255,255,0.14)"/>
+                <text x="24" y="36" fill="#34d399" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">INKLING-2-MINI (LOOPED MOE &middot; SPEC 8)</text>
+
+                <text x="24" y="64" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9.5">Prefill pp16384</text>
+                <rect x="24" y="70" width="142" height="8" rx="3" fill="rgba(255,255,255,0.18)"/>
+                <rect x="24" y="81" width="201" height="8" rx="3" fill="#34d399"/>
+                <text x="232" y="88" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">19,455 t/s (+41.6%)</text>
+
+                <text x="24" y="112" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9.5">Decode conv / struct</text>
+                <rect x="24" y="118" width="166" height="8" rx="3" fill="rgba(255,255,255,0.18)"/>
+                <rect x="24" y="129" width="195" height="8" rx="3" fill="#38bdf8"/>
+                <text x="225" y="136" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">415 / 783 (+17%)</text>
+
+                <text x="24" y="160" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9.5">32K Steady Decode VRAM</text>
+                <rect x="24" y="166" width="200" height="8" rx="3" fill="rgba(255,255,255,0.18)"/>
+                <rect x="24" y="177" width="158" height="8" rx="3" fill="#a78bfa"/>
+                <text x="190" y="184" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">15.5 GiB (-4.1 GiB)</text>
+
+                <text x="24" y="206" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9.5">131K&times;4 Live Serve VRAM</text>
+                <rect x="24" y="212" width="236" height="8" rx="3" fill="rgba(255,255,255,0.18)"/>
+                <rect x="24" y="223" width="143" height="8" rx="3" fill="#f59e0b"/>
+                <text x="174" y="230" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">16.9 GiB (-11.2 GiB)</text>
+
+                <rect x="326" y="12" width="304" height="226" rx="10" fill="#0b0b0d" stroke="rgba(255,255,255,0.14)"/>
+                <text x="340" y="36" fill="#38bdf8" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">QWEN3.8-27B (GDN+GQA &middot; SPEC 16)</text>
+
+                <text x="340" y="64" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9.5">Decode conv (tok/s)</text>
+                <rect x="340" y="70" width="166" height="8" rx="3" fill="rgba(255,255,255,0.18)"/>
+                <rect x="340" y="81" width="179" height="8" rx="3" fill="#34d399"/>
+                <text x="526" y="88" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">267.3 (+7.4%)</text>
+
+                <text x="340" y="112" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9.5">Decode struct (tok/s)</text>
+                <rect x="340" y="118" width="182" height="8" rx="3" fill="rgba(255,255,255,0.18)"/>
+                <rect x="340" y="129" width="191" height="8" rx="3" fill="#38bdf8"/>
+                <text x="538" y="136" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">867.3 (+4.8%)</text>
+
+                <text x="340" y="160" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9.5">Decode prose (tok/s)</text>
+                <rect x="340" y="166" width="162" height="8" rx="3" fill="rgba(255,255,255,0.18)"/>
+                <rect x="340" y="177" width="176" height="8" rx="3" fill="#a78bfa"/>
+                <text x="523" y="184" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">219.0 (+8.5%)</text>
+
+                <text x="340" y="206" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9.5">196K (8&times;24K) Live VRAM</text>
+                <rect x="340" y="212" width="242" height="8" rx="3" fill="rgba(255,255,255,0.18)"/>
+                <rect x="340" y="223" width="194" height="8" rx="3" fill="#f59e0b"/>
+                <text x="541" y="230" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">22.8 GiB (-5.7 GiB)</text>
+              </svg>
+              <div class="blog-figcap">Figure 1. Verified RTX 5090 (600 W, CUDA 13.0) improvements comparing deployed Basalt v0.5.5 (gray) against our optimized Blackwell build (colored).</div>
+            </div>
+
+            <h2>2. Finding every microsecond in Inkling-2-Mini</h2>
+            <p>
+              We built Basalt directly from source with a local CUDA 13.0.88 toolchain targeting <code>sm_120</code> and instrumented every stage of Inkling-2-Mini's 48-visit decode graph with per-stage CUDA event timers. The roofline immediately exposed where time and bandwidth were going:
+            </p>
+            <ol>
+              <li><strong>Fixing a sliding-window attention regression in upstream HEAD:</strong> Upgrading from v0.5.5 to upstream HEAD boosted prefill by +35%, but regressed short-window decode (<code>t=1</code> jumped from <code>3.99 ms</code> to <code>4.64 ms</code>). Profiling pinpointed the cause: changing <code>launch_splits()</code> from <code>/ 128</code> to <code>/ 64</code> pushed 1024-key sliding windows past <code>kClusterSplits = 8</code>, silently disabling the fused single-pass attention kernel across all 40 sliding-window visits. Splitting scalar vs. MMA split counts restored <code>attn_fused_kernel</code> immediately.</li>
+              <li><strong>128-bit (<code>int4</code>) warp-per-row <code>q8_planes</code> MMVQ + Blackwell PDL:</strong> For Inkling-2-Mini's dense projections (<code>w.proj</code>, <code>w.out</code>) across speculative widths <code>ncols = 1..8</code>, we replaced the shared-memory reduction path with a zero-smem, zero-<code>__syncthreads()</code> 4-rows-per-block warp-per-row kernel (<code>native_q8p_w4</code>) using 128-bit vectorized loads and Blackwell Programmatic Dependent Launch (<code>pdl_launch_dependents()</code>) to overlap next-kernel weight prefetch.</li>
+              <li><strong>In-place <code>q8_planes</code> output head (200K vocab) + 128-bit DSpark rescore:</strong> Repacking the 489 MB Q8_0 <code>lm_head</code> in-place to aligned <code>q8_planes</code> at attach time and updating DSpark's exact-logit rescore to 128-bit <code>q8p_dot</code> pushed <code>lm_head</code> from <code>393 &mu;s</code> down to <code>292&ndash;311 &mu;s</code> — roughly <strong>1.6 TB/s</strong>, saturating ~90% of GDDR7 bandwidth.</li>
+              <li><strong>Hardware PTX <code>tanh.approx.f32</code> on SwiGLU softcap:</strong> Inkling-2-Mini's softcapped SwiGLU runs 48 times per forward pass and previously called full-precision software <code>tanhf()</code> and <code>expf()</code> with two float divisions per element. Precomputing reciprocals and using Blackwell's single-cycle <code>MUFU.TANH</code> (<code>tanh.approx.f32</code>) plus <code>__expf</code> eliminated the transcendental bottleneck while passing kernel parity cleanly.</li>
+              <li><strong>On-load NVFP4 re-quantization of coda experts (layers 20..23):</strong> On Inkling-2-Mini, layers 0..19 are NVFP4 (547 MiB/layer), while the four non-looped coda layers 20..23 ship as Q8_0 (1,033 MiB/layer) — consuming <strong>27.4% of all expert VRAM</strong> and running <strong>2.0&times; slower</strong> in decode (<code>173 &mu;s/layer</code> vs. <code>90 &mu;s/layer</code> at 6 tokens) while falling back to MMQ during prefill. Converting layers 20..23 to NVFP4 blocks on load via <code>nvfp4p::from_q8</code> &rarr; <code>to_blocks</code> reclaimed <strong>1.95 GiB VRAM</strong>, cut <code>t=8</code> verify latency from <code>9.86 ms</code> to <code>8.67 ms</code>, enabled FP4 tensor-core prefill across all 24 layers, and kept greedy token sequences intact.</li>
+            </ol>
+
+            <h2>3. Zero-loss VRAM diet: reclaiming 4&ndash;11 GiB without touching precision</h2>
+            <p>
+              Memory profiling revealed that both engines were pinning gigabytes of permanently idle VRAM:
+            </p>
+            <ul>
+              <li><strong>On-demand prefill arenas:</strong> Both Inkling-2-Mini (<code>Prompt::lane().mem</code>, ~800 MiB) and the dense stack (<code>Model::pre_arena</code>, ~1.1 GiB, plus <code>kv8</code> prompt buffers) allocated giant prompt workspaces once and held them indefinitely during decode. Wrapping prompt execution in an RAII acquire/release guard after stream synchronization drops steady-state prefill overhead to <strong>0 MiB</strong>.</li>
+              <li><strong>Prompt-owned drafter tap &amp; exact-sized DSpark weights:</strong> Moving the 4096-row DSpark prompt tap into the transient prefill arena shrunk the permanent decode tap from <code>144 MiB</code> to <code>0.28 MiB</code>. Allocating exact-sized NVFP4 buffers in <code>DsparkWeights::finish()</code> and freeing the oversized Q8_0 load buffers reclaimed another <code>~140 MiB</code> and removed 21 device-to-device copies at startup.</li>
+              <li><strong>Always-on CUDA VMM <code>ElasticArray</code> KV caches:</strong> Previously, VMM demand-backed KV caches were only enabled on Inkling-2-Mini when experts spilled to RAM — and were absent from the dense stack altogether. Enabling <code>ElasticArray</code> unconditionally (reserving full virtual address ranges so CUDA graphs stay valid at fixed addresses, backing only 2K&ndash;4K cells initially in exact 2 MiB VMM granules, growing in 8K steps on demand, and trimming on conversation reset) slashed multi-slot production VRAM by <strong>~11.2 GiB</strong> on Inkling-2-Mini (131K&times;4) and <strong>~5.7 GiB</strong> on Qwen3.8-27B (196K across 8 slots).</li>
+            </ul>
+
+            <h2>4. Pushing Qwen3.8-27B closer to its bandwidth roofline</h2>
+            <p>
+              With ~16.5 GiB of active dense weights per pass, Qwen3.8-27B's single-token decode (<code>10.8 ms</code>) already sits near RTX 5090's practical HBM ceiling. Gains therefore came from trimming non-weight compute and DFlash 2 drafter overhead (<code>1.94 ms/window</code>):
+            </p>
+            <ul>
+              <li><strong>Fused DFlash 2 FFN epilogue &amp; redundant pack removal:</strong> <code>block_draft_batch()</code> previously wrote intermediate FP32 FFN activations and launched a separate BF16 pack kernel on every drafter layer, plus redundantly re-packed hidden states already packed by <code>wnorm()</code> before the selector GEMM. Routing <code>prod_swiglu()</code> directly into <code>b.hq</code> and reusing the packed buffer eliminated 6 kernel launches and 5 intermediate memory round-trips per window.</li>
+              <li><strong>Fast-math on GDN, GQA, <code>window_gemm</code>, and <code>logprobs</code>:</strong> Enabling <code>--use_fast_math</code> on the dense stack's transcendental-heavy CUDA kernels (48 GDN softplus/decay layers, 16 GQA layers, SwiGLU epilogues, and 1.97M-element draft logprob passes) boosted Qwen3.8-27B decode by <strong>+4.8% to +8.5%</strong> across all benchmarks while passing <code>gdn_seg_split_parity</code> (bitwise) and <code>dense_ops_parity</code>.</li>
+            </ul>
+
+            <h2>5. Complete verified benchmark table</h2>
+            <div class="table-wrap" style="margin:1.4rem 0 1.8rem 0;">
+              <table>
+                <thead>
+                  <tr><th>Model &amp; Metric</th><th>Deployed v0.5.5</th><th>Optimized Final</th><th>Delta</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><strong>Inkling-2-Mini</strong> &middot; <code>pp16384</code> prefill</td><td>13,739 tok/s</td><td><strong>19,455 tok/s</strong> (peak 19,511)</td><td><strong>+41.6%</strong></td></tr>
+                  <tr><td><strong>Inkling-2-Mini</strong> &middot; <code>tg conv</code> (<code>--spec 8</code>)</td><td>354.2 tok/s</td><td><strong>415.2 tok/s</strong> (warm 422.9)</td><td><strong>+17.2%</strong></td></tr>
+                  <tr><td><strong>Inkling-2-Mini</strong> &middot; <code>tg struct</code> (<code>--spec 8</code>)</td><td>671.1 tok/s</td><td><strong>782.8 tok/s</strong> (peak 795.8)</td><td><strong>+16.6%</strong></td></tr>
+                  <tr><td><strong>Inkling-2-Mini</strong> &middot; <code>tg prose</code> (<code>--spec 8</code>)</td><td>302.7 tok/s</td><td><strong>330.5 tok/s</strong></td><td><strong>+9.2%</strong></td></tr>
+                  <tr><td><strong>Inkling-2-Mini</strong> &middot; 32K / 1-slot steady VRAM</td><td>20,106 MiB</td><td><strong>15,907 MiB</strong></td><td><strong>&minus;4.10 GiB</strong></td></tr>
+                  <tr><td><strong>Inkling-2-Mini</strong> &middot; 131K / 4-slot live VRAM</td><td>~28,500 MiB</td><td><strong>17,279 MiB</strong></td><td><strong>&minus;11.2 GiB</strong></td></tr>
+                  <tr><td><strong>Qwen3.8-27B</strong> &middot; <code>tg conv</code> (<code>--kv int8 --spec 16</code>)</td><td>248.9 tok/s</td><td><strong>267.3 tok/s</strong></td><td><strong>+7.4%</strong></td></tr>
+                  <tr><td><strong>Qwen3.8-27B</strong> &middot; <code>tg struct</code> (<code>--kv int8 --spec 16</code>)</td><td>827.9 tok/s</td><td><strong>867.3 tok/s</strong> (peak 871.2)</td><td><strong>+4.8%</strong></td></tr>
+                  <tr><td><strong>Qwen3.8-27B</strong> &middot; <code>tg prose</code> (<code>--kv int8 --spec 16</code>)</td><td>201.8 tok/s</td><td><strong>219.0 tok/s</strong></td><td><strong>+8.5%</strong></td></tr>
+                  <tr><td><strong>Qwen3.8-27B</strong> &middot; 196K (8&times;24K) live VRAM</td><td>29,232 MiB</td><td><strong>23,387 MiB</strong></td><td><strong>&minus;5.7 GiB</strong></td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h2>6. What we tried and reverted (negative results matter)</h2>
+            <p>
+              Every optimization was gated by strict parity checks and apples-to-apples benchmarking. Two promising ideas failed on Blackwell silicon and were reverted immediately:
+            </p>
+            <ul>
+              <li><strong>Fused <code>router_logits_w4</code> + single-block <code>router_select_plan</code>:</strong> Regressed <code>t=8</code> verify latency from <code>9.11 ms</code> to <code>10.05 ms</code>. Launching only 32 blocks on a 170-SM RTX 5090 left 81% of SMs idle compared to 128 blocks, and serializing 8 tokens through 128 sequential <code>__syncthreads()</code> barriers destroyed token-level parallelism.</li>
+              <li><strong>4-gate + 4-up fused SwiGLU-softcap-Q8 kernel:</strong> Passed 0-failure bitwise parity, yet regressed <code>tg struct</code> from <code>727</code> to <code>572 tok/s</code> (<code>t=8</code>: <code>9.11 &rarr; 11.68 ms</code>) because unrolling <code>row_dot_multi</code> 8&times; exploded register pressure (spilling to local memory and dropping occupancy to 1 CTA/SM) while shrinking the grid 8&times; to just 36 CTAs.</li>
+            </ul>
+            <p>
+              On a 170-SM GPU, keeping CTA counts high and register files lean consistently beats aggressive inner-loop fusion.
+            </p>
+
+            <h2>7. Verification &amp; live deployment</h2>
+            <p>
+              All optimizations are verified with unit parity suites (<code>inkling2_dspark_parity</code>: 0 failures, <code>inkling2_kv_int8_parity</code>: 0 mismatches, <code>gdn_seg_split_parity</code>: bitwise PASS, <code>dense_ops_parity</code>: PASS) and greedy speculative oracle checks (<code>--spec 1</code> vs. <code>--spec 8</code> on Inkling-2-Mini and <code>--spec 1</code> vs. <code>--spec 16</code> on Qwen3.8-27B: <strong>0 picks differ from oracle</strong>). Both optimized models are now running live behind Space Chat and the Space AI Network.
+            </p>
+
+            <div class="blog-callout">
+              <div class="blog-callout-title">Try the optimized models live</div>
+              <p>Chat directly with our RTX 5090 deployment of Inkling-2-Mini and Qwen3.8-27B in Space Chat, or inspect live node telemetry on the Space AI Network.</p>
+              <div class="btn-row">
+                <a class="btn sm" href="./chat.html">Open Space Chat &rarr;</a>
+                <a class="btn secondary sm" href="./network.html">View Live Network</a>
+                <a class="btn secondary sm" href="./blog.html">All Research Notes</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <footer class="landing-foot">
+      <div class="wrap" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:1rem;">
+        <span>&copy; 2026 Space AI &middot; spaceresearch.ai</span>
+        <div style="display:flex; gap:1.4rem; color:var(--ink-soft);">
+          <a href="./blog.html">Research</a>
+          <a href="./papers.html">Papers</a>
+          <a href="./product.html">Product</a>
+          <a href="./network.html">Network</a>
+          <a href="./chat.html">Chat</a>
+          <a href="https://github.com/spaceresearchai" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="./culture-home.js?v=29"></script>
+</body>
+</html>

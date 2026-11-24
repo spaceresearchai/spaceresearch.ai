@@ -22,3 +22,9 @@
   Cache-Control: no-cache
 /*.webp
   Cache-Control: public, max-age=604800
+/data/papers-db.json
+  Cache-Control: public, max-age=300
+  Access-Control-Allow-Origin: *
+/data/papers-vectors.f16.bin
+  Cache-Control: public, max-age=3600
+  Access-Control-Allow-Origin: *
