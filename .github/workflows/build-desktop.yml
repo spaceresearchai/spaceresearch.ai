@@ -1,0 +1,107 @@
+name: Build Space AI Desktop
+
+on:
+  push:
+    tags:
+      - "desktop-v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            script: build:mac
+          - os: windows-latest
+            script: build:win
+          - os: ubuntu-latest
+            script: build:linux
+
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: desktop
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: desktop/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Run desktop unit tests
+        run: npm test
+
+      - name: Build native installers
+        run: npm run ${{ matrix.script }}
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - name: Upload installer artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: space-ai-desktop-${{ matrix.os }}
+          path: |
+            desktop/dist/*.dmg
+            desktop/dist/*.zip
+            desktop/dist/*.exe
+            desktop/dist/*.AppImage
+            desktop/dist/*.deb
+          if-no-files-found: warn
+
+  release:
+    name: Publish GitHub Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/desktop-v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+
+      - name: List release assets
+        run: ls -lh release-assets
+
+      - name: Create or update GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          cat <<'EOF' > /tmp/release-notes.md
+          ## Space AI Desktop (__TAG__)
+
+          Native cross-platform desktop app for **Space AI** — Glass-Box Local AI Chat with live Decision X-Ray, counterfactual token forking, `/stress`, `/compare`, `/audit`, `/compact`, Live Fleet Inspector, global quick-summon hotkey (`Cmd/Ctrl+Shift+Space`), and local `space proxy` integration.
+
+          ### Downloads
+          - **macOS (Apple Silicon M1/M2/M3/M4)**: `Space-AI-1.0.0-mac-arm64.dmg` (or `.zip`)
+          - **macOS (Intel)**: `Space-AI-1.0.0-mac-x64.dmg` (or `.zip`)
+          - **Windows (x64)**: `Space-AI-1.0.0-win-x64-setup.exe` (Installer) or `Space-AI-1.0.0-win-x64-portable.exe` (Portable)
+          - **Linux (x64)**: `Space-AI-1.0.0-linux-x64.AppImage` or `Space-AI-1.0.0-linux-x64.deb`
+
+          > **macOS First Launch Note:** Because this open-source build is unsigned, if macOS Gatekeeper says the app is from an unidentified developer, right-click **Space AI.app** → **Open**, or run `xattr -cr "/Applications/Space AI.app"` in Terminal.
+          EOF
+          sed -i "s/__TAG__/${TAG}/g" /tmp/release-notes.md
+          if gh release view "$TAG" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            gh release upload "$TAG" release-assets/* --clobber --repo "${{ github.repository }}"
+          else
+            gh release create "$TAG" release-assets/* \
+              --repo "${{ github.repository }}" \
+              --title "Space AI Desktop ${TAG}" \
+              --notes-file /tmp/release-notes.md \
+              --latest
+          fi

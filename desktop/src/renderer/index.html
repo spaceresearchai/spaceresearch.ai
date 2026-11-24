@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src https: http://127.0.0.1:* http://localhost:*;" />
+  <title>Space AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <canvas id="chat-cosmos-canvas" class="chat-cosmos-canvas" aria-hidden="true"></canvas>
+  <div id="drawer-backdrop" class="drawer-backdrop"></div>
+  <div id="xray-popover" class="xray-popover" role="dialog" aria-label="Token Decision Inspector"></div>
+  <div id="share-toast" class="share-toast" role="status" aria-live="polite"></div>
+
+  <div class="chat-app">
+    <aside id="sidebar" class="sidebar">
+      <div class="sb-top">
+        <div class="sb-brand">
+          <div class="sb-brand-link" title="Space AI Desktop">
+            <span class="sb-emblem logo-orbit" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
+                <g class="orbit-ring-a"><ellipse cx="14" cy="14" rx="11" ry="4.4" stroke="currentColor" stroke-width="1.4" opacity="0.92"/></g>
+                <g class="orbit-ring-b"><ellipse cx="14" cy="14" rx="10.5" ry="4.2" stroke="currentColor" stroke-width="1.1" opacity="0.48"/></g>
+                <circle cx="14" cy="14" r="2.7" fill="currentColor"/>
+              </svg>
+            </span>
+            <span>Space AI</span>
+          </div>
+          <button id="btn-cmd-palette" type="button" class="kbd-chip" title="Command Palette (Cmd/Ctrl+K)">
+            <span id="kbd-cmd-label">⌘K</span>
+          </button>
+        </div>
+
+        <button id="btn-new-chat" type="button" class="btn-new">+ New Chat</button>
+        <input id="sb-search" type="search" class="sb-search" placeholder="Search chats..." />
+      </div>
+
+      <div id="sb-list" class="sb-list"></div>
+
+      <div class="sb-foot">
+        <button id="btn-fleet-pill" type="button" class="sb-fleet" title="Inspect Live Community Silicon Fleet">
+          <span id="sb-fleet-dot" class="dot"></span>
+          <span id="sb-fleet-text">Connecting fleet...</span>
+        </button>
+        <div class="sb-foot-actions">
+          <button id="btn-compact" type="button" class="sb-mini-btn" title="Compact conversation context (Cmd/Ctrl+Shift+K)" disabled>Compact</button>
+          <button id="btn-export" type="button" class="sb-mini-btn" title="Export active chat as Markdown (Cmd/Ctrl+E)">Export</button>
+          <button id="btn-settings" type="button" class="sb-mini-btn" title="Settings & Local Proxy (Cmd/Ctrl+,)">Settings</button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="chat-main">
+      <header class="topbar">
+        <div class="tb-left">
+          <button id="btn-toggle-sb" type="button" class="icon-btn" title="Toggle sidebar (Cmd/Ctrl+B)">&#9776;</button>
+          <select id="model-select" class="model-select" aria-label="AI Model">
+            <option value="qwen3.8-27b" selected>Qwen3.8 27B</option>
+            <option value="inkling-2-mini">Inkling 2 Mini</option>
+            <option value="space-council">Swarm Council</option>
+            <option value="space-70b-shard">70B Sharded</option>
+          </select>
+          <select id="node-select" class="model-select node-select" aria-label="Serving Node">
+            <option value="auto" selected>Auto Station</option>
+          </select>
+        </div>
+
+        <div class="tb-right">
+          <span id="endpoint-badge" class="endpoint-badge" title="Active Space AI connection">Cloud</span>
+          <button id="btn-xray" type="button" class="icon-btn xray-btn active" title="Toggle live confidence inspection (Cmd/Ctrl+Shift+X)">
+            <span class="xray-dot"></span><span>Confidence · On</span>
+          </button>
+          <button id="btn-pin-top" type="button" class="icon-btn pin-btn" title="Pin window always on top (Cmd/Ctrl+Shift+T)">
+            <span>Pin</span>
+          </button>
+          <button id="btn-fleet" type="button" class="icon-btn hide-sm" title="Live Fleet Inspector (Cmd/Ctrl+Shift+F)">Fleet</button>
+
+          <div id="win-controls" class="win-controls" aria-label="Window controls">
+            <button id="win-min" type="button" class="win-btn" title="Minimize" aria-label="Minimize">
+              <svg width="10" height="10" viewBox="0 0 10 10"><path d="M1 5h8" stroke="currentColor" stroke-width="1.2"/></svg>
+            </button>
+            <button id="win-max" type="button" class="win-btn" title="Maximize" aria-label="Maximize">
+              <svg width="10" height="10" viewBox="0 0 10 10"><rect x="1.5" y="1.5" width="7" height="7" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+            </button>
+            <button id="win-close" type="button" class="win-btn win-btn-close" title="Close" aria-label="Close">
+              <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 2l6 6M8 2l-6 6" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div id="thread-scroll" class="thread-scroll">
+        <div id="thread-inner" class="thread-inner"></div>
+      </div>
+
+      <div class="composer-area">
+        <div class="composer-wrap">
+          <div id="slash-menu" class="slash-menu" role="listbox" aria-label="Slash Commands"></div>
+          <div id="composer-box" class="composer-box">
+            <div id="attach-strip" class="attach-strip"></div>
+            <div class="composer-row">
+              <input id="file-image" type="file" accept="image/*" multiple hidden />
+              <button id="btn-attach" type="button" class="btn-attach" title="Attach image (or paste / drag &amp; drop)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              </button>
+              <textarea id="composer-input" class="composer-input" rows="1" placeholder="Ask anything, or type / for stress-test, compare, audit…"></textarea>
+              <button id="btn-send" type="button" class="btn-send">Send</button>
+            </div>
+          </div>
+          <div id="ctx-meter" class="composer-foot">Space AI Desktop · Open community models</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Command Palette Modal (Cmd/Ctrl+K) -->
+  <div id="cmd-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Command Palette">
+    <div class="modal-card cmd-card">
+      <div class="cmd-input-row">
+        <input id="cmd-input" type="text" class="cmd-input" placeholder="Search chats, switch models, or run a command…" autocomplete="off" />
+        <span class="cmd-esc">ESC</span>
+      </div>
+      <div id="cmd-list" class="cmd-list"></div>
+    </div>
+  </div>
+
+  <!-- Live Fleet Inspector Modal -->
+  <div id="fleet-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Live Community Fleet">
+    <div class="modal-card fleet-card">
+      <div class="modal-head">
+        <div>
+          <div class="modal-eyebrow">Verified Community Silicon</div>
+          <h2 class="modal-title">Live Space Fleet</h2>
+        </div>
+        <div class="modal-head-acts">
+          <button id="btn-fleet-refresh" type="button" class="icon-btn">Refresh</button>
+          <button id="btn-fleet-close" type="button" class="modal-close" aria-label="Close">&times;</button>
+        </div>
+      </div>
+      <div id="fleet-summary" class="fleet-summary"></div>
+      <div id="fleet-nodes" class="fleet-nodes"></div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Space AI Desktop Settings">
+    <div class="modal-card settings-card">
+      <div class="modal-head">
+        <div>
+          <div class="modal-eyebrow">Desktop Control Plane</div>
+          <h2 class="modal-title">Settings &amp; Connection</h2>
+        </div>
+        <button id="btn-settings-close" type="button" class="modal-close" aria-label="Close">&times;</button>
+      </div>
+
+      <div class="settings-body">
+        <section class="settings-section">
+          <div class="settings-section-head">
+            <h3>Inference Endpoint</h3>
+            <button id="btn-import-cli" type="button" class="act-btn">Import from ~/.space_ai</button>
+          </div>
+          <div id="cli-detect-note" class="settings-hint">Connect directly to Space Research cloud coordinators, your local `space proxy`, or any OpenAI-compatible server.</div>
+
+          <div class="form-row">
+            <label for="set-endpoint-mode">Connection Mode</label>
+            <select id="set-endpoint-mode" class="set-input">
+              <option value="auto">Auto · Space Network (api.spaceresearch.ai)</option>
+              <option value="local-proxy">Local Space CLI Proxy (127.0.0.1:8377)</option>
+              <option value="custom">Custom OpenAI-Compatible Endpoint</option>
+            </select>
+          </div>
+
+          <div id="row-local-proxy" class="form-row">
+            <label for="set-local-proxy-url">Local Proxy URL</label>
+            <div class="input-with-btn">
+              <input id="set-local-proxy-url" type="text" class="set-input" placeholder="http://127.0.0.1:8377" />
+              <button id="btn-check-proxy" type="button" class="act-btn">Test</button>
+            </div>
+            <div id="proxy-status-line" class="settings-hint"></div>
+          </div>
+
+          <div id="row-custom-url" class="form-row">
+            <label for="set-custom-api">Custom Base URL</label>
+            <input id="set-custom-api" type="text" class="set-input" placeholder="https://api.example.com" />
+          </div>
+        </section>
+
+        <section class="settings-section">
+          <h3>Routing &amp; Credentials (Optional)</h3>
+          <div class="form-grid-2">
+            <div class="form-row">
+              <label for="set-api-key">Space / Barter API Key</label>
+              <input id="set-api-key" type="password" class="set-input" placeholder="Optional — free community tier needs none" autocomplete="off" />
+            </div>
+            <div class="form-row">
+              <label for="set-session-token">USDC Session Token</label>
+              <input id="set-session-token" type="password" class="set-input" placeholder="sp_sess_..." autocomplete="off" />
+            </div>
+          </div>
+          <div class="form-grid-3">
+            <div class="form-row">
+              <label for="set-route">Route Tier</label>
+              <select id="set-route" class="set-input">
+                <option value="">Default</option>
+                <option value="fastest">Fastest</option>
+                <option value="cheapest">Cheapest</option>
+                <option value="verified-local-only">Verified Local Only</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label for="set-privacy">Privacy Tier</label>
+              <select id="set-privacy" class="set-input">
+                <option value="">Default</option>
+                <option value="standard">Standard</option>
+                <option value="zero-log">Zero-Log</option>
+                <option value="hardened-docker">Hardened Docker</option>
+                <option value="tee">TEE</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label for="set-region">Region</label>
+              <input id="set-region" type="text" class="set-input" placeholder="us / eu / ap" />
+            </div>
+          </div>
+        </section>
+
+        <section class="settings-section">
+          <h3>Model &amp; System Prompt</h3>
+          <div class="form-row">
+            <label for="set-system-prompt">Default System Prompt</label>
+            <textarea id="set-system-prompt" class="set-input set-textarea" rows="3" placeholder="Optional instructions prepended to every conversation…"></textarea>
+          </div>
+          <div class="form-row">
+            <label for="set-max-tokens">Max Output Tokens</label>
+            <input id="set-max-tokens" type="number" class="set-input" min="256" max="16384" step="256" value="4096" />
+          </div>
+        </section>
+
+        <section class="settings-section">
+          <h3>Desktop Behavior</h3>
+          <div class="toggle-list">
+            <label class="toggle-row">
+              <span><strong>Ambient Deep-Space Starfield</strong><small>Subtle animated starfield canvas behind conversations</small></span>
+              <input id="set-starfield" type="checkbox" />
+            </label>
+            <label class="toggle-row">
+              <span><strong>Always on Top</strong><small>Float Space AI above other windows</small></span>
+              <input id="set-always-on-top" type="checkbox" />
+            </label>
+            <label class="toggle-row">
+              <span><strong>Minimize to Menu Bar / System Tray</strong><small>Keep Space AI ready in the background when closed</small></span>
+              <input id="set-minimize-tray" type="checkbox" />
+            </label>
+            <label class="toggle-row">
+              <span><strong>Global Quick-Summon Hotkey</strong><small>Toggle Space AI from any app (Cmd/Ctrl+Shift+Space)</small></span>
+              <input id="set-global-shortcut-enabled" type="checkbox" />
+            </label>
+            <label class="toggle-row" id="row-launch-login">
+              <span><strong>Launch at Login</strong><small>Start Space AI automatically when you sign in</small></span>
+              <input id="set-launch-login" type="checkbox" />
+            </label>
+          </div>
+        </section>
+      </div>
+
+      <div class="modal-foot">
+        <button id="btn-open-website" type="button" class="act-btn">spaceresearch.ai &nearr;</button>
+        <div class="modal-foot-right">
+          <button id="btn-settings-cancel" type="button" class="icon-btn">Cancel</button>
+          <button id="btn-settings-save" type="button" class="btn-primary">Save Settings</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>

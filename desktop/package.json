@@ -1,0 +1,111 @@
+{
+  "name": "space-ai-desktop",
+  "productName": "Space AI",
+  "desktopName": "space-ai.desktop",
+  "version": "1.0.0",
+  "description": "Native cross-platform desktop app for Space AI — Glass-Box Local AI Chat with live Decision X-Ray, counterfactual token forking, framing stress-tests, and local proxy integration.",
+  "main": "src/main.js",
+  "author": "Space Research (spaceresearch.ai)",
+  "license": "MIT",
+  "homepage": "https://spaceresearch.ai",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/spaceresearchai/spaceresearch.ai.git"
+  },
+  "scripts": {
+    "start": "node scripts/launch.js",
+    "dev": "SPACE_DESKTOP_DEV=1 node scripts/launch.js",
+    "test": "node --test tests/*.test.js",
+    "build": "electron-builder",
+    "build:mac": "electron-builder --mac",
+    "build:win": "electron-builder --win",
+    "build:linux": "electron-builder --linux",
+    "pack": "electron-builder --dir"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^35.1.5",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "ai.spaceresearch.desktop",
+    "productName": "Space AI",
+    "copyright": "Copyright © 2026 Space Research",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "extraMetadata": {
+      "main": "src/main.js"
+    },
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "build/icon.png",
+      "darkModeSupport": true,
+      "artifactName": "Space-AI-${version}-mac-${arch}.${ext}",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["arm64", "x64"]
+        },
+        {
+          "target": "zip",
+          "arch": ["arm64", "x64"]
+        }
+      ]
+    },
+    "dmg": {
+      "title": "Space AI",
+      "window": {
+        "width": 540,
+        "height": 380
+      }
+    },
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "nsis": {
+      "artifactName": "Space-AI-${version}-win-${arch}-setup.${ext}",
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "deleteAppDataOnUninstall": false
+    },
+    "portable": {
+      "artifactName": "Space-AI-${version}-win-${arch}-portable.${ext}"
+    },
+    "linux": {
+      "icon": "build/icon.png",
+      "syncDesktopName": true,
+      "artifactName": "Space-AI-${version}-linux-${arch}.${ext}",
+      "category": "Utility;Network;Chat;",
+      "synopsis": "Space AI — Glass-Box Local AI Chat",
+      "maintainer": "Space Research <hello@spaceresearch.ai>",
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        },
+        {
+          "target": "deb",
+          "arch": ["x64"]
+        }
+      ]
+    }
+  }
+}
