@@ -1,0 +1,13 @@
+{
+  "uiVersion": 1,
+  "minAppVersion": "1.2.0",
+  "appVersion": "1.2.0",
+  "updatedAt": "2026-11-24T14:30:16.578Z",
+  "notes": "Aligned chat UI, confidence strip, prismatic logo & Daylight Mode with spaceresearch.ai",
+  "files": {
+    "index.html": "d6710ed84bf628e160cc44f8d1745a46b1311d04006b339fafcb9a32a3866b2e",
+    "styles.css": "1e37ba15c7f5c08f4003f46d78706e68435db545ccda297d2382ce5dd0435bca",
+    "app.js": "ed8fdc59d80fdf45cdef6989f58233dd9f9c2bb5f5e4bfc70d75db833ec97520",
+    "mark.svg": "ee0d64ed890b24bb4bbcafd56bd855e3ad5972e8c10e34d38f90bfef2721a527"
+  }
+}

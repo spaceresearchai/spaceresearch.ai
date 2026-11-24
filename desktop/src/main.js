@@ -23,6 +23,14 @@ const {
   detectSpaceCliConfig,
   normalizeBaseUrl,
 } = require("./store");
+const {
+  resolveRendererEntry,
+  resetLiveUi,
+  checkAndInstallUiUpdate,
+  checkLatestAppRelease,
+} = require("./updater");
+
+const APP_ROOT = path.resolve(__dirname, "..");
 
 const IS_MAC = process.platform === "darwin";
 const IS_WIN = process.platform === "win32";
@@ -214,7 +222,12 @@ function createWindow() {
     }
   });
 
-  mainWindow.loadFile(path.join(__dirname, "renderer", "index.html"));
+  const resolved = resolveRendererEntry({
+    userDataDir: app.getPath("userData"),
+    appRootDir: APP_ROOT,
+    appVersion: app.getVersion(),
+  });
+  mainWindow.loadFile(resolved.entryFile);
 
   if (SMOKE_TEST) {
     mainWindow.webContents.once("did-finish-load", () => {
@@ -224,6 +237,11 @@ function createWindow() {
         app.quit();
       }, 600);
     });
+  } else {
+    // Background check for verified Live UI updates (no DMG re-download needed)
+    setTimeout(() => {
+      runUpdateCheck({ silent: true }).catch(() => {});
+    }, 4500);
   }
 }
 
@@ -251,6 +269,10 @@ function buildAppMenu() {
             label: app.name,
             submenu: [
               { role: "about", label: "About Space AI" },
+              {
+                label: "Check for Updates…",
+                click: () => runUpdateCheck({ silent: false }),
+              },
               { type: "separator" },
               {
                 label: "Preferences…",
@@ -392,6 +414,11 @@ function buildAppMenu() {
       label: "Help",
       submenu: [
         {
+          label: "Check for Updates…",
+          click: () => runUpdateCheck({ silent: false }),
+        },
+        { type: "separator" },
+        {
           label: "Space Research Website",
           click: () => shell.openExternal("https://spaceresearch.ai"),
         },
@@ -449,6 +476,10 @@ function refreshTrayMenu() {
     {
       label: "Settings…",
       click: () => sendAction("open-settings"),
+    },
+    {
+      label: "Check for Updates…",
+      click: () => runUpdateCheck({ silent: false }),
     },
     { type: "separator" },
     {
@@ -554,7 +585,74 @@ function httpGetJson(urlString, timeoutMs = 2000) {
   });
 }
 
+async function runUpdateCheck({ silent = false } = {}) {
+  const userDataDir = app.getPath("userData");
+  const appVersion = app.getVersion();
+  let uiRes = null;
+  let uiError = null;
+  try {
+    uiRes = await checkAndInstallUiUpdate({
+      userDataDir,
+      appRootDir: APP_ROOT,
+      appVersion,
+    });
+  } catch (err) {
+    uiError = err?.message || "Update check failed";
+  }
+
+  const releaseRes = await checkLatestAppRelease(appVersion);
+  const payload = {
+    appVersion,
+    ui: uiRes,
+    uiError,
+    release: releaseRes,
+    silent,
+  };
+
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    if (uiRes?.status === "updated" || (!silent && (uiRes || releaseRes?.hasNewAppRelease || uiError))) {
+      mainWindow.webContents.send("updater:ready", payload);
+    }
+  }
+  return payload;
+}
+
 function registerIpcHandlers() {
+  ipcMain.handle("updater:info", () => {
+    const resolved = resolveRendererEntry({
+      userDataDir: app.getPath("userData"),
+      appRootDir: APP_ROOT,
+      appVersion: app.getVersion(),
+    });
+    return {
+      appVersion: app.getVersion(),
+      uiVersion: resolved.uiVersion,
+      bundledUiVersion: resolved.bundledUiVersion,
+      source: resolved.source,
+    };
+  });
+
+  ipcMain.handle("updater:check", () => runUpdateCheck({ silent: false }));
+
+  ipcMain.handle("updater:reload", () => {
+    if (!mainWindow || mainWindow.isDestroyed()) return false;
+    const resolved = resolveRendererEntry({
+      userDataDir: app.getPath("userData"),
+      appRootDir: APP_ROOT,
+      appVersion: app.getVersion(),
+    });
+    mainWindow.loadFile(resolved.entryFile);
+    return true;
+  });
+
+  ipcMain.handle("updater:reset", () => {
+    resetLiveUi(app.getPath("userData"));
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.loadFile(path.join(APP_ROOT, "src", "renderer", "index.html"));
+    }
+    return true;
+  });
+
   ipcMain.handle("store:loadSessions", () => store.loadSessions());
   ipcMain.handle("store:saveSessions", (_e, sessions) => store.saveSessions(sessions));
   ipcMain.handle("store:loadSettings", () => store.loadSettings());

@@ -22,7 +22,7 @@
         <div class="sb-brand">
           <div class="sb-brand-link" title="Space AI Desktop">
             <span class="sb-emblem" aria-hidden="true">
-              <img src="../../assets/mark.svg" alt="" width="28" height="28" />
+              <img src="./mark.svg" alt="" width="28" height="28" />
             </span>
             <span>Space AI</span>
           </div>
@@ -261,6 +261,17 @@
               <input id="set-launch-login" type="checkbox" />
             </label>
           </div>
+        </section>
+
+        <section class="settings-section">
+          <div class="settings-section-head">
+            <h3>Live Updates</h3>
+            <div style="display:flex; gap:0.4rem;">
+              <button id="btn-reset-ui" type="button" class="act-btn" style="display:none;">Reset UI</button>
+              <button id="btn-check-updates" type="button" class="act-btn">Check for Updates</button>
+            </div>
+          </div>
+          <div id="updater-status-line" class="settings-hint">UI updates install automatically in-place with SHA-256 verification — no re-downloading required.</div>
         </section>
       </div>
 

@@ -1221,16 +1221,13 @@ body[data-platform="darwin"] .win-controls {
 .xtok.xtok-active { outline: 1.5px solid #ffffff; background: rgba(255, 255, 255, 0.22); }
 
 .xray-strip {
-  margin-top: 0.48rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.38rem;
-}
-.xray-strip-top {
+  margin-top: 0.45rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.65rem;
+  flex-wrap: nowrap;
+  overflow: hidden;
 }
 .feedback-line {
   display: inline-flex;

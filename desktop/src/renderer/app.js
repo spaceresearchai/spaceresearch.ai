@@ -9,7 +9,7 @@
   const DEFAULT_API_BASE = "https://api.spaceresearch.ai";
   const FALLBACK_API_BASE = "https://api.longinusresearch.com";
   const DEFAULT_LOCAL_PROXY = "http://127.0.0.1:8377";
-  const AVATAR_SRC = "../../assets/mark.svg";
+  const AVATAR_SRC = "./mark.svg";
 
   const SLASH_COMMANDS = [
     {
@@ -1964,21 +1964,16 @@
           const confNum = sum ? Math.round(sum.avgCertPct) : null;
           const certCls = sum ? (sum.avgCertPct >= 85 ? "xray-m-ok" : sum.avgCertPct >= 65 ? "xray-m-warn" : "xray-m-risk") : "";
           const showFix = Boolean(m.audit && m.audit.verdict && m.audit.verdict !== "VERIFIED");
-          const spark = hasSignals && m.signals.length >= 4 ? `<div class="xray-spark-wrap" title="Click to inspect token-level certainty & fork">${renderMarginSparkline(m.signals)}</div>` : "";
           xrayStripHtml = `
             <div class="xray-strip">
-              <div class="xray-strip-top">
-                <div class="feedback-line">
-                  ${confNum !== null ? `<span class="conf-num ${certCls}">Confidence ${confNum}%</span>` : ""}
-                  ${sum && sum.forks > 0 ? `<span>&middot; ${sum.forks} fork${sum.forks === 1 ? "" : "s"}</span>` : ""}
-                  ${auditInline}
-                </div>
-                <div style="display:inline-flex; gap:0.4rem; align-items:center; flex-shrink:0;">
-                  ${showFix ? '<button type="button" class="act-btn btn-honest-fix">Honest Take &rarr;</button>' : ""}
-                  ${sum ? `<button type="button" class="act-btn btn-toggle-xray-msg">${showXrayView ? "Done" : "Inspect"}</button>` : ""}
-                </div>
+              <div class="feedback-line">
+                ${confNum !== null ? `<span class="conf-num ${certCls}">Confidence ${confNum}%</span>` : ""}
+                ${auditInline}
               </div>
-              ${spark}
+              <div style="display:inline-flex; gap:0.4rem; align-items:center; flex-shrink:0;">
+                ${showFix ? '<button type="button" class="act-btn btn-honest-fix">Honest Take &rarr;</button>' : ""}
+                ${sum ? `<button type="button" class="act-btn btn-toggle-xray-msg">${showXrayView ? "Done" : "Inspect"}</button>` : ""}
+              </div>
             </div>
           `;
         }
@@ -2693,7 +2688,52 @@
     }
     if ($("proxy-status-line")) $("proxy-status-line").textContent = "";
     syncEndpointModeVisibility();
+    refreshUpdaterInfoInModal();
     $("settings-modal")?.classList.add("open");
+  }
+
+  async function refreshUpdaterInfoInModal() {
+    const line = $("updater-status-line");
+    const resetBtn = $("btn-reset-ui");
+    if (!bridge?.getAppInfo || !line) return;
+    try {
+      const info = await bridge.getAppInfo();
+      line.textContent = `Space AI Desktop v${info.appVersion} · UI build #${info.uiVersion} (${info.source === "live-ui" ? "Live Synced" : "Bundled"})`;
+      if (resetBtn) resetBtn.style.display = info.source === "live-ui" ? "inline-block" : "none";
+    } catch {}
+  }
+
+  function handleUpdaterPayload(payload) {
+    if (!payload) return;
+    const line = $("updater-status-line");
+    if (payload.ui?.status === "updated") {
+      const msg = `UI update #${payload.ui.uiVersion} installed — reload to apply`;
+      if (line) line.textContent = `✓ ${msg}`;
+      showToast(msg, [
+        { label: "Reload Now", onClick: () => bridge?.reloadUi?.() },
+      ]);
+      return;
+    }
+    if (payload.ui?.status === "app-update-required" || payload.release?.hasNewAppRelease) {
+      const url = payload.release?.releaseUrl || payload.ui?.releaseUrl || "https://github.com/spaceresearchai/spaceresearch.ai/releases/latest";
+      const ver = payload.release?.latestVersion || payload.ui?.minAppVersion || "latest";
+      const msg = `New desktop release v${ver} available`;
+      if (line) line.textContent = msg;
+      showToast(msg, [
+        { label: "Download →", onClick: () => openExternalUrl(url) },
+      ]);
+      return;
+    }
+    if (!payload.silent) {
+      if (payload.uiError) {
+        if (line) line.textContent = `Update check failed: ${payload.uiError}`;
+        showToast(`Update check failed: ${payload.uiError}`);
+      } else {
+        const msg = `You're up to date (v${payload.appVersion} · UI #${payload.ui?.currentUiVersion || 1})`;
+        if (line) line.textContent = `✓ ${msg}`;
+        showToast(msg);
+      }
+    }
   }
 
   async function saveSettingsFromModal() {
@@ -2983,6 +3023,15 @@
     $("btn-settings-save")?.addEventListener("click", saveSettingsFromModal);
     $("btn-import-cli")?.addEventListener("click", importCliConfigToModal);
     $("btn-check-proxy")?.addEventListener("click", testLocalProxyInModal);
+    $("btn-check-updates")?.addEventListener("click", async () => {
+      const line = $("updater-status-line");
+      if (line) line.textContent = "Checking for live UI updates…";
+      if (bridge?.checkForUpdates) {
+        const res = await bridge.checkForUpdates();
+        handleUpdaterPayload(res);
+      }
+    });
+    $("btn-reset-ui")?.addEventListener("click", () => bridge?.resetLiveUi?.());
     $("set-endpoint-mode")?.addEventListener("change", syncEndpointModeVisibility);
     $("btn-open-website")?.addEventListener("click", () => openExternalUrl("https://spaceresearch.ai"));
 
@@ -3148,6 +3197,10 @@
         settings = updated;
         applyRendererSettings();
       }
+    });
+
+    bridge?.on?.("updater:ready", (payload) => {
+      handleUpdaterPayload(payload);
     });
 
     await syncCoordinatorEndpoint();

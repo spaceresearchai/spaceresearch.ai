@@ -2,7 +2,7 @@
   "name": "space-ai-desktop",
   "productName": "Space AI",
   "desktopName": "space-ai.desktop",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Native cross-platform desktop app for Space AI — Glass-Box Local AI Chat with live Decision X-Ray, counterfactual token forking, framing stress-tests, and local proxy integration.",
   "main": "src/main.js",
   "author": "Space Research (spaceresearch.ai)",
@@ -16,6 +16,8 @@
     "start": "node scripts/launch.js",
     "dev": "SPACE_DESKTOP_DEV=1 node scripts/launch.js",
     "test": "node --test tests/*.test.js",
+    "ui:manifest": "node scripts/build-ui-manifest.js",
+    "ui:bump": "node scripts/build-ui-manifest.js --bump",
     "build": "electron-builder",
     "build:mac": "electron-builder --mac",
     "build:win": "electron-builder --win",
@@ -38,6 +40,7 @@
     "files": [
       "src/**/*",
       "assets/**/*",
+      "ui-manifest.json",
       "package.json"
     ],
     "extraMetadata": {

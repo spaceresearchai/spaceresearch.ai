@@ -6,6 +6,7 @@ const ALLOWED_EVENTS = new Set([
   "app:action",
   "window:maximized-changed",
   "settings:updated",
+  "updater:ready",
 ]);
 
 contextBridge.exposeInMainWorld("spaceDesktop", {
@@ -41,6 +42,12 @@ contextBridge.exposeInMainWorld("spaceDesktop", {
   isWindowMaximized: () => ipcRenderer.invoke("window:isMaximized"),
   setAlwaysOnTop: (flag) => ipcRenderer.invoke("window:setAlwaysOnTop", Boolean(flag)),
   updateTrayFleetStatus: (label) => ipcRenderer.send("tray:updateFleetStatus", String(label || "")),
+
+  // Live UI Auto-Updater (in-place updates without re-downloading installer)
+  getAppInfo: () => ipcRenderer.invoke("updater:info"),
+  checkForUpdates: () => ipcRenderer.invoke("updater:check"),
+  reloadUi: () => ipcRenderer.invoke("updater:reload"),
+  resetLiveUi: () => ipcRenderer.invoke("updater:reset"),
 
   // Main -> Renderer event subscriptions
   on: (channel, callback) => {
