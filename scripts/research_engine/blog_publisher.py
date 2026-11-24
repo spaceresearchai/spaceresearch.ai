@@ -18,6 +18,7 @@ from typing import Any, Dict
 
 from .index_paper_vdb import upsert_via_torch_subprocess
 from .paper_writer import DEFAULT_AUTHOR, DEFAULT_COMPANY, DEFAULT_EMAIL, analyze_experiment, compile_paper
+from .quality_gate import evaluate_conference_readiness
 from .rebuild_blog_index import MANIFEST_PATH, SITE_ROOT, rebuild_all
 from .zenodo_publisher import deposit_paper_to_zenodo, load_zenodo_config
 
@@ -90,11 +91,18 @@ def publish_investigation(
         f'<li><a href="{html.escape(s.get("url", "#"))}" target="_blank" rel="noopener">{html.escape(s["title"])}</a> (<code>{html.escape(s["id"])}</code>)</li>'
         for s in exp_data.get("source_papers", [])
     )
-    fig_block = (
-        f'<div class="blog-figure">{analysis["svg"]}<div class="blog-figcap">{html.escape(analysis["fig_caption"])}</div></div>'
-        if analysis["svg"]
-        else ""
-    )
+    fig_png = analysis.get("figure_png_rel")
+    if fig_png:
+        fig_block = (
+            f'<div class="blog-figure" style="background:#ffffff;padding:12px;border-radius:10px;">'
+            f'<img src="./{html.escape(fig_png.lstrip("./"))}" alt="{html.escape(analysis.get("fig_caption", ""))}" '
+            f'style="width:100%;height:auto;display:block;border-radius:6px;" />'
+            f'<div class="blog-figcap" style="color:#334155;">{html.escape(analysis["fig_caption"])}</div></div>'
+        )
+    elif analysis.get("svg"):
+        fig_block = f'<div class="blog-figure">{analysis["svg"]}<div class="blog-figcap">{html.escape(analysis["fig_caption"])}</div></div>'
+    else:
+        fig_block = ""
 
     lead_summary = analysis["findings"][0] if analysis["findings"] else exp_data["hypothesis"]
 
@@ -268,12 +276,13 @@ def publish_investigation(
         }
         vdb_res = upsert_via_torch_subprocess(vdb_rec)
 
-    # 5. Optional automatic Zenodo deposit & DataCite DOI minting
+    # 5. Conference-readiness quality gate + Zenodo deposit (draft-only unless conference bar passes!)
+    q_report = evaluate_conference_readiness(exp_data)
     zenodo_res = None
     eff_mode = zenodo_mode
     if eff_mode == "auto":
         zcfg = load_zenodo_config()
-        if zcfg.get("auto_publish") and zcfg.get("token"):
+        if zcfg.get("auto_publish") and q_report.passed and zcfg.get("token"):
             eff_mode = "prod_publish"
         elif zcfg.get("token"):
             eff_mode = "prod_draft"
@@ -287,7 +296,7 @@ def publish_investigation(
             is_sandbox = eff_mode.startswith("sandbox")
             do_pub = eff_mode.endswith("publish")
             zenodo_res = deposit_paper_to_zenodo(slug=slug, sandbox=is_sandbox, publish=do_pub)
-            if zenodo_res.get("doi") and not is_sandbox and do_pub:
+            if zenodo_res.get("doi") and not is_sandbox and zenodo_res.get("status") == "published":
                 # Re-render HTML + PDF with the minted permanent DOI badge & BibTeX doi field!
                 paper_res = compile_paper(
                     exp_data, published_at=now_iso, blog_href=blog_href,
@@ -312,6 +321,7 @@ def publish_investigation(
         "paper_md": str(paper_res["paper_md"]),
         "metrics_json": str(paper_res["metrics_json"]),
         "metric_chip": analysis["metric_chip"],
+        "quality_gate": q_report.to_dict(),
         "vdb_index": vdb_res,
         "zenodo": zenodo_res,
         "index_summary": index_summary,

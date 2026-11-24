@@ -44,6 +44,7 @@ if __package__ in (None, ""):
     )
     from research_engine.gpu_guard import check_vram_headroom, resolve_torch_python
     from research_engine.paper_writer import GEN_DATA_DIR, GEN_INDEX_JSON
+    from research_engine.quality_gate import evaluate_conference_readiness
 else:
     from .blog_publisher import publish_investigation
     from .discover import build_hypothesis_queue, load_discoveries
@@ -55,6 +56,7 @@ else:
     )
     from .gpu_guard import check_vram_headroom, resolve_torch_python
     from .paper_writer import GEN_DATA_DIR, GEN_INDEX_JSON
+    from .quality_gate import evaluate_conference_readiness
 
 
 def get_completed_experiment_ids() -> Set[str]:
@@ -144,7 +146,13 @@ def main():
     raw_out = GEN_DATA_DIR / f"raw_{exp_id or 'custom'}.json"
     exp_data = run_gpu_script(script_path, raw_out, timeout_sec=timeout_sec)
 
-    # Stage 4: Compile Technical Paper + PDF + Publish Blog Post + Optional Zenodo DOI + Rebuild Site Index
+    # Stage 4: Conference-Readiness Gate + Compile Paper + Publish Blog + Zenodo (draft unless NeurIPS-bar passes!)
+    q_rep = evaluate_conference_readiness(exp_data)
+    print(
+        f"[cycle] Conference-Readiness Gate: score={q_rep.score_10:.1f}/10.0 "
+        f"passed={q_rep.passed} action={q_rep.recommended_action} missing={q_rep.reasons}",
+        flush=True,
+    )
     if args.publish or args.dry_run:
         pub = publish_investigation(exp_data, dry_run=args.dry_run, zenodo_mode=args.zenodo_mode)
         print(f"[cycle] Publish result: {json.dumps(pub, indent=2)}", flush=True)

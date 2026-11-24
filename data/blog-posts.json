@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-24T17:16:34+01:00",
+  "updated_at": "2026-11-24T19:53:36+01:00",
   "timezone": "+01:00",
   "tracks": [
     {
@@ -324,84 +324,24 @@
       "experiment_metrics": "31.2% -> 93.8% \u00b7 +8.8% wall time \u00b7 598 t/s"
     },
     {
-      "seq": 12,
-      "note_id": "NOTE 12",
-      "slug": "auto-probmoe-batchtopk-sae",
-      "href": "./blog-auto-probmoe-batchtopk-sae.html",
-      "title": "Probabilistic Marginal Gradients for Sparse Autoencoders: Bridging ProbMoE Routing and BatchTopK SAEs",
-      "short_title": "ProbMoE Marginal Gradients for BatchTopK SAEs",
-      "description": "Dead-latent reduction (k16): ProbBatchTopK reduced dead dictionary atoms to 20.00% vs. 31.12% (BatchTopK-STE) and 7.81% (TopK-STE).",
-      "authors": [
-        "Marcio Diaz",
-        "Space AI"
-      ],
-      "category_label": "AUTONOMOUS GPU LAB \u00b7 INTERPRETABILITY & ROUTING",
-      "short_cat": "Auto GPU \u00b7 SAEs",
-      "track": "interpretability",
-      "origin": "autonomous-gpu",
-      "cluster": 1,
-      "dot": "violet",
-      "published_at": "2026-11-24T16:46:42+01:00",
-      "published_date": "2026-11-24",
-      "read_minutes": 5,
-      "tags": [
-        "autonomous-gpu",
-        "corerank",
-        "probmoe_sae",
-        "probmoe-batchtopk-sae"
-      ],
-      "paper_href": "./papers/probmoe-batchtopk-sae.html",
-      "experiment_metrics": "k16 FVU 0.455 vs 0.418 \u00b7 Dead 20.0% vs 31.1% \u00b7 Seed cos 0.398"
-    },
-    {
-      "seq": 13,
-      "note_id": "NOTE 13",
-      "slug": "auto-pytorch-kl-bregman-stability",
-      "href": "./blog-auto-pytorch-kl-bregman-stability.html",
-      "title": "Eliminating Negative & Corrupted KL Divergence in Low-Precision PyTorch via Bregman-Taylor Formulation",
-      "short_title": "Fixing Negative & Corrupted KL Divergence in PyTorch",
-      "description": "PyTorch F.kl_div silent negative failures reproduced on NVIDIA GeForce RTX 5090: at eps=1e-3 (mean KL\u22484.84e-07), FP16 F.kl_div returns negative values on 49.9% of inputs (BF16: 49.3%) and \u22651% relative error on 100.0%.",
-      "authors": [
-        "Marcio Diaz",
-        "Space AI"
-      ],
-      "category_label": "AUTONOMOUS GPU LAB \u00b7 NUMERICAL STABILITY",
-      "short_cat": "Auto GPU \u00b7 Numerics",
-      "track": "systems",
-      "origin": "autonomous-gpu",
-      "cluster": 2,
-      "dot": "emerald",
-      "published_at": "2026-11-24T16:47:28+01:00",
-      "published_date": "2026-11-24",
-      "read_minutes": 5,
-      "tags": [
-        "autonomous-gpu",
-        "corerank",
-        "kl_pytorch",
-        "pytorch-kl-bregman-stability"
-      ],
-      "paper_href": "./papers/pytorch-kl-bregman-stability.html",
-      "experiment_metrics": "0.0% neg KL \u00b7 FP32 err 100% -> 0%"
-    },
-    {
       "seq": 14,
       "note_id": "NOTE 14",
       "slug": "auto-steerable-not-decodable-ace-cores",
       "href": "./blog-auto-steerable-not-decodable-ace-cores.html",
-      "title": "Steerable Before Decodable: Testing CoreRank 1D Causal Steering vs. Logit Lens Readability Across Depth",
-      "short_title": "Steerable Before Decodable: ACE Cores vs Logit Lens",
-      "description": "Planets: Peak cross-lexicon 1D causal steering occurs at L26/28 (Flip-1D AUC drop = +0.292, clean cross-AUC 0.972), where direct Logit Lens AUC is only 0.986 and unembedding alignment |cos(q_l, \u0394W_U)| = 0.3472. ACE linear readout crosses 0.85 AUC at L18 vs. Logit Lens at L18.",
+      "title": "Steerable Before Decodable: Multi-Model Causal Evidence of Unembedding-Orthogonal Bottlenecks Beyond the Logit and Tuned Lens",
+      "short_title": "Steerable Before Decodable: Multi-Model Causal Evidence",
+      "description": "Steerable before decodable across 3 architectures (1.7B-7.2B, 2,016 held-out cross-lexicon pairs): At peak causal steering depth, ACE readout (0.766) exceeds both Direct Logit Lens (0.709, p=4.61e-02) and Trained Residual-Affine Tuned Lens (0.708, p=6.47e-02), with mean unembedding alignment |cos(q_l*, dW_U)| = 0.143.",
       "authors": [
         "Marcio Diaz",
         "Space AI"
       ],
-      "category_label": "AUTONOMOUS GPU LAB \u00b7 MECHANISTIC INTERPRETABILITY",
-      "short_cat": "Auto GPU \u00b7 Steering",
+      "category_label": "MECHANISTIC INTERPRETABILITY \u00b7 VERSION 2.0",
+      "short_cat": "Interpretability \u00b7 v2",
       "track": "interpretability",
       "origin": "autonomous-gpu",
       "cluster": 1,
       "dot": "violet",
-      "published_at": "2026-11-24T17:16:34+01:00",
+      "published_at": "2026-11-24T19:53:27+01:00",
       "published_date": "2026-11-24",
       "read_minutes": 5,
       "tags": [
@@ -411,7 +351,67 @@
         "steerable-not-decodable-ace-cores"
       ],
       "paper_href": "./papers/steerable-not-decodable-ace-cores.html",
-      "experiment_metrics": "Peak Steer Drop +0.29 @ |cos(q,W_U)|=0.088"
+      "experiment_metrics": "ACE Flip +0.23 vs CAA +0.16 (p=7.3e-04) \u00b7 Keep-1D wins 12/12"
+    },
+    {
+      "seq": 13,
+      "note_id": "NOTE 13",
+      "slug": "auto-pytorch-kl-bregman-stability",
+      "href": "./blog-auto-pytorch-kl-bregman-stability.html",
+      "title": "Silent Cancellation and Backward Gradient Corruption in Low-Precision KL Divergence: Analysis and Fused Triton Kernels",
+      "short_title": "Low-Precision KL Gradient Corruption & Fused Triton Kernels",
+      "description": "Forward & backward gradient corruption across 36 regimes (Wilcoxon p=1.45e-11): PyTorch F.kl_div returns negative values on up to 50.4% of inputs and corrupts BF16 reverse-KL gradients (eps=1e-2) with 39.1% sign flips (cos=0.589). Clamping F.kl_div.clamp(min=0) induces 50.4% silent zero-gradient dead-zones and 61.8% sign flips (cos=0.371).",
+      "authors": [
+        "Marcio Diaz",
+        "Space AI"
+      ],
+      "category_label": "SYSTEMS FOR ML & NUMERICAL STABILITY \u00b7 VERSION 2.0",
+      "short_cat": "Systems & Numerics \u00b7 v2",
+      "track": "systems",
+      "origin": "autonomous-gpu",
+      "cluster": 2,
+      "dot": "emerald",
+      "published_at": "2026-11-24T19:53:33+01:00",
+      "published_date": "2026-11-24",
+      "read_minutes": 5,
+      "tags": [
+        "autonomous-gpu",
+        "corerank",
+        "kl_pytorch",
+        "pytorch-kl-bregman-stability"
+      ],
+      "paper_href": "./papers/pytorch-kl-bregman-stability.html",
+      "experiment_metrics": "Triton 6.5x faster \u00b7 -80% VRAM @ V=152k \u00b7 0.0% neg KL"
+    },
+    {
+      "seq": 12,
+      "note_id": "NOTE 12",
+      "slug": "auto-probmoe-batchtopk-sae",
+      "href": "./blog-auto-probmoe-batchtopk-sae.html",
+      "title": "Margin-Gated Probabilistic Surrogate Gradients for Overcomplete Sparse Autoencoders",
+      "short_title": "Margin-Gated Probabilistic Surrogates for Overcomplete SAEs",
+      "description": "Active-set gating completely eliminates v1's FVU penalty across 18 paired 4x-overcomplete runs (2 LLM families x 3 k x 3 seeds): MarginProb-BatchTopK lowers FVU vs. ungated v1 ProbBatchTopK by -0.01569 (95% CI [-0.01837, -0.01301], paired t p=1.95e-09; Qwen3 k=32: 0.2996 -> 0.2796; SmolLM2 k=32: 0.2826 -> 0.2720).",
+      "authors": [
+        "Marcio Diaz",
+        "Space AI"
+      ],
+      "category_label": "INTERPRETABILITY & SPARSE CODING \u00b7 VERSION 2.0",
+      "short_cat": "Sparse Autoencoders \u00b7 v2",
+      "track": "interpretability",
+      "origin": "autonomous-gpu",
+      "cluster": 1,
+      "dot": "violet",
+      "published_at": "2026-11-24T19:53:36+01:00",
+      "published_date": "2026-11-24",
+      "read_minutes": 5,
+      "tags": [
+        "autonomous-gpu",
+        "corerank",
+        "probmoe_sae",
+        "probmoe-batchtopk-sae"
+      ],
+      "paper_href": "./papers/probmoe-batchtopk-sae.html",
+      "experiment_metrics": "MarginProb vs BTK-STE: -0.0047 FVU & -19.9pp dead (p=7.7e-09)"
     }
   ]
 }

@@ -6,19 +6,14 @@ Uses Zenodo's official Deposit REST API v1 to archive Space AI papers (PDF + Mar
 reproducibility artifacts) under Marcio Diaz (marcio.diaz@gmail.com) & Space AI, minting
 permanent citable DataCite DOIs (`10.5281/zenodo.<id>`) indexed by OpenAlex and Google Scholar.
 
-Token lookup order (never commit tokens into git!):
-  1. CLI `--token`
-  2. Environment variable: `ZENODO_TOKEN` (production) or `ZENODO_SANDBOX_TOKEN` (sandbox)
-  3. Local private config file: `~/.config/space-ai/zenodo.json` (`chmod 600`):
-     {
-       "email": "marcio.diaz@gmail.com",
-       "author": "Marcio Diaz",
-       "company": "Space AI",
-       "orcid": "",
-       "token": "<zenodo.org personal access token with deposit:write + deposit:actions>",
-       "sandbox_token": "<sandbox.zenodo.org token>",
-       "auto_publish": true
-     }
+Conference-Readiness Publication Policy:
+  Every paper is evaluated by `quality_gate.evaluate_conference_readiness(exp_data)` BEFORE
+  publishing. Any manuscript below the NeurIPS/ICLR/MLSys conference bar is AUTOMATICALLY
+  downgraded to a private Zenodo draft (`draft_created`) and NEVER mints a public DOI unless
+  all 7 quantitative criteria pass (or an explicit human override `--bypass-quality-gate` is given).
+
+Supports Zenodo's official New Version API (`--new-version`) so Version 2.0+ revisions link
+cleanly under the paper's existing Concept DOI.
 """
 
 from __future__ import annotations
@@ -33,6 +28,12 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    from research_engine.quality_gate import evaluate_conference_readiness
+else:
+    from .quality_gate import evaluate_conference_readiness
 
 ENGINE_DIR = Path(__file__).resolve().parent
 SITE_ROOT = ENGINE_DIR.parents[1]
@@ -74,7 +75,11 @@ def load_zenodo_config(config_path: Path = DEFAULT_CONFIG_PATH) -> Dict[str, Any
     return cfg
 
 
-def resolve_token(sandbox: bool = False, explicit_token: Optional[str] = None, config_path: Path = DEFAULT_CONFIG_PATH) -> Tuple[str, Dict[str, Any]]:
+def resolve_token(
+    sandbox: bool = False,
+    explicit_token: Optional[str] = None,
+    config_path: Path = DEFAULT_CONFIG_PATH,
+) -> Tuple[str, Dict[str, Any]]:
     cfg = load_zenodo_config(config_path)
     if explicit_token:
         return explicit_token.strip(), cfg
@@ -103,14 +108,16 @@ def build_zenodo_metadata(
 ) -> Dict[str, Any]:
     slug = exp_data["slug"]
     pub_date = published_date or str(exp_data.get("published_at") or "")[:10] or "2026-11-24"
+    version = str(exp_data.get("version") or "1.0")
     web_url = f"https://spaceresearch.ai/papers/{slug}.html"
 
+    abstract_text = exp_data.get("abstract") or exp_data["hypothesis"]
     findings_html = "".join(f"<li>{html.escape(f)}</li>" for f in analysis.get("findings", []))
     desc_html = (
-        f"<p><strong>Hypothesis &amp; Abstract:</strong> {html.escape(exp_data['hypothesis'])}</p>"
+        f"<p><strong>Abstract (v{html.escape(version)}):</strong> {html.escape(abstract_text)}</p>"
         f"<p><strong>Empirical Findings ({html.escape(str(exp_data.get('setup', {}).get('gpu_name', 'RTX 5090')))}):</strong></p>"
         f"<ul>{findings_html}</ul>"
-        f'<p>Web preprint &amp; interactive companion: <a href="{web_url}">{web_url}</a></p>'
+        f'<p>Web preprint &amp; reproducible artifacts: <a href="{web_url}">{web_url}</a></p>'
     )
 
     creator: Dict[str, Any] = {
@@ -121,15 +128,26 @@ def build_zenodo_metadata(
         creator["orcid"] = orcid.strip()
 
     related_ids: List[Dict[str, str]] = [
-        {"identifier": web_url, "relation": "isIdenticalTo", "scheme": "url", "resource_type": "publication-preprint"},
+        {
+            "identifier": web_url,
+            "relation": "isIdenticalTo",
+            "scheme": "url",
+            "resource_type": "publication-preprint",
+        },
     ]
     for s in exp_data.get("source_papers", []):
         u = str(s.get("url") or "").strip()
         if u.startswith("http"):
             related_ids.append({"identifier": u, "relation": "references", "scheme": "url"})
 
-    keywords = [company, author, "CoreRank", "Autonomous Research", exp_data.get("track", "ai"), exp_data["experiment_id"]]
-    # Deduplicate preserving order
+    keywords = [
+        company,
+        author,
+        "CoreRank",
+        "Machine Learning",
+        exp_data.get("track", "ai"),
+        exp_data["experiment_id"],
+    ] + list(exp_data.get("keywords", []))
     seen = set()
     uniq_kw = []
     for k in keywords:
@@ -138,28 +156,36 @@ def build_zenodo_metadata(
             seen.add(kl.lower())
             uniq_kw.append(kl)
 
-    return {
-        "metadata": {
-            "title": exp_data["title"],
-            "upload_type": "publication",
-            "publication_type": "preprint",
-            "publication_date": pub_date,
-            "description": desc_html,
-            "creators": [creator],
-            "contributors": [
-                {"name": company, "type": "ResearchGroup", "affiliation": "https://spaceresearch.ai"},
-            ],
-            "access_right": "open",
-            "license": "cc-by-4.0",
-            "keywords": uniq_kw,
-            "notes": f"Author contact: {email} | Institution: {company} (https://spaceresearch.ai) | Discovery provenance: {exp_data.get('source_discovery_type', 'CoreRank ACE')}",
-            "related_identifiers": related_ids,
-        }
+    meta_obj: Dict[str, Any] = {
+        "title": exp_data["title"],
+        "upload_type": "publication",
+        "publication_type": "preprint",
+        "publication_date": pub_date,
+        "version": version,
+        "description": desc_html,
+        "creators": [creator],
+        "contributors": [
+            {"name": company, "type": "ResearchGroup", "affiliation": "https://spaceresearch.ai"},
+        ],
+        "access_right": "open",
+        "license": "cc-by-4.0",
+        "keywords": uniq_kw,
+        "notes": (
+            f"Version {version} | Author contact: {email} | Institution: {company} (https://spaceresearch.ai) | "
+            f"Discovery provenance: {exp_data.get('source_discovery_type', 'CoreRank ACE')}"
+        ),
+        "related_identifiers": related_ids,
     }
+
+    refs = [str(r).strip() for r in exp_data.get("references", []) if str(r).strip()]
+    if refs:
+        meta_obj["references"] = refs
+
+    return {"metadata": meta_obj}
 
 
 class ZenodoClient:
-    """Minimal stdlib REST client for Zenodo Deposit API v1 (supports prod & sandbox)."""
+    """Minimal stdlib REST client for Zenodo Deposit API v1 (supports prod, sandbox, and versioning)."""
 
     def __init__(self, token: str, sandbox: bool = False, opener=None):
         if not token:
@@ -192,6 +218,23 @@ class ZenodoClient:
 
     def create_deposition(self) -> Dict[str, Any]:
         return self._request_json("POST", f"{self.base_url}/deposit/depositions", {})
+
+    def get_deposition(self, deposition_id: int | str) -> Dict[str, Any]:
+        return self._request_json("GET", f"{self.base_url}/deposit/depositions/{deposition_id}")
+
+    def get_url(self, url: str) -> Dict[str, Any]:
+        return self._request_json("GET", url)
+
+    def create_new_version(self, deposition_id: int | str) -> Dict[str, Any]:
+        """Trigger Zenodo's official New Version workflow and return the new editable draft deposition."""
+        resp = self._request_json("POST", f"{self.base_url}/deposit/depositions/{deposition_id}/actions/newversion")
+        latest_draft_url = resp.get("links", {}).get("latest_draft")
+        if latest_draft_url:
+            return self.get_url(latest_draft_url)
+        return resp
+
+    def delete_file(self, deposition_id: int | str, file_id: str) -> Dict[str, Any]:
+        return self._request_json("DELETE", f"{self.base_url}/deposit/depositions/{deposition_id}/files/{file_id}")
 
     def upload_file(self, bucket_url: str, file_path: Path) -> Dict[str, Any]:
         fname = urllib.parse.quote(file_path.name)
@@ -232,25 +275,38 @@ def record_doi_in_site_metadata(
     deposition_id: int | str,
     sandbox: bool = False,
     published: bool = True,
+    version: str = "1.0",
+    conceptdoi: str = "",
 ) -> None:
     """Write minted Zenodo DOI & record link back into `data/generated-papers.json` and `data/papers-db.json`."""
     env_key = "zenodo_sandbox" if sandbox else "zenodo"
-    z_info = {
+    z_info: Dict[str, Any] = {
         "deposition_id": deposition_id,
         "doi": doi,
         "record_url": zenodo_url,
         "published": published,
         "sandbox": sandbox,
+        "version": version,
     }
+    if conceptdoi:
+        z_info["conceptdoi"] = conceptdoi
 
     if GEN_INDEX_JSON.exists():
         reg = json.loads(GEN_INDEX_JSON.read_text(encoding="utf-8"))
         for p in reg.get("papers", []):
             if p.get("slug") == slug:
+                prev_z = p.get(env_key)
+                if prev_z and prev_z.get("deposition_id") != deposition_id and prev_z.get("published"):
+                    hist = list(p.get(f"{env_key}_history", []))
+                    hist.append(prev_z)
+                    p[f"{env_key}_history"] = hist
                 p[env_key] = z_info
                 if not sandbox and published and doi:
                     p["doi"] = doi
                     p["zenodo_url"] = zenodo_url
+                    p["version"] = version
+                    if conceptdoi:
+                        p["conceptdoi"] = conceptdoi
         GEN_INDEX_JSON.write_text(json.dumps(reg, indent=2) + "\n", encoding="utf-8")
 
     # Only write real production DOIs into the public `papers-db.json`
@@ -276,10 +332,18 @@ def deposit_paper_to_zenodo(
     publish: bool = False,
     token: Optional[str] = None,
     force: bool = False,
+    new_version: bool = False,
+    bypass_quality_gate: bool = False,
     client: Optional[ZenodoClient] = None,
     config_path: Path = DEFAULT_CONFIG_PATH,
 ) -> Dict[str, Any]:
-    """Upload `<slug>.pdf`, `<slug>.md`, and `<slug>.json` to Zenodo and optionally mint permanent DOI."""
+    """
+    Upload `<slug>.pdf`, `<slug>.md`, and `<slug>.json` to Zenodo and optionally mint a permanent DOI.
+
+    Enforces `quality_gate.evaluate_conference_readiness(exp_data)`: if `publish=True` is requested
+    for a manuscript that does NOT meet the NeurIPS/ICLR conference bar (and `bypass_quality_gate`
+    is False), publishing is automatically blocked and the upload is saved strictly as a private draft.
+    """
     tok, cfg = resolve_token(sandbox=sandbox, explicit_token=token, config_path=config_path)
     if client is None and not tok:
         env_var = "ZENODO_SANDBOX_TOKEN" if sandbox else "ZENODO_TOKEN"
@@ -289,13 +353,15 @@ def deposit_paper_to_zenodo(
             f"(account {cfg.get('email', DEFAULT_EMAIL)}) with scopes `deposit:write` and `deposit:actions`."
         )
 
-    # Check idempotency in generated-papers.json
     env_key = "zenodo_sandbox" if sandbox else "zenodo"
-    if not force and GEN_INDEX_JSON.exists():
+    existing_rec = None
+    if GEN_INDEX_JSON.exists():
         reg = json.loads(GEN_INDEX_JSON.read_text(encoding="utf-8"))
-        existing = next((p for p in reg.get("papers", []) if p.get("slug") == slug), None)
-        if existing and existing.get(env_key, {}).get("published"):
-            return {"status": "already_published", "slug": slug, **existing[env_key]}
+        existing_rec = next((p for p in reg.get("papers", []) if p.get("slug") == slug), None)
+
+    # Check idempotency unless forcing or explicitly minting a new Zenodo version
+    if not force and not new_version and existing_rec and existing_rec.get(env_key, {}).get("published"):
+        return {"status": "already_published", "slug": slug, **existing_rec[env_key]}
 
     # Load saved experiment + analysis
     arch_path = GEN_DATA_DIR / f"{slug}.json"
@@ -304,6 +370,15 @@ def deposit_paper_to_zenodo(
     arch = json.loads(arch_path.read_text(encoding="utf-8"))
     exp_data = arch["experiment"]
     analysis = arch["analysis"]
+    version = str(exp_data.get("version") or ("2.0" if new_version else "1.0"))
+
+    # Evaluate NeurIPS/ICLR conference-readiness gate BEFORE deciding draft vs public DOI!
+    q_report = evaluate_conference_readiness(exp_data)
+    gated_to_draft = False
+    effective_publish = publish
+    if publish and not q_report.passed and not bypass_quality_gate:
+        effective_publish = False
+        gated_to_draft = True
 
     pdf_path = PAPERS_DIR / f"{slug}.pdf"
     md_path = GEN_DATA_DIR / f"{slug}.md"
@@ -311,8 +386,21 @@ def deposit_paper_to_zenodo(
         raise FileNotFoundError(f"Compiled PDF not found at {pdf_path}; compile PDF before Zenodo upload.")
 
     zclient = client or ZenodoClient(token=tok, sandbox=sandbox)
-    dep = zclient.create_deposition()
-    dep_id = dep["id"]
+
+    # Either create a fresh deposition OR branch a new version from the existing published deposition!
+    prev_dep_id = existing_rec.get(env_key, {}).get("deposition_id") if existing_rec else None
+    if new_version and prev_dep_id:
+        dep = zclient.create_new_version(prev_dep_id)
+        dep_id = dep["id"]
+        # Remove inherited v1 files from the new draft so only crisp v2 artifacts are attached
+        for old_f in list(dep.get("files", [])):
+            fid = old_f.get("id")
+            if fid:
+                zclient.delete_file(dep_id, fid)
+    else:
+        dep = zclient.create_deposition()
+        dep_id = dep["id"]
+
     bucket_url = dep["links"]["bucket"]
     prereserved_doi = dep.get("metadata", {}).get("prereserve_doi", {}).get("doi", "")
     expected_record_url = f"https://{'sandbox.' if sandbox else ''}zenodo.org/records/{dep_id}"
@@ -350,14 +438,17 @@ def deposit_paper_to_zenodo(
         company=cfg.get("company", DEFAULT_COMPANY),
         orcid=cfg.get("orcid", ""),
     )
+    meta["metadata"]["version"] = version
     zclient.update_metadata(dep_id, meta)
 
     doi = prereserved_doi
+    conceptdoi = str(dep.get("conceptdoi") or "")
     record_url = dep.get("links", {}).get("html", "")
     is_published = False
-    if publish:
+    if effective_publish:
         pub_resp = zclient.publish_deposition(dep_id)
         doi = pub_resp.get("doi") or pub_resp.get("metadata", {}).get("doi") or prereserved_doi
+        conceptdoi = str(pub_resp.get("conceptdoi") or conceptdoi)
         record_url = pub_resp.get("links", {}).get("record_html") or pub_resp.get("links", {}).get("html") or record_url
         is_published = True
 
@@ -368,16 +459,26 @@ def deposit_paper_to_zenodo(
         deposition_id=dep_id,
         sandbox=sandbox,
         published=is_published,
+        version=version,
+        conceptdoi=conceptdoi,
     )
 
+    status = (
+        "published"
+        if is_published
+        else ("draft_created_below_conference_bar" if gated_to_draft else "draft_created")
+    )
     return {
-        "status": "published" if is_published else "draft_created",
+        "status": status,
         "slug": slug,
+        "version": version,
         "sandbox": sandbox,
         "deposition_id": dep_id,
         "doi": doi,
+        "conceptdoi": conceptdoi,
         "record_url": record_url,
         "uploaded_files": uploaded,
+        "quality_gate": q_report.to_dict(),
         "author": cfg.get("author", DEFAULT_AUTHOR),
         "email": cfg.get("email", DEFAULT_EMAIL),
         "company": cfg.get("company", DEFAULT_COMPANY),
@@ -390,7 +491,9 @@ def main():
     parser.add_argument("--all", action="store_true", help="Publish all generated Space AI papers in data/generated-papers.json")
     parser.add_argument("--sandbox", action="store_true", help="Use sandbox.zenodo.org (safe test environment)")
     parser.add_argument("--production", action="store_true", help="Use live zenodo.org (permanent DOIs)")
-    parser.add_argument("--publish", action="store_true", help="Finalize and mint permanent DOI (default creates a reviewable draft)")
+    parser.add_argument("--publish", action="store_true", help="Finalize and mint permanent DOI if quality gate passes (otherwise saves private draft)")
+    parser.add_argument("--new-version", action="store_true", help="Publish as a new version under the paper's existing Zenodo Concept DOI")
+    parser.add_argument("--bypass-quality-gate", action="store_true", help="Human override: allow publishing even if automated conference-readiness gate fails")
     parser.add_argument("--force", action="store_true", help="Upload even if already recorded as published")
     parser.add_argument("--token", default=None, help="Override Zenodo API token")
     args = parser.parse_args()
@@ -412,6 +515,8 @@ def main():
             publish=args.publish,
             token=args.token,
             force=args.force,
+            new_version=args.new_version,
+            bypass_quality_gate=args.bypass_quality_gate,
         )
         print(f"[zenodo] {json.dumps(res)}", flush=True)
 

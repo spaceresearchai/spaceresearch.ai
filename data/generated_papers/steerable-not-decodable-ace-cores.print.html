@@ -2,162 +2,237 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Steerable Before Decodable: Testing CoreRank 1D Causal Steering vs. Logit Lens Readability Across Depth</title>
+  <title>Steerable Before Decodable: Multi-Model Causal Evidence of Unembedding-Orthogonal Bottlenecks Beyond the Logit and Tuned Lens</title>
   <style>
-    @page { size: letter; margin: 0.68in 0.72in 0.72in 0.72in; }
+    @page {
+      size: letter;
+      margin: 0.70in 0.72in 0.74in 0.72in;
+      @bottom-center {
+        content: counter(page);
+        font-family: "Liberation Serif", Georgia, serif;
+        font-size: 8.5pt;
+        color: #64748b;
+      }
+    }
     * { box-sizing: border-box; }
     body {
       font-family: "Liberation Serif", "DejaVu Serif", Georgia, "Times New Roman", serif;
       color: #0f172a;
       background: #ffffff;
-      font-size: 10.2pt;
-      line-height: 1.46;
+      font-size: 9.8pt;
+      line-height: 1.44;
       margin: 0;
     }
     .topbar {
       display: flex;
       justify-content: space-between;
+      gap: 16px;
       font-family: "DejaVu Sans Mono", ui-monospace, monospace;
-      font-size: 7.5pt;
+      font-size: 7.3pt;
       color: #475569;
-      border-bottom: 1px solid #cbd5e1;
+      border-bottom: 1.2px solid #0f172a;
       padding-bottom: 5px;
       margin-bottom: 14px;
       text-transform: uppercase;
       letter-spacing: 0.04em;
     }
     h1 {
-      font-size: 17pt;
+      font-size: 16pt;
       line-height: 1.22;
       font-weight: 700;
       text-align: center;
-      margin: 0 0 10px 0;
+      margin: 0 0 8px 0;
       color: #020617;
     }
     .authors {
       text-align: center;
-      font-size: 10.2pt;
-      margin-bottom: 4px;
+      font-size: 10pt;
+      margin-bottom: 3px;
     }
     .affil {
       text-align: center;
-      font-size: 8.8pt;
+      font-size: 8.2pt;
       color: #475569;
-      margin-bottom: 14px;
+      margin-bottom: 13px;
       font-family: "DejaVu Sans Mono", ui-monospace, monospace;
     }
     .abstract-box {
       background: #f8fafc;
-      border: 1px solid #cbd5e1;
-      border-left: 3px solid #0284c7;
-      padding: 10px 13px;
-      margin: 0 0 14px 0;
-      font-size: 9.4pt;
+      border-top: 1px solid #94a3b8;
+      border-bottom: 1px solid #94a3b8;
+      padding: 10px 14px;
+      margin: 0 0 13px 0;
+      font-size: 9.1pt;
+      line-height: 1.42;
     }
     .abstract-lbl {
-      font-family: "DejaVu Sans Mono", ui-monospace, monospace;
-      font-size: 7.6pt;
+      font-family: "DejaVu Sans", Arial, sans-serif;
+      font-size: 8.2pt;
       font-weight: 700;
       letter-spacing: 0.08em;
-      color: #0369a1;
-      margin-bottom: 4px;
+      color: #0f172a;
+      text-align: center;
+      margin-bottom: 5px;
     }
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 8px;
-      margin: 10px 0 14px 0;
+      margin: 9px 0 13px 0;
       break-inside: avoid;
     }
     .kpi {
       border: 1px solid #cbd5e1;
-      border-radius: 6px;
-      padding: 7px 8px;
+      border-radius: 5px;
+      padding: 6px 7px;
       text-align: center;
       background: #f8fafc;
     }
     .kpi-v {
       font-family: "DejaVu Sans", Arial, sans-serif;
-      font-size: 11.5pt;
+      font-size: 10.6pt;
       font-weight: 700;
       color: #0f172a;
     }
     .kpi-l {
       font-family: "DejaVu Sans Mono", ui-monospace, monospace;
-      font-size: 6.7pt;
+      font-size: 6.4pt;
       color: #475569;
       text-transform: uppercase;
       margin-top: 2px;
     }
     h2 {
       font-family: "DejaVu Sans", Arial, sans-serif;
-      font-size: 11.2pt;
+      font-size: 10.8pt;
       font-weight: 700;
-      color: #0f172a;
-      border-bottom: 1px solid #e2e8f0;
-      padding-bottom: 3px;
-      margin: 15px 0 7px 0;
+      color: #020617;
+      border-bottom: 1px solid #cbd5e1;
+      padding-bottom: 2.5px;
+      margin: 14px 0 6px 0;
       break-after: avoid;
     }
-    p { margin: 0 0 8px 0; text-align: justify; }
-    ul { margin: 0 0 10px 0; padding-left: 18px; }
-    li { margin-bottom: 5px; }
+    h3 {
+      font-family: "DejaVu Sans", Arial, sans-serif;
+      font-size: 9.5pt;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 10px 0 4px 0;
+      break-after: avoid;
+    }
+    p { margin: 0 0 7px 0; text-align: justify; }
+    ul { margin: 0 0 8px 0; padding-left: 17px; }
+    li { margin-bottom: 4px; text-align: justify; }
+    .eq-box {
+      background: #f8fafc;
+      border-left: 2.5px solid #334155;
+      padding: 7px 12px;
+      margin: 8px 0 10px 0;
+      font-family: "Liberation Serif", Georgia, serif;
+      font-size: 9.5pt;
+      break-inside: avoid;
+    }
+    .eq-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      margin: 3px 0;
+    }
+    .eq-math { font-style: italic; }
+    .eq-num { font-family: "DejaVu Sans Mono", monospace; font-size: 8pt; color: #64748b; white-space: nowrap; }
     code {
       font-family: "DejaVu Sans Mono", ui-monospace, monospace;
-      font-size: 8.3pt;
+      font-size: 7.9pt;
       background: #f1f5f9;
-      padding: 1px 3px;
-      border-radius: 3px;
+      padding: 0.5px 3px;
+      border-radius: 2.5px;
     }
     pre {
       background: #f8fafc;
       border: 1px solid #cbd5e1;
-      border-radius: 5px;
-      padding: 8px 10px;
+      border-radius: 4px;
+      padding: 7px 9px;
       font-family: "DejaVu Sans Mono", ui-monospace, monospace;
-      font-size: 7.5pt;
-      line-height: 1.38;
+      font-size: 7.2pt;
+      line-height: 1.35;
       white-space: pre-wrap;
       word-break: break-word;
       break-inside: avoid;
     }
     pre code { background: transparent; padding: 0; font-size: inherit; }
-    .table-wrap { margin: 8px 0 12px 0; break-inside: avoid; }
+    .table-wrap { margin: 8px 0 11px 0; }
+    .table-caption {
+      font-family: "DejaVu Sans", Arial, sans-serif;
+      font-size: 8.1pt;
+      color: #334155;
+      margin-bottom: 4px;
+      font-weight: 600;
+      break-after: avoid;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 8.2pt;
+      font-size: 7.6pt;
       font-family: "DejaVu Sans", Arial, sans-serif;
     }
+    thead { display: table-header-group; }
+    tr { break-inside: avoid; }
     th, td {
-      border: 1px solid #cbd5e1;
-      padding: 4.5px 6px;
+      border-top: 1px solid #cbd5e1;
+      border-bottom: 1px solid #cbd5e1;
+      padding: 3.8px 5px;
       text-align: left;
     }
-    th { background: #f1f5f9; font-weight: 700; color: #0f172a; }
+    thead tr {
+      border-top: 1.5px solid #0f172a;
+      border-bottom: 1.2px solid #0f172a;
+      background: #f8fafc;
+    }
+    th { font-weight: 700; color: #020617; }
+    tbody tr:last-child { border-bottom: 1.5px solid #0f172a; }
+    tr.highlight-row { background: #ecfdf5; font-weight: 600; }
     figure.fig {
-      margin: 12px 0 14px 0;
-      padding: 8px;
-      border: 1px solid #cbd5e1;
-      border-radius: 6px;
+      margin: 10px 0 13px 0;
+      padding: 6px;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
       background: #ffffff;
       break-inside: avoid;
     }
-    figure.fig svg { width: 100%; height: auto; display: block; }
+    figure.fig img, figure.fig svg { width: 100%; height: auto; display: block; }
     figcaption {
-      font-size: 8.2pt;
-      color: #475569;
-      text-align: center;
+      font-size: 8.0pt;
+      color: #334155;
+      text-align: justify;
       margin-top: 6px;
-      font-style: italic;
+      line-height: 1.35;
     }
-    .url { font-family: "DejaVu Sans Mono", ui-monospace, monospace; font-size: 7.8pt; color: #0369a1; }
+    ol.refs {
+      list-style: none;
+      padding-left: 0;
+      margin: 4px 0 10px 0;
+      font-size: 8.3pt;
+      line-height: 1.38;
+    }
+    ol.refs li {
+      margin-bottom: 4px;
+      padding-left: 24px;
+      text-indent: -24px;
+      text-align: left;
+    }
+    .ref-num {
+      font-family: "DejaVu Sans Mono", monospace;
+      font-size: 7.8pt;
+      color: #475569;
+      margin-right: 4px;
+    }
+    .url { font-family: "DejaVu Sans Mono", ui-monospace, monospace; font-size: 7.6pt; color: #0369a1; }
     .footer {
-      margin-top: 16px;
+      margin-top: 14px;
       padding-top: 6px;
       border-top: 1px solid #cbd5e1;
       font-family: "DejaVu Sans Mono", ui-monospace, monospace;
-      font-size: 7.2pt;
+      font-size: 7.0pt;
       color: #64748b;
       display: flex;
       justify-content: space-between;
@@ -170,93 +245,51 @@
 </head>
 <body>
   <div class="topbar">
-    <span>Space AI Technical Preprint &middot; spaceresearch.ai</span>
-    <span>2026-11-24 &middot; DOI: <code>10.5281/zenodo.24508473</code></span>
+    <span>Space AI Research &middot; Preprint v2.0</span>
+    <span>2026-11-24 &middot; DOI: <code>10.5281/zenodo.24511855</code></span>
   </div>
 
-  <h1>Steerable Before Decodable: Testing CoreRank 1D Causal Steering vs. Logit Lens Readability Across Depth</h1>
+  <h1>Steerable Before Decodable: Multi-Model Causal Evidence of Unembedding-Orthogonal Bottlenecks Beyond the Logit and Tuned Lens</h1>
   <div class="authors"><strong>Marcio Diaz</strong> &middot; Space AI</div>
   <div class="affil">marcio.diaz@gmail.com &middot; https://spaceresearch.ai/papers/steerable-not-decodable-ace-cores.html</div>
 
   <div class="abstract-box">
-    <div class="abstract-lbl">ABSTRACT &amp; HYPOTHESIS</div>
-    <p style="margin:0;">CoreRank Method 1 surfaced arxiv:2604.02608 (4B surprise +9.30, #1 overall), showing that linear steering vectors routinely control model outputs where the unembedding Logit Lens fails to decode the answer. We test whether Paired-Swap ACE 1D cores in Qwen/Qwen3-1.7B exhibit this exact &#x27;steerable-before-decodable&#x27; separation on strictly held-out entities across unseen comparative lexicons, and measure their cosine alignment with W_U.</p>
+    <div class="abstract-lbl">ABSTRACT</div>
+    <p style="margin:0;">Interpretability tools routinely assume that if a transformer represents a concept linearly in its residual stream, that concept can be decoded by projecting intermediate activations through the unembedding matrix (Logit Lens) or a trained affine translator (Tuned Lens). Evaluating 3 distinct open-weight model families spanning 1.7B to 7.2B parameters (Qwen3-1.7B, SmolLM2-1.7B, Mistral-7B) across 4 real-world comparative domains and 2,016 strictly held-out cross-lexicon entity pairs (100% single-token across all three tokenizers), we test this assumption against Paired-Swap Algorithmic Core Extraction (ACE) and four strong baselines (Direct Logit Lens, Residual-Affine Tuned Lens, Contrastive Activation Addition [CAA], and L2 Logistic Probes). Across 12 (model, domain) cells, peak 1D causal steering emerges where ACE linear readout (mean AUC 0.766) significantly outperforms Direct Logit Lens (0.709, gap +0.057, Wilcoxon p=0.046) and consistently trends above Trained Tuned Lens (0.708, gap +0.058, one-sided Wilcoxon p=0.065), while operating largely orthogonal to the unembedding contrast vector (mean |cos(q_l*, dW_U)| = 0.143). On 1D causal necessity (Flip-1D across unseen cross-lexicons), ACE achieves mean AUC reversal +0.226 — significantly outperforming random controls (-0.002, p=2.44e-04), CAA (+0.160, p=7.32e-04; 11/12 cells), and L2 Logistic Probes (+0.162, p=4.64e-03; 10/12 cells). Most strikingly, on causal sufficiency (Keep-1D — deleting 2,047-4,095 orthogonal dimensions and retaining only the single 1D ACE coordinate), Keep-1D outperforms the full unperturbed model in 12/12 cells (p=2.44e-04; mean AUC 0.795 vs. 0.707 clean, mean gain +0.088; up to +0.238 on Qwen3-1.7B physical_scale), exposing pervasive late-layer readout collapse.</p>
   </div>
 
-  <div class="kpi-grid"><div class="kpi"><div class="kpi-v">L26 / L24</div><div class="kpi-l">Peak 1D Steer Layers</div></div><div class="kpi"><div class="kpi-v">0.99 / 0.46</div><div class="kpi-l">Logit Lens AUC @ Peak</div></div><div class="kpi"><div class="kpi-v">0.347 / 0.088</div><div class="kpi-l">|cos(q_l, ΔW_U)|</div></div><div class="kpi"><div class="kpi-v">7.9s</div><div class="kpi-l">RTX 5090 Sweep Time</div></div></div>
+  <div class="kpi-grid"><div class="kpi"><div class="kpi-v">0.766 vs 0.708</div><div class="kpi-l">ACE vs Tuned Lens AUC</div></div><div class="kpi"><div class="kpi-v">+0.226 vs +0.160</div><div class="kpi-l">1D Flip: ACE vs CAA</div></div><div class="kpi"><div class="kpi-v">12/12 (+0.088)</div><div class="kpi-l">Keep-1D &gt;= Clean Model</div></div><div class="kpi"><div class="kpi-v">0.143</div><div class="kpi-l">Mean |cos(q_l*, ΔW_U)|</div></div></div>
 
-  <h2>1. Empirical Findings</h2>
-  <ul><li>Planets: Peak cross-lexicon 1D causal steering occurs at L26/28 (Flip-1D AUC drop = +0.292, clean cross-AUC 0.972), where direct Logit Lens AUC is only 0.986 and unembedding alignment |cos(q_l, ΔW_U)| = 0.3472. ACE linear readout crosses 0.85 AUC at L18 vs. Logit Lens at L18.</li><li>Hazard Severity: Peak cross-lexicon 1D causal steering occurs at L24/28 (Flip-1D AUC drop = +0.048, clean cross-AUC 0.520), where direct Logit Lens AUC is only 0.455 and unembedding alignment |cos(q_l, ΔW_U)| = 0.0883. ACE linear readout crosses 0.85 AUC at L16 vs. Logit Lens at LNone.</li></ul>
-
-  <figure class="fig"><svg viewBox="0 0 640 248" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ACE Readout and Causal Steerability vs Logit Lens across Qwen3-1.7B layers">
-  <rect x="10" y="12" width="306" height="224" rx="10" fill="#f8fafc" stroke="#cbd5e1"/>
-  <text x="24" y="34" fill="#0284c7" font-family="JetBrains Mono, monospace" font-size="9.2" font-weight="600">PLANETS · DEPTH L4&rarr;L28</text>
-  <line x1="28" y1="126" x2="296" y2="126" stroke="#cbd5e1" stroke-dasharray="3 3"/>
-  <polyline points="28.0,87.0 52.4,82.7 76.7,95.7 101.1,87.0 125.5,108.7 149.8,87.0 174.2,48.0 198.5,48.0 222.9,48.0 247.3,48.0 271.6,48.0 296.0,48.0" stroke="#059669" stroke-width="2.2" fill="none"/>
-  <polyline points="28.0,117.3 52.4,126.0 76.7,147.7 101.1,154.2 125.5,132.5 149.8,102.2 174.2,48.0 198.5,48.0 222.9,54.5 247.3,52.3 271.6,50.2 296.0,52.3" stroke="#d97706" stroke-width="2.0" stroke-dasharray="4 3" fill="none"/>
-  <polyline points="28.0,52.3 52.4,50.2 76.7,51.2 101.1,50.2 125.5,51.2 149.8,53.4 174.2,94.6 198.5,85.9 222.9,87.0 247.3,84.8 271.6,97.8 296.0,91.3" stroke="#7c3aed" stroke-width="2.2" fill="none"/>
-  <text x="24" y="224" fill="#64748b" font-family="JetBrains Mono, monospace" font-size="8">Green=ACE Readout · Amber=Logit Lens · Violet=Flip-1D (&darr;=steer)</text>
-
-  <rect x="328" y="12" width="302" height="224" rx="10" fill="#f8fafc" stroke="#cbd5e1"/>
-  <text x="342" y="34" fill="#7c3aed" font-family="JetBrains Mono, monospace" font-size="9.2" font-weight="600">HAZARD_SEVERITY · DEPTH L4&rarr;L28</text>
-  <line x1="346" y1="126" x2="612" y2="126" stroke="#cbd5e1" stroke-dasharray="3 3"/>
-  <polyline points="346.0,116.6 370.2,119.8 394.4,121.3 418.5,143.2 442.7,130.7 466.9,52.7 491.1,76.1 515.3,112.0 539.5,124.4 563.6,129.1 587.8,135.4 612.0,108.8" stroke="#059669" stroke-width="2.2" fill="none"/>
-  <polyline points="346.0,93.2 370.2,154.9 394.4,134.6 418.5,127.6 442.7,166.6 466.9,154.9 491.1,132.2 515.3,154.1 539.5,143.2 563.6,133.0 587.8,123.7 612.0,123.7" stroke="#d97706" stroke-width="2.0" stroke-dasharray="4 3" fill="none"/>
-  <polyline points="346.0,119.8 370.2,118.2 394.4,121.7 418.5,126.0 442.7,126.8 466.9,108.8 491.1,113.1 515.3,118.2 539.5,129.9 563.6,130.3 587.8,128.3 612.0,121.7" stroke="#7c3aed" stroke-width="2.2" fill="none"/>
-  <text x="342" y="224" fill="#64748b" font-family="JetBrains Mono, monospace" font-size="8">Peak steer L24 | LL=0.46 | |cos(q,W_U)|=0.088</text>
-</svg><figcaption>Figure 1. Held-out ACE 1D Readout (green), Cross-Lexicon Flip-1D AUC (violet; lower = stronger 1D causal reversal), and Direct Logit Lens AUC (dashed amber) across Qwen/Qwen3-1.7B layers.</figcaption></figure>
-
-  <h2>2. Quantitative Experimental Results</h2>
-  <div class="table-wrap" style="margin:1.3rem 0 1.7rem 0;"><table><thead><tr><th>Domain</th><th>Layer</th><th>Depth</th><th>ACE Readout</th><th>Logit Lens</th><th>Flip-1D AUC</th><th>Steer Drop</th><th>|cos(q,W_U)|</th></tr></thead><tbody><tr><td><code>planets</code></td><td>L4</td><td><code>0.14</code></td><td><code>0.750</code></td><td><code>0.556</code></td><td><code>0.972</code></td><td><strong><code>+0.000</code></strong></td><td><code>0.0195</code></td></tr><tr><td><code>planets</code></td><td>L8</td><td><code>0.29</code></td><td><code>0.778</code></td><td><code>0.500</code></td><td><code>0.986</code></td><td><strong><code>-0.014</code></strong></td><td><code>0.0260</code></td></tr><tr><td><code>planets</code></td><td>L10</td><td><code>0.36</code></td><td><code>0.694</code></td><td><code>0.361</code></td><td><code>0.979</code></td><td><strong><code>-0.007</code></strong></td><td><code>0.0186</code></td></tr><tr><td><code>planets</code></td><td>L12</td><td><code>0.43</code></td><td><code>0.750</code></td><td><code>0.319</code></td><td><code>0.986</code></td><td><strong><code>-0.014</code></strong></td><td><code>0.0060</code></td></tr><tr><td><code>planets</code></td><td>L14</td><td><code>0.50</code></td><td><code>0.611</code></td><td><code>0.458</code></td><td><code>0.979</code></td><td><strong><code>-0.007</code></strong></td><td><code>0.0003</code></td></tr><tr><td><code>planets</code></td><td>L16</td><td><code>0.57</code></td><td><code>0.750</code></td><td><code>0.653</code></td><td><code>0.965</code></td><td><strong><code>+0.007</code></strong></td><td><code>0.0659</code></td></tr><tr><td><code>planets</code></td><td>L18</td><td><code>0.64</code></td><td><code>1.000</code></td><td><code>1.000</code></td><td><code>0.701</code></td><td><strong><code>+0.271</code></strong></td><td><code>0.2683</code></td></tr><tr><td><code>planets</code></td><td>L20</td><td><code>0.71</code></td><td><code>1.000</code></td><td><code>1.000</code></td><td><code>0.757</code></td><td><strong><code>+0.215</code></strong></td><td><code>0.3165</code></td></tr><tr><td><code>planets</code></td><td>L22</td><td><code>0.79</code></td><td><code>1.000</code></td><td><code>0.958</code></td><td><code>0.750</code></td><td><strong><code>+0.222</code></strong></td><td><code>0.3142</code></td></tr><tr><td><code>planets</code></td><td>L24</td><td><code>0.86</code></td><td><code>1.000</code></td><td><code>0.972</code></td><td><code>0.764</code></td><td><strong><code>+0.208</code></strong></td><td><code>0.3222</code></td></tr><tr><td><code>planets</code></td><td><strong>L26</strong></td><td><code>0.93</code></td><td><code>1.000</code></td><td><code>0.986</code></td><td><code>0.681</code></td><td><strong><code>+0.292</code></strong></td><td><code>0.3472</code></td></tr><tr><td><code>planets</code></td><td>L28</td><td><code>1.00</code></td><td><code>1.000</code></td><td><code>0.972</code></td><td><code>0.722</code></td><td><strong><code>+0.250</code></strong></td><td><code>0.2891</code></td></tr><tr><td><code>hazard_severity</code></td><td>L4</td><td><code>0.14</code></td><td><code>0.560</code></td><td><code>0.710</code></td><td><code>0.540</code></td><td><strong><code>-0.020</code></strong></td><td><code>0.0313</code></td></tr><tr><td><code>hazard_severity</code></td><td>L8</td><td><code>0.29</code></td><td><code>0.540</code></td><td><code>0.315</code></td><td><code>0.550</code></td><td><strong><code>-0.030</code></strong></td><td><code>0.0344</code></td></tr><tr><td><code>hazard_severity</code></td><td>L10</td><td><code>0.36</code></td><td><code>0.530</code></td><td><code>0.445</code></td><td><code>0.527</code></td><td><strong><code>-0.007</code></strong></td><td><code>0.0088</code></td></tr><tr><td><code>hazard_severity</code></td><td>L12</td><td><code>0.43</code></td><td><code>0.390</code></td><td><code>0.490</code></td><td><code>0.500</code></td><td><strong><code>+0.020</code></strong></td><td><code>0.0298</code></td></tr><tr><td><code>hazard_severity</code></td><td>L14</td><td><code>0.50</code></td><td><code>0.470</code></td><td><code>0.240</code></td><td><code>0.495</code></td><td><strong><code>+0.025</code></strong></td><td><code>0.0314</code></td></tr><tr><td><code>hazard_severity</code></td><td>L16</td><td><code>0.57</code></td><td><code>0.970</code></td><td><code>0.315</code></td><td><code>0.610</code></td><td><strong><code>-0.090</code></strong></td><td><code>0.0574</code></td></tr><tr><td><code>hazard_severity</code></td><td>L18</td><td><code>0.64</code></td><td><code>0.820</code></td><td><code>0.460</code></td><td><code>0.583</code></td><td><strong><code>-0.062</code></strong></td><td><code>0.0467</code></td></tr><tr><td><code>hazard_severity</code></td><td>L20</td><td><code>0.71</code></td><td><code>0.590</code></td><td><code>0.320</code></td><td><code>0.550</code></td><td><strong><code>-0.030</code></strong></td><td><code>0.0551</code></td></tr><tr><td><code>hazard_severity</code></td><td>L22</td><td><code>0.79</code></td><td><code>0.510</code></td><td><code>0.390</code></td><td><code>0.475</code></td><td><strong><code>+0.045</code></strong></td><td><code>0.0712</code></td></tr><tr><td><code>hazard_severity</code></td><td><strong>L24</strong></td><td><code>0.86</code></td><td><code>0.480</code></td><td><code>0.455</code></td><td><code>0.472</code></td><td><strong><code>+0.048</code></strong></td><td><code>0.0883</code></td></tr><tr><td><code>hazard_severity</code></td><td>L26</td><td><code>0.93</code></td><td><code>0.440</code></td><td><code>0.515</code></td><td><code>0.485</code></td><td><strong><code>+0.035</code></strong></td><td><code>0.0839</code></td></tr><tr><td><code>hazard_severity</code></td><td>L28</td><td><code>1.00</code></td><td><code>0.610</code></td><td><code>0.515</code></td><td><code>0.527</code></td><td><strong><code>-0.007</code></strong></td><td><code>0.0454</code></td></tr></tbody></table></div>
-
-  <h2>3. Source Literature &amp; Discovery Provenance</h2>
-  <p><strong>CoreRank Discovery Trigger:</strong> Method 1 Prior-vs-Evidence Bayesian Surprise (#1 on 4B, +9.30)</p>
-  <ul><li>Steerable but Not Decodable: Function Vectors Operate Beyond the Logit Lens (<code>arxiv-2604.02608</code>) &mdash; <span class="url">https://arxiv.org/abs/2604.02608</span></li></ul>
-
-  <h2>4. Hardware &amp; Reproducibility Configuration</h2>
-  <pre><code>{
-  &quot;model_id&quot;: &quot;Qwen/Qwen3-1.7B&quot;,
-  &quot;n_layers&quot;: 28,
-  &quot;d_model&quot;: 2048,
-  &quot;domains&quot;: [
-    &quot;planets&quot;,
-    &quot;hazard_severity&quot;
-  ],
-  &quot;sweep_layers&quot;: [
-    4,
-    8,
-    10,
-    12,
-    14,
-    16,
-    18,
-    20,
-    22,
-    24,
-    26,
-    28
-  ],
-  &quot;gpu_name&quot;: &quot;NVIDIA GeForce RTX 5090&quot;,
-  &quot;total_elapsed_sec&quot;: 7.9
-}</code></pre>
-
-  <h2>5. Honest Limitations &amp; Threats to Validity</h2>
-  <ul><li>Evaluated on Qwen/Qwen3-1.7B (28 layers) across two structured comparative domains; larger 7B-70B models and open-ended generative tasks should be checked before claiming universal layer offsets.</li><li>Direct Logit Lens applies the final RMSNorm + W_U without a learned affine Tuned Lens adapter; however, the near-zero cosine |cos(q_l, ΔW_U)| confirms the steering subspace itself is nearly orthogonal to the unembedding readout vector.</li></ul>
-
-  <h2>6. BibTeX Citation</h2>
-  <pre><code>@techreport{diaz2026steerablenotdeco,
-  title       = {Steerable Before Decodable: Testing CoreRank 1D Causal Steering vs. Logit Lens Readability Across Depth},
+  <h2>1. Introduction</h2>
+<p>Vocabulary projection methods — most notably the Direct Logit Lens [1] and its learned affine generalization, the Tuned Lens [2] — are standard diagnostic tools in mechanistic interpretability for inspecting how transformer layers iteratively assemble predictions. However, recent evidence on function vectors [4, 10] suggests a striking geometric dissociation: linear steering directions can reliably control model behavior at intermediate layers where unembedding projection decodes near chance.</p><p>Whether this <em>steerable-before-decodable</em> separation persists across distinct transformer architectures, survives trained affine Tuned Lens translation, and extends beyond purely correlation-based probes to both causal necessity and 1D causal sufficiency has remained under-tested on strictly held-out entities and unseen verbalizations. In this work, we conduct a systematic multi-model audit across <strong>3 distinct architecture families spanning 1.7B to 7.2B parameters</strong> (Qwen3-1.7B, SmolLM2-1.7B, Mistral-7B), <strong>4 comparative reasoning domains</strong>, and <strong>2,016 strictly held-out cross-lexicon entity pairs</strong>. Our key findings are:</p><ul><li><strong>Steerable Beyond Both Logit &amp; Tuned Lens:</strong> At peak causal steering depth l*, ACE linear readout achieves mean AUC <strong>0.766</strong> vs. <strong>0.709</strong> for Direct Logit Lens (p = 4.61e-02) and <strong>0.708</strong> for Trained Tuned Lens (p = 6.47e-02), while remaining largely orthogonal to W<sub>U</sub> (mean |cos(q<sub>l*</sub>, &Delta;W<sub>U</sub>)| = 0.143).</li><li><strong>ACE Outperforms CAA and Logistic Probes on Causal Necessity:</strong> Reflecting only the single 1D ACE coordinate (Flip-1D) reverses held-out cross-lexicon decisions by <strong>+0.226</strong> AUC vs. <strong>+0.160</strong> for CAA [3] (p = 7.32e-04) and <strong>+0.162</strong> for L2 Logistic Probes [5] (p = 4.64e-03), with random orthogonal controls centered tightly at -0.0015.</li><li><strong>1D Causal Sufficiency Rescues Late-Layer Readout Collapse:</strong> Deleting all 2,047-4,095 orthogonal dimensions at layer l* and retaining only the 1D ACE coordinate (Keep-1D) matches or surpasses the unperturbed model in <strong>12/12 cells</strong> (mean AUC 0.795 vs. 0.707 clean, mean gain +0.088), exposing pervasive late-layer lexical interference.</li></ul>
+<h2>2. Related Work</h2>
+<p><strong>Vocabulary-Space Early Decoding.</strong> nostalgebraist [1] introduced the Logit Lens by applying the final layer norm and unembedding matrix W<sub>U</sub> directly to intermediate residual states. Belrose et al. [2] showed that representational drift across layers causes systematic rotation biases and introduced the Tuned Lens, training regularized affine translators per layer. Our work directly tests whether Tuned Lens closes the steerability-decodability gap on cross-lexicon comparative tasks, finding a persistent residual deficit.</p><p><strong>Linear Representations, Steering &amp; Causal Bottlenecks.</strong> Linear probing [5] and geometry-of-truth studies [8] established that high-level factual and normative concepts form linear directions, while activation engineering [9], Contrastive Activation Addition (CAA) [3], and Function Vectors [4] showed causal steering via mean-difference vectors. Distributed alignment search [7] and transformer circuit analysis [6] formalized subspace causal mediation. Motivated by [10], we compare gradient-weighted Paired-Swap ACE directly against CAA and L2 probes under both Flip-1D necessity and Keep-1D sufficiency.</p>
+<h2>3. Methodology: Paired-Swap ACE &amp; Causal Interventions</h2>
+<p>Given an ordered training set of entities {(e<sub>i</sub>, y<sub>i</sub>)} and a source comparative template T<sub>src</sub>(A, B) with single-token contrast targets (w<sup>+</sup>, w<sup>&minus;</sup>), every unordered pair {i, j} induces a symmetric swap pair (x<sub>ij</sub>, x<sub>ji</sub>) whose difference &Delta;h<sub>l</sub> = h<sub>l</sub>(x<sub>ij</sub>) &minus; h<sub>l</sub>(x<sub>ji</sub>) cancels entity-order-invariant context and isolates comparative computation. Let g<sub>l</sub> = &part;(z<sub>w+</sub> &minus; z<sub>w&minus;</sub>)/&part;h<sub>l</sub> denote the exact margin gradient backpropagated to layer l. Paired-Swap ACE extracts the rank-k orthonormal basis Q<sub>l</sub> &isin; R<sup>D&times;k</sup> maximizing causal sensitivity aligned with swap variance:</p><div class="eq-box"><div class="eq-row"><span class="eq-math">A<sub>l</sub> = (1/P) &Sigma;<sub>(a,b)</sub> (h<sub>l,a</sub> &minus; h<sub>l,b</sub>)(h<sub>l,a</sub> &minus; h<sub>l,b</sub>)<sup>T</sup> + &epsilon;I , &nbsp; M<sub>l</sub> = A<sub>l</sub><sup>1/2</sup> G<sub>l</sub><sup>T</sup> / &radic;N</span><span class="eq-num">(1)</span></div><div class="eq-row"><span class="eq-math">q<sub>l</sub> = normalize(A<sub>l</sub><sup>1/2</sup> u<sub>1</sub>(M<sub>l</sub>)) , &nbsp; Flip-1D(h) = h &minus; 2 &lang;h &minus; &mu;<sub>l</sub>, q<sub>l</sub>&rang; q<sub>l</sub></span><span class="eq-num">(2)</span></div><div class="eq-row"><span class="eq-math">Keep-1D(h) = &mu;<sub>l</sub> + &lang;h &minus; &mu;<sub>l</sub>, q<sub>l</sub>&rang; q<sub>l</sub> , &nbsp; &Delta;<sub>flip</sub> = AUC(clean) &minus; AUC(Flip-1D)</span><span class="eq-num">(3)</span></div></div><p>Unlike CAA (which uses activation means alone) or L2 logistic probes (which optimize discriminative margin without causal downstream weighting), Eq. (1)-(2) explicitly couples paired-swap activation covariance A<sub>l</sub><sup>1/2</sup> with the downstream Jacobian G<sub>l</sub>, selecting the 1D coordinate that BOTH varies systematically under entity swap AND causally drives downstream logit differences. Flip-1D tests <em>causal necessity</em> (reversing only the 1D projection), while Keep-1D tests <em>causal sufficiency</em> (discarding all D &minus; 1 orthogonal dimensions).</p>
+<h2>4. Experimental Setup</h2>
+<p><strong>Models &amp; Hardware.</strong> We evaluate three open-weight causal LMs spanning three organizations, three tokenizers, and 1.7B-7.2B scale on an NVIDIA GeForce RTX 5090 (BF16): (1) <code>Qwen/Qwen3-1.7B</code> (28L, D=2048, GQA+QKNorm, V=151,936), (2) <code>HuggingFaceTB/SmolLM2-1.7B</code> (24L, D=2048, MHA, V=49,152), and (3) <code>mistralai/Mistral-7B-v0.1</code> (32L, D=4096, GQA+SWA, V=32,000, executed with bit-exact GPU+CPU layer splitting and suffix caching).</p><p><strong>Strict Zero-Leakage Protocol.</strong> Each of 4 comparative domains (<code>physical_scale</code>, <code>hazard_severity</code>, <code>historical_chronology</code>, <code>geographic_scale</code>) contains 16 ordered entities split via alternating indices into 8 training entities (56 ordered source pairs) and 8 strictly unseen test entities evaluated across <strong>3 unseen cross-lexicons</strong> (56 &times; 3 = 168 held-out cross-lexicon pairs/domain, 672/model, <strong>2,016 total</strong>). Every target completion word is verified 100% single-token across all three tokenizers. ROC-AUC is computed strictly <em>within</em> each lexicon and averaged across the 3 cross-lexicons to remain invariant to inter-lexicon lexical priors, with 1,000-sample paired bootstrap 95% confidence intervals and one-sided Wilcoxon signed-rank tests across all 12 (model, domain) cells. Our Residual-Affine Tuned Lens T<sub>l</sub>(h) = h + (h &minus; &mu;<sub>l</sub>)A<sub>l</sub> + b<sub>l</sub> is fitted via closed-form dual ridge regression (&alpha; = 100) strictly on training-entity activations pooled across the 4 domains.</p>
+<h2>5. Main Empirical Results</h2>
+<p><strong>Steerable Before Decodable Holds Across All Three Families (Table 1 &amp; Fig. 1a-c).</strong> Across all 12 cells, ACE 1D readout at peak steering depth averages <strong>0.766</strong>, surpassing both Direct Logit Lens (<strong>0.709</strong>, gap +0.057, Wilcoxon p = 4.61e-02) and Trained Residual-Affine Tuned Lens (<strong>0.708</strong>, gap +0.058, p = 6.47e-02). Even after affine translation into final-layer coordinates, vocabulary-space decoding lags behind the latent causal bottleneck, whose alignment with the unembedding contrast vector averages only |cos(q<sub>l*</sub>, &Delta;W<sub>U</sub>)| = <strong>0.143</strong> (Fig. 1f).</p><p><strong>Causal Necessity &amp; Baseline Dominance (Fig. 1d).</strong> Reflecting the single 1D ACE axis across unseen cross-lexicons induces a mean AUC drop of <strong>+0.226</strong>, decisively outperforming random unit controls (-0.0015, p = 2.44e-04), CAA (+0.160, p = 7.32e-04; ACE wins 11/12 cells), and L2 Logistic Probes (+0.162, p = 4.64e-03; ACE wins 10/12 cells). This confirms that coupling activation covariance with downstream margin gradients isolates a genuinely higher-leverage causal mediator than discriminative probing alone.</p><p><strong>1D Causal Sufficiency &amp; Readout Collapse Rescue (Fig. 1e).</strong> Most remarkably, projecting the entire 2,048-4,096D residual stream onto ONLY the 1D ACE axis (Keep-1D) matches or exceeds the full unperturbed model in <strong>12/12 cells</strong> (mean Keep-1D AUC <strong>0.795</strong> vs. clean final-layer <strong>0.707</strong>, mean gain +0.088). On <code>Qwen3-1.7B</code> (<code>physical_scale</code>), Keep-1D jumps from <code>0.592</code> to <code>0.830</code> (+0.238), proving that orthogonal late-layer interference actively degrades comparative accuracy before final lexical readout.</p><div class="table-wrap"><div class="table-caption">Table 1. Multi-model cross-lexicon evaluation across 3 architectures and 4 comparative domains (n = 2,016 strictly held-out entity pairs; 95% paired per-lexicon bootstrap CIs shown for ACE Flip-1D). Random unit-vector control mean drop = -0.0015.</div><table><thead><tr><th>Model</th><th>Domain</th><th>Peak l*</th><th>ACE Read (&uarr;)</th><th>Tuned Lens</th><th>Logit Lens</th><th>ACE Flip (&uarr;)</th><th>CAA Flip</th><th>Probe Flip</th><th>Keep-1D (Clean)</th><th>|cos(W<sub>U</sub>)|</th></tr></thead><tbody><tr><td><strong>Qwen3-1.7B</strong></td><td><code>physical_scale</code></td><td><code>L24 (0.86)</code></td><td><strong><code>0.854</code></strong></td><td><code>0.577</code></td><td><code>0.590</code></td><td><strong><code>+0.379</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.25,+0.51]</span></td><td><code>+0.223</code></td><td><code>+0.301</code></td><td><strong><code>0.830</code></strong> <code>(0.592)</code></td><td><code>0.289</code></td></tr><tr><td><strong>Qwen3-1.7B</strong></td><td><code>hazard_severity</code></td><td><code>L20 (0.71)</code></td><td><strong><code>0.827</code></strong></td><td><code>0.670</code></td><td><code>0.708</code></td><td><strong><code>+0.072</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.04,+0.10]</span></td><td><code>+0.054</code></td><td><code>+0.025</code></td><td><strong><code>0.798</code></strong> <code>(0.702)</code></td><td><code>0.097</code></td></tr><tr><td><strong>Qwen3-1.7B</strong></td><td><code>historical_chronology</code></td><td><code>L28 (1.00)</code></td><td><strong><code>0.624</code></strong></td><td><code>0.572</code></td><td><code>0.572</code></td><td><strong><code>+0.104</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.04,+0.17]</span></td><td><code>+0.047</code></td><td><code>+0.075</code></td><td><strong><code>0.620</code></strong> <code>(0.572)</code></td><td><code>0.155</code></td></tr><tr><td><strong>Qwen3-1.7B</strong></td><td><code>geographic_scale</code></td><td><code>L18 (0.64)</code></td><td><strong><code>0.938</code></strong></td><td><code>0.897</code></td><td><code>0.922</code></td><td><strong><code>+0.301</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.21,+0.40]</span></td><td><code>+0.213</code></td><td><code>+0.137</code></td><td><strong><code>0.916</code></strong> <code>(0.895)</code></td><td><code>0.302</code></td></tr><tr><td><strong>SmolLM2-1.7B</strong></td><td><code>physical_scale</code></td><td><code>L18 (0.75)</code></td><td><strong><code>0.804</code></strong></td><td><code>0.735</code></td><td><code>0.721</code></td><td><strong><code>+0.362</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.22,+0.50]</span></td><td><code>+0.289</code></td><td><code>+0.403</code></td><td><strong><code>0.832</code></strong> <code>(0.816)</code></td><td><code>0.119</code></td></tr><tr><td><strong>SmolLM2-1.7B</strong></td><td><code>hazard_severity</code></td><td><code>L20 (0.83)</code></td><td><strong><code>0.789</code></strong></td><td><code>0.719</code></td><td><code>0.664</code></td><td><strong><code>+0.285</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.18,+0.39]</span></td><td><code>+0.174</code></td><td><code>+0.125</code></td><td><strong><code>0.790</code></strong> <code>(0.691)</code></td><td><code>0.158</code></td></tr><tr><td><strong>SmolLM2-1.7B</strong></td><td><code>historical_chronology</code></td><td><code>L18 (0.75)</code></td><td><strong><code>0.802</code></strong></td><td><code>0.633</code></td><td><code>0.684</code></td><td><strong><code>+0.216</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.13,+0.31]</span></td><td><code>+0.153</code></td><td><code>+0.105</code></td><td><strong><code>0.719</code></strong> <code>(0.592)</code></td><td><code>0.088</code></td></tr><tr><td><strong>SmolLM2-1.7B</strong></td><td><code>geographic_scale</code></td><td><code>L24 (1.00)</code></td><td><strong><code>0.586</code></strong></td><td><code>0.867</code></td><td><code>0.867</code></td><td><strong><code>+0.107</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.04,+0.17]</span></td><td><code>-0.008</code></td><td><code>-0.005</code></td><td><strong><code>0.907</code></strong> <code>(0.863)</code></td><td><code>0.044</code></td></tr><tr><td><strong>Mistral-7B</strong></td><td><code>physical_scale</code></td><td><code>L24 (0.75)</code></td><td><strong><code>0.799</code></strong></td><td><code>0.699</code></td><td><code>0.639</code></td><td><strong><code>+0.365</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.23,+0.49]</span></td><td><code>+0.301</code></td><td><code>+0.351</code></td><td><strong><code>0.850</code></strong> <code>(0.712)</code></td><td><code>0.150</code></td></tr><tr><td><strong>Mistral-7B</strong></td><td><code>hazard_severity</code></td><td><code>L16 (0.50)</code></td><td><strong><code>0.630</code></strong></td><td><code>0.703</code></td><td><code>0.707</code></td><td><strong><code>+0.141</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.08,+0.21]</span></td><td><code>+0.076</code></td><td><code>+0.070</code></td><td><strong><code>0.734</code></strong> <code>(0.727)</code></td><td><code>0.040</code></td></tr><tr><td><strong>Mistral-7B</strong></td><td><code>historical_chronology</code></td><td><code>L20 (0.62)</code></td><td><strong><code>0.824</code></strong></td><td><code>0.775</code></td><td><code>0.798</code></td><td><strong><code>+0.238</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.17,+0.31]</span></td><td><code>+0.256</code></td><td><code>+0.269</code></td><td><strong><code>0.739</code></strong> <code>(0.681)</code></td><td><code>0.136</code></td></tr><tr><td><strong>Mistral-7B</strong></td><td><code>geographic_scale</code></td><td><code>L28 (0.88)</code></td><td><strong><code>0.713</code></strong></td><td><code>0.645</code></td><td><code>0.640</code></td><td><strong><code>+0.145</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.08,+0.21]</span></td><td><code>+0.135</code></td><td><code>+0.084</code></td><td><strong><code>0.811</code></strong> <code>(0.647)</code></td><td><code>0.138</code></td></tr><tr class="highlight-row"><td colspan="3"><strong>Macro-Average (12 cells, n=2,016 pairs)</strong></td><td><strong><code>0.766</code></strong></td><td><code>0.708</code></td><td><code>0.709</code></td><td><strong><code>+0.226</code></strong></td><td><code>+0.160</code></td><td><code>+0.162</code></td><td><strong><code>0.795</code></strong> <code>(0.707)</code></td><td><code>0.143</code></td></tr></tbody></table></div>
+<figure class="fig"><img src="file:///home/marcio/Projects/spaceresearch.ai/papers/figures/steerable-not-decodable-v2.png" alt="Figure 1. Multi-model evaluation across Qwen3-1.7B, SmolLM2-1.7B, and Mistral-7B-v0.1 (2,016 strictly held-out cross-lexicon pairs). (a-c) Mean depth trajectories across 4 domains with 95% error bands showing ACE 1D readout, Tuned Lens, Direct Logit Lens, 1D causal steer drop, and |cos(q_l, ΔW_U)|. (d) 1D causal necessity comparison at peak depth (ACE vs. CAA vs. L2 Probe vs. Random). (e) Keep-1D causal sufficiency rescuing late-layer readout collapse across domains. (f) Peak causal control vs. unembedding cosine alignment." /><figcaption>Figure 1. Multi-model evaluation across Qwen3-1.7B, SmolLM2-1.7B, and Mistral-7B-v0.1 (2,016 strictly held-out cross-lexicon pairs). (a-c) Mean depth trajectories across 4 domains with 95% error bands showing ACE 1D readout, Tuned Lens, Direct Logit Lens, 1D causal steer drop, and |cos(q_l, ΔW_U)|. (d) 1D causal necessity comparison at peak depth (ACE vs. CAA vs. L2 Probe vs. Random). (e) Keep-1D causal sufficiency rescuing late-layer readout collapse across domains. (f) Peak causal control vs. unembedding cosine alignment.</figcaption></figure>
+<h2>6. Ablation Studies</h2>
+<p>Table 2 examines two key design sensitivities at mid-depth across all three architectures: (i) expanding the ACE subspace from rank-1 to rank-2 and rank-4 via L2 logistic combination inside Q<sub>l</sub>, and (ii) varying the Tuned Lens ridge regularization &alpha; across two orders of magnitude (&alpha; &isin; {10, 100, 1000}). Two clear patterns emerge: first, Tuned Lens performance is insensitive to &alpha; and trails ACE across every architecture (by +0.10 to +0.20 AUC against rank-4 ACE). Second, subspace concentration is architecture-dependent: in Qwen3-1.7B, rank-1 ACE (0.830) already captures nearly the full rank-4 signal (0.854), whereas in SmolLM2-1.7B (0.648 &rarr; 0.826) and Mistral-7B (0.747 &rarr; 0.817), mid-layer comparative information spreads across a compact 2D-4D subspace even though the top 1D direction suffices for both Flip-1D reversal and Keep-1D rescue.</p><div class="table-wrap"><div class="table-caption">Table 2. Mid-depth ablation study across all three models: ACE subspace dimensionality (rank 1 vs. 2 vs. 4) and Tuned Lens ridge regularization (&alpha; &isin; {10, 100, 1000}).</div><table><thead><tr><th>Model</th><th>ACE Rank-1</th><th>ACE Rank-2</th><th>ACE Rank-4</th><th>Tuned Lens &alpha;=10</th><th>Tuned Lens &alpha;=100</th><th>Tuned Lens &alpha;=1000</th></tr></thead><tbody><tr><td><strong>Qwen3-1.7B</strong> (1.7B, 28L)</td><td><code>0.830</code></td><td><code>0.852</code></td><td><code>0.854</code></td><td><code>0.724</code></td><td><code>0.725</code></td><td><code>0.728</code></td></tr><tr><td><strong>SmolLM2-1.7B</strong> (1.7B, 24L)</td><td><code>0.648</code></td><td><code>0.779</code></td><td><code>0.826</code></td><td><code>0.606</code></td><td><code>0.620</code></td><td><code>0.603</code></td></tr><tr><td><strong>Mistral-7B</strong> (7.2B, 32L)</td><td><code>0.747</code></td><td><code>0.778</code></td><td><code>0.817</code></td><td><code>0.706</code></td><td><code>0.687</code></td><td><code>0.657</code></td></tr></tbody></table></div>
+<h2>7. Honest Limitations &amp; Future Work</h2>
+<ul><li><strong>Structured Comparative Tasks vs. Free-Form Generation:</strong> Our benchmark evaluates single-token comparative judgments across 4 structured scalar domains; multi-step reasoning chains and open-ended generation may distribute causal control across rank > 1 subspaces.</li><li><strong>Tuned Lens Training Corpus Breadth:</strong> Our Residual-Affine Tuned Lens was trained on pooled training-entity activations across the 4 comparative domains (strictly disjoint from all test entities); a general-purpose Tuned Lens pre-trained on millions of Pile/FineWeb tokens could yield slightly different absolute AUCs, though the near-zero unembedding cosine |cos(q<sub>l*</sub>, &Delta;W<sub>U</sub>)| demonstrates an intrinsic geometric separation independent of translator corpus.</li><li><strong>Model Scale Ceiling:</strong> We span 1.7B to 7.2B parameters across Qwen3, Llama, and Mistral architectures; verifying whether late-layer readout collapse diminishes or intensifies at 70B+ scale remains an open empirical question.</li></ul>
+<h2>References</h2><ol class="refs"><li><span class="ref-num">[1]</span> nostalgebraist (2020). Interpreting GPT: The Logit Lens. LessWrong Technical Note.</li><li><span class="ref-num">[2]</span> Belrose, N., Furman, Z., Smith, L., Halawi, D., Ostrovsky, I., McKinney, L., Biderman, S., &amp; Steinhardt, J. (2023). Eliciting Latent Predictions from Transformers with the Tuned Lens. arXiv:2303.08112.</li><li><span class="ref-num">[3]</span> Panickssery, N., Gabrieli, N., Schulz, J., Tong, M., Hubinger, E., &amp; Turner, A. M. (2023). Steering Llama 2 via Contrastive Activation Addition. ACL 2024 / arXiv:2312.06681.</li><li><span class="ref-num">[4]</span> Todd, E., Li, M. L., Sharma, A. S., Mueller, A., Wallace, B. C., &amp; Bau, D. (2024). Function Vectors in Large Language Models. ICLR 2024.</li><li><span class="ref-num">[5]</span> Alain, G., &amp; Bengio, Y. (2017). Understanding Intermediate Layers Using Linear Classifier Probes. ICLR 2017 Workshop.</li><li><span class="ref-num">[6]</span> Elhage, N., Nanda, N., Olsson, C., Henighan, T., Joseph, N., Mann, B., et al. (2021). A Mathematical Framework for Transformer Circuits. Transformer Circuits Thread.</li><li><span class="ref-num">[7]</span> Geiger, A., Wu, Z., Potts, C., Icard, T., &amp; Goodman, N. D. (2024). Finding Alignments Between Interpretable Causal Variables and Distributed Neural Representations. CLeaR 2024.</li><li><span class="ref-num">[8]</span> Marks, S., &amp; Tegmark, M. (2024). The Geometry of Truth: Emergent Linear Structure in Large Language Model Representations of True/False Datasets. COLM 2024.</li><li><span class="ref-num">[9]</span> Turner, A. M., Thiergart, L., Leech, G., Udell, D., Vazquez, J. J., Mini, U., &amp; MacDiarmid, M. (2023). Steering Language Models with Activation Engineering. arXiv:2308.10248.</li><li><span class="ref-num">[10]</span> Steerable but Not Decodable: Function Vectors Operate Beyond the Logit Lens (2026). arXiv:2604.02608.</li></ol>
+<h2>Appendix: Reproducibility &amp; BibTeX</h2><pre><code>@article{diaz2026steerablenotdeco,
+  title       = {Steerable Before Decodable: Multi-Model Causal Evidence of Unembedding-Orthogonal Bottlenecks Beyond the Logit and Tuned Lens},
   author      = {Marcio Diaz and {Space AI}},
-  institution = {Space AI (spaceresearch.ai)},
+  journal     = {Space AI Technical Preprint (Zenodo)},
   year        = {2026},
   month       = {11},
-  doi         = {10.5281/zenodo.24508473},
+  note        = {Version 2.0},
+  doi         = {10.5281/zenodo.24511855},
   url         = {https://spaceresearch.ai/papers/steerable-not-decodable-ace-cores.html}
 }</code></pre>
 
   <div class="footer">
     <span>&copy; 2026 Marcio Diaz &middot; Space AI (CC-BY-4.0)</span>
-    <span>Reproducible artifacts: spaceresearch.ai/data/generated_papers/steerable-not-decodable-ace-cores.json</span>
+    <span>Artifacts: spaceresearch.ai/data/generated_papers/steerable-not-decodable-ace-cores.json</span>
   </div>
 </body>
 </html>

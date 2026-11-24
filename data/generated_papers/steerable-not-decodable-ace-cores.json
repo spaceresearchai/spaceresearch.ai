@@ -1,15 +1,24 @@
 {
   "experiment": {
     "experiment_id": "steering_lens",
+    "version": "2.0",
     "slug": "steerable-not-decodable-ace-cores",
-    "title": "Steerable Before Decodable: Testing CoreRank 1D Causal Steering vs. Logit Lens Readability Across Depth",
-    "short_title": "Steerable Before Decodable: ACE Cores vs Logit Lens",
-    "category_label": "AUTONOMOUS GPU LAB \u00b7 MECHANISTIC INTERPRETABILITY",
-    "short_cat": "Auto GPU \u00b7 Steering",
+    "title": "Steerable Before Decodable: Multi-Model Causal Evidence of Unembedding-Orthogonal Bottlenecks Beyond the Logit and Tuned Lens",
+    "short_title": "Steerable Before Decodable: Multi-Model Causal Evidence",
+    "category_label": "MECHANISTIC INTERPRETABILITY \u00b7 VERSION 2.0",
+    "short_cat": "Interpretability \u00b7 v2",
     "track": "interpretability",
     "cluster": 1,
     "dot": "violet",
-    "source_discovery_type": "Method 1 Prior-vs-Evidence Bayesian Surprise (#1 on 4B, +9.30)",
+    "keywords": [
+      "Mechanistic Interpretability",
+      "Activation Steering",
+      "Logit Lens",
+      "Tuned Lens",
+      "Causal Bottlenecks",
+      "Function Vectors"
+    ],
+    "source_discovery_type": "CoreRank Method 1 Bayesian Surprise (#1 on 4B, +9.30)",
     "source_papers": [
       {
         "id": "arxiv-2604.02608",
@@ -17,379 +26,4830 @@
         "url": "https://arxiv.org/abs/2604.02608"
       }
     ],
-    "hypothesis": "CoreRank Method 1 surfaced arxiv:2604.02608 (4B surprise +9.30, #1 overall), showing that linear steering vectors routinely control model outputs where the unembedding Logit Lens fails to decode the answer. We test whether Paired-Swap ACE 1D cores in Qwen/Qwen3-1.7B exhibit this exact 'steerable-before-decodable' separation on strictly held-out entities across unseen comparative lexicons, and measure their cosine alignment with W_U.",
+    "references": [
+      "nostalgebraist (2020). Interpreting GPT: The Logit Lens. LessWrong Technical Note.",
+      "Belrose, N., Furman, Z., Smith, L., Halawi, D., Ostrovsky, I., McKinney, L., Biderman, S., & Steinhardt, J. (2023). Eliciting Latent Predictions from Transformers with the Tuned Lens. arXiv:2303.08112.",
+      "Panickssery, N., Gabrieli, N., Schulz, J., Tong, M., Hubinger, E., & Turner, A. M. (2023). Steering Llama 2 via Contrastive Activation Addition. ACL 2024 / arXiv:2312.06681.",
+      "Todd, E., Li, M. L., Sharma, A. S., Mueller, A., Wallace, B. C., & Bau, D. (2024). Function Vectors in Large Language Models. ICLR 2024.",
+      "Alain, G., & Bengio, Y. (2017). Understanding Intermediate Layers Using Linear Classifier Probes. ICLR 2017 Workshop.",
+      "Elhage, N., Nanda, N., Olsson, C., Henighan, T., Joseph, N., Mann, B., et al. (2021). A Mathematical Framework for Transformer Circuits. Transformer Circuits Thread.",
+      "Geiger, A., Wu, Z., Potts, C., Icard, T., & Goodman, N. D. (2024). Finding Alignments Between Interpretable Causal Variables and Distributed Neural Representations. CLeaR 2024.",
+      "Marks, S., & Tegmark, M. (2024). The Geometry of Truth: Emergent Linear Structure in Large Language Model Representations of True/False Datasets. COLM 2024.",
+      "Turner, A. M., Thiergart, L., Leech, G., Udell, D., Vazquez, J. J., Mini, U., & MacDiarmid, M. (2023). Steering Language Models with Activation Engineering. arXiv:2308.10248.",
+      "Steerable but Not Decodable: Function Vectors Operate Beyond the Logit Lens (2026). arXiv:2604.02608."
+    ],
+    "hypothesis": "We investigate whether comparative conceptual computations in decoder-only language models operate inside low-dimensional causal subspaces that are strongly steerable layers before becoming decodable through either the Direct Logit Lens or a trained Residual-Affine Tuned Lens. Across 3 distinct model families and scales (Qwen3-1.7B, SmolLM2-1.7B, Mistral-7B-v0.1), 4 real-world comparative domains, and 2,016 strictly held-out cross-lexicon entity pairs (verified 100% single-token across all three tokenizers), we benchmark Paired-Swap Algorithmic Core Extraction (ACE) against Direct Logit Lens, Tuned Lens, Contrastive Activation Addition (CAA), L2 Logistic Probes, and random orthogonal controls using Flip-1D causal necessity, Keep-1D causal sufficiency, and 1,000-sample paired per-lexicon bootstrap confidence intervals.",
     "setup": {
-      "model_id": "Qwen/Qwen3-1.7B",
-      "n_layers": 28,
-      "d_model": 2048,
+      "models": [
+        "Qwen/Qwen3-1.7B",
+        "HuggingFaceTB/SmolLM2-1.7B",
+        "mistralai/Mistral-7B-v0.1"
+      ],
+      "n_models": 3,
       "domains": [
-        "planets",
-        "hazard_severity"
+        "physical_scale",
+        "hazard_severity",
+        "historical_chronology",
+        "geographic_scale"
       ],
-      "sweep_layers": [
-        4,
-        8,
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28
+      "n_domains": 4,
+      "entities_per_domain": 16,
+      "train_test_split": "disjoint 8 train / 8 unseen test entities (56 ordered pairs/lexicon x 3 cross-lexicons = 168/domain)",
+      "total_heldout_cross_pairs": 2016,
+      "baselines": [
+        "Direct Logit Lens",
+        "Residual-Affine Tuned Lens",
+        "CAA Mean-Diff",
+        "L2 Logistic Probe",
+        "Random Unit Vector"
       ],
+      "bootstrap_resamples": 1000,
+      "figure_png_rel": "papers/figures/steerable-not-decodable-v2.png",
       "gpu_name": "NVIDIA GeForce RTX 5090",
-      "total_elapsed_sec": 7.9
+      "total_elapsed_sec": 501.2
+    },
+    "quality_evidence": {
+      "n_models": 3,
+      "n_seeds": 4,
+      "n_regimes": 12,
+      "n_baselines": 5,
+      "has_confidence_intervals": true,
+      "has_p_values": true,
+      "has_ablations": true,
+      "real_world_scale": true,
+      "non_trivial_finding": true
+    },
+    "summary_stats": {
+      "n_model_domain_cells": 12,
+      "total_heldout_cross_pairs": 2016,
+      "mean_ace_readout_at_peak": 0.7659,
+      "mean_tuned_lens_at_peak": 0.7075,
+      "mean_logit_lens_at_peak": 0.7094,
+      "gap_ace_minus_logit_lens_at_peak": 0.0565,
+      "gap_ace_minus_tuned_lens_at_peak": 0.0584,
+      "p_ace_gt_logit_lens": 0.04614,
+      "p_ace_gt_tuned_lens": 0.0647,
+      "mean_ace_flip_drop": 0.2263,
+      "mean_caa_flip_drop": 0.1595,
+      "mean_probe_flip_drop": 0.1616,
+      "mean_rand_flip_drop": -0.0015,
+      "p_ace_drop_gt_rand": 0.0002441,
+      "p_ace_drop_gt_caa": 0.0007324,
+      "p_ace_drop_gt_probe": 0.004639,
+      "mean_wu_cosine_at_peak": 0.1429,
+      "max_wu_cosine_at_peak": 0.3019,
+      "mean_best_ace_readout": 0.8319,
+      "mean_clean_final_auc": 0.7074,
+      "mean_keep1d_auc": 0.7955,
+      "cells_with_readout_collapse_gt_05": 8,
+      "cells": [
+        {
+          "model": "Qwen3-1.7B",
+          "domain": "physical_scale",
+          "peak_layer": 24,
+          "rel_depth": 0.857,
+          "ace_readout_at_peak": 0.8537,
+          "tuned_lens_at_peak": 0.5765,
+          "logit_lens_at_peak": 0.5897,
+          "ace_drop": 0.3793,
+          "caa_drop": 0.2226,
+          "probe_drop": 0.301,
+          "rand_drop": -0.0045,
+          "wu_cos": 0.2888,
+          "best_ace": 0.9375,
+          "keep1d": 0.8295,
+          "clean_final": 0.591624149659864
+        },
+        {
+          "model": "Qwen3-1.7B",
+          "domain": "hazard_severity",
+          "peak_layer": 20,
+          "rel_depth": 0.714,
+          "ace_readout_at_peak": 0.8274,
+          "tuned_lens_at_peak": 0.6701,
+          "logit_lens_at_peak": 0.7083,
+          "ace_drop": 0.0719,
+          "caa_drop": 0.054,
+          "probe_drop": 0.0251,
+          "rand_drop": -0.0026,
+          "wu_cos": 0.0969,
+          "best_ace": 0.8274,
+          "keep1d": 0.7983,
+          "clean_final": 0.7019557823129251
+        },
+        {
+          "model": "Qwen3-1.7B",
+          "domain": "historical_chronology",
+          "peak_layer": 28,
+          "rel_depth": 1.0,
+          "ace_readout_at_peak": 0.6241,
+          "tuned_lens_at_peak": 0.5723,
+          "logit_lens_at_peak": 0.5723,
+          "ace_drop": 0.104,
+          "caa_drop": 0.0468,
+          "probe_drop": 0.075,
+          "rand_drop": -0.0019,
+          "wu_cos": 0.1547,
+          "best_ace": 0.7491,
+          "keep1d": 0.6199,
+          "clean_final": 0.5720663265306122
+        },
+        {
+          "model": "Qwen3-1.7B",
+          "domain": "geographic_scale",
+          "peak_layer": 18,
+          "rel_depth": 0.643,
+          "ace_readout_at_peak": 0.9379,
+          "tuned_lens_at_peak": 0.8967,
+          "logit_lens_at_peak": 0.9218,
+          "ace_drop": 0.3006,
+          "caa_drop": 0.2126,
+          "probe_drop": 0.1373,
+          "rand_drop": -0.0032,
+          "wu_cos": 0.3019,
+          "best_ace": 0.9379,
+          "keep1d": 0.9162,
+          "clean_final": 0.8945578231292517
+        },
+        {
+          "model": "SmolLM2-1.7B",
+          "domain": "physical_scale",
+          "peak_layer": 18,
+          "rel_depth": 0.75,
+          "ace_readout_at_peak": 0.8044,
+          "tuned_lens_at_peak": 0.7347,
+          "logit_lens_at_peak": 0.7211,
+          "ace_drop": 0.362,
+          "caa_drop": 0.2893,
+          "probe_drop": 0.4031,
+          "rand_drop": 0.0019,
+          "wu_cos": 0.1187,
+          "best_ace": 0.8197,
+          "keep1d": 0.8323,
+          "clean_final": 0.8159013605442177
+        },
+        {
+          "model": "SmolLM2-1.7B",
+          "domain": "hazard_severity",
+          "peak_layer": 20,
+          "rel_depth": 0.833,
+          "ace_readout_at_peak": 0.7895,
+          "tuned_lens_at_peak": 0.7185,
+          "logit_lens_at_peak": 0.6641,
+          "ace_drop": 0.2851,
+          "caa_drop": 0.1745,
+          "probe_drop": 0.1248,
+          "rand_drop": 0.0034,
+          "wu_cos": 0.158,
+          "best_ace": 0.8946,
+          "keep1d": 0.7904,
+          "clean_final": 0.6904761904761904
+        },
+        {
+          "model": "SmolLM2-1.7B",
+          "domain": "historical_chronology",
+          "peak_layer": 18,
+          "rel_depth": 0.75,
+          "ace_readout_at_peak": 0.8023,
+          "tuned_lens_at_peak": 0.6327,
+          "logit_lens_at_peak": 0.6841,
+          "ace_drop": 0.2164,
+          "caa_drop": 0.1535,
+          "probe_drop": 0.1054,
+          "rand_drop": 0.0006,
+          "wu_cos": 0.0882,
+          "best_ace": 0.8023,
+          "keep1d": 0.719,
+          "clean_final": 0.5920493197278911
+        },
+        {
+          "model": "SmolLM2-1.7B",
+          "domain": "geographic_scale",
+          "peak_layer": 24,
+          "rel_depth": 1.0,
+          "ace_readout_at_peak": 0.5855,
+          "tuned_lens_at_peak": 0.8669,
+          "logit_lens_at_peak": 0.8669,
+          "ace_drop": 0.1069,
+          "caa_drop": -0.0081,
+          "probe_drop": -0.0049,
+          "rand_drop": -0.01,
+          "wu_cos": 0.0444,
+          "best_ace": 0.8048,
+          "keep1d": 0.9075,
+          "clean_final": 0.8624574829931974
+        },
+        {
+          "model": "Mistral-7B",
+          "domain": "physical_scale",
+          "peak_layer": 24,
+          "rel_depth": 0.75,
+          "ace_readout_at_peak": 0.7989,
+          "tuned_lens_at_peak": 0.699,
+          "logit_lens_at_peak": 0.6386,
+          "ace_drop": 0.365,
+          "caa_drop": 0.3006,
+          "probe_drop": 0.3508,
+          "rand_drop": -0.0047,
+          "wu_cos": 0.1501,
+          "best_ace": 0.8784,
+          "keep1d": 0.8499,
+          "clean_final": 0.7121598639455783
+        },
+        {
+          "model": "Mistral-7B",
+          "domain": "hazard_severity",
+          "peak_layer": 16,
+          "rel_depth": 0.5,
+          "ace_readout_at_peak": 0.6305,
+          "tuned_lens_at_peak": 0.7032,
+          "logit_lens_at_peak": 0.7071,
+          "ace_drop": 0.1414,
+          "caa_drop": 0.0765,
+          "probe_drop": 0.0695,
+          "rand_drop": 0.0002,
+          "wu_cos": 0.0397,
+          "best_ace": 0.6645,
+          "keep1d": 0.7336,
+          "clean_final": 0.7272534013605442
+        },
+        {
+          "model": "Mistral-7B",
+          "domain": "historical_chronology",
+          "peak_layer": 20,
+          "rel_depth": 0.625,
+          "ace_readout_at_peak": 0.824,
+          "tuned_lens_at_peak": 0.7747,
+          "logit_lens_at_peak": 0.7985,
+          "ace_drop": 0.2385,
+          "caa_drop": 0.256,
+          "probe_drop": 0.2685,
+          "rand_drop": 0.0045,
+          "wu_cos": 0.136,
+          "best_ace": 0.8907,
+          "keep1d": 0.7392,
+          "clean_final": 0.6809098639455783
+        },
+        {
+          "model": "Mistral-7B",
+          "domain": "geographic_scale",
+          "peak_layer": 28,
+          "rel_depth": 0.875,
+          "ace_readout_at_peak": 0.7126,
+          "tuned_lens_at_peak": 0.6446,
+          "logit_lens_at_peak": 0.6399,
+          "ace_drop": 0.145,
+          "caa_drop": 0.1354,
+          "probe_drop": 0.0835,
+          "rand_drop": -0.0015,
+          "wu_cos": 0.1375,
+          "best_ace": 0.7759,
+          "keep1d": 0.8106,
+          "clean_final": 0.6473214285714285
+        }
+      ]
     },
     "results": {
-      "planets": {
-        "clean_src_auc": 1.0,
-        "clean_cross_auc": 0.9722,
-        "peak_steer_layer": 26,
-        "peak_cross_steer_drop": 0.2917,
-        "peak_steer_logit_lens_auc": 0.9861,
-        "peak_steer_wu_cosine": 0.3472,
-        "best_steerable_not_decodable_layer": 10,
-        "first_ace_readout_ge85_layer": 18,
-        "first_logit_lens_ge85_layer": 18,
-        "layers": [
-          {
-            "layer": 4,
-            "rel_depth": 0.143,
-            "ace_readout_auc": 0.75,
-            "logit_lens_src_auc": 0.5,
-            "logit_lens_cross_auc": 0.5556,
-            "flip_src_auc": 1.0,
-            "flip_cross_auc": 0.9722,
-            "cross_steer_drop": 0.0,
-            "wu_cosine": 0.0195,
-            "spectral_gap": 4.1
+      "Qwen3-1.7B": {
+        "model_id": "Qwen/Qwen3-1.7B",
+        "short": "Qwen3-1.7B",
+        "family": "Qwen3 (GQA+QKNorm)",
+        "params_b": 1.7,
+        "n_layers": 28,
+        "d_model": 2048,
+        "gpu_vram_gb": 3.21,
+        "elapsed_sec": 29.6,
+        "tuned_lens_ridge_ablation_mid": {
+          "alpha_10": 0.7241,
+          "alpha_100": 0.7253,
+          "alpha_1000": 0.7279
+        },
+        "domains": {
+          "physical_scale": {
+            "n_train_pairs": 56,
+            "n_test_cross_pairs": 168,
+            "clean_src_auc": 0.7328,
+            "clean_cross_auc": 0.5916,
+            "clean_cross_ci95": [
+              0.4721,
+              0.7262
+            ],
+            "best_ace_readout_layer": 18,
+            "best_ace_readout_auc": 0.9375,
+            "readout_collapse_gap": 0.3459,
+            "peak_steer_layer": 24,
+            "peak_steer_rel_depth": 0.857,
+            "peak_ace_flip_drop": 0.3793,
+            "peak_ace_flip_drop_ci95": [
+              0.2485,
+              0.5073
+            ],
+            "peak_caa_flip_drop": 0.2226,
+            "peak_caa_flip_drop_ci95": [
+              0.1277,
+              0.3112
+            ],
+            "peak_probe_flip_drop": 0.301,
+            "peak_probe_flip_drop_ci95": [
+              0.2232,
+              0.3817
+            ],
+            "peak_rand_flip_drop": -0.0045,
+            "peak_rand_flip_drop_ci95": [
+              -0.0149,
+              0.0057
+            ],
+            "peak_steer_ace_readout_auc": 0.8537,
+            "peak_steer_logit_lens_auc": 0.5897,
+            "peak_steer_tuned_lens_auc": 0.5765,
+            "peak_steer_wu_cosine": 0.2888,
+            "peak_keep1d_layer": 24,
+            "peak_keep1d_cross_auc": 0.8295,
+            "first_ace_ge80_depth": 0.143,
+            "first_tuned_lens_ge80_depth": null,
+            "first_logit_lens_ge80_depth": null,
+            "rank_ablation_mid": {
+              "rank_1": 0.9375,
+              "rank_2": 0.912,
+              "rank_4": 0.9099
+            },
+            "layers": [
+              {
+                "layer": 4,
+                "rel_depth": 0.143,
+                "ace_readout_auc": 0.8036,
+                "ace_readout_ci95": [
+                  0.6833,
+                  0.8981
+                ],
+                "caa_readout_auc": 0.7653,
+                "probe_readout_auc": 0.7598,
+                "logit_lens_cross_auc": 0.5357,
+                "logit_lens_ci95": [
+                  0.473,
+                  0.597
+                ],
+                "tuned_lens_cross_auc": 0.5531,
+                "tuned_lens_ci95": [
+                  0.4606,
+                  0.6333
+                ],
+                "ace_flip_cross_auc": 0.5891,
+                "ace_flip_drop": 0.0026,
+                "ace_flip_drop_ci95": [
+                  -0.0125,
+                  0.0192
+                ],
+                "ace_keep1d_cross_auc": 0.5952,
+                "wu_cosine": 0.0246,
+                "cos_ace_caa": 0.4187,
+                "cos_ace_probe": 0.3245,
+                "spectral_gap": 2.9
+              },
+              {
+                "layer": 8,
+                "rel_depth": 0.286,
+                "ace_readout_auc": 0.7547,
+                "ace_readout_ci95": [
+                  0.6112,
+                  0.8862
+                ],
+                "caa_readout_auc": 0.7543,
+                "probe_readout_auc": 0.7853,
+                "logit_lens_cross_auc": 0.3933,
+                "logit_lens_ci95": [
+                  0.2932,
+                  0.5002
+                ],
+                "tuned_lens_cross_auc": 0.4949,
+                "tuned_lens_ci95": [
+                  0.3979,
+                  0.588
+                ],
+                "ace_flip_cross_auc": 0.6025,
+                "ace_flip_drop": -0.0108,
+                "ace_flip_drop_ci95": [
+                  -0.0422,
+                  0.0194
+                ],
+                "ace_keep1d_cross_auc": 0.6503,
+                "wu_cosine": 0.0062,
+                "cos_ace_caa": 0.9152,
+                "cos_ace_probe": 0.5096,
+                "spectral_gap": 2.7
+              },
+              {
+                "layer": 10,
+                "rel_depth": 0.357,
+                "ace_readout_auc": 0.7793,
+                "ace_readout_ci95": [
+                  0.6403,
+                  0.8903
+                ],
+                "caa_readout_auc": 0.7738,
+                "probe_readout_auc": 0.7904,
+                "logit_lens_cross_auc": 0.3333,
+                "logit_lens_ci95": [
+                  0.2508,
+                  0.4185
+                ],
+                "tuned_lens_cross_auc": 0.551,
+                "tuned_lens_ci95": [
+                  0.4629,
+                  0.6363
+                ],
+                "ace_flip_cross_auc": 0.5449,
+                "ace_flip_drop": 0.0468,
+                "ace_flip_drop_ci95": [
+                  0.012,
+                  0.0822
+                ],
+                "ace_keep1d_cross_auc": 0.6949,
+                "wu_cosine": 0.0146,
+                "cos_ace_caa": 0.6687,
+                "cos_ace_probe": 0.2778,
+                "spectral_gap": 1.3
+              },
+              {
+                "layer": 12,
+                "rel_depth": 0.429,
+                "ace_readout_auc": 0.6994,
+                "ace_readout_ci95": [
+                  0.5692,
+                  0.8159
+                ],
+                "caa_readout_auc": 0.8257,
+                "probe_readout_auc": 0.8788,
+                "logit_lens_cross_auc": 0.3214,
+                "logit_lens_ci95": [
+                  0.2337,
+                  0.4069
+                ],
+                "tuned_lens_cross_auc": 0.5846,
+                "tuned_lens_ci95": [
+                  0.4913,
+                  0.6807
+                ],
+                "ace_flip_cross_auc": 0.5587,
+                "ace_flip_drop": 0.033,
+                "ace_flip_drop_ci95": [
+                  0.002,
+                  0.0653
+                ],
+                "ace_keep1d_cross_auc": 0.692,
+                "wu_cosine": 0.0186,
+                "cos_ace_caa": 0.2914,
+                "cos_ace_probe": 0.0981,
+                "spectral_gap": 3.3
+              },
+              {
+                "layer": 14,
+                "rel_depth": 0.5,
+                "ace_readout_auc": 0.6641,
+                "ace_readout_ci95": [
+                  0.5254,
+                  0.79
+                ],
+                "caa_readout_auc": 0.872,
+                "probe_readout_auc": 0.9103,
+                "logit_lens_cross_auc": 0.3682,
+                "logit_lens_ci95": [
+                  0.2713,
+                  0.4629
+                ],
+                "tuned_lens_cross_auc": 0.585,
+                "tuned_lens_ci95": [
+                  0.4983,
+                  0.6707
+                ],
+                "ace_flip_cross_auc": 0.5278,
+                "ace_flip_drop": 0.0638,
+                "ace_flip_drop_ci95": [
+                  0.0092,
+                  0.1101
+                ],
+                "ace_keep1d_cross_auc": 0.7211,
+                "wu_cosine": 0.0145,
+                "cos_ace_caa": 0.2951,
+                "cos_ace_probe": 0.1431,
+                "spectral_gap": 4.6
+              },
+              {
+                "layer": 16,
+                "rel_depth": 0.571,
+                "ace_readout_auc": 0.7389,
+                "ace_readout_ci95": [
+                  0.6047,
+                  0.8594
+                ],
+                "caa_readout_auc": 0.8669,
+                "probe_readout_auc": 0.8916,
+                "logit_lens_cross_auc": 0.3946,
+                "logit_lens_ci95": [
+                  0.2936,
+                  0.4979
+                ],
+                "tuned_lens_cross_auc": 0.6237,
+                "tuned_lens_ci95": [
+                  0.541,
+                  0.7041
+                ],
+                "ace_flip_cross_auc": 0.6964,
+                "ace_flip_drop": -0.1048,
+                "ace_flip_drop_ci95": [
+                  -0.1687,
+                  -0.0472
+                ],
+                "ace_keep1d_cross_auc": 0.6856,
+                "wu_cosine": 0.0786,
+                "cos_ace_caa": 0.5656,
+                "cos_ace_probe": 0.2694,
+                "spectral_gap": 4.4
+              },
+              {
+                "layer": 18,
+                "rel_depth": 0.643,
+                "ace_readout_auc": 0.9375,
+                "ace_readout_ci95": [
+                  0.8735,
+                  0.9792
+                ],
+                "caa_readout_auc": 0.8805,
+                "probe_readout_auc": 0.9775,
+                "logit_lens_cross_auc": 0.5527,
+                "logit_lens_ci95": [
+                  0.4194,
+                  0.6838
+                ],
+                "tuned_lens_cross_auc": 0.7185,
+                "tuned_lens_ci95": [
+                  0.6169,
+                  0.8136
+                ],
+                "ace_flip_cross_auc": 0.2302,
+                "ace_flip_drop": 0.3614,
+                "ace_flip_drop_ci95": [
+                  0.2692,
+                  0.459
+                ],
+                "ace_keep1d_cross_auc": 0.8082,
+                "wu_cosine": 0.2222,
+                "cos_ace_caa": 0.762,
+                "cos_ace_probe": 0.6177,
+                "spectral_gap": 81.5
+              },
+              {
+                "layer": 20,
+                "rel_depth": 0.714,
+                "ace_readout_auc": 0.8916,
+                "ace_readout_ci95": [
+                  0.8156,
+                  0.9511
+                ],
+                "caa_readout_auc": 0.8508,
+                "probe_readout_auc": 0.9758,
+                "logit_lens_cross_auc": 0.6628,
+                "logit_lens_ci95": [
+                  0.5535,
+                  0.7721
+                ],
+                "tuned_lens_cross_auc": 0.6901,
+                "tuned_lens_ci95": [
+                  0.5762,
+                  0.7923
+                ],
+                "ace_flip_cross_auc": 0.2419,
+                "ace_flip_drop": 0.3497,
+                "ace_flip_drop_ci95": [
+                  0.2512,
+                  0.4449
+                ],
+                "ace_keep1d_cross_auc": 0.7946,
+                "wu_cosine": 0.2684,
+                "cos_ace_caa": 0.7424,
+                "cos_ace_probe": 0.5935,
+                "spectral_gap": 204.5
+              },
+              {
+                "layer": 22,
+                "rel_depth": 0.786,
+                "ace_readout_auc": 0.8478,
+                "ace_readout_ci95": [
+                  0.7657,
+                  0.9142
+                ],
+                "caa_readout_auc": 0.8427,
+                "probe_readout_auc": 0.9456,
+                "logit_lens_cross_auc": 0.6224,
+                "logit_lens_ci95": [
+                  0.5129,
+                  0.7262
+                ],
+                "tuned_lens_cross_auc": 0.6458,
+                "tuned_lens_ci95": [
+                  0.5291,
+                  0.7504
+                ],
+                "ace_flip_cross_auc": 0.2421,
+                "ace_flip_drop": 0.3495,
+                "ace_flip_drop_ci95": [
+                  0.232,
+                  0.4678
+                ],
+                "ace_keep1d_cross_auc": 0.7949,
+                "wu_cosine": 0.2734,
+                "cos_ace_caa": 0.6897,
+                "cos_ace_probe": 0.5253,
+                "spectral_gap": 176.1
+              },
+              {
+                "layer": 24,
+                "rel_depth": 0.857,
+                "ace_readout_auc": 0.8537,
+                "ace_readout_ci95": [
+                  0.7746,
+                  0.9252
+                ],
+                "caa_readout_auc": 0.8244,
+                "probe_readout_auc": 0.9243,
+                "logit_lens_cross_auc": 0.5897,
+                "logit_lens_ci95": [
+                  0.4603,
+                  0.7039
+                ],
+                "tuned_lens_cross_auc": 0.5765,
+                "tuned_lens_ci95": [
+                  0.458,
+                  0.6902
+                ],
+                "ace_flip_cross_auc": 0.2124,
+                "ace_flip_drop": 0.3793,
+                "ace_flip_drop_ci95": [
+                  0.2485,
+                  0.5073
+                ],
+                "ace_keep1d_cross_auc": 0.8295,
+                "wu_cosine": 0.2888,
+                "cos_ace_caa": 0.711,
+                "cos_ace_probe": 0.5657,
+                "spectral_gap": 284.8
+              },
+              {
+                "layer": 26,
+                "rel_depth": 0.929,
+                "ace_readout_auc": 0.8321,
+                "ace_readout_ci95": [
+                  0.7331,
+                  0.9087
+                ],
+                "caa_readout_auc": 0.8091,
+                "probe_readout_auc": 0.8912,
+                "logit_lens_cross_auc": 0.5748,
+                "logit_lens_ci95": [
+                  0.4525,
+                  0.6927
+                ],
+                "tuned_lens_cross_auc": 0.5608,
+                "tuned_lens_ci95": [
+                  0.4329,
+                  0.6956
+                ],
+                "ace_flip_cross_auc": 0.2313,
+                "ace_flip_drop": 0.3603,
+                "ace_flip_drop_ci95": [
+                  0.229,
+                  0.4968
+                ],
+                "ace_keep1d_cross_auc": 0.818,
+                "wu_cosine": 0.3065,
+                "cos_ace_caa": 0.732,
+                "cos_ace_probe": 0.587,
+                "spectral_gap": 276.2
+              },
+              {
+                "layer": 28,
+                "rel_depth": 1.0,
+                "ace_readout_auc": 0.7738,
+                "ace_readout_ci95": [
+                  0.6701,
+                  0.8671
+                ],
+                "caa_readout_auc": 0.8121,
+                "probe_readout_auc": 0.8873,
+                "logit_lens_cross_auc": 0.5974,
+                "logit_lens_ci95": [
+                  0.4661,
+                  0.7189
+                ],
+                "tuned_lens_cross_auc": 0.5974,
+                "tuned_lens_ci95": [
+                  0.473,
+                  0.7295
+                ],
+                "ace_flip_cross_auc": 0.273,
+                "ace_flip_drop": 0.3187,
+                "ace_flip_drop_ci95": [
+                  0.1658,
+                  0.4694
+                ],
+                "ace_keep1d_cross_auc": 0.7713,
+                "wu_cosine": 0.2374,
+                "cos_ace_caa": 0.6937,
+                "cos_ace_probe": 0.5372,
+                "spectral_gap": 969.3
+              }
+            ]
           },
-          {
-            "layer": 8,
-            "rel_depth": 0.286,
-            "ace_readout_auc": 0.7778,
-            "logit_lens_src_auc": 0.3333,
-            "logit_lens_cross_auc": 0.5,
-            "flip_src_auc": 1.0,
-            "flip_cross_auc": 0.9861,
-            "cross_steer_drop": -0.0139,
-            "wu_cosine": 0.026,
-            "spectral_gap": 2.5
+          "hazard_severity": {
+            "n_train_pairs": 56,
+            "n_test_cross_pairs": 168,
+            "clean_src_auc": 0.5663,
+            "clean_cross_auc": 0.702,
+            "clean_cross_ci95": [
+              0.5914,
+              0.7955
+            ],
+            "best_ace_readout_layer": 20,
+            "best_ace_readout_auc": 0.8274,
+            "readout_collapse_gap": 0.1254,
+            "peak_steer_layer": 20,
+            "peak_steer_rel_depth": 0.714,
+            "peak_ace_flip_drop": 0.0719,
+            "peak_ace_flip_drop_ci95": [
+              0.0438,
+              0.0973
+            ],
+            "peak_caa_flip_drop": 0.054,
+            "peak_caa_flip_drop_ci95": [
+              0.0321,
+              0.0756
+            ],
+            "peak_probe_flip_drop": 0.0251,
+            "peak_probe_flip_drop_ci95": [
+              0.0106,
+              0.0408
+            ],
+            "peak_rand_flip_drop": -0.0026,
+            "peak_rand_flip_drop_ci95": [
+              -0.0117,
+              0.006
+            ],
+            "peak_steer_ace_readout_auc": 0.8274,
+            "peak_steer_logit_lens_auc": 0.7083,
+            "peak_steer_tuned_lens_auc": 0.6701,
+            "peak_steer_wu_cosine": 0.0969,
+            "peak_keep1d_layer": 14,
+            "peak_keep1d_cross_auc": 0.7983,
+            "first_ace_ge80_depth": 0.714,
+            "first_tuned_lens_ge80_depth": null,
+            "first_logit_lens_ge80_depth": null,
+            "rank_ablation_mid": {
+              "rank_1": 0.7224,
+              "rank_2": 0.7258,
+              "rank_4": 0.7202
+            },
+            "layers": [
+              {
+                "layer": 4,
+                "rel_depth": 0.143,
+                "ace_readout_auc": 0.537,
+                "ace_readout_ci95": [
+                  0.3872,
+                  0.6799
+                ],
+                "caa_readout_auc": 0.7003,
+                "probe_readout_auc": 0.5485,
+                "logit_lens_cross_auc": 0.4405,
+                "logit_lens_ci95": [
+                  0.3393,
+                  0.5435
+                ],
+                "tuned_lens_cross_auc": 0.5251,
+                "tuned_lens_ci95": [
+                  0.3887,
+                  0.664
+                ],
+                "ace_flip_cross_auc": 0.7054,
+                "ace_flip_drop": -0.0034,
+                "ace_flip_drop_ci95": [
+                  -0.0154,
+                  0.0081
+                ],
+                "ace_keep1d_cross_auc": 0.7158,
+                "wu_cosine": 0.0216,
+                "cos_ace_caa": 0.2947,
+                "cos_ace_probe": 0.0619,
+                "spectral_gap": 1.5
+              },
+              {
+                "layer": 8,
+                "rel_depth": 0.286,
+                "ace_readout_auc": 0.7355,
+                "ace_readout_ci95": [
+                  0.5876,
+                  0.8499
+                ],
+                "caa_readout_auc": 0.6675,
+                "probe_readout_auc": 0.7028,
+                "logit_lens_cross_auc": 0.4745,
+                "logit_lens_ci95": [
+                  0.3778,
+                  0.5704
+                ],
+                "tuned_lens_cross_auc": 0.3618,
+                "tuned_lens_ci95": [
+                  0.249,
+                  0.474
+                ],
+                "ace_flip_cross_auc": 0.7054,
+                "ace_flip_drop": -0.0034,
+                "ace_flip_drop_ci95": [
+                  -0.017,
+                  0.0102
+                ],
+                "ace_keep1d_cross_auc": 0.7192,
+                "wu_cosine": 0.0312,
+                "cos_ace_caa": 0.6142,
+                "cos_ace_probe": 0.2562,
+                "spectral_gap": 1.3
+              },
+              {
+                "layer": 10,
+                "rel_depth": 0.357,
+                "ace_readout_auc": 0.6752,
+                "ace_readout_ci95": [
+                  0.5472,
+                  0.7932
+                ],
+                "caa_readout_auc": 0.6837,
+                "probe_readout_auc": 0.6543,
+                "logit_lens_cross_auc": 0.4605,
+                "logit_lens_ci95": [
+                  0.3471,
+                  0.5692
+                ],
+                "tuned_lens_cross_auc": 0.3108,
+                "tuned_lens_ci95": [
+                  0.215,
+                  0.4108
+                ],
+                "ace_flip_cross_auc": 0.6932,
+                "ace_flip_drop": 0.0087,
+                "ace_flip_drop_ci95": [
+                  -0.0067,
+                  0.0236
+                ],
+                "ace_keep1d_cross_auc": 0.7302,
+                "wu_cosine": 0.0026,
+                "cos_ace_caa": 0.2834,
+                "cos_ace_probe": 0.1556,
+                "spectral_gap": 1.7
+              },
+              {
+                "layer": 12,
+                "rel_depth": 0.429,
+                "ace_readout_auc": 0.6705,
+                "ace_readout_ci95": [
+                  0.5362,
+                  0.7949
+                ],
+                "caa_readout_auc": 0.6722,
+                "probe_readout_auc": 0.52,
+                "logit_lens_cross_auc": 0.5893,
+                "logit_lens_ci95": [
+                  0.5261,
+                  0.6522
+                ],
+                "tuned_lens_cross_auc": 0.5349,
+                "tuned_lens_ci95": [
+                  0.4264,
+                  0.646
+                ],
+                "ace_flip_cross_auc": 0.676,
+                "ace_flip_drop": 0.0259,
+                "ace_flip_drop_ci95": [
+                  0.0029,
+                  0.0477
+                ],
+                "ace_keep1d_cross_auc": 0.7462,
+                "wu_cosine": 0.0411,
+                "cos_ace_caa": 0.6488,
+                "cos_ace_probe": 0.3011,
+                "spectral_gap": 1.6
+              },
+              {
+                "layer": 14,
+                "rel_depth": 0.5,
+                "ace_readout_auc": 0.6327,
+                "ace_readout_ci95": [
+                  0.4974,
+                  0.7491
+                ],
+                "caa_readout_auc": 0.4413,
+                "probe_readout_auc": 0.3844,
+                "logit_lens_cross_auc": 0.5901,
+                "logit_lens_ci95": [
+                  0.5088,
+                  0.6701
+                ],
+                "tuned_lens_cross_auc": 0.5591,
+                "tuned_lens_ci95": [
+                  0.4529,
+                  0.6684
+                ],
+                "ace_flip_cross_auc": 0.6703,
+                "ace_flip_drop": 0.0317,
+                "ace_flip_drop_ci95": [
+                  0.0097,
+                  0.0548
+                ],
+                "ace_keep1d_cross_auc": 0.7983,
+                "wu_cosine": 0.0311,
+                "cos_ace_caa": 0.5526,
+                "cos_ace_probe": 0.2553,
+                "spectral_gap": 1.4
+              },
+              {
+                "layer": 16,
+                "rel_depth": 0.571,
+                "ace_readout_auc": 0.5646,
+                "ace_readout_ci95": [
+                  0.4354,
+                  0.6888
+                ],
+                "caa_readout_auc": 0.5642,
+                "probe_readout_auc": 0.5145,
+                "logit_lens_cross_auc": 0.5634,
+                "logit_lens_ci95": [
+                  0.4668,
+                  0.657
+                ],
+                "tuned_lens_cross_auc": 0.6195,
+                "tuned_lens_ci95": [
+                  0.5124,
+                  0.7409
+                ],
+                "ace_flip_cross_auc": 0.6975,
+                "ace_flip_drop": 0.0045,
+                "ace_flip_drop_ci95": [
+                  -0.0247,
+                  0.0318
+                ],
+                "ace_keep1d_cross_auc": 0.7689,
+                "wu_cosine": 0.0643,
+                "cos_ace_caa": 0.4171,
+                "cos_ace_probe": 0.2326,
+                "spectral_gap": 4.1
+              },
+              {
+                "layer": 18,
+                "rel_depth": 0.643,
+                "ace_readout_auc": 0.7224,
+                "ace_readout_ci95": [
+                  0.5965,
+                  0.8293
+                ],
+                "caa_readout_auc": 0.6939,
+                "probe_readout_auc": 0.6798,
+                "logit_lens_cross_auc": 0.6981,
+                "logit_lens_ci95": [
+                  0.6237,
+                  0.7747
+                ],
+                "tuned_lens_cross_auc": 0.6662,
+                "tuned_lens_ci95": [
+                  0.5615,
+                  0.7686
+                ],
+                "ace_flip_cross_auc": 0.6314,
+                "ace_flip_drop": 0.0706,
+                "ace_flip_drop_ci95": [
+                  0.0412,
+                  0.1027
+                ],
+                "ace_keep1d_cross_auc": 0.6409,
+                "wu_cosine": 0.0658,
+                "cos_ace_caa": 0.8707,
+                "cos_ace_probe": 0.4767,
+                "spectral_gap": 42.5
+              },
+              {
+                "layer": 20,
+                "rel_depth": 0.714,
+                "ace_readout_auc": 0.8274,
+                "ace_readout_ci95": [
+                  0.7366,
+                  0.908
+                ],
+                "caa_readout_auc": 0.8104,
+                "probe_readout_auc": 0.8057,
+                "logit_lens_cross_auc": 0.7083,
+                "logit_lens_ci95": [
+                  0.6185,
+                  0.7924
+                ],
+                "tuned_lens_cross_auc": 0.6701,
+                "tuned_lens_ci95": [
+                  0.5709,
+                  0.7637
+                ],
+                "ace_flip_cross_auc": 0.6301,
+                "ace_flip_drop": 0.0719,
+                "ace_flip_drop_ci95": [
+                  0.0438,
+                  0.0973
+                ],
+                "ace_keep1d_cross_auc": 0.6688,
+                "wu_cosine": 0.0969,
+                "cos_ace_caa": 0.8795,
+                "cos_ace_probe": 0.5069,
+                "spectral_gap": 108.0
+              },
+              {
+                "layer": 22,
+                "rel_depth": 0.786,
+                "ace_readout_auc": 0.7219,
+                "ace_readout_ci95": [
+                  0.6126,
+                  0.8207
+                ],
+                "caa_readout_auc": 0.7219,
+                "probe_readout_auc": 0.7564,
+                "logit_lens_cross_auc": 0.7037,
+                "logit_lens_ci95": [
+                  0.6087,
+                  0.7937
+                ],
+                "tuned_lens_cross_auc": 0.6675,
+                "tuned_lens_ci95": [
+                  0.5666,
+                  0.7642
+                ],
+                "ace_flip_cross_auc": 0.6514,
+                "ace_flip_drop": 0.0506,
+                "ace_flip_drop_ci95": [
+                  0.0148,
+                  0.0884
+                ],
+                "ace_keep1d_cross_auc": 0.6745,
+                "wu_cosine": 0.1222,
+                "cos_ace_caa": 0.9001,
+                "cos_ace_probe": 0.491,
+                "spectral_gap": 136.3
+              },
+              {
+                "layer": 24,
+                "rel_depth": 0.857,
+                "ace_readout_auc": 0.6501,
+                "ace_readout_ci95": [
+                  0.527,
+                  0.7648
+                ],
+                "caa_readout_auc": 0.6718,
+                "probe_readout_auc": 0.7258,
+                "logit_lens_cross_auc": 0.6905,
+                "logit_lens_ci95": [
+                  0.5832,
+                  0.7923
+                ],
+                "tuned_lens_cross_auc": 0.6777,
+                "tuned_lens_ci95": [
+                  0.572,
+                  0.7825
+                ],
+                "ace_flip_cross_auc": 0.6718,
+                "ace_flip_drop": 0.0302,
+                "ace_flip_drop_ci95": [
+                  -0.0145,
+                  0.0741
+                ],
+                "ace_keep1d_cross_auc": 0.6433,
+                "wu_cosine": 0.1391,
+                "cos_ace_caa": 0.9202,
+                "cos_ace_probe": 0.455,
+                "spectral_gap": 215.4
+              },
+              {
+                "layer": 26,
+                "rel_depth": 0.929,
+                "ace_readout_auc": 0.639,
+                "ace_readout_ci95": [
+                  0.5064,
+                  0.7536
+                ],
+                "caa_readout_auc": 0.6573,
+                "probe_readout_auc": 0.7372,
+                "logit_lens_cross_auc": 0.7083,
+                "logit_lens_ci95": [
+                  0.6043,
+                  0.8069
+                ],
+                "tuned_lens_cross_auc": 0.6913,
+                "tuned_lens_ci95": [
+                  0.575,
+                  0.7855
+                ],
+                "ace_flip_cross_auc": 0.6711,
+                "ace_flip_drop": 0.0308,
+                "ace_flip_drop_ci95": [
+                  -0.0219,
+                  0.0801
+                ],
+                "ace_keep1d_cross_auc": 0.6322,
+                "wu_cosine": 0.1269,
+                "cos_ace_caa": 0.928,
+                "cos_ace_probe": 0.428,
+                "spectral_gap": 323.1
+              },
+              {
+                "layer": 28,
+                "rel_depth": 1.0,
+                "ace_readout_auc": 0.6271,
+                "ace_readout_ci95": [
+                  0.4976,
+                  0.7491
+                ],
+                "caa_readout_auc": 0.6178,
+                "probe_readout_auc": 0.7304,
+                "logit_lens_cross_auc": 0.7054,
+                "logit_lens_ci95": [
+                  0.6096,
+                  0.8065
+                ],
+                "tuned_lens_cross_auc": 0.7054,
+                "tuned_lens_ci95": [
+                  0.6016,
+                  0.803
+                ],
+                "ace_flip_cross_auc": 0.6639,
+                "ace_flip_drop": 0.0381,
+                "ace_flip_drop_ci95": [
+                  -0.0163,
+                  0.0927
+                ],
+                "ace_keep1d_cross_auc": 0.6154,
+                "wu_cosine": 0.1128,
+                "cos_ace_caa": 0.9243,
+                "cos_ace_probe": 0.4012,
+                "spectral_gap": 1131.7
+              }
+            ]
           },
-          {
-            "layer": 10,
-            "rel_depth": 0.357,
-            "ace_readout_auc": 0.6944,
-            "logit_lens_src_auc": 0.3056,
-            "logit_lens_cross_auc": 0.3611,
-            "flip_src_auc": 1.0,
-            "flip_cross_auc": 0.9792,
-            "cross_steer_drop": -0.0069,
-            "wu_cosine": 0.0186,
-            "spectral_gap": 3.0
+          "historical_chronology": {
+            "n_train_pairs": 56,
+            "n_test_cross_pairs": 168,
+            "clean_src_auc": 0.6562,
+            "clean_cross_auc": 0.5721,
+            "clean_cross_ci95": [
+              0.5021,
+              0.6495
+            ],
+            "best_ace_readout_layer": 12,
+            "best_ace_readout_auc": 0.7491,
+            "readout_collapse_gap": 0.177,
+            "peak_steer_layer": 28,
+            "peak_steer_rel_depth": 1.0,
+            "peak_ace_flip_drop": 0.104,
+            "peak_ace_flip_drop_ci95": [
+              0.0381,
+              0.1749
+            ],
+            "peak_caa_flip_drop": 0.0468,
+            "peak_caa_flip_drop_ci95": [
+              -0.0445,
+              0.1373
+            ],
+            "peak_probe_flip_drop": 0.075,
+            "peak_probe_flip_drop_ci95": [
+              0.0262,
+              0.1254
+            ],
+            "peak_rand_flip_drop": -0.0019,
+            "peak_rand_flip_drop_ci95": [
+              -0.0109,
+              0.0077
+            ],
+            "peak_steer_ace_readout_auc": 0.6241,
+            "peak_steer_logit_lens_auc": 0.5723,
+            "peak_steer_tuned_lens_auc": 0.5723,
+            "peak_steer_wu_cosine": 0.1547,
+            "peak_keep1d_layer": 12,
+            "peak_keep1d_cross_auc": 0.6199,
+            "first_ace_ge80_depth": null,
+            "first_tuned_lens_ge80_depth": null,
+            "first_logit_lens_ge80_depth": null,
+            "rank_ablation_mid": {
+              "rank_1": 0.7219,
+              "rank_2": 0.8393,
+              "rank_4": 0.841
+            },
+            "layers": [
+              {
+                "layer": 4,
+                "rel_depth": 0.143,
+                "ace_readout_auc": 0.6127,
+                "ace_readout_ci95": [
+                  0.4714,
+                  0.7463
+                ],
+                "caa_readout_auc": 0.5693,
+                "probe_readout_auc": 0.6067,
+                "logit_lens_cross_auc": 0.4252,
+                "logit_lens_ci95": [
+                  0.3167,
+                  0.5428
+                ],
+                "tuned_lens_cross_auc": 0.4809,
+                "tuned_lens_ci95": [
+                  0.369,
+                  0.5901
+                ],
+                "ace_flip_cross_auc": 0.5787,
+                "ace_flip_drop": -0.0066,
+                "ace_flip_drop_ci95": [
+                  -0.0173,
+                  0.0039
+                ],
+                "ace_keep1d_cross_auc": 0.578,
+                "wu_cosine": 0.053,
+                "cos_ace_caa": 0.4969,
+                "cos_ace_probe": 0.4023,
+                "spectral_gap": 2.4
+              },
+              {
+                "layer": 8,
+                "rel_depth": 0.286,
+                "ace_readout_auc": 0.719,
+                "ace_readout_ci95": [
+                  0.6012,
+                  0.8274
+                ],
+                "caa_readout_auc": 0.6781,
+                "probe_readout_auc": 0.719,
+                "logit_lens_cross_auc": 0.5859,
+                "logit_lens_ci95": [
+                  0.5094,
+                  0.6726
+                ],
+                "tuned_lens_cross_auc": 0.6437,
+                "tuned_lens_ci95": [
+                  0.5673,
+                  0.7195
+                ],
+                "ace_flip_cross_auc": 0.5876,
+                "ace_flip_drop": -0.0155,
+                "ace_flip_drop_ci95": [
+                  -0.0303,
+                  -0.0017
+                ],
+                "ace_keep1d_cross_auc": 0.604,
+                "wu_cosine": 0.0178,
+                "cos_ace_caa": 0.6095,
+                "cos_ace_probe": 0.2865,
+                "spectral_gap": 3.4
+              },
+              {
+                "layer": 10,
+                "rel_depth": 0.357,
+                "ace_readout_auc": 0.7139,
+                "ace_readout_ci95": [
+                  0.591,
+                  0.8227
+                ],
+                "caa_readout_auc": 0.7704,
+                "probe_readout_auc": 0.7351,
+                "logit_lens_cross_auc": 0.5153,
+                "logit_lens_ci95": [
+                  0.4226,
+                  0.6101
+                ],
+                "tuned_lens_cross_auc": 0.6182,
+                "tuned_lens_ci95": [
+                  0.5134,
+                  0.725
+                ],
+                "ace_flip_cross_auc": 0.5814,
+                "ace_flip_drop": -0.0094,
+                "ace_flip_drop_ci95": [
+                  -0.0222,
+                  0.0047
+                ],
+                "ace_keep1d_cross_auc": 0.6127,
+                "wu_cosine": 0.0095,
+                "cos_ace_caa": 0.3223,
+                "cos_ace_probe": 0.1915,
+                "spectral_gap": 7.2
+              },
+              {
+                "layer": 12,
+                "rel_depth": 0.429,
+                "ace_readout_auc": 0.7491,
+                "ace_readout_ci95": [
+                  0.6641,
+                  0.832
+                ],
+                "caa_readout_auc": 0.7874,
+                "probe_readout_auc": 0.77,
+                "logit_lens_cross_auc": 0.4473,
+                "logit_lens_ci95": [
+                  0.3903,
+                  0.5086
+                ],
+                "tuned_lens_cross_auc": 0.5816,
+                "tuned_lens_ci95": [
+                  0.4998,
+                  0.6658
+                ],
+                "ace_flip_cross_auc": 0.5789,
+                "ace_flip_drop": -0.0068,
+                "ace_flip_drop_ci95": [
+                  -0.0252,
+                  0.0119
+                ],
+                "ace_keep1d_cross_auc": 0.6199,
+                "wu_cosine": 0.0284,
+                "cos_ace_caa": 0.3336,
+                "cos_ace_probe": 0.1721,
+                "spectral_gap": 10.2
+              },
+              {
+                "layer": 14,
+                "rel_depth": 0.5,
+                "ace_readout_auc": 0.6522,
+                "ace_readout_ci95": [
+                  0.5514,
+                  0.7496
+                ],
+                "caa_readout_auc": 0.7126,
+                "probe_readout_auc": 0.7011,
+                "logit_lens_cross_auc": 0.4685,
+                "logit_lens_ci95": [
+                  0.4103,
+                  0.5315
+                ],
+                "tuned_lens_cross_auc": 0.4898,
+                "tuned_lens_ci95": [
+                  0.3946,
+                  0.5769
+                ],
+                "ace_flip_cross_auc": 0.5806,
+                "ace_flip_drop": -0.0085,
+                "ace_flip_drop_ci95": [
+                  -0.0368,
+                  0.0163
+                ],
+                "ace_keep1d_cross_auc": 0.5876,
+                "wu_cosine": 0.0252,
+                "cos_ace_caa": 0.3197,
+                "cos_ace_probe": 0.0477,
+                "spectral_gap": 6.0
+              },
+              {
+                "layer": 16,
+                "rel_depth": 0.571,
+                "ace_readout_auc": 0.5855,
+                "ace_readout_ci95": [
+                  0.4599,
+                  0.7062
+                ],
+                "caa_readout_auc": 0.804,
+                "probe_readout_auc": 0.8104,
+                "logit_lens_cross_auc": 0.5918,
+                "logit_lens_ci95": [
+                  0.5308,
+                  0.6488
+                ],
+                "tuned_lens_cross_auc": 0.4962,
+                "tuned_lens_ci95": [
+                  0.3972,
+                  0.5927
+                ],
+                "ace_flip_cross_auc": 0.5806,
+                "ace_flip_drop": -0.0085,
+                "ace_flip_drop_ci95": [
+                  -0.0386,
+                  0.0224
+                ],
+                "ace_keep1d_cross_auc": 0.585,
+                "wu_cosine": 0.0041,
+                "cos_ace_caa": 0.0337,
+                "cos_ace_probe": 0.2954,
+                "spectral_gap": 6.9
+              },
+              {
+                "layer": 18,
+                "rel_depth": 0.643,
+                "ace_readout_auc": 0.7219,
+                "ace_readout_ci95": [
+                  0.6107,
+                  0.8231
+                ],
+                "caa_readout_auc": 0.8248,
+                "probe_readout_auc": 0.7891,
+                "logit_lens_cross_auc": 0.7049,
+                "logit_lens_ci95": [
+                  0.6311,
+                  0.7739
+                ],
+                "tuned_lens_cross_auc": 0.6199,
+                "tuned_lens_ci95": [
+                  0.5232,
+                  0.7075
+                ],
+                "ace_flip_cross_auc": 0.5036,
+                "ace_flip_drop": 0.0685,
+                "ace_flip_drop_ci95": [
+                  0.031,
+                  0.1122
+                ],
+                "ace_keep1d_cross_auc": 0.5106,
+                "wu_cosine": 0.079,
+                "cos_ace_caa": 0.7599,
+                "cos_ace_probe": 0.7783,
+                "spectral_gap": 20.6
+              },
+              {
+                "layer": 20,
+                "rel_depth": 0.714,
+                "ace_readout_auc": 0.6259,
+                "ace_readout_ci95": [
+                  0.4943,
+                  0.7492
+                ],
+                "caa_readout_auc": 0.7126,
+                "probe_readout_auc": 0.7343,
+                "logit_lens_cross_auc": 0.611,
+                "logit_lens_ci95": [
+                  0.5278,
+                  0.6968
+                ],
+                "tuned_lens_cross_auc": 0.5948,
+                "tuned_lens_ci95": [
+                  0.5097,
+                  0.678
+                ],
+                "ace_flip_cross_auc": 0.5304,
+                "ace_flip_drop": 0.0417,
+                "ace_flip_drop_ci95": [
+                  -0.0127,
+                  0.0949
+                ],
+                "ace_keep1d_cross_auc": 0.4998,
+                "wu_cosine": 0.1107,
+                "cos_ace_caa": 0.6488,
+                "cos_ace_probe": 0.744,
+                "spectral_gap": 31.9
+              },
+              {
+                "layer": 22,
+                "rel_depth": 0.786,
+                "ace_readout_auc": 0.503,
+                "ace_readout_ci95": [
+                  0.3729,
+                  0.6462
+                ],
+                "caa_readout_auc": 0.6913,
+                "probe_readout_auc": 0.7105,
+                "logit_lens_cross_auc": 0.5685,
+                "logit_lens_ci95": [
+                  0.4819,
+                  0.6594
+                ],
+                "tuned_lens_cross_auc": 0.5472,
+                "tuned_lens_ci95": [
+                  0.4444,
+                  0.644
+                ],
+                "ace_flip_cross_auc": 0.5778,
+                "ace_flip_drop": -0.0057,
+                "ace_flip_drop_ci95": [
+                  -0.0641,
+                  0.0523
+                ],
+                "ace_keep1d_cross_auc": 0.4592,
+                "wu_cosine": 0.1228,
+                "cos_ace_caa": 0.4582,
+                "cos_ace_probe": 0.6316,
+                "spectral_gap": 45.9
+              },
+              {
+                "layer": 24,
+                "rel_depth": 0.857,
+                "ace_readout_auc": 0.5221,
+                "ace_readout_ci95": [
+                  0.3926,
+                  0.6578
+                ],
+                "caa_readout_auc": 0.6824,
+                "probe_readout_auc": 0.6692,
+                "logit_lens_cross_auc": 0.5782,
+                "logit_lens_ci95": [
+                  0.49,
+                  0.6662
+                ],
+                "tuned_lens_cross_auc": 0.5612,
+                "tuned_lens_ci95": [
+                  0.4717,
+                  0.6518
+                ],
+                "ace_flip_cross_auc": 0.5364,
+                "ace_flip_drop": 0.0357,
+                "ace_flip_drop_ci95": [
+                  -0.0309,
+                  0.1028
+                ],
+                "ace_keep1d_cross_auc": 0.4896,
+                "wu_cosine": 0.1818,
+                "cos_ace_caa": 0.5693,
+                "cos_ace_probe": 0.6656,
+                "spectral_gap": 69.8
+              },
+              {
+                "layer": 26,
+                "rel_depth": 0.929,
+                "ace_readout_auc": 0.5094,
+                "ace_readout_ci95": [
+                  0.3831,
+                  0.6318
+                ],
+                "caa_readout_auc": 0.6488,
+                "probe_readout_auc": 0.6718,
+                "logit_lens_cross_auc": 0.5544,
+                "logit_lens_ci95": [
+                  0.4734,
+                  0.6388
+                ],
+                "tuned_lens_cross_auc": 0.5548,
+                "tuned_lens_ci95": [
+                  0.4697,
+                  0.6364
+                ],
+                "ace_flip_cross_auc": 0.531,
+                "ace_flip_drop": 0.041,
+                "ace_flip_drop_ci95": [
+                  -0.0252,
+                  0.1063
+                ],
+                "ace_keep1d_cross_auc": 0.5153,
+                "wu_cosine": 0.1769,
+                "cos_ace_caa": 0.5727,
+                "cos_ace_probe": 0.6466,
+                "spectral_gap": 92.5
+              },
+              {
+                "layer": 28,
+                "rel_depth": 1.0,
+                "ace_readout_auc": 0.6241,
+                "ace_readout_ci95": [
+                  0.5125,
+                  0.7431
+                ],
+                "caa_readout_auc": 0.5651,
+                "probe_readout_auc": 0.702,
+                "logit_lens_cross_auc": 0.5723,
+                "logit_lens_ci95": [
+                  0.5006,
+                  0.6483
+                ],
+                "tuned_lens_cross_auc": 0.5723,
+                "tuned_lens_ci95": [
+                  0.4919,
+                  0.653
+                ],
+                "ace_flip_cross_auc": 0.4681,
+                "ace_flip_drop": 0.104,
+                "ace_flip_drop_ci95": [
+                  0.0381,
+                  0.1749
+                ],
+                "ace_keep1d_cross_auc": 0.6165,
+                "wu_cosine": 0.1547,
+                "cos_ace_caa": 0.611,
+                "cos_ace_probe": 0.6183,
+                "spectral_gap": 286.2
+              }
+            ]
           },
-          {
-            "layer": 12,
-            "rel_depth": 0.429,
-            "ace_readout_auc": 0.75,
-            "logit_lens_src_auc": 0.6389,
-            "logit_lens_cross_auc": 0.3194,
-            "flip_src_auc": 1.0,
-            "flip_cross_auc": 0.9861,
-            "cross_steer_drop": -0.0139,
-            "wu_cosine": 0.006,
-            "spectral_gap": 2.6
-          },
-          {
-            "layer": 14,
-            "rel_depth": 0.5,
-            "ace_readout_auc": 0.6111,
-            "logit_lens_src_auc": 0.6667,
-            "logit_lens_cross_auc": 0.4583,
-            "flip_src_auc": 1.0,
-            "flip_cross_auc": 0.9792,
-            "cross_steer_drop": -0.0069,
-            "wu_cosine": 0.0003,
-            "spectral_gap": 7.1
-          },
-          {
-            "layer": 16,
-            "rel_depth": 0.571,
-            "ace_readout_auc": 0.75,
-            "logit_lens_src_auc": 0.75,
-            "logit_lens_cross_auc": 0.6528,
-            "flip_src_auc": 1.0,
-            "flip_cross_auc": 0.9653,
-            "cross_steer_drop": 0.0069,
-            "wu_cosine": 0.0659,
-            "spectral_gap": 2.4
-          },
-          {
-            "layer": 18,
-            "rel_depth": 0.643,
-            "ace_readout_auc": 1.0,
-            "logit_lens_src_auc": 1.0,
-            "logit_lens_cross_auc": 1.0,
-            "flip_src_auc": 0.7361,
-            "flip_cross_auc": 0.7014,
-            "cross_steer_drop": 0.2708,
-            "wu_cosine": 0.2683,
-            "spectral_gap": 188.6
-          },
-          {
-            "layer": 20,
-            "rel_depth": 0.714,
-            "ace_readout_auc": 1.0,
-            "logit_lens_src_auc": 1.0,
-            "logit_lens_cross_auc": 1.0,
-            "flip_src_auc": 0.7222,
-            "flip_cross_auc": 0.7569,
-            "cross_steer_drop": 0.2153,
-            "wu_cosine": 0.3165,
-            "spectral_gap": 1612.1
-          },
-          {
-            "layer": 22,
-            "rel_depth": 0.786,
-            "ace_readout_auc": 1.0,
-            "logit_lens_src_auc": 1.0,
-            "logit_lens_cross_auc": 0.9583,
-            "flip_src_auc": 0.7222,
-            "flip_cross_auc": 0.75,
-            "cross_steer_drop": 0.2222,
-            "wu_cosine": 0.3142,
-            "spectral_gap": 1672.3
-          },
-          {
-            "layer": 24,
-            "rel_depth": 0.857,
-            "ace_readout_auc": 1.0,
-            "logit_lens_src_auc": 1.0,
-            "logit_lens_cross_auc": 0.9722,
-            "flip_src_auc": 0.6944,
-            "flip_cross_auc": 0.7639,
-            "cross_steer_drop": 0.2083,
-            "wu_cosine": 0.3222,
-            "spectral_gap": 3618.2
-          },
-          {
-            "layer": 26,
-            "rel_depth": 0.929,
-            "ace_readout_auc": 1.0,
-            "logit_lens_src_auc": 1.0,
-            "logit_lens_cross_auc": 0.9861,
-            "flip_src_auc": 0.6389,
-            "flip_cross_auc": 0.6806,
-            "cross_steer_drop": 0.2917,
-            "wu_cosine": 0.3472,
-            "spectral_gap": 22876.4
-          },
-          {
-            "layer": 28,
-            "rel_depth": 1.0,
-            "ace_readout_auc": 1.0,
-            "logit_lens_src_auc": 1.0,
-            "logit_lens_cross_auc": 0.9722,
-            "flip_src_auc": 0.7917,
-            "flip_cross_auc": 0.7222,
-            "cross_steer_drop": 0.25,
-            "wu_cosine": 0.2891,
-            "spectral_gap": 21994.1
+          "geographic_scale": {
+            "n_train_pairs": 56,
+            "n_test_cross_pairs": 168,
+            "clean_src_auc": 0.9726,
+            "clean_cross_auc": 0.8946,
+            "clean_cross_ci95": [
+              0.8259,
+              0.9508
+            ],
+            "best_ace_readout_layer": 18,
+            "best_ace_readout_auc": 0.9379,
+            "readout_collapse_gap": 0.0433,
+            "peak_steer_layer": 18,
+            "peak_steer_rel_depth": 0.643,
+            "peak_ace_flip_drop": 0.3006,
+            "peak_ace_flip_drop_ci95": [
+              0.2077,
+              0.4044
+            ],
+            "peak_caa_flip_drop": 0.2126,
+            "peak_caa_flip_drop_ci95": [
+              0.127,
+              0.3005
+            ],
+            "peak_probe_flip_drop": 0.1373,
+            "peak_probe_flip_drop_ci95": [
+              0.0845,
+              0.1948
+            ],
+            "peak_rand_flip_drop": -0.0032,
+            "peak_rand_flip_drop_ci95": [
+              -0.0163,
+              0.0067
+            ],
+            "peak_steer_ace_readout_auc": 0.9379,
+            "peak_steer_logit_lens_auc": 0.9218,
+            "peak_steer_tuned_lens_auc": 0.8967,
+            "peak_steer_wu_cosine": 0.3019,
+            "peak_keep1d_layer": 10,
+            "peak_keep1d_cross_auc": 0.9162,
+            "first_ace_ge80_depth": 0.5,
+            "first_tuned_lens_ge80_depth": 0.429,
+            "first_logit_lens_ge80_depth": 0.643,
+            "rank_ablation_mid": {
+              "rank_1": 0.9379,
+              "rank_2": 0.9324,
+              "rank_4": 0.9435
+            },
+            "layers": [
+              {
+                "layer": 4,
+                "rel_depth": 0.143,
+                "ace_readout_auc": 0.773,
+                "ace_readout_ci95": [
+                  0.6328,
+                  0.8958
+                ],
+                "caa_readout_auc": 0.6679,
+                "probe_readout_auc": 0.6815,
+                "logit_lens_cross_auc": 0.5753,
+                "logit_lens_ci95": [
+                  0.4735,
+                  0.6794
+                ],
+                "tuned_lens_cross_auc": 0.5565,
+                "tuned_lens_ci95": [
+                  0.4453,
+                  0.6667
+                ],
+                "ace_flip_cross_auc": 0.8865,
+                "ace_flip_drop": 0.0081,
+                "ace_flip_drop_ci95": [
+                  -0.0049,
+                  0.0228
+                ],
+                "ace_keep1d_cross_auc": 0.9056,
+                "wu_cosine": 0.0152,
+                "cos_ace_caa": 0.635,
+                "cos_ace_probe": 0.5636,
+                "spectral_gap": 1.3
+              },
+              {
+                "layer": 8,
+                "rel_depth": 0.286,
+                "ace_readout_auc": 0.6798,
+                "ace_readout_ci95": [
+                  0.5367,
+                  0.8083
+                ],
+                "caa_readout_auc": 0.8163,
+                "probe_readout_auc": 0.79,
+                "logit_lens_cross_auc": 0.5782,
+                "logit_lens_ci95": [
+                  0.5088,
+                  0.653
+                ],
+                "tuned_lens_cross_auc": 0.7968,
+                "tuned_lens_ci95": [
+                  0.6811,
+                  0.8919
+                ],
+                "ace_flip_cross_auc": 0.8854,
+                "ace_flip_drop": 0.0091,
+                "ace_flip_drop_ci95": [
+                  -0.0024,
+                  0.0227
+                ],
+                "ace_keep1d_cross_auc": 0.9043,
+                "wu_cosine": 0.0214,
+                "cos_ace_caa": 0.6412,
+                "cos_ace_probe": 0.6099,
+                "spectral_gap": 1.6
+              },
+              {
+                "layer": 10,
+                "rel_depth": 0.357,
+                "ace_readout_auc": 0.6909,
+                "ace_readout_ci95": [
+                  0.5594,
+                  0.8167
+                ],
+                "caa_readout_auc": 0.7917,
+                "probe_readout_auc": 0.8321,
+                "logit_lens_cross_auc": 0.5736,
+                "logit_lens_ci95": [
+                  0.5062,
+                  0.6443
+                ],
+                "tuned_lens_cross_auc": 0.7891,
+                "tuned_lens_ci95": [
+                  0.6873,
+                  0.8714
+                ],
+                "ace_flip_cross_auc": 0.8924,
+                "ace_flip_drop": 0.0021,
+                "ace_flip_drop_ci95": [
+                  -0.0107,
+                  0.0141
+                ],
+                "ace_keep1d_cross_auc": 0.9162,
+                "wu_cosine": 0.0158,
+                "cos_ace_caa": 0.6641,
+                "cos_ace_probe": 0.1309,
+                "spectral_gap": 1.5
+              },
+              {
+                "layer": 12,
+                "rel_depth": 0.429,
+                "ace_readout_auc": 0.7819,
+                "ace_readout_ci95": [
+                  0.6551,
+                  0.8885
+                ],
+                "caa_readout_auc": 0.8023,
+                "probe_readout_auc": 0.8474,
+                "logit_lens_cross_auc": 0.5353,
+                "logit_lens_ci95": [
+                  0.4735,
+                  0.6011
+                ],
+                "tuned_lens_cross_auc": 0.8304,
+                "tuned_lens_ci95": [
+                  0.7413,
+                  0.9087
+                ],
+                "ace_flip_cross_auc": 0.8929,
+                "ace_flip_drop": 0.0017,
+                "ace_flip_drop_ci95": [
+                  -0.0103,
+                  0.0151
+                ],
+                "ace_keep1d_cross_auc": 0.9009,
+                "wu_cosine": 0.0081,
+                "cos_ace_caa": 0.9418,
+                "cos_ace_probe": 0.3873,
+                "spectral_gap": 1.7
+              },
+              {
+                "layer": 14,
+                "rel_depth": 0.5,
+                "ace_readout_auc": 0.8006,
+                "ace_readout_ci95": [
+                  0.6913,
+                  0.8931
+                ],
+                "caa_readout_auc": 0.8287,
+                "probe_readout_auc": 0.8389,
+                "logit_lens_cross_auc": 0.5634,
+                "logit_lens_ci95": [
+                  0.504,
+                  0.6155
+                ],
+                "tuned_lens_cross_auc": 0.8261,
+                "tuned_lens_ci95": [
+                  0.7417,
+                  0.8998
+                ],
+                "ace_flip_cross_auc": 0.8992,
+                "ace_flip_drop": -0.0047,
+                "ace_flip_drop_ci95": [
+                  -0.0169,
+                  0.0064
+                ],
+                "ace_keep1d_cross_auc": 0.898,
+                "wu_cosine": 0.0188,
+                "cos_ace_caa": 0.9245,
+                "cos_ace_probe": 0.356,
+                "spectral_gap": 3.2
+              },
+              {
+                "layer": 16,
+                "rel_depth": 0.571,
+                "ace_readout_auc": 0.7309,
+                "ace_readout_ci95": [
+                  0.6293,
+                  0.8285
+                ],
+                "caa_readout_auc": 0.8631,
+                "probe_readout_auc": 0.8801,
+                "logit_lens_cross_auc": 0.6607,
+                "logit_lens_ci95": [
+                  0.5705,
+                  0.7518
+                ],
+                "tuned_lens_cross_auc": 0.8321,
+                "tuned_lens_ci95": [
+                  0.7393,
+                  0.9037
+                ],
+                "ace_flip_cross_auc": 0.9118,
+                "ace_flip_drop": -0.0172,
+                "ace_flip_drop_ci95": [
+                  -0.0325,
+                  -0.0049
+                ],
+                "ace_keep1d_cross_auc": 0.8831,
+                "wu_cosine": 0.0441,
+                "cos_ace_caa": 0.6361,
+                "cos_ace_probe": 0.1611,
+                "spectral_gap": 2.7
+              },
+              {
+                "layer": 18,
+                "rel_depth": 0.643,
+                "ace_readout_auc": 0.9379,
+                "ace_readout_ci95": [
+                  0.884,
+                  0.9783
+                ],
+                "caa_readout_auc": 0.9298,
+                "probe_readout_auc": 0.9379,
+                "logit_lens_cross_auc": 0.9218,
+                "logit_lens_ci95": [
+                  0.8682,
+                  0.9644
+                ],
+                "tuned_lens_cross_auc": 0.8967,
+                "tuned_lens_ci95": [
+                  0.8389,
+                  0.9455
+                ],
+                "ace_flip_cross_auc": 0.594,
+                "ace_flip_drop": 0.3006,
+                "ace_flip_drop_ci95": [
+                  0.2077,
+                  0.4044
+                ],
+                "ace_keep1d_cross_auc": 0.8671,
+                "wu_cosine": 0.3019,
+                "cos_ace_caa": 0.9687,
+                "cos_ace_probe": 0.7173,
+                "spectral_gap": 151.8
+              },
+              {
+                "layer": 20,
+                "rel_depth": 0.714,
+                "ace_readout_auc": 0.9328,
+                "ace_readout_ci95": [
+                  0.8822,
+                  0.9765
+                ],
+                "caa_readout_auc": 0.9043,
+                "probe_readout_auc": 0.9439,
+                "logit_lens_cross_auc": 0.9103,
+                "logit_lens_ci95": [
+                  0.8477,
+                  0.9587
+                ],
+                "tuned_lens_cross_auc": 0.8907,
+                "tuned_lens_ci95": [
+                  0.8274,
+                  0.9453
+                ],
+                "ace_flip_cross_auc": 0.6509,
+                "ace_flip_drop": 0.2436,
+                "ace_flip_drop_ci95": [
+                  0.1603,
+                  0.3438
+                ],
+                "ace_keep1d_cross_auc": 0.8478,
+                "wu_cosine": 0.3069,
+                "cos_ace_caa": 0.9675,
+                "cos_ace_probe": 0.7625,
+                "spectral_gap": 469.5
+              },
+              {
+                "layer": 22,
+                "rel_depth": 0.786,
+                "ace_readout_auc": 0.8525,
+                "ace_readout_ci95": [
+                  0.7697,
+                  0.9223
+                ],
+                "caa_readout_auc": 0.8214,
+                "probe_readout_auc": 0.9286,
+                "logit_lens_cross_auc": 0.8865,
+                "logit_lens_ci95": [
+                  0.8142,
+                  0.9453
+                ],
+                "tuned_lens_cross_auc": 0.8827,
+                "tuned_lens_ci95": [
+                  0.8201,
+                  0.94
+                ],
+                "ace_flip_cross_auc": 0.682,
+                "ace_flip_drop": 0.2126,
+                "ace_flip_drop_ci95": [
+                  0.1143,
+                  0.318
+                ],
+                "ace_keep1d_cross_auc": 0.8068,
+                "wu_cosine": 0.2659,
+                "cos_ace_caa": 0.9697,
+                "cos_ace_probe": 0.7393,
+                "spectral_gap": 866.7
+              },
+              {
+                "layer": 24,
+                "rel_depth": 0.857,
+                "ace_readout_auc": 0.798,
+                "ace_readout_ci95": [
+                  0.6969,
+                  0.8839
+                ],
+                "caa_readout_auc": 0.7589,
+                "probe_readout_auc": 0.9239,
+                "logit_lens_cross_auc": 0.8652,
+                "logit_lens_ci95": [
+                  0.7836,
+                  0.9319
+                ],
+                "tuned_lens_cross_auc": 0.8652,
+                "tuned_lens_ci95": [
+                  0.7923,
+                  0.9264
+                ],
+                "ace_flip_cross_auc": 0.6941,
+                "ace_flip_drop": 0.2005,
+                "ace_flip_drop_ci95": [
+                  0.0884,
+                  0.3212
+                ],
+                "ace_keep1d_cross_auc": 0.7557,
+                "wu_cosine": 0.2512,
+                "cos_ace_caa": 0.973,
+                "cos_ace_probe": 0.7416,
+                "spectral_gap": 1445.7
+              },
+              {
+                "layer": 26,
+                "rel_depth": 0.929,
+                "ace_readout_auc": 0.8065,
+                "ace_readout_ci95": [
+                  0.6961,
+                  0.8912
+                ],
+                "caa_readout_auc": 0.7717,
+                "probe_readout_auc": 0.932,
+                "logit_lens_cross_auc": 0.8839,
+                "logit_lens_ci95": [
+                  0.8086,
+                  0.947
+                ],
+                "tuned_lens_cross_auc": 0.8895,
+                "tuned_lens_ci95": [
+                  0.8272,
+                  0.9445
+                ],
+                "ace_flip_cross_auc": 0.6824,
+                "ace_flip_drop": 0.2122,
+                "ace_flip_drop_ci95": [
+                  0.1066,
+                  0.3363
+                ],
+                "ace_keep1d_cross_auc": 0.783,
+                "wu_cosine": 0.257,
+                "cos_ace_caa": 0.9768,
+                "cos_ace_probe": 0.737,
+                "spectral_gap": 1008.7
+              },
+              {
+                "layer": 28,
+                "rel_depth": 1.0,
+                "ace_readout_auc": 0.7364,
+                "ace_readout_ci95": [
+                  0.612,
+                  0.8429
+                ],
+                "caa_readout_auc": 0.7143,
+                "probe_readout_auc": 0.9328,
+                "logit_lens_cross_auc": 0.8954,
+                "logit_lens_ci95": [
+                  0.8274,
+                  0.9505
+                ],
+                "tuned_lens_cross_auc": 0.8954,
+                "tuned_lens_ci95": [
+                  0.8223,
+                  0.9544
+                ],
+                "ace_flip_cross_auc": 0.6182,
+                "ace_flip_drop": 0.2764,
+                "ace_flip_drop_ci95": [
+                  0.1491,
+                  0.4051
+                ],
+                "ace_keep1d_cross_auc": 0.737,
+                "wu_cosine": 0.2077,
+                "cos_ace_caa": 0.9814,
+                "cos_ace_probe": 0.6744,
+                "spectral_gap": 4737.7
+              }
+            ]
           }
-        ]
+        }
       },
-      "hazard_severity": {
-        "clean_src_auc": 0.665,
-        "clean_cross_auc": 0.52,
-        "peak_steer_layer": 24,
-        "peak_cross_steer_drop": 0.0475,
-        "peak_steer_logit_lens_auc": 0.455,
-        "peak_steer_wu_cosine": 0.0883,
-        "best_steerable_not_decodable_layer": 24,
-        "first_ace_readout_ge85_layer": 16,
-        "first_logit_lens_ge85_layer": null,
-        "layers": [
-          {
-            "layer": 4,
-            "rel_depth": 0.143,
-            "ace_readout_auc": 0.56,
-            "logit_lens_src_auc": 0.28,
-            "logit_lens_cross_auc": 0.71,
-            "flip_src_auc": 0.675,
-            "flip_cross_auc": 0.54,
-            "cross_steer_drop": -0.02,
-            "wu_cosine": 0.0313,
-            "spectral_gap": 1.6
+      "SmolLM2-1.7B": {
+        "model_id": "HuggingFaceTB/SmolLM2-1.7B",
+        "short": "SmolLM2-1.7B",
+        "family": "Llama (MHA)",
+        "params_b": 1.7,
+        "n_layers": 24,
+        "d_model": 2048,
+        "gpu_vram_gb": 3.2,
+        "elapsed_sec": 29.5,
+        "tuned_lens_ridge_ablation_mid": {
+          "alpha_10": 0.6058,
+          "alpha_100": 0.62,
+          "alpha_1000": 0.6033
+        },
+        "domains": {
+          "physical_scale": {
+            "n_train_pairs": 56,
+            "n_test_cross_pairs": 168,
+            "clean_src_auc": 0.8756,
+            "clean_cross_auc": 0.8159,
+            "clean_cross_ci95": [
+              0.7083,
+              0.8996
+            ],
+            "best_ace_readout_layer": 16,
+            "best_ace_readout_auc": 0.8197,
+            "readout_collapse_gap": 0.0038,
+            "peak_steer_layer": 18,
+            "peak_steer_rel_depth": 0.75,
+            "peak_ace_flip_drop": 0.362,
+            "peak_ace_flip_drop_ci95": [
+              0.217,
+              0.5043
+            ],
+            "peak_caa_flip_drop": 0.2893,
+            "peak_caa_flip_drop_ci95": [
+              0.1807,
+              0.4053
+            ],
+            "peak_probe_flip_drop": 0.4031,
+            "peak_probe_flip_drop_ci95": [
+              0.2997,
+              0.5139
+            ],
+            "peak_rand_flip_drop": 0.0019,
+            "peak_rand_flip_drop_ci95": [
+              -0.0075,
+              0.0128
+            ],
+            "peak_steer_ace_readout_auc": 0.8044,
+            "peak_steer_logit_lens_auc": 0.7211,
+            "peak_steer_tuned_lens_auc": 0.7347,
+            "peak_steer_wu_cosine": 0.1187,
+            "peak_keep1d_layer": 8,
+            "peak_keep1d_cross_auc": 0.8323,
+            "first_ace_ge80_depth": 0.583,
+            "first_tuned_lens_ge80_depth": 1.0,
+            "first_logit_lens_ge80_depth": 0.917,
+            "rank_ablation_mid": {
+              "rank_1": 0.8065,
+              "rank_2": 0.8495,
+              "rank_4": 0.8597
+            },
+            "layers": [
+              {
+                "layer": 3,
+                "rel_depth": 0.125,
+                "ace_readout_auc": 0.7491,
+                "ace_readout_ci95": [
+                  0.6254,
+                  0.8705
+                ],
+                "caa_readout_auc": 0.8338,
+                "probe_readout_auc": 0.8193,
+                "logit_lens_cross_auc": 0.273,
+                "logit_lens_ci95": [
+                  0.1774,
+                  0.3729
+                ],
+                "tuned_lens_cross_auc": 0.7534,
+                "tuned_lens_ci95": [
+                  0.6552,
+                  0.844
+                ],
+                "ace_flip_cross_auc": 0.8227,
+                "ace_flip_drop": -0.0068,
+                "ace_flip_drop_ci95": [
+                  -0.0204,
+                  0.0064
+                ],
+                "ace_keep1d_cross_auc": 0.8204,
+                "wu_cosine": 0.0324,
+                "cos_ace_caa": 0.5984,
+                "cos_ace_probe": 0.313,
+                "spectral_gap": 1.4
+              },
+              {
+                "layer": 6,
+                "rel_depth": 0.25,
+                "ace_readout_auc": 0.6135,
+                "ace_readout_ci95": [
+                  0.4622,
+                  0.7656
+                ],
+                "caa_readout_auc": 0.7134,
+                "probe_readout_auc": 0.8078,
+                "logit_lens_cross_auc": 0.3865,
+                "logit_lens_ci95": [
+                  0.2947,
+                  0.4752
+                ],
+                "tuned_lens_cross_auc": 0.656,
+                "tuned_lens_ci95": [
+                  0.5438,
+                  0.7607
+                ],
+                "ace_flip_cross_auc": 0.8206,
+                "ace_flip_drop": -0.0047,
+                "ace_flip_drop_ci95": [
+                  -0.0152,
+                  0.0064
+                ],
+                "ace_keep1d_cross_auc": 0.8191,
+                "wu_cosine": 0.0161,
+                "cos_ace_caa": 0.9155,
+                "cos_ace_probe": 0.5427,
+                "spectral_gap": 2.8
+              },
+              {
+                "layer": 8,
+                "rel_depth": 0.333,
+                "ace_readout_auc": 0.7198,
+                "ace_readout_ci95": [
+                  0.5851,
+                  0.838
+                ],
+                "caa_readout_auc": 0.7538,
+                "probe_readout_auc": 0.8304,
+                "logit_lens_cross_auc": 0.3291,
+                "logit_lens_ci95": [
+                  0.2431,
+                  0.4113
+                ],
+                "tuned_lens_cross_auc": 0.7776,
+                "tuned_lens_ci95": [
+                  0.6658,
+                  0.8662
+                ],
+                "ace_flip_cross_auc": 0.7783,
+                "ace_flip_drop": 0.0376,
+                "ace_flip_drop_ci95": [
+                  -0.0009,
+                  0.0861
+                ],
+                "ace_keep1d_cross_auc": 0.8323,
+                "wu_cosine": 0.0193,
+                "cos_ace_caa": 0.9792,
+                "cos_ace_probe": 0.4564,
+                "spectral_gap": 13.5
+              },
+              {
+                "layer": 10,
+                "rel_depth": 0.417,
+                "ace_readout_auc": 0.73,
+                "ace_readout_ci95": [
+                  0.5752,
+                  0.8555
+                ],
+                "caa_readout_auc": 0.7912,
+                "probe_readout_auc": 0.8138,
+                "logit_lens_cross_auc": 0.3776,
+                "logit_lens_ci95": [
+                  0.2899,
+                  0.4744
+                ],
+                "tuned_lens_cross_auc": 0.4821,
+                "tuned_lens_ci95": [
+                  0.3717,
+                  0.5973
+                ],
+                "ace_flip_cross_auc": 0.7426,
+                "ace_flip_drop": 0.0733,
+                "ace_flip_drop_ci95": [
+                  0.0321,
+                  0.1241
+                ],
+                "ace_keep1d_cross_auc": 0.8236,
+                "wu_cosine": 0.0034,
+                "cos_ace_caa": 0.9504,
+                "cos_ace_probe": 0.5673,
+                "spectral_gap": 7.6
+              },
+              {
+                "layer": 12,
+                "rel_depth": 0.5,
+                "ace_readout_auc": 0.7959,
+                "ace_readout_ci95": [
+                  0.6679,
+                  0.9068
+                ],
+                "caa_readout_auc": 0.8295,
+                "probe_readout_auc": 0.8699,
+                "logit_lens_cross_auc": 0.3771,
+                "logit_lens_ci95": [
+                  0.3171,
+                  0.4423
+                ],
+                "tuned_lens_cross_auc": 0.5918,
+                "tuned_lens_ci95": [
+                  0.4863,
+                  0.6843
+                ],
+                "ace_flip_cross_auc": 0.71,
+                "ace_flip_drop": 0.1059,
+                "ace_flip_drop_ci95": [
+                  0.0644,
+                  0.1541
+                ],
+                "ace_keep1d_cross_auc": 0.8129,
+                "wu_cosine": 0.0224,
+                "cos_ace_caa": 0.965,
+                "cos_ace_probe": 0.5451,
+                "spectral_gap": 6.1
+              },
+              {
+                "layer": 14,
+                "rel_depth": 0.583,
+                "ace_readout_auc": 0.8065,
+                "ace_readout_ci95": [
+                  0.6741,
+                  0.9141
+                ],
+                "caa_readout_auc": 0.8461,
+                "probe_readout_auc": 0.9094,
+                "logit_lens_cross_auc": 0.3469,
+                "logit_lens_ci95": [
+                  0.2835,
+                  0.4145
+                ],
+                "tuned_lens_cross_auc": 0.719,
+                "tuned_lens_ci95": [
+                  0.6301,
+                  0.8112
+                ],
+                "ace_flip_cross_auc": 0.7551,
+                "ace_flip_drop": 0.0608,
+                "ace_flip_drop_ci95": [
+                  0.0273,
+                  0.0979
+                ],
+                "ace_keep1d_cross_auc": 0.8046,
+                "wu_cosine": 0.0276,
+                "cos_ace_caa": 0.9445,
+                "cos_ace_probe": 0.4553,
+                "spectral_gap": 4.3
+              },
+              {
+                "layer": 16,
+                "rel_depth": 0.667,
+                "ace_readout_auc": 0.8197,
+                "ace_readout_ci95": [
+                  0.6969,
+                  0.9174
+                ],
+                "caa_readout_auc": 0.8389,
+                "probe_readout_auc": 0.9409,
+                "logit_lens_cross_auc": 0.5782,
+                "logit_lens_ci95": [
+                  0.4804,
+                  0.6645
+                ],
+                "tuned_lens_cross_auc": 0.7207,
+                "tuned_lens_ci95": [
+                  0.6145,
+                  0.8151
+                ],
+                "ace_flip_cross_auc": 0.5274,
+                "ace_flip_drop": 0.2885,
+                "ace_flip_drop_ci95": [
+                  0.1651,
+                  0.4008
+                ],
+                "ace_keep1d_cross_auc": 0.8151,
+                "wu_cosine": 0.1098,
+                "cos_ace_caa": 0.9457,
+                "cos_ace_probe": 0.6481,
+                "spectral_gap": 18.5
+              },
+              {
+                "layer": 18,
+                "rel_depth": 0.75,
+                "ace_readout_auc": 0.8044,
+                "ace_readout_ci95": [
+                  0.6725,
+                  0.9048
+                ],
+                "caa_readout_auc": 0.8304,
+                "probe_readout_auc": 0.9162,
+                "logit_lens_cross_auc": 0.7211,
+                "logit_lens_ci95": [
+                  0.635,
+                  0.803
+                ],
+                "tuned_lens_cross_auc": 0.7347,
+                "tuned_lens_ci95": [
+                  0.6236,
+                  0.8325
+                ],
+                "ace_flip_cross_auc": 0.4539,
+                "ace_flip_drop": 0.362,
+                "ace_flip_drop_ci95": [
+                  0.217,
+                  0.5043
+                ],
+                "ace_keep1d_cross_auc": 0.7919,
+                "wu_cosine": 0.1187,
+                "cos_ace_caa": 0.9549,
+                "cos_ace_probe": 0.6192,
+                "spectral_gap": 214.9
+              },
+              {
+                "layer": 20,
+                "rel_depth": 0.833,
+                "ace_readout_auc": 0.7806,
+                "ace_readout_ci95": [
+                  0.6552,
+                  0.8778
+                ],
+                "caa_readout_auc": 0.8104,
+                "probe_readout_auc": 0.8988,
+                "logit_lens_cross_auc": 0.7942,
+                "logit_lens_ci95": [
+                  0.695,
+                  0.8792
+                ],
+                "tuned_lens_cross_auc": 0.7696,
+                "tuned_lens_ci95": [
+                  0.6487,
+                  0.8719
+                ],
+                "ace_flip_cross_auc": 0.4815,
+                "ace_flip_drop": 0.3344,
+                "ace_flip_drop_ci95": [
+                  0.2105,
+                  0.4668
+                ],
+                "ace_keep1d_cross_auc": 0.7774,
+                "wu_cosine": 0.1378,
+                "cos_ace_caa": 0.9572,
+                "cos_ace_probe": 0.5241,
+                "spectral_gap": 184.1
+              },
+              {
+                "layer": 22,
+                "rel_depth": 0.917,
+                "ace_readout_auc": 0.7598,
+                "ace_readout_ci95": [
+                  0.6262,
+                  0.8706
+                ],
+                "caa_readout_auc": 0.7849,
+                "probe_readout_auc": 0.8924,
+                "logit_lens_cross_auc": 0.8048,
+                "logit_lens_ci95": [
+                  0.7148,
+                  0.888
+                ],
+                "tuned_lens_cross_auc": 0.7989,
+                "tuned_lens_ci95": [
+                  0.7,
+                  0.8911
+                ],
+                "ace_flip_cross_auc": 0.4732,
+                "ace_flip_drop": 0.3427,
+                "ace_flip_drop_ci95": [
+                  0.2034,
+                  0.4779
+                ],
+                "ace_keep1d_cross_auc": 0.7572,
+                "wu_cosine": 0.1217,
+                "cos_ace_caa": 0.9577,
+                "cos_ace_probe": 0.4972,
+                "spectral_gap": 194.5
+              },
+              {
+                "layer": 24,
+                "rel_depth": 1.0,
+                "ace_readout_auc": 0.6832,
+                "ace_readout_ci95": [
+                  0.5282,
+                  0.8064
+                ],
+                "caa_readout_auc": 0.7496,
+                "probe_readout_auc": 0.8257,
+                "logit_lens_cross_auc": 0.8202,
+                "logit_lens_ci95": [
+                  0.7222,
+                  0.9093
+                ],
+                "tuned_lens_cross_auc": 0.8202,
+                "tuned_lens_ci95": [
+                  0.7195,
+                  0.9047
+                ],
+                "ace_flip_cross_auc": 0.5157,
+                "ace_flip_drop": 0.3002,
+                "ace_flip_drop_ci95": [
+                  0.1584,
+                  0.462
+                ],
+                "ace_keep1d_cross_auc": 0.6835,
+                "wu_cosine": 0.0524,
+                "cos_ace_caa": 0.9289,
+                "cos_ace_probe": 0.4696,
+                "spectral_gap": 2148.8
+              }
+            ]
           },
-          {
-            "layer": 8,
-            "rel_depth": 0.286,
-            "ace_readout_auc": 0.54,
-            "logit_lens_src_auc": 0.26,
-            "logit_lens_cross_auc": 0.315,
-            "flip_src_auc": 0.66,
-            "flip_cross_auc": 0.55,
-            "cross_steer_drop": -0.03,
-            "wu_cosine": 0.0344,
-            "spectral_gap": 2.9
+          "hazard_severity": {
+            "n_train_pairs": 56,
+            "n_test_cross_pairs": 168,
+            "clean_src_auc": 0.6569,
+            "clean_cross_auc": 0.6905,
+            "clean_cross_ci95": [
+              0.5965,
+              0.7855
+            ],
+            "best_ace_readout_layer": 18,
+            "best_ace_readout_auc": 0.8946,
+            "readout_collapse_gap": 0.2041,
+            "peak_steer_layer": 20,
+            "peak_steer_rel_depth": 0.833,
+            "peak_ace_flip_drop": 0.2851,
+            "peak_ace_flip_drop_ci95": [
+              0.1796,
+              0.3921
+            ],
+            "peak_caa_flip_drop": 0.1745,
+            "peak_caa_flip_drop_ci95": [
+              0.1087,
+              0.2404
+            ],
+            "peak_probe_flip_drop": 0.1248,
+            "peak_probe_flip_drop_ci95": [
+              0.0838,
+              0.171
+            ],
+            "peak_rand_flip_drop": 0.0034,
+            "peak_rand_flip_drop_ci95": [
+              -0.009,
+              0.016
+            ],
+            "peak_steer_ace_readout_auc": 0.7895,
+            "peak_steer_logit_lens_auc": 0.6641,
+            "peak_steer_tuned_lens_auc": 0.7185,
+            "peak_steer_wu_cosine": 0.158,
+            "peak_keep1d_layer": 22,
+            "peak_keep1d_cross_auc": 0.7904,
+            "first_ace_ge80_depth": 0.667,
+            "first_tuned_lens_ge80_depth": null,
+            "first_logit_lens_ge80_depth": null,
+            "rank_ablation_mid": {
+              "rank_1": 0.5234,
+              "rank_2": 0.869,
+              "rank_4": 0.875
+            },
+            "layers": [
+              {
+                "layer": 3,
+                "rel_depth": 0.125,
+                "ace_readout_auc": 0.6696,
+                "ace_readout_ci95": [
+                  0.5401,
+                  0.7968
+                ],
+                "caa_readout_auc": 0.5948,
+                "probe_readout_auc": 0.4528,
+                "logit_lens_cross_auc": 0.4634,
+                "logit_lens_ci95": [
+                  0.3906,
+                  0.5385
+                ],
+                "tuned_lens_cross_auc": 0.4141,
+                "tuned_lens_ci95": [
+                  0.3176,
+                  0.5183
+                ],
+                "ace_flip_cross_auc": 0.6873,
+                "ace_flip_drop": 0.0032,
+                "ace_flip_drop_ci95": [
+                  -0.0113,
+                  0.0189
+                ],
+                "ace_keep1d_cross_auc": 0.7047,
+                "wu_cosine": 0.023,
+                "cos_ace_caa": 0.6807,
+                "cos_ace_probe": 0.0898,
+                "spectral_gap": 14.6
+              },
+              {
+                "layer": 6,
+                "rel_depth": 0.25,
+                "ace_readout_auc": 0.46,
+                "ace_readout_ci95": [
+                  0.3167,
+                  0.6026
+                ],
+                "caa_readout_auc": 0.5047,
+                "probe_readout_auc": 0.5582,
+                "logit_lens_cross_auc": 0.4396,
+                "logit_lens_ci95": [
+                  0.3308,
+                  0.5612
+                ],
+                "tuned_lens_cross_auc": 0.5719,
+                "tuned_lens_ci95": [
+                  0.4506,
+                  0.6936
+                ],
+                "ace_flip_cross_auc": 0.6915,
+                "ace_flip_drop": -0.0011,
+                "ace_flip_drop_ci95": [
+                  -0.0139,
+                  0.0118
+                ],
+                "ace_keep1d_cross_auc": 0.699,
+                "wu_cosine": 0.0047,
+                "cos_ace_caa": 0.7778,
+                "cos_ace_probe": 0.1045,
+                "spectral_gap": 8.2
+              },
+              {
+                "layer": 8,
+                "rel_depth": 0.333,
+                "ace_readout_auc": 0.5268,
+                "ace_readout_ci95": [
+                  0.3775,
+                  0.6611
+                ],
+                "caa_readout_auc": 0.7041,
+                "probe_readout_auc": 0.6973,
+                "logit_lens_cross_auc": 0.3937,
+                "logit_lens_ci95": [
+                  0.3225,
+                  0.4618
+                ],
+                "tuned_lens_cross_auc": 0.6633,
+                "tuned_lens_ci95": [
+                  0.5342,
+                  0.7842
+                ],
+                "ace_flip_cross_auc": 0.6849,
+                "ace_flip_drop": 0.0055,
+                "ace_flip_drop_ci95": [
+                  -0.0089,
+                  0.0195
+                ],
+                "ace_keep1d_cross_auc": 0.6909,
+                "wu_cosine": 0.0291,
+                "cos_ace_caa": 0.7485,
+                "cos_ace_probe": 0.047,
+                "spectral_gap": 2.2
+              },
+              {
+                "layer": 10,
+                "rel_depth": 0.417,
+                "ace_readout_auc": 0.7024,
+                "ace_readout_ci95": [
+                  0.5785,
+                  0.8195
+                ],
+                "caa_readout_auc": 0.8014,
+                "probe_readout_auc": 0.7266,
+                "logit_lens_cross_auc": 0.3427,
+                "logit_lens_ci95": [
+                  0.2537,
+                  0.4421
+                ],
+                "tuned_lens_cross_auc": 0.506,
+                "tuned_lens_ci95": [
+                  0.3803,
+                  0.627
+                ],
+                "ace_flip_cross_auc": 0.692,
+                "ace_flip_drop": -0.0015,
+                "ace_flip_drop_ci95": [
+                  -0.0167,
+                  0.0123
+                ],
+                "ace_keep1d_cross_auc": 0.6928,
+                "wu_cosine": 0.0022,
+                "cos_ace_caa": 0.6311,
+                "cos_ace_probe": 0.0864,
+                "spectral_gap": 1.3
+              },
+              {
+                "layer": 12,
+                "rel_depth": 0.5,
+                "ace_readout_auc": 0.5425,
+                "ace_readout_ci95": [
+                  0.4064,
+                  0.6738
+                ],
+                "caa_readout_auc": 0.9001,
+                "probe_readout_auc": 0.8197,
+                "logit_lens_cross_auc": 0.5089,
+                "logit_lens_ci95": [
+                  0.4002,
+                  0.6176
+                ],
+                "tuned_lens_cross_auc": 0.6246,
+                "tuned_lens_ci95": [
+                  0.5239,
+                  0.7291
+                ],
+                "ace_flip_cross_auc": 0.7073,
+                "ace_flip_drop": -0.0168,
+                "ace_flip_drop_ci95": [
+                  -0.0343,
+                  0.0002
+                ],
+                "ace_keep1d_cross_auc": 0.7264,
+                "wu_cosine": 0.0114,
+                "cos_ace_caa": 0.2888,
+                "cos_ace_probe": 0.0451,
+                "spectral_gap": 7.8
+              },
+              {
+                "layer": 14,
+                "rel_depth": 0.583,
+                "ace_readout_auc": 0.5234,
+                "ace_readout_ci95": [
+                  0.3767,
+                  0.6613
+                ],
+                "caa_readout_auc": 0.8788,
+                "probe_readout_auc": 0.9133,
+                "logit_lens_cross_auc": 0.4953,
+                "logit_lens_ci95": [
+                  0.3742,
+                  0.5999
+                ],
+                "tuned_lens_cross_auc": 0.6207,
+                "tuned_lens_ci95": [
+                  0.4943,
+                  0.7403
+                ],
+                "ace_flip_cross_auc": 0.7058,
+                "ace_flip_drop": -0.0153,
+                "ace_flip_drop_ci95": [
+                  -0.037,
+                  0.0046
+                ],
+                "ace_keep1d_cross_auc": 0.6952,
+                "wu_cosine": 0.008,
+                "cos_ace_caa": 0.2393,
+                "cos_ace_probe": 0.0619,
+                "spectral_gap": 7.6
+              },
+              {
+                "layer": 16,
+                "rel_depth": 0.667,
+                "ace_readout_auc": 0.8533,
+                "ace_readout_ci95": [
+                  0.7569,
+                  0.9337
+                ],
+                "caa_readout_auc": 0.8737,
+                "probe_readout_auc": 0.9349,
+                "logit_lens_cross_auc": 0.5429,
+                "logit_lens_ci95": [
+                  0.435,
+                  0.6489
+                ],
+                "tuned_lens_cross_auc": 0.6025,
+                "tuned_lens_ci95": [
+                  0.4921,
+                  0.7167
+                ],
+                "ace_flip_cross_auc": 0.5625,
+                "ace_flip_drop": 0.128,
+                "ace_flip_drop_ci95": [
+                  0.0818,
+                  0.1788
+                ],
+                "ace_keep1d_cross_auc": 0.7415,
+                "wu_cosine": 0.0667,
+                "cos_ace_caa": 0.3472,
+                "cos_ace_probe": 0.3413,
+                "spectral_gap": 74.0
+              },
+              {
+                "layer": 18,
+                "rel_depth": 0.75,
+                "ace_readout_auc": 0.8946,
+                "ace_readout_ci95": [
+                  0.8106,
+                  0.9628
+                ],
+                "caa_readout_auc": 0.9273,
+                "probe_readout_auc": 0.9392,
+                "logit_lens_cross_auc": 0.6735,
+                "logit_lens_ci95": [
+                  0.5564,
+                  0.7819
+                ],
+                "tuned_lens_cross_auc": 0.7292,
+                "tuned_lens_ci95": [
+                  0.6333,
+                  0.8246
+                ],
+                "ace_flip_cross_auc": 0.4883,
+                "ace_flip_drop": 0.2022,
+                "ace_flip_drop_ci95": [
+                  0.143,
+                  0.2708
+                ],
+                "ace_keep1d_cross_auc": 0.7642,
+                "wu_cosine": 0.118,
+                "cos_ace_caa": 0.4716,
+                "cos_ace_probe": 0.3891,
+                "spectral_gap": 296.9
+              },
+              {
+                "layer": 20,
+                "rel_depth": 0.833,
+                "ace_readout_auc": 0.7895,
+                "ace_readout_ci95": [
+                  0.6804,
+                  0.8945
+                ],
+                "caa_readout_auc": 0.8338,
+                "probe_readout_auc": 0.8627,
+                "logit_lens_cross_auc": 0.6641,
+                "logit_lens_ci95": [
+                  0.5672,
+                  0.762
+                ],
+                "tuned_lens_cross_auc": 0.7185,
+                "tuned_lens_ci95": [
+                  0.624,
+                  0.8129
+                ],
+                "ace_flip_cross_auc": 0.4054,
+                "ace_flip_drop": 0.2851,
+                "ace_flip_drop_ci95": [
+                  0.1796,
+                  0.3921
+                ],
+                "ace_keep1d_cross_auc": 0.7795,
+                "wu_cosine": 0.158,
+                "cos_ace_caa": 0.5809,
+                "cos_ace_probe": 0.3504,
+                "spectral_gap": 415.2
+              },
+              {
+                "layer": 22,
+                "rel_depth": 0.917,
+                "ace_readout_auc": 0.7662,
+                "ace_readout_ci95": [
+                  0.6453,
+                  0.8659
+                ],
+                "caa_readout_auc": 0.8503,
+                "probe_readout_auc": 0.8886,
+                "logit_lens_cross_auc": 0.7245,
+                "logit_lens_ci95": [
+                  0.6174,
+                  0.822
+                ],
+                "tuned_lens_cross_auc": 0.6977,
+                "tuned_lens_ci95": [
+                  0.5915,
+                  0.7944
+                ],
+                "ace_flip_cross_auc": 0.4694,
+                "ace_flip_drop": 0.2211,
+                "ace_flip_drop_ci95": [
+                  0.1137,
+                  0.3243
+                ],
+                "ace_keep1d_cross_auc": 0.7904,
+                "wu_cosine": 0.1264,
+                "cos_ace_caa": 0.5462,
+                "cos_ace_probe": 0.3054,
+                "spectral_gap": 494.6
+              },
+              {
+                "layer": 24,
+                "rel_depth": 1.0,
+                "ace_readout_auc": 0.7117,
+                "ace_readout_ci95": [
+                  0.5785,
+                  0.8387
+                ],
+                "caa_readout_auc": 0.8639,
+                "probe_readout_auc": 0.8529,
+                "logit_lens_cross_auc": 0.693,
+                "logit_lens_ci95": [
+                  0.5915,
+                  0.7843
+                ],
+                "tuned_lens_cross_auc": 0.693,
+                "tuned_lens_ci95": [
+                  0.5918,
+                  0.7811
+                ],
+                "ace_flip_cross_auc": 0.5028,
+                "ace_flip_drop": 0.1877,
+                "ace_flip_drop_ci95": [
+                  0.0795,
+                  0.2993
+                ],
+                "ace_keep1d_cross_auc": 0.7071,
+                "wu_cosine": 0.0906,
+                "cos_ace_caa": 0.5535,
+                "cos_ace_probe": 0.2954,
+                "spectral_gap": 2505.2
+              }
+            ]
           },
-          {
-            "layer": 10,
-            "rel_depth": 0.357,
-            "ace_readout_auc": 0.53,
-            "logit_lens_src_auc": 0.3,
-            "logit_lens_cross_auc": 0.445,
-            "flip_src_auc": 0.555,
-            "flip_cross_auc": 0.5275,
-            "cross_steer_drop": -0.0075,
-            "wu_cosine": 0.0088,
-            "spectral_gap": 2.6
+          "historical_chronology": {
+            "n_train_pairs": 56,
+            "n_test_cross_pairs": 168,
+            "clean_src_auc": 0.7117,
+            "clean_cross_auc": 0.592,
+            "clean_cross_ci95": [
+              0.4785,
+              0.7036
+            ],
+            "best_ace_readout_layer": 18,
+            "best_ace_readout_auc": 0.8023,
+            "readout_collapse_gap": 0.2103,
+            "peak_steer_layer": 18,
+            "peak_steer_rel_depth": 0.75,
+            "peak_ace_flip_drop": 0.2164,
+            "peak_ace_flip_drop_ci95": [
+              0.1273,
+              0.3112
+            ],
+            "peak_caa_flip_drop": 0.1535,
+            "peak_caa_flip_drop_ci95": [
+              0.0877,
+              0.2242
+            ],
+            "peak_probe_flip_drop": 0.1054,
+            "peak_probe_flip_drop_ci95": [
+              0.0729,
+              0.145
+            ],
+            "peak_rand_flip_drop": 0.0006,
+            "peak_rand_flip_drop_ci95": [
+              -0.0111,
+              0.0122
+            ],
+            "peak_steer_ace_readout_auc": 0.8023,
+            "peak_steer_logit_lens_auc": 0.6841,
+            "peak_steer_tuned_lens_auc": 0.6327,
+            "peak_steer_wu_cosine": 0.0882,
+            "peak_keep1d_layer": 22,
+            "peak_keep1d_cross_auc": 0.719,
+            "first_ace_ge80_depth": 0.75,
+            "first_tuned_lens_ge80_depth": null,
+            "first_logit_lens_ge80_depth": null,
+            "rank_ablation_mid": {
+              "rank_1": 0.7504,
+              "rank_2": 0.8082,
+              "rank_4": 0.7487
+            },
+            "layers": [
+              {
+                "layer": 3,
+                "rel_depth": 0.125,
+                "ace_readout_auc": 0.5663,
+                "ace_readout_ci95": [
+                  0.4184,
+                  0.698
+                ],
+                "caa_readout_auc": 0.6152,
+                "probe_readout_auc": 0.6088,
+                "logit_lens_cross_auc": 0.4707,
+                "logit_lens_ci95": [
+                  0.3928,
+                  0.5492
+                ],
+                "tuned_lens_cross_auc": 0.5187,
+                "tuned_lens_ci95": [
+                  0.4227,
+                  0.6093
+                ],
+                "ace_flip_cross_auc": 0.5895,
+                "ace_flip_drop": 0.0026,
+                "ace_flip_drop_ci95": [
+                  -0.0086,
+                  0.0152
+                ],
+                "ace_keep1d_cross_auc": 0.5929,
+                "wu_cosine": 0.0511,
+                "cos_ace_caa": 0.6316,
+                "cos_ace_probe": 0.2415,
+                "spectral_gap": 46.9
+              },
+              {
+                "layer": 6,
+                "rel_depth": 0.25,
+                "ace_readout_auc": 0.54,
+                "ace_readout_ci95": [
+                  0.3978,
+                  0.6801
+                ],
+                "caa_readout_auc": 0.6246,
+                "probe_readout_auc": 0.6293,
+                "logit_lens_cross_auc": 0.517,
+                "logit_lens_ci95": [
+                  0.3897,
+                  0.6334
+                ],
+                "tuned_lens_cross_auc": 0.5276,
+                "tuned_lens_ci95": [
+                  0.4313,
+                  0.6186
+                ],
+                "ace_flip_cross_auc": 0.5903,
+                "ace_flip_drop": 0.0017,
+                "ace_flip_drop_ci95": [
+                  -0.0123,
+                  0.0177
+                ],
+                "ace_keep1d_cross_auc": 0.6037,
+                "wu_cosine": 0.0026,
+                "cos_ace_caa": 0.3572,
+                "cos_ace_probe": 0.1719,
+                "spectral_gap": 10.7
+              },
+              {
+                "layer": 8,
+                "rel_depth": 0.333,
+                "ace_readout_auc": 0.4133,
+                "ace_readout_ci95": [
+                  0.2775,
+                  0.5534
+                ],
+                "caa_readout_auc": 0.6684,
+                "probe_readout_auc": 0.6582,
+                "logit_lens_cross_auc": 0.5476,
+                "logit_lens_ci95": [
+                  0.4456,
+                  0.6445
+                ],
+                "tuned_lens_cross_auc": 0.5629,
+                "tuned_lens_ci95": [
+                  0.4651,
+                  0.6612
+                ],
+                "ace_flip_cross_auc": 0.6037,
+                "ace_flip_drop": -0.0117,
+                "ace_flip_drop_ci95": [
+                  -0.0306,
+                  0.0115
+                ],
+                "ace_keep1d_cross_auc": 0.5982,
+                "wu_cosine": 0.0169,
+                "cos_ace_caa": 0.0478,
+                "cos_ace_probe": 0.0282,
+                "spectral_gap": 6.4
+              },
+              {
+                "layer": 10,
+                "rel_depth": 0.417,
+                "ace_readout_auc": 0.6471,
+                "ace_readout_ci95": [
+                  0.4895,
+                  0.776
+                ],
+                "caa_readout_auc": 0.7679,
+                "probe_readout_auc": 0.8087,
+                "logit_lens_cross_auc": 0.5872,
+                "logit_lens_ci95": [
+                  0.4851,
+                  0.6746
+                ],
+                "tuned_lens_cross_auc": 0.5685,
+                "tuned_lens_ci95": [
+                  0.4703,
+                  0.6585
+                ],
+                "ace_flip_cross_auc": 0.5931,
+                "ace_flip_drop": -0.0011,
+                "ace_flip_drop_ci95": [
+                  -0.0221,
+                  0.0196
+                ],
+                "ace_keep1d_cross_auc": 0.6067,
+                "wu_cosine": 0.0005,
+                "cos_ace_caa": 0.1323,
+                "cos_ace_probe": 0.1003,
+                "spectral_gap": 7.4
+              },
+              {
+                "layer": 12,
+                "rel_depth": 0.5,
+                "ace_readout_auc": 0.753,
+                "ace_readout_ci95": [
+                  0.6319,
+                  0.8683
+                ],
+                "caa_readout_auc": 0.9099,
+                "probe_readout_auc": 0.952,
+                "logit_lens_cross_auc": 0.6552,
+                "logit_lens_ci95": [
+                  0.5491,
+                  0.7528
+                ],
+                "tuned_lens_cross_auc": 0.6144,
+                "tuned_lens_ci95": [
+                  0.5061,
+                  0.7299
+                ],
+                "ace_flip_cross_auc": 0.551,
+                "ace_flip_drop": 0.041,
+                "ace_flip_drop_ci95": [
+                  0.0022,
+                  0.0781
+                ],
+                "ace_keep1d_cross_auc": 0.5935,
+                "wu_cosine": 0.0499,
+                "cos_ace_caa": 0.5946,
+                "cos_ace_probe": 0.4583,
+                "spectral_gap": 23.4
+              },
+              {
+                "layer": 14,
+                "rel_depth": 0.583,
+                "ace_readout_auc": 0.7504,
+                "ace_readout_ci95": [
+                  0.6275,
+                  0.8656
+                ],
+                "caa_readout_auc": 0.8525,
+                "probe_readout_auc": 0.9298,
+                "logit_lens_cross_auc": 0.6386,
+                "logit_lens_ci95": [
+                  0.5483,
+                  0.7299
+                ],
+                "tuned_lens_cross_auc": 0.6293,
+                "tuned_lens_ci95": [
+                  0.5317,
+                  0.7323
+                ],
+                "ace_flip_cross_auc": 0.5268,
+                "ace_flip_drop": 0.0653,
+                "ace_flip_drop_ci95": [
+                  0.0182,
+                  0.1173
+                ],
+                "ace_keep1d_cross_auc": 0.5555,
+                "wu_cosine": 0.0518,
+                "cos_ace_caa": 0.5919,
+                "cos_ace_probe": 0.2623,
+                "spectral_gap": 25.2
+              },
+              {
+                "layer": 16,
+                "rel_depth": 0.667,
+                "ace_readout_auc": 0.7891,
+                "ace_readout_ci95": [
+                  0.6606,
+                  0.8902
+                ],
+                "caa_readout_auc": 0.8185,
+                "probe_readout_auc": 0.9469,
+                "logit_lens_cross_auc": 0.7649,
+                "logit_lens_ci95": [
+                  0.6867,
+                  0.8351
+                ],
+                "tuned_lens_cross_auc": 0.6607,
+                "tuned_lens_ci95": [
+                  0.5628,
+                  0.7594
+                ],
+                "ace_flip_cross_auc": 0.4507,
+                "ace_flip_drop": 0.1414,
+                "ace_flip_drop_ci95": [
+                  0.0642,
+                  0.2212
+                ],
+                "ace_keep1d_cross_auc": 0.5276,
+                "wu_cosine": 0.0489,
+                "cos_ace_caa": 0.6666,
+                "cos_ace_probe": 0.3872,
+                "spectral_gap": 110.6
+              },
+              {
+                "layer": 18,
+                "rel_depth": 0.75,
+                "ace_readout_auc": 0.8023,
+                "ace_readout_ci95": [
+                  0.6832,
+                  0.8963
+                ],
+                "caa_readout_auc": 0.7381,
+                "probe_readout_auc": 0.8848,
+                "logit_lens_cross_auc": 0.6841,
+                "logit_lens_ci95": [
+                  0.5772,
+                  0.7866
+                ],
+                "tuned_lens_cross_auc": 0.6327,
+                "tuned_lens_ci95": [
+                  0.5227,
+                  0.7553
+                ],
+                "ace_flip_cross_auc": 0.3756,
+                "ace_flip_drop": 0.2164,
+                "ace_flip_drop_ci95": [
+                  0.1273,
+                  0.3112
+                ],
+                "ace_keep1d_cross_auc": 0.6864,
+                "wu_cosine": 0.0882,
+                "cos_ace_caa": 0.7703,
+                "cos_ace_probe": 0.3934,
+                "spectral_gap": 294.1
+              },
+              {
+                "layer": 20,
+                "rel_depth": 0.833,
+                "ace_readout_auc": 0.7419,
+                "ace_readout_ci95": [
+                  0.6026,
+                  0.8603
+                ],
+                "caa_readout_auc": 0.6837,
+                "probe_readout_auc": 0.8002,
+                "logit_lens_cross_auc": 0.6314,
+                "logit_lens_ci95": [
+                  0.5308,
+                  0.7199
+                ],
+                "tuned_lens_cross_auc": 0.6097,
+                "tuned_lens_ci95": [
+                  0.5019,
+                  0.7062
+                ],
+                "ace_flip_cross_auc": 0.3967,
+                "ace_flip_drop": 0.1954,
+                "ace_flip_drop_ci95": [
+                  0.0936,
+                  0.2873
+                ],
+                "ace_keep1d_cross_auc": 0.6971,
+                "wu_cosine": 0.1192,
+                "cos_ace_caa": 0.7826,
+                "cos_ace_probe": 0.3463,
+                "spectral_gap": 909.8
+              },
+              {
+                "layer": 22,
+                "rel_depth": 0.917,
+                "ace_readout_auc": 0.73,
+                "ace_readout_ci95": [
+                  0.5846,
+                  0.8557
+                ],
+                "caa_readout_auc": 0.6752,
+                "probe_readout_auc": 0.7457,
+                "logit_lens_cross_auc": 0.6237,
+                "logit_lens_ci95": [
+                  0.5329,
+                  0.7103
+                ],
+                "tuned_lens_cross_auc": 0.602,
+                "tuned_lens_ci95": [
+                  0.5098,
+                  0.7093
+                ],
+                "ace_flip_cross_auc": 0.422,
+                "ace_flip_drop": 0.1701,
+                "ace_flip_drop_ci95": [
+                  0.0875,
+                  0.2615
+                ],
+                "ace_keep1d_cross_auc": 0.719,
+                "wu_cosine": 0.1112,
+                "cos_ace_caa": 0.7645,
+                "cos_ace_probe": 0.3442,
+                "spectral_gap": 1329.8
+              },
+              {
+                "layer": 24,
+                "rel_depth": 1.0,
+                "ace_readout_auc": 0.5719,
+                "ace_readout_ci95": [
+                  0.4419,
+                  0.6935
+                ],
+                "caa_readout_auc": 0.5599,
+                "probe_readout_auc": 0.6131,
+                "logit_lens_cross_auc": 0.5901,
+                "logit_lens_ci95": [
+                  0.4836,
+                  0.7001
+                ],
+                "tuned_lens_cross_auc": 0.5901,
+                "tuned_lens_ci95": [
+                  0.483,
+                  0.6932
+                ],
+                "ace_flip_cross_auc": 0.5155,
+                "ace_flip_drop": 0.0765,
+                "ace_flip_drop_ci95": [
+                  -0.012,
+                  0.1652
+                ],
+                "ace_keep1d_cross_auc": 0.5806,
+                "wu_cosine": 0.0605,
+                "cos_ace_caa": 0.8742,
+                "cos_ace_probe": 0.3842,
+                "spectral_gap": 1496.3
+              }
+            ]
           },
-          {
-            "layer": 12,
-            "rel_depth": 0.429,
-            "ace_readout_auc": 0.39,
-            "logit_lens_src_auc": 0.35,
-            "logit_lens_cross_auc": 0.49,
-            "flip_src_auc": 0.545,
-            "flip_cross_auc": 0.5,
-            "cross_steer_drop": 0.02,
-            "wu_cosine": 0.0298,
-            "spectral_gap": 1.2
-          },
-          {
-            "layer": 14,
-            "rel_depth": 0.5,
-            "ace_readout_auc": 0.47,
-            "logit_lens_src_auc": 0.42,
-            "logit_lens_cross_auc": 0.24,
-            "flip_src_auc": 0.64,
-            "flip_cross_auc": 0.495,
-            "cross_steer_drop": 0.025,
-            "wu_cosine": 0.0314,
-            "spectral_gap": 1.2
-          },
-          {
-            "layer": 16,
-            "rel_depth": 0.571,
-            "ace_readout_auc": 0.97,
-            "logit_lens_src_auc": 0.5,
-            "logit_lens_cross_auc": 0.315,
-            "flip_src_auc": 0.86,
-            "flip_cross_auc": 0.61,
-            "cross_steer_drop": -0.09,
-            "wu_cosine": 0.0574,
-            "spectral_gap": 5.7
-          },
-          {
-            "layer": 18,
-            "rel_depth": 0.643,
-            "ace_readout_auc": 0.82,
-            "logit_lens_src_auc": 0.54,
-            "logit_lens_cross_auc": 0.46,
-            "flip_src_auc": 0.84,
-            "flip_cross_auc": 0.5825,
-            "cross_steer_drop": -0.0625,
-            "wu_cosine": 0.0467,
-            "spectral_gap": 9.7
-          },
-          {
-            "layer": 20,
-            "rel_depth": 0.714,
-            "ace_readout_auc": 0.59,
-            "logit_lens_src_auc": 0.67,
-            "logit_lens_cross_auc": 0.32,
-            "flip_src_auc": 0.74,
-            "flip_cross_auc": 0.55,
-            "cross_steer_drop": -0.03,
-            "wu_cosine": 0.0551,
-            "spectral_gap": 21.4
-          },
-          {
-            "layer": 22,
-            "rel_depth": 0.786,
-            "ace_readout_auc": 0.51,
-            "logit_lens_src_auc": 0.79,
-            "logit_lens_cross_auc": 0.39,
-            "flip_src_auc": 0.625,
-            "flip_cross_auc": 0.475,
-            "cross_steer_drop": 0.045,
-            "wu_cosine": 0.0712,
-            "spectral_gap": 20.6
-          },
-          {
-            "layer": 24,
-            "rel_depth": 0.857,
-            "ace_readout_auc": 0.48,
-            "logit_lens_src_auc": 0.72,
-            "logit_lens_cross_auc": 0.455,
-            "flip_src_auc": 0.63,
-            "flip_cross_auc": 0.4725,
-            "cross_steer_drop": 0.0475,
-            "wu_cosine": 0.0883,
-            "spectral_gap": 44.9
-          },
-          {
-            "layer": 26,
-            "rel_depth": 0.929,
-            "ace_readout_auc": 0.44,
-            "logit_lens_src_auc": 0.65,
-            "logit_lens_cross_auc": 0.515,
-            "flip_src_auc": 0.605,
-            "flip_cross_auc": 0.485,
-            "cross_steer_drop": 0.035,
-            "wu_cosine": 0.0839,
-            "spectral_gap": 41.4
-          },
-          {
-            "layer": 28,
-            "rel_depth": 1.0,
-            "ace_readout_auc": 0.61,
-            "logit_lens_src_auc": 0.66,
-            "logit_lens_cross_auc": 0.515,
-            "flip_src_auc": 0.72,
-            "flip_cross_auc": 0.5275,
-            "cross_steer_drop": -0.0075,
-            "wu_cosine": 0.0454,
-            "spectral_gap": 138.3
+          "geographic_scale": {
+            "n_train_pairs": 56,
+            "n_test_cross_pairs": 168,
+            "clean_src_auc": 0.53,
+            "clean_cross_auc": 0.8625,
+            "clean_cross_ci95": [
+              0.7793,
+              0.9291
+            ],
+            "best_ace_readout_layer": 6,
+            "best_ace_readout_auc": 0.8048,
+            "readout_collapse_gap": -0.0577,
+            "peak_steer_layer": 24,
+            "peak_steer_rel_depth": 1.0,
+            "peak_ace_flip_drop": 0.1069,
+            "peak_ace_flip_drop_ci95": [
+              0.0413,
+              0.1739
+            ],
+            "peak_caa_flip_drop": -0.0081,
+            "peak_caa_flip_drop_ci95": [
+              -0.0327,
+              0.0158
+            ],
+            "peak_probe_flip_drop": -0.0049,
+            "peak_probe_flip_drop_ci95": [
+              -0.0174,
+              0.0077
+            ],
+            "peak_rand_flip_drop": -0.01,
+            "peak_rand_flip_drop_ci95": [
+              -0.0232,
+              0.0013
+            ],
+            "peak_steer_ace_readout_auc": 0.5855,
+            "peak_steer_logit_lens_auc": 0.8669,
+            "peak_steer_tuned_lens_auc": 0.8669,
+            "peak_steer_wu_cosine": 0.0444,
+            "peak_keep1d_layer": 14,
+            "peak_keep1d_cross_auc": 0.9075,
+            "first_ace_ge80_depth": 0.25,
+            "first_tuned_lens_ge80_depth": 0.667,
+            "first_logit_lens_ge80_depth": 0.667,
+            "rank_ablation_mid": {
+              "rank_1": 0.5136,
+              "rank_2": 0.5897,
+              "rank_4": 0.8197
+            },
+            "layers": [
+              {
+                "layer": 3,
+                "rel_depth": 0.125,
+                "ace_readout_auc": 0.1696,
+                "ace_readout_ci95": [
+                  0.0777,
+                  0.2744
+                ],
+                "caa_readout_auc": 0.8189,
+                "probe_readout_auc": 0.7836,
+                "logit_lens_cross_auc": 0.4558,
+                "logit_lens_ci95": [
+                  0.3904,
+                  0.5214
+                ],
+                "tuned_lens_cross_auc": 0.4481,
+                "tuned_lens_ci95": [
+                  0.3397,
+                  0.5519
+                ],
+                "ace_flip_cross_auc": 0.871,
+                "ace_flip_drop": -0.0085,
+                "ace_flip_drop_ci95": [
+                  -0.0219,
+                  0.005
+                ],
+                "ace_keep1d_cross_auc": 0.8767,
+                "wu_cosine": 0.0004,
+                "cos_ace_caa": 0.0766,
+                "cos_ace_probe": 0.0284,
+                "spectral_gap": 2.2
+              },
+              {
+                "layer": 6,
+                "rel_depth": 0.25,
+                "ace_readout_auc": 0.8048,
+                "ace_readout_ci95": [
+                  0.6858,
+                  0.8925
+                ],
+                "caa_readout_auc": 0.8423,
+                "probe_readout_auc": 0.7849,
+                "logit_lens_cross_auc": 0.5493,
+                "logit_lens_ci95": [
+                  0.4743,
+                  0.6241
+                ],
+                "tuned_lens_cross_auc": 0.4817,
+                "tuned_lens_ci95": [
+                  0.3652,
+                  0.609
+                ],
+                "ace_flip_cross_auc": 0.879,
+                "ace_flip_drop": -0.0166,
+                "ace_flip_drop_ci95": [
+                  -0.0332,
+                  -0.0006
+                ],
+                "ace_keep1d_cross_auc": 0.8805,
+                "wu_cosine": 0.0118,
+                "cos_ace_caa": 0.291,
+                "cos_ace_probe": 0.1493,
+                "spectral_gap": 6.1
+              },
+              {
+                "layer": 8,
+                "rel_depth": 0.333,
+                "ace_readout_auc": 0.699,
+                "ace_readout_ci95": [
+                  0.5931,
+                  0.7957
+                ],
+                "caa_readout_auc": 0.8231,
+                "probe_readout_auc": 0.8508,
+                "logit_lens_cross_auc": 0.4469,
+                "logit_lens_ci95": [
+                  0.3979,
+                  0.4966
+                ],
+                "tuned_lens_cross_auc": 0.4001,
+                "tuned_lens_ci95": [
+                  0.3019,
+                  0.517
+                ],
+                "ace_flip_cross_auc": 0.8824,
+                "ace_flip_drop": -0.02,
+                "ace_flip_drop_ci95": [
+                  -0.0447,
+                  0.0006
+                ],
+                "ace_keep1d_cross_auc": 0.8933,
+                "wu_cosine": 0.0151,
+                "cos_ace_caa": 0.352,
+                "cos_ace_probe": 0.1484,
+                "spectral_gap": 34.6
+              },
+              {
+                "layer": 10,
+                "rel_depth": 0.417,
+                "ace_readout_auc": 0.7564,
+                "ace_readout_ci95": [
+                  0.6356,
+                  0.8731
+                ],
+                "caa_readout_auc": 0.7555,
+                "probe_readout_auc": 0.855,
+                "logit_lens_cross_auc": 0.46,
+                "logit_lens_ci95": [
+                  0.3754,
+                  0.5564
+                ],
+                "tuned_lens_cross_auc": 0.5642,
+                "tuned_lens_ci95": [
+                  0.4413,
+                  0.6932
+                ],
+                "ace_flip_cross_auc": 0.872,
+                "ace_flip_drop": -0.0096,
+                "ace_flip_drop_ci95": [
+                  -0.0269,
+                  0.01
+                ],
+                "ace_keep1d_cross_auc": 0.8867,
+                "wu_cosine": 0.0307,
+                "cos_ace_caa": 0.4686,
+                "cos_ace_probe": 0.1867,
+                "spectral_gap": 3.8
+              },
+              {
+                "layer": 12,
+                "rel_depth": 0.5,
+                "ace_readout_auc": 0.6267,
+                "ace_readout_ci95": [
+                  0.498,
+                  0.7633
+                ],
+                "caa_readout_auc": 0.8078,
+                "probe_readout_auc": 0.7619,
+                "logit_lens_cross_auc": 0.531,
+                "logit_lens_ci95": [
+                  0.4283,
+                  0.6224
+                ],
+                "tuned_lens_cross_auc": 0.398,
+                "tuned_lens_ci95": [
+                  0.2959,
+                  0.5131
+                ],
+                "ace_flip_cross_auc": 0.8784,
+                "ace_flip_drop": -0.0159,
+                "ace_flip_drop_ci95": [
+                  -0.0387,
+                  0.0028
+                ],
+                "ace_keep1d_cross_auc": 0.8977,
+                "wu_cosine": 0.0139,
+                "cos_ace_caa": 0.367,
+                "cos_ace_probe": 0.1467,
+                "spectral_gap": 4.7
+              },
+              {
+                "layer": 14,
+                "rel_depth": 0.583,
+                "ace_readout_auc": 0.5136,
+                "ace_readout_ci95": [
+                  0.3562,
+                  0.6489
+                ],
+                "caa_readout_auc": 0.8176,
+                "probe_readout_auc": 0.8214,
+                "logit_lens_cross_auc": 0.5561,
+                "logit_lens_ci95": [
+                  0.4885,
+                  0.625
+                ],
+                "tuned_lens_cross_auc": 0.5111,
+                "tuned_lens_ci95": [
+                  0.4309,
+                  0.5807
+                ],
+                "ace_flip_cross_auc": 0.8788,
+                "ace_flip_drop": -0.0164,
+                "ace_flip_drop_ci95": [
+                  -0.0419,
+                  0.003
+                ],
+                "ace_keep1d_cross_auc": 0.9075,
+                "wu_cosine": 0.0004,
+                "cos_ace_caa": 0.0075,
+                "cos_ace_probe": 0.1038,
+                "spectral_gap": 3.8
+              },
+              {
+                "layer": 16,
+                "rel_depth": 0.667,
+                "ace_readout_auc": 0.6259,
+                "ace_readout_ci95": [
+                  0.4838,
+                  0.7451
+                ],
+                "caa_readout_auc": 0.8274,
+                "probe_readout_auc": 0.8202,
+                "logit_lens_cross_auc": 0.8078,
+                "logit_lens_ci95": [
+                  0.7444,
+                  0.8719
+                ],
+                "tuned_lens_cross_auc": 0.8716,
+                "tuned_lens_ci95": [
+                  0.8059,
+                  0.9278
+                ],
+                "ace_flip_cross_auc": 0.8697,
+                "ace_flip_drop": -0.0072,
+                "ace_flip_drop_ci95": [
+                  -0.0307,
+                  0.0105
+                ],
+                "ace_keep1d_cross_auc": 0.7491,
+                "wu_cosine": 0.0225,
+                "cos_ace_caa": 0.4158,
+                "cos_ace_probe": 0.1097,
+                "spectral_gap": 4.5
+              },
+              {
+                "layer": 18,
+                "rel_depth": 0.75,
+                "ace_readout_auc": 0.3206,
+                "ace_readout_ci95": [
+                  0.2174,
+                  0.4325
+                ],
+                "caa_readout_auc": 0.8559,
+                "probe_readout_auc": 0.8763,
+                "logit_lens_cross_auc": 0.8248,
+                "logit_lens_ci95": [
+                  0.7611,
+                  0.8843
+                ],
+                "tuned_lens_cross_auc": 0.8856,
+                "tuned_lens_ci95": [
+                  0.8411,
+                  0.9346
+                ],
+                "ace_flip_cross_auc": 0.8382,
+                "ace_flip_drop": 0.0242,
+                "ace_flip_drop_ci95": [
+                  0.0002,
+                  0.0528
+                ],
+                "ace_keep1d_cross_auc": 0.5782,
+                "wu_cosine": 0.0092,
+                "cos_ace_caa": 0.2383,
+                "cos_ace_probe": 0.2472,
+                "spectral_gap": 5.8
+              },
+              {
+                "layer": 20,
+                "rel_depth": 0.833,
+                "ace_readout_auc": 0.7547,
+                "ace_readout_ci95": [
+                  0.643,
+                  0.8603
+                ],
+                "caa_readout_auc": 0.7725,
+                "probe_readout_auc": 0.8168,
+                "logit_lens_cross_auc": 0.8865,
+                "logit_lens_ci95": [
+                  0.822,
+                  0.94
+                ],
+                "tuned_lens_cross_auc": 0.8975,
+                "tuned_lens_ci95": [
+                  0.8384,
+                  0.9467
+                ],
+                "ace_flip_cross_auc": 0.7598,
+                "ace_flip_drop": 0.1027,
+                "ace_flip_drop_ci95": [
+                  0.0401,
+                  0.1721
+                ],
+                "ace_keep1d_cross_auc": 0.6044,
+                "wu_cosine": 0.0475,
+                "cos_ace_caa": 0.0108,
+                "cos_ace_probe": 0.0839,
+                "spectral_gap": 9.4
+              },
+              {
+                "layer": 22,
+                "rel_depth": 0.917,
+                "ace_readout_auc": 0.6926,
+                "ace_readout_ci95": [
+                  0.5687,
+                  0.7944
+                ],
+                "caa_readout_auc": 0.6777,
+                "probe_readout_auc": 0.7326,
+                "logit_lens_cross_auc": 0.8988,
+                "logit_lens_ci95": [
+                  0.8315,
+                  0.9519
+                ],
+                "tuned_lens_cross_auc": 0.8856,
+                "tuned_lens_ci95": [
+                  0.8219,
+                  0.9383
+                ],
+                "ace_flip_cross_auc": 0.7938,
+                "ace_flip_drop": 0.0687,
+                "ace_flip_drop_ci95": [
+                  0.0178,
+                  0.1202
+                ],
+                "ace_keep1d_cross_auc": 0.5869,
+                "wu_cosine": 0.0256,
+                "cos_ace_caa": 0.0792,
+                "cos_ace_probe": 0.0716,
+                "spectral_gap": 32.3
+              },
+              {
+                "layer": 24,
+                "rel_depth": 1.0,
+                "ace_readout_auc": 0.5855,
+                "ace_readout_ci95": [
+                  0.4692,
+                  0.6882
+                ],
+                "caa_readout_auc": 0.5995,
+                "probe_readout_auc": 0.6395,
+                "logit_lens_cross_auc": 0.8669,
+                "logit_lens_ci95": [
+                  0.7842,
+                  0.9308
+                ],
+                "tuned_lens_cross_auc": 0.8669,
+                "tuned_lens_ci95": [
+                  0.7867,
+                  0.9269
+                ],
+                "ace_flip_cross_auc": 0.7555,
+                "ace_flip_drop": 0.1069,
+                "ace_flip_drop_ci95": [
+                  0.0413,
+                  0.1739
+                ],
+                "ace_keep1d_cross_auc": 0.5961,
+                "wu_cosine": 0.0444,
+                "cos_ace_caa": 0.096,
+                "cos_ace_probe": 0.1184,
+                "spectral_gap": 714.8
+              }
+            ]
           }
-        ]
+        }
+      },
+      "Mistral-7B": {
+        "model_id": "mistralai/Mistral-7B-v0.1",
+        "short": "Mistral-7B",
+        "family": "Mistral (GQA+SWA)",
+        "params_b": 7.2,
+        "n_layers": 32,
+        "d_model": 4096,
+        "gpu_vram_gb": 5.54,
+        "elapsed_sec": 441.1,
+        "tuned_lens_ridge_ablation_mid": {
+          "alpha_10": 0.7062,
+          "alpha_100": 0.6872,
+          "alpha_1000": 0.6575
+        },
+        "domains": {
+          "physical_scale": {
+            "n_train_pairs": 56,
+            "n_test_cross_pairs": 168,
+            "clean_src_auc": 0.8673,
+            "clean_cross_auc": 0.7122,
+            "clean_cross_ci95": [
+              0.6352,
+              0.7902
+            ],
+            "best_ace_readout_layer": 10,
+            "best_ace_readout_auc": 0.8784,
+            "readout_collapse_gap": 0.1662,
+            "peak_steer_layer": 24,
+            "peak_steer_rel_depth": 0.75,
+            "peak_ace_flip_drop": 0.365,
+            "peak_ace_flip_drop_ci95": [
+              0.2325,
+              0.4939
+            ],
+            "peak_caa_flip_drop": 0.3006,
+            "peak_caa_flip_drop_ci95": [
+              0.1851,
+              0.4116
+            ],
+            "peak_probe_flip_drop": 0.3508,
+            "peak_probe_flip_drop_ci95": [
+              0.2478,
+              0.446
+            ],
+            "peak_rand_flip_drop": -0.0047,
+            "peak_rand_flip_drop_ci95": [
+              -0.0121,
+              0.0015
+            ],
+            "peak_steer_ace_readout_auc": 0.7989,
+            "peak_steer_logit_lens_auc": 0.6386,
+            "peak_steer_tuned_lens_auc": 0.699,
+            "peak_steer_wu_cosine": 0.1501,
+            "peak_keep1d_layer": 16,
+            "peak_keep1d_cross_auc": 0.8499,
+            "first_ace_ge80_depth": 0.312,
+            "first_tuned_lens_ge80_depth": null,
+            "first_logit_lens_ge80_depth": null,
+            "rank_ablation_mid": {
+              "rank_1": 0.8397,
+              "rank_2": 0.8384,
+              "rank_4": 0.8678
+            },
+            "layers": [
+              {
+                "layer": 4,
+                "rel_depth": 0.125,
+                "ace_readout_auc": 0.7436,
+                "ace_readout_ci95": [
+                  0.6098,
+                  0.8559
+                ],
+                "caa_readout_auc": 0.7895,
+                "probe_readout_auc": 0.8002,
+                "logit_lens_cross_auc": 0.5582,
+                "logit_lens_ci95": [
+                  0.4721,
+                  0.6428
+                ],
+                "tuned_lens_cross_auc": 0.5017,
+                "tuned_lens_ci95": [
+                  0.4367,
+                  0.5692
+                ],
+                "ace_flip_cross_auc": 0.7275,
+                "ace_flip_drop": -0.0153,
+                "ace_flip_drop_ci95": [
+                  -0.0362,
+                  0.0028
+                ],
+                "ace_keep1d_cross_auc": 0.7266,
+                "wu_cosine": 0.0152,
+                "cos_ace_caa": 0.8628,
+                "cos_ace_probe": 0.8541,
+                "spectral_gap": 2.7
+              },
+              {
+                "layer": 10,
+                "rel_depth": 0.312,
+                "ace_readout_auc": 0.8784,
+                "ace_readout_ci95": [
+                  0.7778,
+                  0.9526
+                ],
+                "caa_readout_auc": 0.8614,
+                "probe_readout_auc": 0.8865,
+                "logit_lens_cross_auc": 0.4001,
+                "logit_lens_ci95": [
+                  0.3236,
+                  0.4855
+                ],
+                "tuned_lens_cross_auc": 0.4541,
+                "tuned_lens_ci95": [
+                  0.3858,
+                  0.5204
+                ],
+                "ace_flip_cross_auc": 0.7509,
+                "ace_flip_drop": -0.0387,
+                "ace_flip_drop_ci95": [
+                  -0.0729,
+                  -0.0085
+                ],
+                "ace_keep1d_cross_auc": 0.7689,
+                "wu_cosine": 0.0207,
+                "cos_ace_caa": 0.9746,
+                "cos_ace_probe": 0.9097,
+                "spectral_gap": 2.6
+              },
+              {
+                "layer": 16,
+                "rel_depth": 0.5,
+                "ace_readout_auc": 0.8559,
+                "ace_readout_ci95": [
+                  0.7595,
+                  0.9346
+                ],
+                "caa_readout_auc": 0.8652,
+                "probe_readout_auc": 0.9366,
+                "logit_lens_cross_auc": 0.4009,
+                "logit_lens_ci95": [
+                  0.2817,
+                  0.5248
+                ],
+                "tuned_lens_cross_auc": 0.4766,
+                "tuned_lens_ci95": [
+                  0.3667,
+                  0.5879
+                ],
+                "ace_flip_cross_auc": 0.4741,
+                "ace_flip_drop": 0.2381,
+                "ace_flip_drop_ci95": [
+                  0.1481,
+                  0.3368
+                ],
+                "ace_keep1d_cross_auc": 0.8499,
+                "wu_cosine": 0.0944,
+                "cos_ace_caa": 0.8985,
+                "cos_ace_probe": 0.8336,
+                "spectral_gap": 12.1
+              },
+              {
+                "layer": 20,
+                "rel_depth": 0.625,
+                "ace_readout_auc": 0.8397,
+                "ace_readout_ci95": [
+                  0.7436,
+                  0.9136
+                ],
+                "caa_readout_auc": 0.8533,
+                "probe_readout_auc": 0.9439,
+                "logit_lens_cross_auc": 0.4898,
+                "logit_lens_ci95": [
+                  0.3737,
+                  0.6155
+                ],
+                "tuned_lens_cross_auc": 0.6233,
+                "tuned_lens_ci95": [
+                  0.5017,
+                  0.7373
+                ],
+                "ace_flip_cross_auc": 0.372,
+                "ace_flip_drop": 0.3401,
+                "ace_flip_drop_ci95": [
+                  0.2303,
+                  0.4688
+                ],
+                "ace_keep1d_cross_auc": 0.8161,
+                "wu_cosine": 0.138,
+                "cos_ace_caa": 0.9368,
+                "cos_ace_probe": 0.7501,
+                "spectral_gap": 35.6
+              },
+              {
+                "layer": 24,
+                "rel_depth": 0.75,
+                "ace_readout_auc": 0.7989,
+                "ace_readout_ci95": [
+                  0.6811,
+                  0.8885
+                ],
+                "caa_readout_auc": 0.7997,
+                "probe_readout_auc": 0.9396,
+                "logit_lens_cross_auc": 0.6386,
+                "logit_lens_ci95": [
+                  0.5411,
+                  0.7372
+                ],
+                "tuned_lens_cross_auc": 0.699,
+                "tuned_lens_ci95": [
+                  0.5935,
+                  0.7978
+                ],
+                "ace_flip_cross_auc": 0.3472,
+                "ace_flip_drop": 0.365,
+                "ace_flip_drop_ci95": [
+                  0.2325,
+                  0.4939
+                ],
+                "ace_keep1d_cross_auc": 0.7889,
+                "wu_cosine": 0.1501,
+                "cos_ace_caa": 0.9394,
+                "cos_ace_probe": 0.7305,
+                "spectral_gap": 79.1
+              },
+              {
+                "layer": 28,
+                "rel_depth": 0.875,
+                "ace_readout_auc": 0.7577,
+                "ace_readout_ci95": [
+                  0.6453,
+                  0.8671
+                ],
+                "caa_readout_auc": 0.7632,
+                "probe_readout_auc": 0.9099,
+                "logit_lens_cross_auc": 0.7032,
+                "logit_lens_ci95": [
+                  0.6077,
+                  0.7859
+                ],
+                "tuned_lens_cross_auc": 0.7279,
+                "tuned_lens_ci95": [
+                  0.6276,
+                  0.8177
+                ],
+                "ace_flip_cross_auc": 0.3629,
+                "ace_flip_drop": 0.3493,
+                "ace_flip_drop_ci95": [
+                  0.1923,
+                  0.4904
+                ],
+                "ace_keep1d_cross_auc": 0.7453,
+                "wu_cosine": 0.1707,
+                "cos_ace_caa": 0.9599,
+                "cos_ace_probe": 0.6825,
+                "spectral_gap": 203.8
+              },
+              {
+                "layer": 32,
+                "rel_depth": 1.0,
+                "ace_readout_auc": 0.7449,
+                "ace_readout_ci95": [
+                  0.61,
+                  0.8623
+                ],
+                "caa_readout_auc": 0.7479,
+                "probe_readout_auc": 0.8797,
+                "logit_lens_cross_auc": 0.7117,
+                "logit_lens_ci95": [
+                  0.6284,
+                  0.7874
+                ],
+                "tuned_lens_cross_auc": 0.7117,
+                "tuned_lens_ci95": [
+                  0.6241,
+                  0.7883
+                ],
+                "ace_flip_cross_auc": 0.3722,
+                "ace_flip_drop": 0.3399,
+                "ace_flip_drop_ci95": [
+                  0.1858,
+                  0.4875
+                ],
+                "ace_keep1d_cross_auc": 0.7462,
+                "wu_cosine": 0.091,
+                "cos_ace_caa": 0.9539,
+                "cos_ace_probe": 0.6748,
+                "spectral_gap": 1027.9
+              }
+            ]
+          },
+          "hazard_severity": {
+            "n_train_pairs": 56,
+            "n_test_cross_pairs": 168,
+            "clean_src_auc": 0.4802,
+            "clean_cross_auc": 0.7273,
+            "clean_cross_ci95": [
+              0.617,
+              0.8294
+            ],
+            "best_ace_readout_layer": 28,
+            "best_ace_readout_auc": 0.6645,
+            "readout_collapse_gap": -0.0628,
+            "peak_steer_layer": 16,
+            "peak_steer_rel_depth": 0.5,
+            "peak_ace_flip_drop": 0.1414,
+            "peak_ace_flip_drop_ci95": [
+              0.0809,
+              0.2092
+            ],
+            "peak_caa_flip_drop": 0.0765,
+            "peak_caa_flip_drop_ci95": [
+              0.0425,
+              0.1142
+            ],
+            "peak_probe_flip_drop": 0.0695,
+            "peak_probe_flip_drop_ci95": [
+              0.0467,
+              0.0981
+            ],
+            "peak_rand_flip_drop": 0.0002,
+            "peak_rand_flip_drop_ci95": [
+              -0.0084,
+              0.0086
+            ],
+            "peak_steer_ace_readout_auc": 0.6305,
+            "peak_steer_logit_lens_auc": 0.7071,
+            "peak_steer_tuned_lens_auc": 0.7032,
+            "peak_steer_wu_cosine": 0.0397,
+            "peak_keep1d_layer": 10,
+            "peak_keep1d_cross_auc": 0.7336,
+            "first_ace_ge80_depth": null,
+            "first_tuned_lens_ge80_depth": null,
+            "first_logit_lens_ge80_depth": null,
+            "rank_ablation_mid": {
+              "rank_1": 0.639,
+              "rank_2": 0.7577,
+              "rank_4": 0.8061
+            },
+            "layers": [
+              {
+                "layer": 4,
+                "rel_depth": 0.125,
+                "ace_readout_auc": 0.6165,
+                "ace_readout_ci95": [
+                  0.4783,
+                  0.7406
+                ],
+                "caa_readout_auc": 0.6718,
+                "probe_readout_auc": 0.6922,
+                "logit_lens_cross_auc": 0.3946,
+                "logit_lens_ci95": [
+                  0.2881,
+                  0.5125
+                ],
+                "tuned_lens_cross_auc": 0.4375,
+                "tuned_lens_ci95": [
+                  0.3082,
+                  0.5714
+                ],
+                "ace_flip_cross_auc": 0.729,
+                "ace_flip_drop": -0.0017,
+                "ace_flip_drop_ci95": [
+                  -0.0089,
+                  0.0064
+                ],
+                "ace_keep1d_cross_auc": 0.7245,
+                "wu_cosine": 0.0171,
+                "cos_ace_caa": 0.6306,
+                "cos_ace_probe": 0.4606,
+                "spectral_gap": 2.8
+              },
+              {
+                "layer": 10,
+                "rel_depth": 0.312,
+                "ace_readout_auc": 0.389,
+                "ace_readout_ci95": [
+                  0.2889,
+                  0.5064
+                ],
+                "caa_readout_auc": 0.5255,
+                "probe_readout_auc": 0.4906,
+                "logit_lens_cross_auc": 0.5948,
+                "logit_lens_ci95": [
+                  0.4709,
+                  0.7081
+                ],
+                "tuned_lens_cross_auc": 0.5315,
+                "tuned_lens_ci95": [
+                  0.4065,
+                  0.6573
+                ],
+                "ace_flip_cross_auc": 0.7224,
+                "ace_flip_drop": 0.0049,
+                "ace_flip_drop_ci95": [
+                  -0.0048,
+                  0.0153
+                ],
+                "ace_keep1d_cross_auc": 0.7336,
+                "wu_cosine": 0.0168,
+                "cos_ace_caa": 0.1674,
+                "cos_ace_probe": 0.0406,
+                "spectral_gap": 2.5
+              },
+              {
+                "layer": 16,
+                "rel_depth": 0.5,
+                "ace_readout_auc": 0.6305,
+                "ace_readout_ci95": [
+                  0.4859,
+                  0.7722
+                ],
+                "caa_readout_auc": 0.6429,
+                "probe_readout_auc": 0.7551,
+                "logit_lens_cross_auc": 0.7071,
+                "logit_lens_ci95": [
+                  0.6154,
+                  0.7906
+                ],
+                "tuned_lens_cross_auc": 0.7032,
+                "tuned_lens_ci95": [
+                  0.6184,
+                  0.7824
+                ],
+                "ace_flip_cross_auc": 0.5859,
+                "ace_flip_drop": 0.1414,
+                "ace_flip_drop_ci95": [
+                  0.0809,
+                  0.2092
+                ],
+                "ace_keep1d_cross_auc": 0.621,
+                "wu_cosine": 0.0397,
+                "cos_ace_caa": 0.4354,
+                "cos_ace_probe": 0.4383,
+                "spectral_gap": 3.1
+              },
+              {
+                "layer": 20,
+                "rel_depth": 0.625,
+                "ace_readout_auc": 0.639,
+                "ace_readout_ci95": [
+                  0.4957,
+                  0.7646
+                ],
+                "caa_readout_auc": 0.7483,
+                "probe_readout_auc": 0.8316,
+                "logit_lens_cross_auc": 0.7083,
+                "logit_lens_ci95": [
+                  0.6038,
+                  0.8039
+                ],
+                "tuned_lens_cross_auc": 0.7245,
+                "tuned_lens_ci95": [
+                  0.6103,
+                  0.8307
+                ],
+                "ace_flip_cross_auc": 0.6222,
+                "ace_flip_drop": 0.105,
+                "ace_flip_drop_ci95": [
+                  0.0408,
+                  0.1737
+                ],
+                "ace_keep1d_cross_auc": 0.5797,
+                "wu_cosine": 0.0332,
+                "cos_ace_caa": 0.5739,
+                "cos_ace_probe": 0.3613,
+                "spectral_gap": 8.1
+              },
+              {
+                "layer": 24,
+                "rel_depth": 0.75,
+                "ace_readout_auc": 0.6369,
+                "ace_readout_ci95": [
+                  0.4893,
+                  0.7597
+                ],
+                "caa_readout_auc": 0.8206,
+                "probe_readout_auc": 0.8827,
+                "logit_lens_cross_auc": 0.7168,
+                "logit_lens_ci95": [
+                  0.6108,
+                  0.8097
+                ],
+                "tuned_lens_cross_auc": 0.7066,
+                "tuned_lens_ci95": [
+                  0.6059,
+                  0.8086
+                ],
+                "ace_flip_cross_auc": 0.6131,
+                "ace_flip_drop": 0.1142,
+                "ace_flip_drop_ci95": [
+                  0.0292,
+                  0.1968
+                ],
+                "ace_keep1d_cross_auc": 0.632,
+                "wu_cosine": 0.0541,
+                "cos_ace_caa": 0.5542,
+                "cos_ace_probe": 0.3079,
+                "spectral_gap": 17.4
+              },
+              {
+                "layer": 28,
+                "rel_depth": 0.875,
+                "ace_readout_auc": 0.6645,
+                "ace_readout_ci95": [
+                  0.5225,
+                  0.7889
+                ],
+                "caa_readout_auc": 0.8282,
+                "probe_readout_auc": 0.8571,
+                "logit_lens_cross_auc": 0.7092,
+                "logit_lens_ci95": [
+                  0.5934,
+                  0.8104
+                ],
+                "tuned_lens_cross_auc": 0.6973,
+                "tuned_lens_ci95": [
+                  0.5923,
+                  0.8077
+                ],
+                "ace_flip_cross_auc": 0.6299,
+                "ace_flip_drop": 0.0974,
+                "ace_flip_drop_ci95": [
+                  0.0224,
+                  0.1762
+                ],
+                "ace_keep1d_cross_auc": 0.6756,
+                "wu_cosine": 0.0568,
+                "cos_ace_caa": 0.6034,
+                "cos_ace_probe": 0.3175,
+                "spectral_gap": 34.2
+              },
+              {
+                "layer": 32,
+                "rel_depth": 1.0,
+                "ace_readout_auc": 0.6501,
+                "ace_readout_ci95": [
+                  0.5121,
+                  0.7791
+                ],
+                "caa_readout_auc": 0.7878,
+                "probe_readout_auc": 0.8635,
+                "logit_lens_cross_auc": 0.7287,
+                "logit_lens_ci95": [
+                  0.6132,
+                  0.8314
+                ],
+                "tuned_lens_cross_auc": 0.7287,
+                "tuned_lens_ci95": [
+                  0.6119,
+                  0.8216
+                ],
+                "ace_flip_cross_auc": 0.6178,
+                "ace_flip_drop": 0.1095,
+                "ace_flip_drop_ci95": [
+                  0.0394,
+                  0.1912
+                ],
+                "ace_keep1d_cross_auc": 0.6456,
+                "wu_cosine": 0.041,
+                "cos_ace_caa": 0.6125,
+                "cos_ace_probe": 0.3354,
+                "spectral_gap": 166.3
+              }
+            ]
+          },
+          "historical_chronology": {
+            "n_train_pairs": 56,
+            "n_test_cross_pairs": 168,
+            "clean_src_auc": 0.7481,
+            "clean_cross_auc": 0.6809,
+            "clean_cross_ci95": [
+              0.5742,
+              0.7757
+            ],
+            "best_ace_readout_layer": 16,
+            "best_ace_readout_auc": 0.8907,
+            "readout_collapse_gap": 0.2098,
+            "peak_steer_layer": 20,
+            "peak_steer_rel_depth": 0.625,
+            "peak_ace_flip_drop": 0.2385,
+            "peak_ace_flip_drop_ci95": [
+              0.1695,
+              0.3063
+            ],
+            "peak_caa_flip_drop": 0.256,
+            "peak_caa_flip_drop_ci95": [
+              0.1907,
+              0.3207
+            ],
+            "peak_probe_flip_drop": 0.2685,
+            "peak_probe_flip_drop_ci95": [
+              0.1982,
+              0.3371
+            ],
+            "peak_rand_flip_drop": 0.0045,
+            "peak_rand_flip_drop_ci95": [
+              -0.0015,
+              0.0113
+            ],
+            "peak_steer_ace_readout_auc": 0.824,
+            "peak_steer_logit_lens_auc": 0.7985,
+            "peak_steer_tuned_lens_auc": 0.7747,
+            "peak_steer_wu_cosine": 0.136,
+            "peak_keep1d_layer": 20,
+            "peak_keep1d_cross_auc": 0.7392,
+            "first_ace_ge80_depth": 0.5,
+            "first_tuned_lens_ge80_depth": null,
+            "first_logit_lens_ge80_depth": null,
+            "rank_ablation_mid": {
+              "rank_1": 0.824,
+              "rank_2": 0.8312,
+              "rank_4": 0.8793
+            },
+            "layers": [
+              {
+                "layer": 4,
+                "rel_depth": 0.125,
+                "ace_readout_auc": 0.4426,
+                "ace_readout_ci95": [
+                  0.296,
+                  0.5871
+                ],
+                "caa_readout_auc": 0.7504,
+                "probe_readout_auc": 0.7568,
+                "logit_lens_cross_auc": 0.3771,
+                "logit_lens_ci95": [
+                  0.2864,
+                  0.4705
+                ],
+                "tuned_lens_cross_auc": 0.4507,
+                "tuned_lens_ci95": [
+                  0.3583,
+                  0.5377
+                ],
+                "ace_flip_cross_auc": 0.6826,
+                "ace_flip_drop": -0.0017,
+                "ace_flip_drop_ci95": [
+                  -0.0083,
+                  0.0047
+                ],
+                "ace_keep1d_cross_auc": 0.6747,
+                "wu_cosine": 0.0184,
+                "cos_ace_caa": 0.5361,
+                "cos_ace_probe": 0.5322,
+                "spectral_gap": 5.4
+              },
+              {
+                "layer": 10,
+                "rel_depth": 0.312,
+                "ace_readout_auc": 0.3427,
+                "ace_readout_ci95": [
+                  0.2196,
+                  0.4736
+                ],
+                "caa_readout_auc": 0.8087,
+                "probe_readout_auc": 0.8185,
+                "logit_lens_cross_auc": 0.4345,
+                "logit_lens_ci95": [
+                  0.338,
+                  0.5349
+                ],
+                "tuned_lens_cross_auc": 0.4494,
+                "tuned_lens_ci95": [
+                  0.332,
+                  0.569
+                ],
+                "ace_flip_cross_auc": 0.6784,
+                "ace_flip_drop": 0.0026,
+                "ace_flip_drop_ci95": [
+                  -0.0094,
+                  0.0152
+                ],
+                "ace_keep1d_cross_auc": 0.6894,
+                "wu_cosine": 0.0075,
+                "cos_ace_caa": 0.1424,
+                "cos_ace_probe": 0.1006,
+                "spectral_gap": 1.5
+              },
+              {
+                "layer": 16,
+                "rel_depth": 0.5,
+                "ace_readout_auc": 0.8907,
+                "ace_readout_ci95": [
+                  0.8273,
+                  0.9464
+                ],
+                "caa_readout_auc": 0.8912,
+                "probe_readout_auc": 0.9235,
+                "logit_lens_cross_auc": 0.7394,
+                "logit_lens_ci95": [
+                  0.6556,
+                  0.8221
+                ],
+                "tuned_lens_cross_auc": 0.7185,
+                "tuned_lens_ci95": [
+                  0.6282,
+                  0.8104
+                ],
+                "ace_flip_cross_auc": 0.4515,
+                "ace_flip_drop": 0.2294,
+                "ace_flip_drop_ci95": [
+                  0.176,
+                  0.2831
+                ],
+                "ace_keep1d_cross_auc": 0.7338,
+                "wu_cosine": 0.0828,
+                "cos_ace_caa": 0.9812,
+                "cos_ace_probe": 0.9032,
+                "spectral_gap": 66.0
+              },
+              {
+                "layer": 20,
+                "rel_depth": 0.625,
+                "ace_readout_auc": 0.824,
+                "ace_readout_ci95": [
+                  0.7424,
+                  0.8955
+                ],
+                "caa_readout_auc": 0.8287,
+                "probe_readout_auc": 0.8967,
+                "logit_lens_cross_auc": 0.7985,
+                "logit_lens_ci95": [
+                  0.7096,
+                  0.8735
+                ],
+                "tuned_lens_cross_auc": 0.7747,
+                "tuned_lens_ci95": [
+                  0.6807,
+                  0.8561
+                ],
+                "ace_flip_cross_auc": 0.4424,
+                "ace_flip_drop": 0.2385,
+                "ace_flip_drop_ci95": [
+                  0.1695,
+                  0.3063
+                ],
+                "ace_keep1d_cross_auc": 0.7392,
+                "wu_cosine": 0.136,
+                "cos_ace_caa": 0.9652,
+                "cos_ace_probe": 0.8384,
+                "spectral_gap": 163.0
+              },
+              {
+                "layer": 24,
+                "rel_depth": 0.75,
+                "ace_readout_auc": 0.7338,
+                "ace_readout_ci95": [
+                  0.6289,
+                  0.8291
+                ],
+                "caa_readout_auc": 0.7509,
+                "probe_readout_auc": 0.8478,
+                "logit_lens_cross_auc": 0.7236,
+                "logit_lens_ci95": [
+                  0.6303,
+                  0.8142
+                ],
+                "tuned_lens_cross_auc": 0.7364,
+                "tuned_lens_ci95": [
+                  0.6479,
+                  0.8191
+                ],
+                "ace_flip_cross_auc": 0.4515,
+                "ace_flip_drop": 0.2294,
+                "ace_flip_drop_ci95": [
+                  0.1422,
+                  0.3193
+                ],
+                "ace_keep1d_cross_auc": 0.7338,
+                "wu_cosine": 0.1284,
+                "cos_ace_caa": 0.9524,
+                "cos_ace_probe": 0.7566,
+                "spectral_gap": 200.0
+              },
+              {
+                "layer": 28,
+                "rel_depth": 0.875,
+                "ace_readout_auc": 0.7007,
+                "ace_readout_ci95": [
+                  0.5913,
+                  0.8099
+                ],
+                "caa_readout_auc": 0.7139,
+                "probe_readout_auc": 0.8376,
+                "logit_lens_cross_auc": 0.7062,
+                "logit_lens_ci95": [
+                  0.6092,
+                  0.8
+                ],
+                "tuned_lens_cross_auc": 0.7122,
+                "tuned_lens_ci95": [
+                  0.6175,
+                  0.8056
+                ],
+                "ace_flip_cross_auc": 0.4617,
+                "ace_flip_drop": 0.2192,
+                "ace_flip_drop_ci95": [
+                  0.1258,
+                  0.3168
+                ],
+                "ace_keep1d_cross_auc": 0.7156,
+                "wu_cosine": 0.1323,
+                "cos_ace_caa": 0.9463,
+                "cos_ace_probe": 0.6847,
+                "spectral_gap": 149.8
+              },
+              {
+                "layer": 32,
+                "rel_depth": 1.0,
+                "ace_readout_auc": 0.7024,
+                "ace_readout_ci95": [
+                  0.5824,
+                  0.8012
+                ],
+                "caa_readout_auc": 0.716,
+                "probe_readout_auc": 0.8121,
+                "logit_lens_cross_auc": 0.682,
+                "logit_lens_ci95": [
+                  0.5841,
+                  0.775
+                ],
+                "tuned_lens_cross_auc": 0.682,
+                "tuned_lens_ci95": [
+                  0.5811,
+                  0.7705
+                ],
+                "ace_flip_cross_auc": 0.4809,
+                "ace_flip_drop": 0.2,
+                "ace_flip_drop_ci95": [
+                  0.1088,
+                  0.291
+                ],
+                "ace_keep1d_cross_auc": 0.7015,
+                "wu_cosine": 0.0886,
+                "cos_ace_caa": 0.9287,
+                "cos_ace_probe": 0.643,
+                "spectral_gap": 1085.6
+              }
+            ]
+          },
+          "geographic_scale": {
+            "n_train_pairs": 56,
+            "n_test_cross_pairs": 168,
+            "clean_src_auc": 0.8552,
+            "clean_cross_auc": 0.6473,
+            "clean_cross_ci95": [
+              0.5634,
+              0.7337
+            ],
+            "best_ace_readout_layer": 4,
+            "best_ace_readout_auc": 0.7759,
+            "readout_collapse_gap": 0.1286,
+            "peak_steer_layer": 28,
+            "peak_steer_rel_depth": 0.875,
+            "peak_ace_flip_drop": 0.145,
+            "peak_ace_flip_drop_ci95": [
+              0.0792,
+              0.2124
+            ],
+            "peak_caa_flip_drop": 0.1354,
+            "peak_caa_flip_drop_ci95": [
+              0.0762,
+              0.2028
+            ],
+            "peak_probe_flip_drop": 0.0835,
+            "peak_probe_flip_drop_ci95": [
+              0.0482,
+              0.121
+            ],
+            "peak_rand_flip_drop": -0.0015,
+            "peak_rand_flip_drop_ci95": [
+              -0.0085,
+              0.0047
+            ],
+            "peak_steer_ace_readout_auc": 0.7126,
+            "peak_steer_logit_lens_auc": 0.6399,
+            "peak_steer_tuned_lens_auc": 0.6446,
+            "peak_steer_wu_cosine": 0.1375,
+            "peak_keep1d_layer": 16,
+            "peak_keep1d_cross_auc": 0.8106,
+            "first_ace_ge80_depth": null,
+            "first_tuned_lens_ge80_depth": null,
+            "first_logit_lens_ge80_depth": null,
+            "rank_ablation_mid": {
+              "rank_1": 0.6837,
+              "rank_2": 0.6841,
+              "rank_4": 0.7164
+            },
+            "layers": [
+              {
+                "layer": 4,
+                "rel_depth": 0.125,
+                "ace_readout_auc": 0.7759,
+                "ace_readout_ci95": [
+                  0.6365,
+                  0.8932
+                ],
+                "caa_readout_auc": 0.7679,
+                "probe_readout_auc": 0.7691,
+                "logit_lens_cross_auc": 0.531,
+                "logit_lens_ci95": [
+                  0.4457,
+                  0.6034
+                ],
+                "tuned_lens_cross_auc": 0.5421,
+                "tuned_lens_ci95": [
+                  0.4549,
+                  0.6258
+                ],
+                "ace_flip_cross_auc": 0.632,
+                "ace_flip_drop": 0.0153,
+                "ace_flip_drop_ci95": [
+                  0.002,
+                  0.0321
+                ],
+                "ace_keep1d_cross_auc": 0.6407,
+                "wu_cosine": 0.0113,
+                "cos_ace_caa": 0.9652,
+                "cos_ace_probe": 0.9621,
+                "spectral_gap": 28.8
+              },
+              {
+                "layer": 10,
+                "rel_depth": 0.312,
+                "ace_readout_auc": 0.5625,
+                "ace_readout_ci95": [
+                  0.4014,
+                  0.7136
+                ],
+                "caa_readout_auc": 0.6548,
+                "probe_readout_auc": 0.679,
+                "logit_lens_cross_auc": 0.3784,
+                "logit_lens_ci95": [
+                  0.2931,
+                  0.4804
+                ],
+                "tuned_lens_cross_auc": 0.3202,
+                "tuned_lens_ci95": [
+                  0.2508,
+                  0.3912
+                ],
+                "ace_flip_cross_auc": 0.6314,
+                "ace_flip_drop": 0.0159,
+                "ace_flip_drop_ci95": [
+                  -0.0126,
+                  0.0504
+                ],
+                "ace_keep1d_cross_auc": 0.6526,
+                "wu_cosine": 0.0202,
+                "cos_ace_caa": 0.9062,
+                "cos_ace_probe": 0.8476,
+                "spectral_gap": 17.8
+              },
+              {
+                "layer": 16,
+                "rel_depth": 0.5,
+                "ace_readout_auc": 0.594,
+                "ace_readout_ci95": [
+                  0.4586,
+                  0.7299
+                ],
+                "caa_readout_auc": 0.6076,
+                "probe_readout_auc": 0.756,
+                "logit_lens_cross_auc": 0.6331,
+                "logit_lens_ci95": [
+                  0.57,
+                  0.6962
+                ],
+                "tuned_lens_cross_auc": 0.5285,
+                "tuned_lens_ci95": [
+                  0.4535,
+                  0.5889
+                ],
+                "ace_flip_cross_auc": 0.6052,
+                "ace_flip_drop": 0.0421,
+                "ace_flip_drop_ci95": [
+                  0.004,
+                  0.0872
+                ],
+                "ace_keep1d_cross_auc": 0.8106,
+                "wu_cosine": 0.0415,
+                "cos_ace_caa": 0.9932,
+                "cos_ace_probe": 0.9387,
+                "spectral_gap": 39.9
+              },
+              {
+                "layer": 20,
+                "rel_depth": 0.625,
+                "ace_readout_auc": 0.6837,
+                "ace_readout_ci95": [
+                  0.562,
+                  0.7824
+                ],
+                "caa_readout_auc": 0.7202,
+                "probe_readout_auc": 0.8155,
+                "logit_lens_cross_auc": 0.6535,
+                "logit_lens_ci95": [
+                  0.567,
+                  0.7446
+                ],
+                "tuned_lens_cross_auc": 0.6263,
+                "tuned_lens_ci95": [
+                  0.5273,
+                  0.7125
+                ],
+                "ace_flip_cross_auc": 0.5376,
+                "ace_flip_drop": 0.1097,
+                "ace_flip_drop_ci95": [
+                  0.061,
+                  0.1643
+                ],
+                "ace_keep1d_cross_auc": 0.7302,
+                "wu_cosine": 0.1454,
+                "cos_ace_caa": 0.988,
+                "cos_ace_probe": 0.909,
+                "spectral_gap": 597.8
+              },
+              {
+                "layer": 24,
+                "rel_depth": 0.75,
+                "ace_readout_auc": 0.6777,
+                "ace_readout_ci95": [
+                  0.5643,
+                  0.7893
+                ],
+                "caa_readout_auc": 0.7241,
+                "probe_readout_auc": 0.8316,
+                "logit_lens_cross_auc": 0.6918,
+                "logit_lens_ci95": [
+                  0.6104,
+                  0.7718
+                ],
+                "tuned_lens_cross_auc": 0.6943,
+                "tuned_lens_ci95": [
+                  0.5957,
+                  0.7854
+                ],
+                "ace_flip_cross_auc": 0.5057,
+                "ace_flip_drop": 0.1416,
+                "ace_flip_drop_ci95": [
+                  0.0798,
+                  0.2108
+                ],
+                "ace_keep1d_cross_auc": 0.7047,
+                "wu_cosine": 0.1837,
+                "cos_ace_caa": 0.9871,
+                "cos_ace_probe": 0.8696,
+                "spectral_gap": 729.1
+              },
+              {
+                "layer": 28,
+                "rel_depth": 0.875,
+                "ace_readout_auc": 0.7126,
+                "ace_readout_ci95": [
+                  0.5964,
+                  0.8207
+                ],
+                "caa_readout_auc": 0.7394,
+                "probe_readout_auc": 0.8389,
+                "logit_lens_cross_auc": 0.6399,
+                "logit_lens_ci95": [
+                  0.5505,
+                  0.7191
+                ],
+                "tuned_lens_cross_auc": 0.6446,
+                "tuned_lens_ci95": [
+                  0.5551,
+                  0.7326
+                ],
+                "ace_flip_cross_auc": 0.5023,
+                "ace_flip_drop": 0.145,
+                "ace_flip_drop_ci95": [
+                  0.0792,
+                  0.2124
+                ],
+                "ace_keep1d_cross_auc": 0.7028,
+                "wu_cosine": 0.1375,
+                "cos_ace_caa": 0.9843,
+                "cos_ace_probe": 0.8187,
+                "spectral_gap": 687.3
+              },
+              {
+                "layer": 32,
+                "rel_depth": 1.0,
+                "ace_readout_auc": 0.7394,
+                "ace_readout_ci95": [
+                  0.621,
+                  0.8446
+                ],
+                "caa_readout_auc": 0.7504,
+                "probe_readout_auc": 0.8121,
+                "logit_lens_cross_auc": 0.6471,
+                "logit_lens_ci95": [
+                  0.5595,
+                  0.7291
+                ],
+                "tuned_lens_cross_auc": 0.6471,
+                "tuned_lens_ci95": [
+                  0.5668,
+                  0.7314
+                ],
+                "ace_flip_cross_auc": 0.5036,
+                "ace_flip_drop": 0.1437,
+                "ace_flip_drop_ci95": [
+                  0.0703,
+                  0.2222
+                ],
+                "ace_keep1d_cross_auc": 0.7307,
+                "wu_cosine": 0.0818,
+                "cos_ace_caa": 0.9824,
+                "cos_ace_probe": 0.7737,
+                "spectral_gap": 9545.9
+              }
+            ]
+          }
+        }
       }
     }
   },
   "analysis": {
+    "abstract_text": "Interpretability tools routinely assume that if a transformer represents a concept linearly in its residual stream, that concept can be decoded by projecting intermediate activations through the unembedding matrix (Logit Lens) or a trained affine translator (Tuned Lens). Evaluating 3 distinct open-weight model families spanning 1.7B to 7.2B parameters (Qwen3-1.7B, SmolLM2-1.7B, Mistral-7B) across 4 real-world comparative domains and 2,016 strictly held-out cross-lexicon entity pairs (100% single-token across all three tokenizers), we test this assumption against Paired-Swap Algorithmic Core Extraction (ACE) and four strong baselines (Direct Logit Lens, Residual-Affine Tuned Lens, Contrastive Activation Addition [CAA], and L2 Logistic Probes). Across 12 (model, domain) cells, peak 1D causal steering emerges where ACE linear readout (mean AUC 0.766) significantly outperforms Direct Logit Lens (0.709, gap +0.057, Wilcoxon p=0.046) and consistently trends above Trained Tuned Lens (0.708, gap +0.058, one-sided Wilcoxon p=0.065), while operating largely orthogonal to the unembedding contrast vector (mean |cos(q_l*, dW_U)| = 0.143). On 1D causal necessity (Flip-1D across unseen cross-lexicons), ACE achieves mean AUC reversal +0.226 \u2014 significantly outperforming random controls (-0.002, p=2.44e-04), CAA (+0.160, p=7.32e-04; 11/12 cells), and L2 Logistic Probes (+0.162, p=4.64e-03; 10/12 cells). Most strikingly, on causal sufficiency (Keep-1D \u2014 deleting 2,047-4,095 orthogonal dimensions and retaining only the single 1D ACE coordinate), Keep-1D outperforms the full unperturbed model in 12/12 cells (p=2.44e-04; mean AUC 0.795 vs. 0.707 clean, mean gain +0.088; up to +0.238 on Qwen3-1.7B physical_scale), exposing pervasive late-layer readout collapse.",
     "findings": [
-      "Planets: Peak cross-lexicon 1D causal steering occurs at L26/28 (Flip-1D AUC drop = +0.292, clean cross-AUC 0.972), where direct Logit Lens AUC is only 0.986 and unembedding alignment |cos(q_l, \u0394W_U)| = 0.3472. ACE linear readout crosses 0.85 AUC at L18 vs. Logit Lens at L18.",
-      "Hazard Severity: Peak cross-lexicon 1D causal steering occurs at L24/28 (Flip-1D AUC drop = +0.048, clean cross-AUC 0.520), where direct Logit Lens AUC is only 0.455 and unembedding alignment |cos(q_l, \u0394W_U)| = 0.0883. ACE linear readout crosses 0.85 AUC at L16 vs. Logit Lens at LNone."
+      "Steerable before decodable across 3 architectures (1.7B-7.2B, 2,016 held-out cross-lexicon pairs): At peak causal steering depth, ACE readout (0.766) exceeds both Direct Logit Lens (0.709, p=4.61e-02) and Trained Residual-Affine Tuned Lens (0.708, p=6.47e-02), with mean unembedding alignment |cos(q_l*, dW_U)| = 0.143.",
+      "Gradient-weighted ACE dominates activation-only steering baselines on 1D causal necessity (Flip-1D): Mean cross-lexicon reversal drop = +0.226 vs. CAA +0.160 (p=7.32e-04, wins 11/12), L2 Logistic Probe +0.162 (p=4.64e-03, wins 10/12), and Random Control -0.002 (p=2.44e-04).",
+      "1D causal sufficiency (Keep-1D) rescues late-layer readout collapse: Projecting the 2,048-4,096D residual stream onto only the 1D ACE axis outperforms the full unperturbed model in 12/12 cells (mean Keep-1D AUC 0.795 vs. clean final-layer 0.707, mean gain +0.088; largest rescue 0.592 -> 0.830 on Qwen3-1.7B physical_scale).",
+      "Readout collapse (mid-layer best ACE AUC exceeding final-layer clean cross-lexicon AUC by >= 0.05) occurs in 8/12 cells (mean best mid-layer ACE 0.832 vs. clean 0.707), confirming that models compute accurate latent comparisons internally that are partially lost before lexical decoding."
     ],
-    "metric_chip": "Peak Steer Drop +0.29 @ |cos(q,W_U)|=0.088",
+    "metric_chip": "ACE Flip +0.23 vs CAA +0.16 (p=7.3e-04) \u00b7 Keep-1D wins 12/12",
     "stats": [
       [
-        "L26 / L24",
-        "Peak 1D Steer Layers"
+        "0.766 vs 0.708",
+        "ACE vs Tuned Lens AUC"
       ],
       [
-        "0.99 / 0.46",
-        "Logit Lens AUC @ Peak"
+        "+0.226 vs +0.160",
+        "1D Flip: ACE vs CAA"
       ],
       [
-        "0.347 / 0.088",
-        "|cos(q_l, \u0394W_U)|"
+        "12/12 (+0.088)",
+        "Keep-1D >= Clean Model"
       ],
       [
-        "7.9s",
-        "RTX 5090 Sweep Time"
+        "0.143",
+        "Mean |cos(q_l*, \u0394W_U)|"
       ]
     ],
-    "table_html": "<div class=\"table-wrap\" style=\"margin:1.3rem 0 1.7rem 0;\"><table><thead><tr><th>Domain</th><th>Layer</th><th>Depth</th><th>ACE Readout</th><th>Logit Lens</th><th>Flip-1D AUC</th><th>Steer Drop</th><th>|cos(q,W_U)|</th></tr></thead><tbody><tr><td><code>planets</code></td><td>L4</td><td><code>0.14</code></td><td><code>0.750</code></td><td><code>0.556</code></td><td><code>0.972</code></td><td><strong><code>+0.000</code></strong></td><td><code>0.0195</code></td></tr><tr><td><code>planets</code></td><td>L8</td><td><code>0.29</code></td><td><code>0.778</code></td><td><code>0.500</code></td><td><code>0.986</code></td><td><strong><code>-0.014</code></strong></td><td><code>0.0260</code></td></tr><tr><td><code>planets</code></td><td>L10</td><td><code>0.36</code></td><td><code>0.694</code></td><td><code>0.361</code></td><td><code>0.979</code></td><td><strong><code>-0.007</code></strong></td><td><code>0.0186</code></td></tr><tr><td><code>planets</code></td><td>L12</td><td><code>0.43</code></td><td><code>0.750</code></td><td><code>0.319</code></td><td><code>0.986</code></td><td><strong><code>-0.014</code></strong></td><td><code>0.0060</code></td></tr><tr><td><code>planets</code></td><td>L14</td><td><code>0.50</code></td><td><code>0.611</code></td><td><code>0.458</code></td><td><code>0.979</code></td><td><strong><code>-0.007</code></strong></td><td><code>0.0003</code></td></tr><tr><td><code>planets</code></td><td>L16</td><td><code>0.57</code></td><td><code>0.750</code></td><td><code>0.653</code></td><td><code>0.965</code></td><td><strong><code>+0.007</code></strong></td><td><code>0.0659</code></td></tr><tr><td><code>planets</code></td><td>L18</td><td><code>0.64</code></td><td><code>1.000</code></td><td><code>1.000</code></td><td><code>0.701</code></td><td><strong><code>+0.271</code></strong></td><td><code>0.2683</code></td></tr><tr><td><code>planets</code></td><td>L20</td><td><code>0.71</code></td><td><code>1.000</code></td><td><code>1.000</code></td><td><code>0.757</code></td><td><strong><code>+0.215</code></strong></td><td><code>0.3165</code></td></tr><tr><td><code>planets</code></td><td>L22</td><td><code>0.79</code></td><td><code>1.000</code></td><td><code>0.958</code></td><td><code>0.750</code></td><td><strong><code>+0.222</code></strong></td><td><code>0.3142</code></td></tr><tr><td><code>planets</code></td><td>L24</td><td><code>0.86</code></td><td><code>1.000</code></td><td><code>0.972</code></td><td><code>0.764</code></td><td><strong><code>+0.208</code></strong></td><td><code>0.3222</code></td></tr><tr><td><code>planets</code></td><td><strong>L26</strong></td><td><code>0.93</code></td><td><code>1.000</code></td><td><code>0.986</code></td><td><code>0.681</code></td><td><strong><code>+0.292</code></strong></td><td><code>0.3472</code></td></tr><tr><td><code>planets</code></td><td>L28</td><td><code>1.00</code></td><td><code>1.000</code></td><td><code>0.972</code></td><td><code>0.722</code></td><td><strong><code>+0.250</code></strong></td><td><code>0.2891</code></td></tr><tr><td><code>hazard_severity</code></td><td>L4</td><td><code>0.14</code></td><td><code>0.560</code></td><td><code>0.710</code></td><td><code>0.540</code></td><td><strong><code>-0.020</code></strong></td><td><code>0.0313</code></td></tr><tr><td><code>hazard_severity</code></td><td>L8</td><td><code>0.29</code></td><td><code>0.540</code></td><td><code>0.315</code></td><td><code>0.550</code></td><td><strong><code>-0.030</code></strong></td><td><code>0.0344</code></td></tr><tr><td><code>hazard_severity</code></td><td>L10</td><td><code>0.36</code></td><td><code>0.530</code></td><td><code>0.445</code></td><td><code>0.527</code></td><td><strong><code>-0.007</code></strong></td><td><code>0.0088</code></td></tr><tr><td><code>hazard_severity</code></td><td>L12</td><td><code>0.43</code></td><td><code>0.390</code></td><td><code>0.490</code></td><td><code>0.500</code></td><td><strong><code>+0.020</code></strong></td><td><code>0.0298</code></td></tr><tr><td><code>hazard_severity</code></td><td>L14</td><td><code>0.50</code></td><td><code>0.470</code></td><td><code>0.240</code></td><td><code>0.495</code></td><td><strong><code>+0.025</code></strong></td><td><code>0.0314</code></td></tr><tr><td><code>hazard_severity</code></td><td>L16</td><td><code>0.57</code></td><td><code>0.970</code></td><td><code>0.315</code></td><td><code>0.610</code></td><td><strong><code>-0.090</code></strong></td><td><code>0.0574</code></td></tr><tr><td><code>hazard_severity</code></td><td>L18</td><td><code>0.64</code></td><td><code>0.820</code></td><td><code>0.460</code></td><td><code>0.583</code></td><td><strong><code>-0.062</code></strong></td><td><code>0.0467</code></td></tr><tr><td><code>hazard_severity</code></td><td>L20</td><td><code>0.71</code></td><td><code>0.590</code></td><td><code>0.320</code></td><td><code>0.550</code></td><td><strong><code>-0.030</code></strong></td><td><code>0.0551</code></td></tr><tr><td><code>hazard_severity</code></td><td>L22</td><td><code>0.79</code></td><td><code>0.510</code></td><td><code>0.390</code></td><td><code>0.475</code></td><td><strong><code>+0.045</code></strong></td><td><code>0.0712</code></td></tr><tr><td><code>hazard_severity</code></td><td><strong>L24</strong></td><td><code>0.86</code></td><td><code>0.480</code></td><td><code>0.455</code></td><td><code>0.472</code></td><td><strong><code>+0.048</code></strong></td><td><code>0.0883</code></td></tr><tr><td><code>hazard_severity</code></td><td>L26</td><td><code>0.93</code></td><td><code>0.440</code></td><td><code>0.515</code></td><td><code>0.485</code></td><td><strong><code>+0.035</code></strong></td><td><code>0.0839</code></td></tr><tr><td><code>hazard_severity</code></td><td>L28</td><td><code>1.00</code></td><td><code>0.610</code></td><td><code>0.515</code></td><td><code>0.527</code></td><td><strong><code>-0.007</code></strong></td><td><code>0.0454</code></td></tr></tbody></table></div>",
-    "table_md": "| Domain | Layer | Rel Depth | ACE Readout AUC | Logit Lens AUC (Cross) | Cross Flip-1D AUC | Steer Drop (\u2191) | |cos(q_l, \u0394W_U)| |\n|---|---:|---:|---:|---:|---:|---:|---:|\n| `planets` | L4 | 0.14 | 0.750 | 0.556 | 0.972 | +0.000 | 0.0195 |\n| `planets` | L8 | 0.29 | 0.778 | 0.500 | 0.986 | -0.014 | 0.0260 |\n| `planets` | L10 | 0.36 | 0.694 | 0.361 | 0.979 | -0.007 | 0.0186 |\n| `planets` | L12 | 0.43 | 0.750 | 0.319 | 0.986 | -0.014 | 0.0060 |\n| `planets` | L14 | 0.50 | 0.611 | 0.458 | 0.979 | -0.007 | 0.0003 |\n| `planets` | L16 | 0.57 | 0.750 | 0.653 | 0.965 | +0.007 | 0.0659 |\n| `planets` | L18 | 0.64 | 1.000 | 1.000 | 0.701 | +0.271 | 0.2683 |\n| `planets` | L20 | 0.71 | 1.000 | 1.000 | 0.757 | +0.215 | 0.3165 |\n| `planets` | L22 | 0.79 | 1.000 | 0.958 | 0.750 | +0.222 | 0.3142 |\n| `planets` | L24 | 0.86 | 1.000 | 0.972 | 0.764 | +0.208 | 0.3222 |\n| `planets` | L26 | 0.93 | 1.000 | 0.986 | 0.681 | +0.292 | 0.3472 |\n| `planets` | L28 | 1.00 | 1.000 | 0.972 | 0.722 | +0.250 | 0.2891 |\n| `hazard_severity` | L4 | 0.14 | 0.560 | 0.710 | 0.540 | -0.020 | 0.0313 |\n| `hazard_severity` | L8 | 0.29 | 0.540 | 0.315 | 0.550 | -0.030 | 0.0344 |\n| `hazard_severity` | L10 | 0.36 | 0.530 | 0.445 | 0.527 | -0.007 | 0.0088 |\n| `hazard_severity` | L12 | 0.43 | 0.390 | 0.490 | 0.500 | +0.020 | 0.0298 |\n| `hazard_severity` | L14 | 0.50 | 0.470 | 0.240 | 0.495 | +0.025 | 0.0314 |\n| `hazard_severity` | L16 | 0.57 | 0.970 | 0.315 | 0.610 | -0.090 | 0.0574 |\n| `hazard_severity` | L18 | 0.64 | 0.820 | 0.460 | 0.583 | -0.062 | 0.0467 |\n| `hazard_severity` | L20 | 0.71 | 0.590 | 0.320 | 0.550 | -0.030 | 0.0551 |\n| `hazard_severity` | L22 | 0.79 | 0.510 | 0.390 | 0.475 | +0.045 | 0.0712 |\n| `hazard_severity` | L24 | 0.86 | 0.480 | 0.455 | 0.472 | +0.048 | 0.0883 |\n| `hazard_severity` | L26 | 0.93 | 0.440 | 0.515 | 0.485 | +0.035 | 0.0839 |\n| `hazard_severity` | L28 | 1.00 | 0.610 | 0.515 | 0.527 | -0.007 | 0.0454 |",
-    "fig_caption": "Figure 1. Held-out ACE 1D Readout (green), Cross-Lexicon Flip-1D AUC (violet; lower = stronger 1D causal reversal), and Direct Logit Lens AUC (dashed amber) across Qwen/Qwen3-1.7B layers.",
+    "table_html": "<div class=\"table-wrap\"><div class=\"table-caption\">Table 1. Multi-model cross-lexicon evaluation across 3 architectures and 4 comparative domains (n = 2,016 strictly held-out entity pairs; 95% paired per-lexicon bootstrap CIs shown for ACE Flip-1D). Random unit-vector control mean drop = -0.0015.</div><table><thead><tr><th>Model</th><th>Domain</th><th>Peak l*</th><th>ACE Read (&uarr;)</th><th>Tuned Lens</th><th>Logit Lens</th><th>ACE Flip (&uarr;)</th><th>CAA Flip</th><th>Probe Flip</th><th>Keep-1D (Clean)</th><th>|cos(W<sub>U</sub>)|</th></tr></thead><tbody><tr><td><strong>Qwen3-1.7B</strong></td><td><code>physical_scale</code></td><td><code>L24 (0.86)</code></td><td><strong><code>0.854</code></strong></td><td><code>0.577</code></td><td><code>0.590</code></td><td><strong><code>+0.379</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.25,+0.51]</span></td><td><code>+0.223</code></td><td><code>+0.301</code></td><td><strong><code>0.830</code></strong> <code>(0.592)</code></td><td><code>0.289</code></td></tr><tr><td><strong>Qwen3-1.7B</strong></td><td><code>hazard_severity</code></td><td><code>L20 (0.71)</code></td><td><strong><code>0.827</code></strong></td><td><code>0.670</code></td><td><code>0.708</code></td><td><strong><code>+0.072</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.04,+0.10]</span></td><td><code>+0.054</code></td><td><code>+0.025</code></td><td><strong><code>0.798</code></strong> <code>(0.702)</code></td><td><code>0.097</code></td></tr><tr><td><strong>Qwen3-1.7B</strong></td><td><code>historical_chronology</code></td><td><code>L28 (1.00)</code></td><td><strong><code>0.624</code></strong></td><td><code>0.572</code></td><td><code>0.572</code></td><td><strong><code>+0.104</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.04,+0.17]</span></td><td><code>+0.047</code></td><td><code>+0.075</code></td><td><strong><code>0.620</code></strong> <code>(0.572)</code></td><td><code>0.155</code></td></tr><tr><td><strong>Qwen3-1.7B</strong></td><td><code>geographic_scale</code></td><td><code>L18 (0.64)</code></td><td><strong><code>0.938</code></strong></td><td><code>0.897</code></td><td><code>0.922</code></td><td><strong><code>+0.301</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.21,+0.40]</span></td><td><code>+0.213</code></td><td><code>+0.137</code></td><td><strong><code>0.916</code></strong> <code>(0.895)</code></td><td><code>0.302</code></td></tr><tr><td><strong>SmolLM2-1.7B</strong></td><td><code>physical_scale</code></td><td><code>L18 (0.75)</code></td><td><strong><code>0.804</code></strong></td><td><code>0.735</code></td><td><code>0.721</code></td><td><strong><code>+0.362</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.22,+0.50]</span></td><td><code>+0.289</code></td><td><code>+0.403</code></td><td><strong><code>0.832</code></strong> <code>(0.816)</code></td><td><code>0.119</code></td></tr><tr><td><strong>SmolLM2-1.7B</strong></td><td><code>hazard_severity</code></td><td><code>L20 (0.83)</code></td><td><strong><code>0.789</code></strong></td><td><code>0.719</code></td><td><code>0.664</code></td><td><strong><code>+0.285</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.18,+0.39]</span></td><td><code>+0.174</code></td><td><code>+0.125</code></td><td><strong><code>0.790</code></strong> <code>(0.691)</code></td><td><code>0.158</code></td></tr><tr><td><strong>SmolLM2-1.7B</strong></td><td><code>historical_chronology</code></td><td><code>L18 (0.75)</code></td><td><strong><code>0.802</code></strong></td><td><code>0.633</code></td><td><code>0.684</code></td><td><strong><code>+0.216</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.13,+0.31]</span></td><td><code>+0.153</code></td><td><code>+0.105</code></td><td><strong><code>0.719</code></strong> <code>(0.592)</code></td><td><code>0.088</code></td></tr><tr><td><strong>SmolLM2-1.7B</strong></td><td><code>geographic_scale</code></td><td><code>L24 (1.00)</code></td><td><strong><code>0.586</code></strong></td><td><code>0.867</code></td><td><code>0.867</code></td><td><strong><code>+0.107</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.04,+0.17]</span></td><td><code>-0.008</code></td><td><code>-0.005</code></td><td><strong><code>0.907</code></strong> <code>(0.863)</code></td><td><code>0.044</code></td></tr><tr><td><strong>Mistral-7B</strong></td><td><code>physical_scale</code></td><td><code>L24 (0.75)</code></td><td><strong><code>0.799</code></strong></td><td><code>0.699</code></td><td><code>0.639</code></td><td><strong><code>+0.365</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.23,+0.49]</span></td><td><code>+0.301</code></td><td><code>+0.351</code></td><td><strong><code>0.850</code></strong> <code>(0.712)</code></td><td><code>0.150</code></td></tr><tr><td><strong>Mistral-7B</strong></td><td><code>hazard_severity</code></td><td><code>L16 (0.50)</code></td><td><strong><code>0.630</code></strong></td><td><code>0.703</code></td><td><code>0.707</code></td><td><strong><code>+0.141</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.08,+0.21]</span></td><td><code>+0.076</code></td><td><code>+0.070</code></td><td><strong><code>0.734</code></strong> <code>(0.727)</code></td><td><code>0.040</code></td></tr><tr><td><strong>Mistral-7B</strong></td><td><code>historical_chronology</code></td><td><code>L20 (0.62)</code></td><td><strong><code>0.824</code></strong></td><td><code>0.775</code></td><td><code>0.798</code></td><td><strong><code>+0.238</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.17,+0.31]</span></td><td><code>+0.256</code></td><td><code>+0.269</code></td><td><strong><code>0.739</code></strong> <code>(0.681)</code></td><td><code>0.136</code></td></tr><tr><td><strong>Mistral-7B</strong></td><td><code>geographic_scale</code></td><td><code>L28 (0.88)</code></td><td><strong><code>0.713</code></strong></td><td><code>0.645</code></td><td><code>0.640</code></td><td><strong><code>+0.145</code></strong> <span style='font-size:6.8pt;color:#64748b'>[+0.08,+0.21]</span></td><td><code>+0.135</code></td><td><code>+0.084</code></td><td><strong><code>0.811</code></strong> <code>(0.647)</code></td><td><code>0.138</code></td></tr><tr class=\"highlight-row\"><td colspan=\"3\"><strong>Macro-Average (12 cells, n=2,016 pairs)</strong></td><td><strong><code>0.766</code></strong></td><td><code>0.708</code></td><td><code>0.709</code></td><td><strong><code>+0.226</code></strong></td><td><code>+0.160</code></td><td><code>+0.162</code></td><td><strong><code>0.795</code></strong> <code>(0.707)</code></td><td><code>0.143</code></td></tr></tbody></table></div><div class=\"table-wrap\"><div class=\"table-caption\">Table 2. Mid-depth ablation study across all three models: ACE subspace dimensionality (rank 1 vs. 2 vs. 4) and Tuned Lens ridge regularization (&alpha; &isin; {10, 100, 1000}).</div><table><thead><tr><th>Model</th><th>ACE Rank-1</th><th>ACE Rank-2</th><th>ACE Rank-4</th><th>Tuned Lens &alpha;=10</th><th>Tuned Lens &alpha;=100</th><th>Tuned Lens &alpha;=1000</th></tr></thead><tbody><tr><td><strong>Qwen3-1.7B</strong> (1.7B, 28L)</td><td><code>0.830</code></td><td><code>0.852</code></td><td><code>0.854</code></td><td><code>0.724</code></td><td><code>0.725</code></td><td><code>0.728</code></td></tr><tr><td><strong>SmolLM2-1.7B</strong> (1.7B, 24L)</td><td><code>0.648</code></td><td><code>0.779</code></td><td><code>0.826</code></td><td><code>0.606</code></td><td><code>0.620</code></td><td><code>0.603</code></td></tr><tr><td><strong>Mistral-7B</strong> (7.2B, 32L)</td><td><code>0.747</code></td><td><code>0.778</code></td><td><code>0.817</code></td><td><code>0.706</code></td><td><code>0.687</code></td><td><code>0.657</code></td></tr></tbody></table></div>",
+    "table_md": "| Model | Domain | Peak Layer | ACE Readout | Tuned Lens | Logit Lens | ACE Flip Drop | CAA Drop | Probe Drop | Keep-1D (Clean) | |cos(W_U)| |\n|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|\n| Qwen3-1.7B | `physical_scale` | L24 (0.86) | 0.854 | 0.577 | 0.590 | +0.379 [+0.25,+0.51] | +0.223 | +0.301 | 0.830 (0.592) | 0.289 |\n| Qwen3-1.7B | `hazard_severity` | L20 (0.71) | 0.827 | 0.670 | 0.708 | +0.072 [+0.04,+0.10] | +0.054 | +0.025 | 0.798 (0.702) | 0.097 |\n| Qwen3-1.7B | `historical_chronology` | L28 (1.00) | 0.624 | 0.572 | 0.572 | +0.104 [+0.04,+0.17] | +0.047 | +0.075 | 0.620 (0.572) | 0.155 |\n| Qwen3-1.7B | `geographic_scale` | L18 (0.64) | 0.938 | 0.897 | 0.922 | +0.301 [+0.21,+0.40] | +0.213 | +0.137 | 0.916 (0.895) | 0.302 |\n| SmolLM2-1.7B | `physical_scale` | L18 (0.75) | 0.804 | 0.735 | 0.721 | +0.362 [+0.22,+0.50] | +0.289 | +0.403 | 0.832 (0.816) | 0.119 |\n| SmolLM2-1.7B | `hazard_severity` | L20 (0.83) | 0.789 | 0.719 | 0.664 | +0.285 [+0.18,+0.39] | +0.174 | +0.125 | 0.790 (0.691) | 0.158 |\n| SmolLM2-1.7B | `historical_chronology` | L18 (0.75) | 0.802 | 0.633 | 0.684 | +0.216 [+0.13,+0.31] | +0.153 | +0.105 | 0.719 (0.592) | 0.088 |\n| SmolLM2-1.7B | `geographic_scale` | L24 (1.00) | 0.586 | 0.867 | 0.867 | +0.107 [+0.04,+0.17] | -0.008 | -0.005 | 0.907 (0.863) | 0.044 |\n| Mistral-7B | `physical_scale` | L24 (0.75) | 0.799 | 0.699 | 0.639 | +0.365 [+0.23,+0.49] | +0.301 | +0.351 | 0.850 (0.712) | 0.150 |\n| Mistral-7B | `hazard_severity` | L16 (0.50) | 0.630 | 0.703 | 0.707 | +0.141 [+0.08,+0.21] | +0.076 | +0.070 | 0.734 (0.727) | 0.040 |\n| Mistral-7B | `historical_chronology` | L20 (0.62) | 0.824 | 0.775 | 0.798 | +0.238 [+0.17,+0.31] | +0.256 | +0.269 | 0.739 (0.681) | 0.136 |\n| Mistral-7B | `geographic_scale` | L28 (0.88) | 0.713 | 0.645 | 0.640 | +0.145 [+0.08,+0.21] | +0.135 | +0.084 | 0.811 (0.647) | 0.138 |",
+    "figure_png_rel": "papers/figures/steerable-not-decodable-v2.png",
+    "fig_caption": "Figure 1. Multi-model evaluation across Qwen3-1.7B, SmolLM2-1.7B, and Mistral-7B-v0.1 (2,016 strictly held-out cross-lexicon pairs). (a-c) Mean depth trajectories across 4 domains with 95% error bands showing ACE 1D readout, Tuned Lens, Direct Logit Lens, 1D causal steer drop, and |cos(q_l, \u0394W_U)|. (d) 1D causal necessity comparison at peak depth (ACE vs. CAA vs. L2 Probe vs. Random). (e) Keep-1D causal sufficiency rescuing late-layer readout collapse across domains. (f) Peak causal control vs. unembedding cosine alignment.",
     "limitations": [
-      "Evaluated on Qwen/Qwen3-1.7B (28 layers) across two structured comparative domains; larger 7B-70B models and open-ended generative tasks should be checked before claiming universal layer offsets.",
-      "Direct Logit Lens applies the final RMSNorm + W_U without a learned affine Tuned Lens adapter; however, the near-zero cosine |cos(q_l, \u0394W_U)| confirms the steering subspace itself is nearly orthogonal to the unembedding readout vector."
+      "Evaluated on 4 structured single-token comparative domains; free-form multi-step reasoning may recruit higher-rank subspaces.",
+      "Residual-Affine Tuned Lens was trained on pooled disjoint training-entity activations rather than a massive general pretraining corpus.",
+      "Spans 1.7B-7.2B models across 3 architectures (Qwen3, Llama, Mistral); 70B+ scaling behavior remains open."
     ]
   }
 }

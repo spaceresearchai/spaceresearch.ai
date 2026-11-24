@@ -1,87 +1,22 @@
 {
   "papers": [
     {
-      "slug": "steerable-not-decodable-ace-cores",
-      "experiment_id": "steering_lens",
-      "title": "Steerable Before Decodable: Testing CoreRank 1D Causal Steering vs. Logit Lens Readability Across Depth",
-      "authors": [
-        "Marcio Diaz",
-        "Space AI"
-      ],
-      "email": "marcio.diaz@gmail.com",
-      "published_at": "2026-11-24T17:16:34+01:00",
-      "paper_html": "./papers/steerable-not-decodable-ace-cores.html",
-      "paper_pdf": "./papers/steerable-not-decodable-ace-cores.pdf",
-      "paper_md": "./data/generated_papers/steerable-not-decodable-ace-cores.md",
-      "metrics_json": "./data/generated_papers/steerable-not-decodable-ace-cores.json",
-      "blog_href": "./blog-auto-steerable-not-decodable-ace-cores.html",
-      "metric_chip": "Peak Steer Drop +0.29 @ |cos(q,W_U)|=0.088",
-      "source_papers": [
-        {
-          "id": "arxiv-2604.02608",
-          "title": "Steerable but Not Decodable: Function Vectors Operate Beyond the Logit Lens",
-          "url": "https://arxiv.org/abs/2604.02608"
-        }
-      ],
-      "doi": "10.5281/zenodo.24508473",
-      "zenodo_url": "https://zenodo.org/record/24508473",
-      "zenodo": {
-        "deposition_id": 24508473,
-        "doi": "10.5281/zenodo.24508473",
-        "record_url": "https://zenodo.org/record/24508473",
-        "published": true,
-        "sandbox": false
-      }
-    },
-    {
-      "slug": "pytorch-kl-bregman-stability",
-      "experiment_id": "kl_pytorch",
-      "title": "Eliminating Negative & Corrupted KL Divergence in Low-Precision PyTorch via Bregman-Taylor Formulation",
-      "authors": [
-        "Marcio Diaz",
-        "Space AI"
-      ],
-      "email": "marcio.diaz@gmail.com",
-      "published_at": "2026-11-24T16:47:28+01:00",
-      "paper_html": "./papers/pytorch-kl-bregman-stability.html",
-      "paper_pdf": "./papers/pytorch-kl-bregman-stability.pdf",
-      "paper_md": "./data/generated_papers/pytorch-kl-bregman-stability.md",
-      "metrics_json": "./data/generated_papers/pytorch-kl-bregman-stability.json",
-      "blog_href": "./blog-auto-pytorch-kl-bregman-stability.html",
-      "metric_chip": "0.0% neg KL \u00b7 FP32 err 100% -> 0%",
-      "source_papers": [
-        {
-          "id": "arxiv-2611.30835",
-          "title": "The KL Divergence Is Never Negative, Except in PyTorch",
-          "url": "https://arxiv.org/abs/2611.30835"
-        }
-      ],
-      "doi": "10.5281/zenodo.24508479",
-      "zenodo_url": "https://zenodo.org/record/24508479",
-      "zenodo": {
-        "deposition_id": 24508479,
-        "doi": "10.5281/zenodo.24508479",
-        "record_url": "https://zenodo.org/record/24508479",
-        "published": true,
-        "sandbox": false
-      }
-    },
-    {
       "slug": "probmoe-batchtopk-sae",
+      "version": "2.0",
       "experiment_id": "probmoe_sae",
-      "title": "Probabilistic Marginal Gradients for Sparse Autoencoders: Bridging ProbMoE Routing and BatchTopK SAEs",
+      "title": "Margin-Gated Probabilistic Surrogate Gradients for Overcomplete Sparse Autoencoders",
       "authors": [
         "Marcio Diaz",
         "Space AI"
       ],
       "email": "marcio.diaz@gmail.com",
-      "published_at": "2026-11-24T16:46:42+01:00",
+      "published_at": "2026-11-24T19:53:36+01:00",
       "paper_html": "./papers/probmoe-batchtopk-sae.html",
       "paper_pdf": "./papers/probmoe-batchtopk-sae.pdf",
       "paper_md": "./data/generated_papers/probmoe-batchtopk-sae.md",
       "metrics_json": "./data/generated_papers/probmoe-batchtopk-sae.json",
       "blog_href": "./blog-auto-probmoe-batchtopk-sae.html",
-      "metric_chip": "k16 FVU 0.455 vs 0.418 \u00b7 Dead 20.0% vs 31.1% \u00b7 Seed cos 0.398",
+      "metric_chip": "MarginProb vs BTK-STE: -0.0047 FVU & -19.9pp dead (p=7.7e-09)",
       "source_papers": [
         {
           "id": "arxiv-2606.01509",
@@ -99,14 +34,88 @@
           "url": "https://arxiv.org/abs/2501.16615"
         }
       ],
-      "doi": "10.5281/zenodo.24508485",
-      "zenodo_url": "https://zenodo.org/record/24508485",
+      "doi": "10.5281/zenodo.24511852",
+      "zenodo_url": "https://zenodo.org/record/24511852",
       "zenodo": {
-        "deposition_id": 24508485,
-        "doi": "10.5281/zenodo.24508485",
-        "record_url": "https://zenodo.org/record/24508485",
+        "deposition_id": 24511852,
+        "doi": "10.5281/zenodo.24511852",
+        "record_url": "https://zenodo.org/record/24511852",
         "published": true,
-        "sandbox": false
+        "sandbox": false,
+        "version": "2.0",
+        "conceptdoi": "10.5281/zenodo.24508484"
+      }
+    },
+    {
+      "slug": "pytorch-kl-bregman-stability",
+      "version": "2.0",
+      "experiment_id": "kl_pytorch",
+      "title": "Silent Cancellation and Backward Gradient Corruption in Low-Precision KL Divergence: Analysis and Fused Triton Kernels",
+      "authors": [
+        "Marcio Diaz",
+        "Space AI"
+      ],
+      "email": "marcio.diaz@gmail.com",
+      "published_at": "2026-11-24T19:53:33+01:00",
+      "paper_html": "./papers/pytorch-kl-bregman-stability.html",
+      "paper_pdf": "./papers/pytorch-kl-bregman-stability.pdf",
+      "paper_md": "./data/generated_papers/pytorch-kl-bregman-stability.md",
+      "metrics_json": "./data/generated_papers/pytorch-kl-bregman-stability.json",
+      "blog_href": "./blog-auto-pytorch-kl-bregman-stability.html",
+      "metric_chip": "Triton 6.5x faster \u00b7 -80% VRAM @ V=152k \u00b7 0.0% neg KL",
+      "source_papers": [
+        {
+          "id": "arxiv-2611.30835",
+          "title": "The KL Divergence Is Never Negative, Except in PyTorch",
+          "url": "https://arxiv.org/abs/2611.30835"
+        }
+      ],
+      "doi": "10.5281/zenodo.24511854",
+      "zenodo_url": "https://zenodo.org/record/24511854",
+      "zenodo": {
+        "deposition_id": 24511854,
+        "doi": "10.5281/zenodo.24511854",
+        "record_url": "https://zenodo.org/record/24511854",
+        "published": true,
+        "sandbox": false,
+        "version": "2.0",
+        "conceptdoi": "10.5281/zenodo.24508478"
+      }
+    },
+    {
+      "slug": "steerable-not-decodable-ace-cores",
+      "version": "2.0",
+      "experiment_id": "steering_lens",
+      "title": "Steerable Before Decodable: Multi-Model Causal Evidence of Unembedding-Orthogonal Bottlenecks Beyond the Logit and Tuned Lens",
+      "authors": [
+        "Marcio Diaz",
+        "Space AI"
+      ],
+      "email": "marcio.diaz@gmail.com",
+      "published_at": "2026-11-24T19:53:27+01:00",
+      "paper_html": "./papers/steerable-not-decodable-ace-cores.html",
+      "paper_pdf": "./papers/steerable-not-decodable-ace-cores.pdf",
+      "paper_md": "./data/generated_papers/steerable-not-decodable-ace-cores.md",
+      "metrics_json": "./data/generated_papers/steerable-not-decodable-ace-cores.json",
+      "blog_href": "./blog-auto-steerable-not-decodable-ace-cores.html",
+      "metric_chip": "ACE Flip +0.23 vs CAA +0.16 (p=7.3e-04) \u00b7 Keep-1D wins 12/12",
+      "source_papers": [
+        {
+          "id": "arxiv-2604.02608",
+          "title": "Steerable but Not Decodable: Function Vectors Operate Beyond the Logit Lens",
+          "url": "https://arxiv.org/abs/2604.02608"
+        }
+      ],
+      "doi": "10.5281/zenodo.24511855",
+      "zenodo_url": "https://zenodo.org/record/24511855",
+      "zenodo": {
+        "deposition_id": 24511855,
+        "doi": "10.5281/zenodo.24511855",
+        "record_url": "https://zenodo.org/record/24511855",
+        "published": true,
+        "sandbox": false,
+        "version": "2.0",
+        "conceptdoi": "10.5281/zenodo.24508472"
       }
     }
   ]

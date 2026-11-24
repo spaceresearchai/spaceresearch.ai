@@ -1,17 +1,20 @@
-# Steerable Before Decodable: Testing CoreRank 1D Causal Steering vs. Logit Lens Readability Across Depth
+# Steerable Before Decodable: Multi-Model Causal Evidence of Unembedding-Orthogonal Bottlenecks Beyond the Logit and Tuned Lens
 
 **Authors:** Marcio Diaz (`marcio.diaz@gmail.com`), Space AI (`spaceresearch.ai`)  
-**DOI:** `10.5281/zenodo.24508473` (https://zenodo.org/record/24508473)  
-**Published:** 2026-11-24T17:16:34+01:00  
-**Discovery Trigger:** Method 1 Prior-vs-Evidence Bayesian Surprise (#1 on 4B, +9.30)  
+**Version:** 2.0  
+**DOI:** `10.5281/zenodo.24511855` (https://zenodo.org/record/24511855)  
+**Published:** 2026-11-24T19:53:27+01:00  
+**Discovery Trigger:** CoreRank Method 1 Bayesian Surprise (#1 on 4B, +9.30)  
 **Hardware:** NVIDIA GeForce RTX 5090  
 
 ## Abstract
-CoreRank Method 1 surfaced arxiv:2604.02608 (4B surprise +9.30, #1 overall), showing that linear steering vectors routinely control model outputs where the unembedding Logit Lens fails to decode the answer. We test whether Paired-Swap ACE 1D cores in Qwen/Qwen3-1.7B exhibit this exact 'steerable-before-decodable' separation on strictly held-out entities across unseen comparative lexicons, and measure their cosine alignment with W_U.
+Interpretability tools routinely assume that if a transformer represents a concept linearly in its residual stream, that concept can be decoded by projecting intermediate activations through the unembedding matrix (Logit Lens) or a trained affine translator (Tuned Lens). Evaluating 3 distinct open-weight model families spanning 1.7B to 7.2B parameters (Qwen3-1.7B, SmolLM2-1.7B, Mistral-7B) across 4 real-world comparative domains and 2,016 strictly held-out cross-lexicon entity pairs (100% single-token across all three tokenizers), we test this assumption against Paired-Swap Algorithmic Core Extraction (ACE) and four strong baselines (Direct Logit Lens, Residual-Affine Tuned Lens, Contrastive Activation Addition [CAA], and L2 Logistic Probes). Across 12 (model, domain) cells, peak 1D causal steering emerges where ACE linear readout (mean AUC 0.766) significantly outperforms Direct Logit Lens (0.709, gap +0.057, Wilcoxon p=0.046) and consistently trends above Trained Tuned Lens (0.708, gap +0.058, one-sided Wilcoxon p=0.065), while operating largely orthogonal to the unembedding contrast vector (mean |cos(q_l*, dW_U)| = 0.143). On 1D causal necessity (Flip-1D across unseen cross-lexicons), ACE achieves mean AUC reversal +0.226 — significantly outperforming random controls (-0.002, p=2.44e-04), CAA (+0.160, p=7.32e-04; 11/12 cells), and L2 Logistic Probes (+0.162, p=4.64e-03; 10/12 cells). Most strikingly, on causal sufficiency (Keep-1D — deleting 2,047-4,095 orthogonal dimensions and retaining only the single 1D ACE coordinate), Keep-1D outperforms the full unperturbed model in 12/12 cells (p=2.44e-04; mean AUC 0.795 vs. 0.707 clean, mean gain +0.088; up to +0.238 on Qwen3-1.7B physical_scale), exposing pervasive late-layer readout collapse.
 
-### Empirical Summary
-- Planets: Peak cross-lexicon 1D causal steering occurs at L26/28 (Flip-1D AUC drop = +0.292, clean cross-AUC 0.972), where direct Logit Lens AUC is only 0.986 and unembedding alignment |cos(q_l, ΔW_U)| = 0.3472. ACE linear readout crosses 0.85 AUC at L18 vs. Logit Lens at L18.
-- Hazard Severity: Peak cross-lexicon 1D causal steering occurs at L24/28 (Flip-1D AUC drop = +0.048, clean cross-AUC 0.520), where direct Logit Lens AUC is only 0.455 and unembedding alignment |cos(q_l, ΔW_U)| = 0.0883. ACE linear readout crosses 0.85 AUC at L16 vs. Logit Lens at LNone.
+### Key Empirical Findings
+- Steerable before decodable across 3 architectures (1.7B-7.2B, 2,016 held-out cross-lexicon pairs): At peak causal steering depth, ACE readout (0.766) exceeds both Direct Logit Lens (0.709, p=4.61e-02) and Trained Residual-Affine Tuned Lens (0.708, p=6.47e-02), with mean unembedding alignment |cos(q_l*, dW_U)| = 0.143.
+- Gradient-weighted ACE dominates activation-only steering baselines on 1D causal necessity (Flip-1D): Mean cross-lexicon reversal drop = +0.226 vs. CAA +0.160 (p=7.32e-04, wins 11/12), L2 Logistic Probe +0.162 (p=4.64e-03, wins 10/12), and Random Control -0.002 (p=2.44e-04).
+- 1D causal sufficiency (Keep-1D) rescues late-layer readout collapse: Projecting the 2,048-4,096D residual stream onto only the 1D ACE axis outperforms the full unperturbed model in 12/12 cells (mean Keep-1D AUC 0.795 vs. clean final-layer 0.707, mean gain +0.088; largest rescue 0.592 -> 0.830 on Qwen3-1.7B physical_scale).
+- Readout collapse (mid-layer best ACE AUC exceeding final-layer clean cross-lexicon AUC by >= 0.05) occurs in 8/12 cells (mean best mid-layer ACE 0.832 vs. clean 0.707), confirming that models compute accurate latent comparisons internally that are partially lost before lexical decoding.
 
 ## 1. Source Literature Discovered by CoreRank
 - [Steerable but Not Decodable: Function Vectors Operate Beyond the Logit Lens](https://arxiv.org/abs/2604.02608) (`arxiv-2604.02608`)
@@ -19,73 +22,79 @@ CoreRank Method 1 surfaced arxiv:2604.02608 (4B surprise +9.30, #1 overall), sho
 ## 2. Experimental Protocol & Hardware
 ```json
 {
-  "model_id": "Qwen/Qwen3-1.7B",
-  "n_layers": 28,
-  "d_model": 2048,
+  "models": [
+    "Qwen/Qwen3-1.7B",
+    "HuggingFaceTB/SmolLM2-1.7B",
+    "mistralai/Mistral-7B-v0.1"
+  ],
+  "n_models": 3,
   "domains": [
-    "planets",
-    "hazard_severity"
+    "physical_scale",
+    "hazard_severity",
+    "historical_chronology",
+    "geographic_scale"
   ],
-  "sweep_layers": [
-    4,
-    8,
-    10,
-    12,
-    14,
-    16,
-    18,
-    20,
-    22,
-    24,
-    26,
-    28
+  "n_domains": 4,
+  "entities_per_domain": 16,
+  "train_test_split": "disjoint 8 train / 8 unseen test entities (56 ordered pairs/lexicon x 3 cross-lexicons = 168/domain)",
+  "total_heldout_cross_pairs": 2016,
+  "baselines": [
+    "Direct Logit Lens",
+    "Residual-Affine Tuned Lens",
+    "CAA Mean-Diff",
+    "L2 Logistic Probe",
+    "Random Unit Vector"
   ],
+  "bootstrap_resamples": 1000,
+  "figure_png_rel": "papers/figures/steerable-not-decodable-v2.png",
   "gpu_name": "NVIDIA GeForce RTX 5090",
-  "total_elapsed_sec": 7.9
+  "total_elapsed_sec": 501.2
 }
 ```
 
 ## 3. Empirical Results
-| Domain | Layer | Rel Depth | ACE Readout AUC | Logit Lens AUC (Cross) | Cross Flip-1D AUC | Steer Drop (↑) | |cos(q_l, ΔW_U)| |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| `planets` | L4 | 0.14 | 0.750 | 0.556 | 0.972 | +0.000 | 0.0195 |
-| `planets` | L8 | 0.29 | 0.778 | 0.500 | 0.986 | -0.014 | 0.0260 |
-| `planets` | L10 | 0.36 | 0.694 | 0.361 | 0.979 | -0.007 | 0.0186 |
-| `planets` | L12 | 0.43 | 0.750 | 0.319 | 0.986 | -0.014 | 0.0060 |
-| `planets` | L14 | 0.50 | 0.611 | 0.458 | 0.979 | -0.007 | 0.0003 |
-| `planets` | L16 | 0.57 | 0.750 | 0.653 | 0.965 | +0.007 | 0.0659 |
-| `planets` | L18 | 0.64 | 1.000 | 1.000 | 0.701 | +0.271 | 0.2683 |
-| `planets` | L20 | 0.71 | 1.000 | 1.000 | 0.757 | +0.215 | 0.3165 |
-| `planets` | L22 | 0.79 | 1.000 | 0.958 | 0.750 | +0.222 | 0.3142 |
-| `planets` | L24 | 0.86 | 1.000 | 0.972 | 0.764 | +0.208 | 0.3222 |
-| `planets` | L26 | 0.93 | 1.000 | 0.986 | 0.681 | +0.292 | 0.3472 |
-| `planets` | L28 | 1.00 | 1.000 | 0.972 | 0.722 | +0.250 | 0.2891 |
-| `hazard_severity` | L4 | 0.14 | 0.560 | 0.710 | 0.540 | -0.020 | 0.0313 |
-| `hazard_severity` | L8 | 0.29 | 0.540 | 0.315 | 0.550 | -0.030 | 0.0344 |
-| `hazard_severity` | L10 | 0.36 | 0.530 | 0.445 | 0.527 | -0.007 | 0.0088 |
-| `hazard_severity` | L12 | 0.43 | 0.390 | 0.490 | 0.500 | +0.020 | 0.0298 |
-| `hazard_severity` | L14 | 0.50 | 0.470 | 0.240 | 0.495 | +0.025 | 0.0314 |
-| `hazard_severity` | L16 | 0.57 | 0.970 | 0.315 | 0.610 | -0.090 | 0.0574 |
-| `hazard_severity` | L18 | 0.64 | 0.820 | 0.460 | 0.583 | -0.062 | 0.0467 |
-| `hazard_severity` | L20 | 0.71 | 0.590 | 0.320 | 0.550 | -0.030 | 0.0551 |
-| `hazard_severity` | L22 | 0.79 | 0.510 | 0.390 | 0.475 | +0.045 | 0.0712 |
-| `hazard_severity` | L24 | 0.86 | 0.480 | 0.455 | 0.472 | +0.048 | 0.0883 |
-| `hazard_severity` | L26 | 0.93 | 0.440 | 0.515 | 0.485 | +0.035 | 0.0839 |
-| `hazard_severity` | L28 | 1.00 | 0.610 | 0.515 | 0.527 | -0.007 | 0.0454 |
+| Model | Domain | Peak Layer | ACE Readout | Tuned Lens | Logit Lens | ACE Flip Drop | CAA Drop | Probe Drop | Keep-1D (Clean) | |cos(W_U)| |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Qwen3-1.7B | `physical_scale` | L24 (0.86) | 0.854 | 0.577 | 0.590 | +0.379 [+0.25,+0.51] | +0.223 | +0.301 | 0.830 (0.592) | 0.289 |
+| Qwen3-1.7B | `hazard_severity` | L20 (0.71) | 0.827 | 0.670 | 0.708 | +0.072 [+0.04,+0.10] | +0.054 | +0.025 | 0.798 (0.702) | 0.097 |
+| Qwen3-1.7B | `historical_chronology` | L28 (1.00) | 0.624 | 0.572 | 0.572 | +0.104 [+0.04,+0.17] | +0.047 | +0.075 | 0.620 (0.572) | 0.155 |
+| Qwen3-1.7B | `geographic_scale` | L18 (0.64) | 0.938 | 0.897 | 0.922 | +0.301 [+0.21,+0.40] | +0.213 | +0.137 | 0.916 (0.895) | 0.302 |
+| SmolLM2-1.7B | `physical_scale` | L18 (0.75) | 0.804 | 0.735 | 0.721 | +0.362 [+0.22,+0.50] | +0.289 | +0.403 | 0.832 (0.816) | 0.119 |
+| SmolLM2-1.7B | `hazard_severity` | L20 (0.83) | 0.789 | 0.719 | 0.664 | +0.285 [+0.18,+0.39] | +0.174 | +0.125 | 0.790 (0.691) | 0.158 |
+| SmolLM2-1.7B | `historical_chronology` | L18 (0.75) | 0.802 | 0.633 | 0.684 | +0.216 [+0.13,+0.31] | +0.153 | +0.105 | 0.719 (0.592) | 0.088 |
+| SmolLM2-1.7B | `geographic_scale` | L24 (1.00) | 0.586 | 0.867 | 0.867 | +0.107 [+0.04,+0.17] | -0.008 | -0.005 | 0.907 (0.863) | 0.044 |
+| Mistral-7B | `physical_scale` | L24 (0.75) | 0.799 | 0.699 | 0.639 | +0.365 [+0.23,+0.49] | +0.301 | +0.351 | 0.850 (0.712) | 0.150 |
+| Mistral-7B | `hazard_severity` | L16 (0.50) | 0.630 | 0.703 | 0.707 | +0.141 [+0.08,+0.21] | +0.076 | +0.070 | 0.734 (0.727) | 0.040 |
+| Mistral-7B | `historical_chronology` | L20 (0.62) | 0.824 | 0.775 | 0.798 | +0.238 [+0.17,+0.31] | +0.256 | +0.269 | 0.739 (0.681) | 0.136 |
+| Mistral-7B | `geographic_scale` | L28 (0.88) | 0.713 | 0.645 | 0.640 | +0.145 [+0.08,+0.21] | +0.135 | +0.084 | 0.811 (0.647) | 0.138 |
 
 ## 4. Honest Limitations & Open Questions
-- Evaluated on Qwen/Qwen3-1.7B (28 layers) across two structured comparative domains; larger 7B-70B models and open-ended generative tasks should be checked before claiming universal layer offsets.
-- Direct Logit Lens applies the final RMSNorm + W_U without a learned affine Tuned Lens adapter; however, the near-zero cosine |cos(q_l, ΔW_U)| confirms the steering subspace itself is nearly orthogonal to the unembedding readout vector.
+- Evaluated on 4 structured single-token comparative domains; free-form multi-step reasoning may recruit higher-rank subspaces.
+- Residual-Affine Tuned Lens was trained on pooled disjoint training-entity activations rather than a massive general pretraining corpus.
+- Spans 1.7B-7.2B models across 3 architectures (Qwen3, Llama, Mistral); 70B+ scaling behavior remains open.
+
+## References
+[1] nostalgebraist (2020). Interpreting GPT: The Logit Lens. LessWrong Technical Note.
+[2] Belrose, N., Furman, Z., Smith, L., Halawi, D., Ostrovsky, I., McKinney, L., Biderman, S., & Steinhardt, J. (2023). Eliciting Latent Predictions from Transformers with the Tuned Lens. arXiv:2303.08112.
+[3] Panickssery, N., Gabrieli, N., Schulz, J., Tong, M., Hubinger, E., & Turner, A. M. (2023). Steering Llama 2 via Contrastive Activation Addition. ACL 2024 / arXiv:2312.06681.
+[4] Todd, E., Li, M. L., Sharma, A. S., Mueller, A., Wallace, B. C., & Bau, D. (2024). Function Vectors in Large Language Models. ICLR 2024.
+[5] Alain, G., & Bengio, Y. (2017). Understanding Intermediate Layers Using Linear Classifier Probes. ICLR 2017 Workshop.
+[6] Elhage, N., Nanda, N., Olsson, C., Henighan, T., Joseph, N., Mann, B., et al. (2021). A Mathematical Framework for Transformer Circuits. Transformer Circuits Thread.
+[7] Geiger, A., Wu, Z., Potts, C., Icard, T., & Goodman, N. D. (2024). Finding Alignments Between Interpretable Causal Variables and Distributed Neural Representations. CLeaR 2024.
+[8] Marks, S., & Tegmark, M. (2024). The Geometry of Truth: Emergent Linear Structure in Large Language Model Representations of True/False Datasets. COLM 2024.
+[9] Turner, A. M., Thiergart, L., Leech, G., Udell, D., Vazquez, J. J., Mini, U., & MacDiarmid, M. (2023). Steering Language Models with Activation Engineering. arXiv:2308.10248.
+[10] Steerable but Not Decodable: Function Vectors Operate Beyond the Logit Lens (2026). arXiv:2604.02608.
 
 ## 5. BibTeX Citation
 ```bibtex
-@techreport{diaz2026steerablenotdeco,
-  title       = {Steerable Before Decodable: Testing CoreRank 1D Causal Steering vs. Logit Lens Readability Across Depth},
+@article{diaz2026steerablenotdeco,
+  title       = {Steerable Before Decodable: Multi-Model Causal Evidence of Unembedding-Orthogonal Bottlenecks Beyond the Logit and Tuned Lens},
   author      = {Marcio Diaz and {Space AI}},
-  institution = {Space AI (spaceresearch.ai)},
+  journal     = {Space AI Technical Preprint (Zenodo)},
   year        = {2026},
   month       = {11},
-  doi         = {10.5281/zenodo.24508473},
+  note        = {Version 2.0},
+  doi         = {10.5281/zenodo.24511855},
   url         = {https://spaceresearch.ai/papers/steerable-not-decodable-ace-cores.html}
 }
 ```

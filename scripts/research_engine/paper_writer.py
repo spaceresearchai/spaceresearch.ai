@@ -17,6 +17,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
+from .manuscript_builders import build_kl_pytorch_v2
 from .pdf_compiler import compile_paper_pdf
 
 SITE_ROOT = Path(__file__).resolve().parents[2]
@@ -387,11 +388,20 @@ def _analyze_steering_lens(data: Dict[str, Any]) -> Dict[str, Any]:
 
 def analyze_experiment(data: Dict[str, Any]) -> Dict[str, Any]:
     eid = data.get("experiment_id", "")
-    if eid == "probmoe_sae":
-        return _analyze_probmoe_sae(data)
+    is_v2 = str(data.get("version") or "1.0").startswith("2")
     if eid == "kl_pytorch":
+        if is_v2 and "scaling_benchmark" in data:
+            return build_kl_pytorch_v2(data)
         return _analyze_kl_pytorch(data)
+    if eid == "probmoe_sae":
+        if is_v2 and "statistical_tests" in data:
+            from .manuscript_builders import build_probmoe_sae_v2
+            return build_probmoe_sae_v2(data)
+        return _analyze_probmoe_sae(data)
     if eid == "steering_lens":
+        if is_v2 and "summary_stats" in data:
+            from .manuscript_builders import build_steering_lens_v2
+            return build_steering_lens_v2(data)
         return _analyze_steering_lens(data)
     return _analyze_generic(data)
 
@@ -424,33 +434,42 @@ def compile_paper(
     sources_md = "\n".join(f"- [{s['title']}]({s.get('url', '')}) (`{s['id']}`)" for s in sources)
     findings_md = "\n".join(f"- {f}" for f in analysis["findings"])
     limits_md = "\n".join(f"- {l}" for l in analysis["limitations"])
+    version = str(exp_data.get("version") or "1.0")
+    abstract_text = analysis.get("abstract_text") or exp_data.get("abstract") or exp_data["hypothesis"]
+    references = exp_data.get("references") or []
+    refs_md = "\n".join(f"[{i}] {r}" for i, r in enumerate(references, 1))
+
     last_name = author.split()[-1].lower() if author.split() else "spaceai"
     bibtex_key = f"{last_name}{date_str[:4]}{slug.replace('-', '')[:16]}"
     doi_bib_line = f"  doi         = {{{doi}}},\n" if doi else ""
+    ver_bib_line = f"  note        = {{Version {version}}},\n" if version != "1.0" else ""
     bibtex = (
-        f"@techreport{{{bibtex_key},\n"
+        f"@article{{{bibtex_key},\n"
         f"  title       = {{{exp_data['title']}}},\n"
         f"  author      = {{{author} and {{{company}}}}},\n"
-        f"  institution = {{{company} (spaceresearch.ai)}},\n"
+        f"  journal     = {{{company} Technical Preprint (Zenodo)}},\n"
         f"  year        = {{{date_str[:4]}}},\n"
         f"  month       = {{{date_str[5:7]}}},\n"
+        f"{ver_bib_line}"
         f"{doi_bib_line}"
         f"  url         = {{https://spaceresearch.ai/papers/{slug}.html}}\n"
         f"}}"
     )
 
     doi_md_line = f"**DOI:** `{doi}` ({zenodo_url})  \n" if doi else ""
+    refs_md_block = f"\n## References\n{refs_md}\n" if refs_md else ""
     md_text = f"""# {exp_data['title']}
 
 **Authors:** {author} (`{email}`), {company} (`spaceresearch.ai`)  
+**Version:** {version}  
 {doi_md_line}**Published:** {now_iso}  
 **Discovery Trigger:** {exp_data.get('source_discovery_type', 'CoreRank Discovery')}  
 **Hardware:** {exp_data.get('setup', {}).get('gpu_name', 'NVIDIA RTX 5090')}  
 
 ## Abstract
-{exp_data['hypothesis']}
+{abstract_text}
 
-### Empirical Summary
+### Key Empirical Findings
 {findings_md}
 
 ## 1. Source Literature Discovered by CoreRank
@@ -466,14 +485,24 @@ def compile_paper(
 
 ## 4. Honest Limitations & Open Questions
 {limits_md}
-
+{refs_md_block}
 ## 5. BibTeX Citation
 ```bibtex
 {bibtex}
 ```
 """
     md_path.write_text(md_text, encoding="utf-8")
-    json_path.write_text(json.dumps({"experiment": exp_data, "analysis": {k: v for k, v in analysis.items() if k != "svg"}}, indent=2) + "\n", encoding="utf-8")
+    json_path.write_text(
+        json.dumps(
+            {
+                "experiment": exp_data,
+                "analysis": {k: v for k, v in analysis.items() if k not in ("svg", "manuscript_sections")},
+            },
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
 
     # Build printable / readable standalone HTML technical paper matching Space AI chrome
     sources_html = "".join(
@@ -486,12 +515,60 @@ def compile_paper(
         f'<div class="blog-stat"><div class="blog-stat-v">{html.escape(v)}</div><div class="blog-stat-l">{html.escape(l)}</div></div>'
         for v, l in analysis["stats"]
     )
-    fig_block = (
-        f'<div class="blog-figure">{analysis["svg"]}<div class="blog-figcap">{html.escape(analysis["fig_caption"])}</div></div>'
-        if analysis["svg"]
-        else ""
-    )
+    fig_png = analysis.get("figure_png_rel")
+    if fig_png:
+        fig_block = (
+            f'<div class="blog-figure" style="background:#ffffff;padding:12px;border-radius:10px;">'
+            f'<img src="../{html.escape(str(fig_png).lstrip("./"))}" alt="{html.escape(analysis.get("fig_caption", ""))}" '
+            f'style="width:100%;height:auto;display:block;border-radius:6px;" />'
+            f'<div class="blog-figcap" style="color:#334155;">{html.escape(analysis["fig_caption"])}</div></div>'
+        )
+    elif analysis.get("svg"):
+        fig_block = f'<div class="blog-figure">{analysis["svg"]}<div class="blog-figcap">{html.escape(analysis["fig_caption"])}</div></div>'
+    else:
+        fig_block = ""
+
     back_blog = f'../{blog_href.lstrip("./")}' if blog_href else "../blog.html"
+    manuscript_sections = analysis.get("manuscript_sections") or []
+    if manuscript_sections:
+        sec_chunks = []
+        fig_done = False
+        for sec in manuscript_sections:
+            sec_chunks.append(f"<h2>{html.escape(sec['heading'])}</h2>{sec['body_html']}")
+            if sec.get("insert_figure_after") and fig_block and not fig_done:
+                sec_chunks.append(fig_block)
+                fig_done = True
+        if fig_block and not fig_done:
+            sec_chunks.append(fig_block)
+        if references:
+            refs_li = "".join(f"<li><strong>[{i}]</strong> {html.escape(r)}</li>" for i, r in enumerate(references, 1))
+            sec_chunks.append(f"<h2>References</h2><ol style='list-style:none;padding-left:0;'>{refs_li}</ol>")
+        sec_chunks.append(
+            f"<h2>BibTeX &amp; Reproducible Artifacts</h2><pre><code>{html.escape(bibtex)}</code></pre>"
+            f'<p>Raw GPU JSON telemetry: <a href="../data/generated_papers/{html.escape(slug)}.json"><code>data/generated_papers/{html.escape(slug)}.json</code></a> &middot; '
+            f'Markdown manuscript: <a href="../data/generated_papers/{html.escape(slug)}.md"><code>data/generated_papers/{html.escape(slug)}.md</code></a></p>'
+        )
+        main_sections_html = "\n".join(sec_chunks)
+    else:
+        main_sections_html = f"""
+            <h2>1. Empirical Findings</h2>
+            <ul>{findings_html}</ul>
+            {fig_block}
+            <h2>2. Complete Experimental Results</h2>
+            {analysis['table_html']}
+            <h2>3. Source Literature Surfaced by CoreRank</h2>
+            <ul>{sources_html}</ul>
+            <h2>4. Experimental Configuration &amp; Reproducibility</h2>
+            <pre><code>{html.escape(json.dumps(exp_data.get('setup', {}), indent=2))}</code></pre>
+            <h2>5. Honest Limitations &amp; Threats to Validity</h2>
+            <ul>{limits_html}</ul>
+            <h2>6. BibTeX &amp; Raw Artifacts</h2>
+            <pre><code>{html.escape(bibtex)}</code></pre>
+            <p>
+              Raw JSON metrics: <a href="../data/generated_papers/{html.escape(slug)}.json"><code>data/generated_papers/{html.escape(slug)}.json</code></a> &middot;
+              Markdown manuscript: <a href="../data/generated_papers/{html.escape(slug)}.md"><code>data/generated_papers/{html.escape(slug)}.md</code></a>
+            </p>
+        """
 
     paper_html = f"""<!DOCTYPE html>
 <html lang="en" data-theme="dark">
@@ -500,12 +577,19 @@ def compile_paper(
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#000000" />
   <title>{html.escape(exp_data['title'])} — Space AI Technical Paper</title>
-  <meta name="description" content="{html.escape(exp_data['hypothesis'][:220])}" />
+  <meta name="description" content="{html.escape(abstract_text[:220])}" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/svg+xml" href="../mark.svg?v=35" />
   <link rel="stylesheet" href="../culture.css?v=29" />
+  <style>
+    .eq-box {{ background: rgba(255,255,255,0.04); border-left: 3px solid var(--accent-cyan, #38bdf8); padding: 0.75rem 1rem; margin: 1rem 0 1.2rem 0; border-radius: 0 8px 8px 0; }}
+    .eq-row {{ display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin: 0.3rem 0; font-family: Georgia, serif; }}
+    .eq-num {{ font-family: var(--mono); font-size: 0.78rem; color: var(--ink-soft); }}
+    .table-caption {{ font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 0.45rem; font-weight: 500; }}
+    tr.highlight-row {{ background: rgba(52, 211, 153, 0.10); }}
+  </style>
 </head>
 <body>
   <canvas id="cosmos-bg-canvas" class="cosmos-bg-canvas" aria-hidden="true"></canvas>
@@ -535,50 +619,27 @@ def compile_paper(
         <div class="wrap-blog">
           <a class="blog-back" href="{html.escape(back_blog)}">&larr; Back to Research Note &amp; Blog Feed</a>
           <div class="blog-meta" style="margin-top:1.3rem;">
-            <span class="blog-cat">TECHNICAL PREPRINT &middot; {html.escape(exp_data.get('category_label', 'AUTONOMOUS GPU LAB'))}</span>
+            <span class="blog-cat">TECHNICAL PREPRINT v{html.escape(version)} &middot; {html.escape(exp_data.get('category_label', 'AUTONOMOUS GPU LAB'))}</span>
             <span>{html.escape(now_iso[:16].replace('T', ' '))}</span>
           </div>
           <h1 class="blog-article-title">{html.escape(exp_data['title'])}</h1>
           <p style="font-family:var(--mono); font-size:0.8rem; color:var(--ink-soft); margin:-1.6rem 0 1rem 0;">
-            <strong>{html.escape(author)}</strong> ({html.escape(email)}) &middot; {html.escape(company)} (spaceresearch.ai) &middot; Hardware: {html.escape(str(exp_data.get('setup', {}).get('gpu_name', 'RTX 5090')))}
+            <strong>{html.escape(author)}</strong> ({html.escape(email)}) &middot; {html.escape(company)} (spaceresearch.ai) &middot; Version {html.escape(version)} &middot; Hardware: {html.escape(str(exp_data.get('setup', {}).get('gpu_name', 'RTX 5090')))}
           </p>
           <div style="display:flex; flex-wrap:wrap; gap:0.55rem; margin-bottom:1.8rem;">
-            <a class="btn sm" href="./{html.escape(slug)}.pdf" target="_blank" rel="noopener">Download PDF Preprint &darr;</a>
+            <a class="btn sm" href="./{html.escape(slug)}.pdf" target="_blank" rel="noopener">Download PDF Preprint (v{html.escape(version)}) &darr;</a>
             {f'<a class="btn secondary sm" href="{html.escape(zenodo_url or ("https://doi.org/" + doi))}" target="_blank" rel="noopener">Zenodo DOI: {html.escape(doi)} &#8599;</a>' if doi else ''}
             <a class="btn secondary sm" href="../data/generated_papers/{html.escape(slug)}.json">Raw GPU Metrics JSON</a>
           </div>
 
           <div class="blog-abstract">
-            <div class="blog-abstract-lbl">ABSTRACT &amp; HYPOTHESIS</div>
-            <p>{html.escape(exp_data['hypothesis'])}</p>
+            <div class="blog-abstract-lbl">ABSTRACT</div>
+            <p>{html.escape(abstract_text)}</p>
           </div>
 
           <div class="blog-prose">
             <div class="blog-stats">{stats_html}</div>
-
-            <h2>1. Empirical Findings</h2>
-            <ul>{findings_html}</ul>
-
-            {fig_block}
-
-            <h2>2. Complete Experimental Results</h2>
-            {analysis['table_html']}
-
-            <h2>3. Source Literature Surfaced by CoreRank</h2>
-            <ul>{sources_html}</ul>
-
-            <h2>4. Experimental Configuration &amp; Reproducibility</h2>
-            <pre><code>{html.escape(json.dumps(exp_data.get('setup', {}), indent=2))}</code></pre>
-
-            <h2>5. Honest Limitations &amp; Threats to Validity</h2>
-            <ul>{limits_html}</ul>
-
-            <h2>6. BibTeX &amp; Raw Artifacts</h2>
-            <pre><code>{html.escape(bibtex)}</code></pre>
-            <p>
-              Raw JSON metrics: <a href="../data/generated_papers/{html.escape(slug)}.json"><code>data/generated_papers/{html.escape(slug)}.json</code></a> &middot;
-              Markdown manuscript: <a href="../data/generated_papers/{html.escape(slug)}.md"><code>data/generated_papers/{html.escape(slug)}.md</code></a>
-            </p>
+            {main_sections_html}
           </div>
         </div>
       </article>
@@ -620,6 +681,7 @@ def compile_paper(
     gen_reg["papers"] = [x for x in gen_reg.get("papers", []) if x.get("slug") != slug]
     entry_rec = {
         "slug": slug,
+        "version": version,
         "experiment_id": exp_data["experiment_id"],
         "title": exp_data["title"],
         "authors": [author, company],

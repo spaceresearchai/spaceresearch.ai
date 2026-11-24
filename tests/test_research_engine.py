@@ -15,6 +15,7 @@ sys.path.insert(0, str(SITE_ROOT / "scripts"))
 from research_engine.discover import build_hypothesis_queue, load_discoveries
 from research_engine.experiments.registry import audit_generated_python_ast
 from research_engine.gpu_guard import query_gpu
+from research_engine.quality_gate import evaluate_conference_readiness
 from research_engine.rebuild_blog_index import (
     group_posts_by_day,
     rebuild_all,
@@ -239,12 +240,125 @@ class TestZenodoPublisher(unittest.TestCase):
                     sandbox=True,
                     publish=True,
                     force=True,
+                    bypass_quality_gate=True,
                     client=client,
                 )
                 self.assertEqual(res["status"], "published")
                 self.assertEqual(res["doi"], "10.5072/zenodo.9999999")
                 self.assertIn("pytorch-kl-bregman-stability.pdf", res["uploaded_files"])
                 self.assertEqual(len(calls), 6)  # create + 3 uploads (.pdf/.md/.json) + metadata + publish
+            finally:
+                zp.GEN_INDEX_JSON = orig_gen
+
+    def test_conference_quality_gate_blocks_subbar_to_draft_only(self):
+        """A sub-bar toy investigation MUST fail quality_gate and be forced to draft-only even if publish=True."""
+        toy_exp = {
+            "experiment_id": "toy",
+            "slug": "toy-exp",
+            "title": "Toy Single-Seed Check",
+            "hypothesis": "Quick 1-seed check.",
+            "setup": {"gpu_name": "RTX 5090"},
+            "references": ["Ref 1"],
+            "quality_evidence": {"n_models": 1, "n_seeds": 1, "n_baselines": 1},
+        }
+        rep = evaluate_conference_readiness(toy_exp)
+        self.assertFalse(rep.passed)
+        self.assertEqual(rep.recommended_action, "draft_only")
+        self.assertLess(rep.score_10, 5.0)
+
+        strong_exp = {
+            **toy_exp,
+            "version": "2.0",
+            "references": [f"Author ({2020 + i}). Paper {i}." for i in range(7)],
+            "quality_evidence": {
+                "n_models": 3,
+                "n_seeds": 3,
+                "n_regimes": 12,
+                "n_baselines": 5,
+                "has_confidence_intervals": True,
+                "has_p_values": True,
+                "has_ablations": True,
+                "real_world_scale": True,
+                "non_trivial_finding": True,
+            },
+        }
+        rep2 = evaluate_conference_readiness(strong_exp)
+        self.assertTrue(rep2.passed)
+        self.assertEqual(rep2.score_10, 10.0)
+        self.assertEqual(rep2.recommended_action, "eligible_for_zenodo_publish")
+
+    def test_zenodo_new_version_workflow_mocked(self):
+        """Verify Zenodo v2 workflow: newversion -> latest_draft -> delete v1 files -> upload v2 -> publish."""
+        calls = []
+
+        class FakeResp:
+            def __init__(self, payload):
+                self._raw = json.dumps(payload).encode("utf-8") if payload is not None else b""
+            def read(self):
+                return self._raw
+            def __enter__(self):
+                return self
+            def __exit__(self, *a):
+                return False
+
+        def fake_opener(req, timeout=60):
+            url = req.full_url
+            method = req.get_method()
+            calls.append((method, url))
+            if method == "POST" and url.endswith("/deposit/depositions/11111/actions/newversion"):
+                return FakeResp({"links": {"latest_draft": "https://sandbox.zenodo.org/api/deposit/depositions/22222"}})
+            if method == "GET" and url.endswith("/deposit/depositions/22222"):
+                return FakeResp({
+                    "id": 22222,
+                    "conceptdoi": "10.5072/zenodo.11110",
+                    "files": [{"id": "old-f1", "filename": "old.pdf"}],
+                    "links": {
+                        "bucket": "https://sandbox.zenodo.org/api/files/bucket-v2",
+                        "html": "https://sandbox.zenodo.org/deposit/22222",
+                    },
+                    "metadata": {"prereserve_doi": {"doi": "10.5072/zenodo.22222"}},
+                })
+            if method == "DELETE" and url.endswith("/deposit/depositions/22222/files/old-f1"):
+                return FakeResp(None)
+            if method == "PUT" and "/api/files/bucket-v2/" in url:
+                return FakeResp({"key": url.rsplit("/", 1)[-1]})
+            if method == "PUT" and url.endswith("/deposit/depositions/22222"):
+                body = json.loads(req.data.decode("utf-8"))
+                self.assertEqual(body["metadata"]["version"], "2.0")
+                return FakeResp({"id": 22222, "metadata": body["metadata"]})
+            if method == "POST" and url.endswith("/deposit/depositions/22222/actions/publish"):
+                return FakeResp({
+                    "id": 22222,
+                    "doi": "10.5072/zenodo.22222",
+                    "conceptdoi": "10.5072/zenodo.11110",
+                    "links": {"record_html": "https://sandbox.zenodo.org/records/22222"},
+                })
+            raise AssertionError(f"Unexpected HTTP call: {method} {url}")
+
+        import research_engine.zenodo_publisher as zp
+        orig_gen = zp.GEN_INDEX_JSON
+        with tempfile.TemporaryDirectory() as td:
+            tmp_gen = Path(td) / "generated-papers.json"
+            reg = json.loads(orig_gen.read_text(encoding="utf-8"))
+            for p in reg["papers"]:
+                if p["slug"] == "pytorch-kl-bregman-stability":
+                    p["zenodo_sandbox"] = {"deposition_id": 11111, "published": True, "doi": "10.5072/zenodo.11111"}
+            tmp_gen.write_text(json.dumps(reg), encoding="utf-8")
+            zp.GEN_INDEX_JSON = tmp_gen
+            try:
+                client = ZenodoClient(token="test_tok_123", sandbox=True, opener=fake_opener)
+                res = deposit_paper_to_zenodo(
+                    slug="pytorch-kl-bregman-stability",
+                    sandbox=True,
+                    publish=True,
+                    new_version=True,
+                    client=client,
+                )
+                self.assertEqual(res["status"], "published")
+                self.assertEqual(res["doi"], "10.5072/zenodo.22222")
+                self.assertEqual(res["conceptdoi"], "10.5072/zenodo.11110")
+                self.assertTrue(any(m == "DELETE" and "old-f1" in u for m, u in calls))
+                self.assertTrue(any(m == "POST" and "actions/newversion" in u for m, u in calls))
             finally:
                 zp.GEN_INDEX_JSON = orig_gen
 
