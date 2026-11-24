@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <title>Auditable Private AI: Air-Gapped Local Mode & Blind-Relay E2EE — Space AI</title>
+  <meta name="description" content="SIP-0005 from Space AI: fail-closed loopback air-gapping, coordinator-blind X25519/AES-256-GCM remote inference, and an honest hardware threat model." />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Space AI" />
+  <meta property="og:title" content="Auditable Private AI: Air-Gapped Local Mode & Blind-Relay E2EE — Space AI" />
+  <meta property="og:description" content="SIP-0005 from Space AI: fail-closed loopback air-gapping, coordinator-blind X25519/AES-256-GCM remote inference, and an honest hardware threat model." />
+  <meta property="og:image" content="https://spaceresearch.ai/og-card.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://spaceresearch.ai/og-card.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="./mark.svg?v=35" />
+  <link rel="stylesheet" href="./culture.css?v=29" />
+</head>
+<body>
+  <canvas id="cosmos-bg-canvas" class="cosmos-bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="page-shell">
+  <header class="ed-nav">
+    <div class="ed-nav-inner">
+      <a class="ed-brand" href="./index.html">
+        <span class="ed-emblem" aria-hidden="true">
+          <img src="./mark.svg?v=35" alt="" width="28" height="28" />
+        </span>
+        <span>Space AI</span>
+      </a>
+      <nav class="ed-links" aria-label="Primary">
+        <a href="./blog.html" class="active">Research</a>
+        <a href="./product.html" class="">Product</a>
+        <a href="./network.html" class="">Network</a>
+        <a href="./chat.html">Chat</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="icon-pill" href="https://github.com/spaceresearchai" target="_blank" rel="noopener" aria-label="Space AI on GitHub" title="GitHub (spaceresearchai)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.69-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11.05 11.05 0 0 1 5.8 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14 0 1.55-.01 2.8-.01 3.18 0 .31.21.67.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+        </a>
+        <button type="button" class="icon-pill" data-theme-toggle aria-label="Toggle color theme" title="Switch to Daylight Mode">☀</button>
+        <a class="btn sm" href="./chat.html">Open Chat</a>
+      </div>
+    </div>
+  </header>
+
+    <main>
+      <article class="section" style="padding-top:3.8rem;">
+        <div class="wrap-blog">
+          <a class="blog-back" href="./blog.html">&larr; All research notes</a>
+          <div class="blog-meta" style="margin-top:1.4rem;">
+            <span class="blog-cat">NOTE 05 &middot; PRIVACY &amp; CRYPTOGRAPHY &middot; SIP-0005</span>
+            <span>5 min read</span>
+          </div>
+          <h1 class="blog-article-title">Auditable Private AI: Air-Gapped Local Mode and Blind-Relay E2EE</h1>
+          <p class="blog-article-lead">
+            Most AI privacy tiers are policy promises hidden behind closed servers. In SIP-0005, we engineered fail-closed local air-gapping and coordinator-blind end-to-end encryption in plain, auditable client source.
+          </p>
+
+          <div class="blog-abstract">
+            <div class="blog-abstract-lbl">ABSTRACT</div>
+            <p>
+              We specify and implement two cryptographic and architectural privacy guarantees for Space AI tooling: (1) strict fail-closed loopback air-gapping (<code>local-only</code>) that refuses network egress with HTTP 503 if no local model is running, and (2) blind-relay end-to-end encryption (<code>space-e2ee-v1</code>) using worker-signed ephemeral X25519 keys and per-request HKDF-SHA256 / AES-256-GCM envelopes (&lt;1 ms crypto overhead). We pair both with an explicit hardware threat model distinguishing coordinator-blind personal GPUs from attested Confidential Compute enclaves.
+            </p>
+          </div>
+
+          <div class="blog-prose">
+            <h2>1. No silent downgrades: fail closed by default</h2>
+            <p>
+              A recurring failure mode in distributed AI tools is silent fallback: a user selects a private mode, the private backend happens to be busy, and the client quietly forwards plaintext code to a public cloud endpoint anyway.
+            </p>
+            <p>
+              Under <strong>SIP-0005</strong>, strict privacy modes (<code>local-only</code>, <code>e2ee</code>, <code>hardened-docker</code>, <code>tee</code>) always <strong>fail closed</strong> (HTTP <code>503</code> / <code>403</code>) when eligible compute is unavailable. Downgrading requires explicit caller opt-in and echoes transparent audit headers (<code>X-Space-Privacy-Applied</code>, <code>X-Space-Privacy-Downgraded</code>) so silent leakage is structurally impossible.
+            </p>
+
+            <div class="blog-figure">
+              <svg viewBox="0 0 640 200" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Blind-relay end-to-end encryption flow in space-e2ee-v1">
+                <rect x="18" y="34" width="160" height="132" rx="10" fill="#0b0b0d" stroke="rgba(255,255,255,0.16)"/>
+                <text x="32" y="60" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">CLIENT / CLI</text>
+                <text x="32" y="84" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="9.5">1. Verify Ed25519 sig</text>
+                <text x="32" y="102" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="9.5">2. Ephemeral X25519</text>
+                <text x="32" y="120" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="9.5">3. HKDF + AES-256-GCM</text>
+                <text x="32" y="146" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="9">Plaintext never leaves</text>
+
+                <path d="M182 100 L236 100" stroke="#ffffff" stroke-width="1.5"/>
+                <polygon points="236,96 244,100 236,104" fill="#ffffff"/>
+                <text x="186" y="88" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.5">ciphertext</text>
+
+                <rect x="246" y="34" width="148" height="132" rx="10" fill="#0b0b0d" stroke="rgba(255,255,255,0.12)" stroke-dasharray="4 3"/>
+                <text x="260" y="60" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">BLIND RELAY</text>
+                <text x="260" y="86" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="9.5">api.spaceresearch.ai</text>
+                <text x="260" y="110" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="9.5">Routes envelope only</text>
+                <text x="260" y="128" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="9.5">0 plaintext prompt</text>
+                <text x="260" y="146" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="9.5">0 plaintext output</text>
+
+                <path d="M398 100 L452 100" stroke="#ffffff" stroke-width="1.5"/>
+                <polygon points="452,96 460,100 452,104" fill="#ffffff"/>
+                <text x="402" y="88" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.5">ciphertext</text>
+
+                <rect x="462" y="34" width="160" height="132" rx="10" fill="#0b0b0d" stroke="rgba(255,255,255,0.16)"/>
+                <text x="476" y="60" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">PINNED WORKER</text>
+                <text x="476" y="84" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="9.5">In-RAM X25519 key</text>
+                <text x="476" y="102" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="9.5">Decrypts in RAM only</text>
+                <text x="476" y="120" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="9.5">Re-encrypts response</text>
+                <text x="476" y="146" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="9">Forward-secret per boot</text>
+              </svg>
+              <div class="blog-figcap">Figure 1. Blind-relay end-to-end encryption (<code>space-e2ee-v1</code>) with independent client anti-MITM key verification.</div>
+            </div>
+
+            <h2>2. How blind-relay E2EE (<code>space-e2ee-v1</code>) works</h2>
+            <p>
+              Suppose you own an RTX workstation or Mac Studio at home and want to use it remotely from a laptop or coding agent through <code>api.spaceresearch.ai</code> without our coordinator, CDN, or ISP ever reading your prompts or responses:
+            </p>
+            <ul>
+              <li><strong>In-RAM forward-secret keypair:</strong> On startup, the worker generates an ephemeral X25519 keypair exclusively in memory and signs its public key with its persistent Ed25519 identity key.</li>
+              <li><strong>Client-side anti-MITM verification:</strong> Before encrypting, the client locally re-verifies the worker's Ed25519 signature over the X25519 public key. When pinned to your own node identity, even a compromised relay cannot intercept or substitute the key exchange.</li>
+              <li><strong>Per-request AES-256-GCM envelopes:</strong> Every prompt uses a fresh ephemeral client X25519 key, a random 96-bit nonce, and domain-separated HKDF-SHA256 keys for request and response payloads — adding under <strong>1 millisecond</strong> of cryptographic overhead.</li>
+              <li><strong>Hashed private team pools:</strong> With <code>--private-pool</code>, both client and worker hash the shared pool secret locally via SHA-256 so the secret itself never crosses the wire, and public traffic is excluded from private nodes.</li>
+            </ul>
+
+            <h2>3. An honest hardware threat model</h2>
+            <p>
+              Good security research states its exact boundaries plainly. Consumer GPUs (including GeForce RTX 30/40/50-series) and consumer CPUs do not support hardware-encrypted VRAM enclaves (NVIDIA Confidential Computing or AMD SEV-SNP).
+            </p>
+            <div class="table-wrap" style="margin:1.4rem 0 1.8rem 0;">
+              <table>
+                <thead>
+                  <tr><th>Privacy Tier</th><th>Coordinator Visibility</th><th>Worker Host Visibility</th><th>Best Fit</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><code>local-only</code></td><td>None (zero egress)</td><td>Your machine only</td><td>Air-gapped local codebases</td></tr>
+                  <tr><td><code>e2ee</code></td><td>None (ciphertext only)</td><td>Decrypts in worker RAM</td><td>Your home GPU or private team VPC</td></tr>
+                  <tr><td><code>hardened-docker</code></td><td>Relay (unless +E2EE)</td><td>Non-root read-only sandbox</td><td>No-disk-persistence workloads</td></tr>
+                  <tr><td><code>tee</code></td><td>None (with E2EE)</td><td>None (hardware-encrypted RAM)</td><td>Untrusted third-party datacenter GPUs</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h2>4. Independently auditable source</h2>
+            <p>
+              Every line of the client proxy, air-gap filter, and <code>space-e2ee-v1</code> cryptography ships in plain source with deterministic SHA-256 checksums and automated anti-MITM unit tests. Anyone can inspect the code and run <code>space privacy-check --json</code> locally without trusting hosted claims.
+            </p>
+
+            <div class="blog-callout">
+              <div class="blog-callout-title">Audit the specification and client source</div>
+              <p>Read SIP-0005 and inspect the plain-source CLI and E2EE implementation directly on GitHub.</p>
+              <div class="btn-row">
+                <a class="btn sm" href="https://github.com/spaceresearchai/longinus-network" target="_blank" rel="noopener">Inspect on GitHub &#8599;</a>
+                <a class="btn secondary sm" href="./product.html">Explore Space AI Network</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <footer class="landing-foot">
+      <div class="wrap" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:1rem;">
+        <span>&copy; 2026 Space AI &middot; spaceresearch.ai</span>
+        <div style="display:flex; gap:1.4rem; color:var(--ink-soft);">
+          <a href="./blog.html">Research</a>
+          <a href="./product.html">Product</a>
+          <a href="./network.html">Network</a>
+          <a href="./chat.html">Chat</a>
+          <a href="https://github.com/spaceresearchai" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="./culture-home.js?v=29"></script>
+</body>
+</html>

@@ -4,11 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <meta name="theme-color" content="#000000" />
-  <title>Space Chat · Glass-Box Local AI</title>
-  <meta name="description" content="Fast, glass-box local AI chat with live Decision X-Ray, bluff &amp; sycophancy radar, and 1-click counterfactual forking." />
+  <title>Space Chat · Space AI</title>
+  <meta name="description" content="Glass-box open AI chat from Space AI with live token certainty inspection, multi-node Swarm synthesis, and counterfactual forking." />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Space AI" />
-  <meta property="og:title" content="Space Chat · Decision X-Ray for Open Local AI" />
+  <meta property="og:title" content="Space Chat · Space AI" />
   <meta property="og:description" content="Watch token-level certainty, competing thoughts, bluff risk, and framing flips live on community local silicon. Free, no login." />
   <meta property="og:url" content="https://spaceresearch.ai/chat.html" />
   <meta property="og:image" content="https://spaceresearch.ai/og-card.png" />
@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://api.spaceresearch.ai" crossorigin />
   <link rel="dns-prefetch" href="https://api.spaceresearch.ai" />
   <link rel="icon" type="image/svg+xml" href="./mark.svg?v=35" />
-  <link rel="stylesheet" href="./chat.css?v=14" />
+  <link rel="stylesheet" href="./chat.css?v=17" />
 </head>
 <body>
   <canvas id="chat-cosmos-canvas" class="chat-cosmos-canvas" aria-hidden="true"></canvas>
@@ -36,12 +36,8 @@
       <div class="sb-top">
         <div class="sb-brand">
           <a class="sb-brand-link" href="./index.html">
-            <span class="sb-emblem logo-orbit" aria-hidden="true">
-              <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
-                <g class="orbit-ring-a"><ellipse cx="14" cy="14" rx="11" ry="4.4" stroke="currentColor" stroke-width="1.4" opacity="0.92"/></g>
-                <g class="orbit-ring-b"><ellipse cx="14" cy="14" rx="10.5" ry="4.2" stroke="currentColor" stroke-width="1.1" opacity="0.48"/></g>
-                <circle cx="14" cy="14" r="2.7" fill="currentColor"/>
-              </svg>
+            <span class="sb-emblem" aria-hidden="true">
+              <img src="./mark.svg?v=35" alt="" width="28" height="28" />
             </span>
             <span>Space AI</span>
           </a>
@@ -59,9 +55,10 @@
         </div>
         <div class="sb-nav-links">
           <a href="./index.html">Home</a>
+          <a href="./blog.html">Research</a>
           <a href="./product.html">Product</a>
-          <a href="./blog.html">Blog</a>
           <a href="./network.html">Network</a>
+          <a href="https://github.com/spaceresearchai" target="_blank" rel="noopener">GitHub</a>
         </div>
       </div>
     </aside>
@@ -82,7 +79,6 @@
         </div>
         <div class="tb-right">
           <button id="btn-xray" type="button" class="icon-btn xray-btn active" title="Toggle live confidence inspection"><span class="xray-dot"></span><span>Confidence · On</span></button>
-          <a class="icon-btn" href="https://github.com/spaceresearchai/spaceresearch.ai/releases/latest" target="_blank" rel="noopener" title="Download Space AI Desktop for macOS, Windows &amp; Linux">Desktop App</a>
           <a class="icon-btn" href="./network.html">Network</a>
         </div>
       </header>
@@ -114,33 +110,51 @@
     if (!c || !c.getContext) return;
     const ctx = c.getContext("2d");
     const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let stars = [];
+    const cols = [[235, 235, 240], [190, 190, 200], [215, 215, 222], [160, 160, 172]];
+    let nodes = [];
     function resize() {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       c.width = Math.floor(window.innerWidth * dpr);
       c.height = Math.floor(window.innerHeight * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const count = Math.min(130, Math.floor((window.innerWidth * window.innerHeight) / 11500));
-      stars = Array.from({ length: count }, () => ({
+      const count = Math.min(84, Math.floor((window.innerWidth * window.innerHeight) / 16000));
+      nodes = Array.from({ length: count }, (_, idx) => ({
         x: Math.random() * window.innerWidth,
         y: Math.random() * window.innerHeight,
-        r: 0.45 + Math.random() * 1.0,
+        r: 0.7 + Math.random() * 1.15,
         phase: Math.random() * Math.PI * 2,
-        spd: 0.004 + Math.random() * 0.010,
-        gold: Math.random() < 0.24,
+        spd: 0.004 + Math.random() * 0.008,
+        rgb: cols[idx % cols.length],
       }));
     }
     resize();
     window.addEventListener("resize", resize);
     let raf = 0;
     function draw() {
-      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-      for (const s of stars) {
+      const w = window.innerWidth, h = window.innerHeight;
+      ctx.clearRect(0, 0, w, h);
+      for (let i = 0; i < nodes.length; i++) {
+        const s = nodes[i];
         if (!reduced) s.phase += s.spd;
-        const a = 0.14 + 0.48 * (0.5 + 0.5 * Math.sin(s.phase));
-        ctx.fillStyle = s.gold ? `rgba(226, 176, 104, ${a.toFixed(2)})` : `rgba(244, 244, 248, ${a.toFixed(2)})`;
+        const px = s.x + Math.sin(s.phase) * 8;
+        const py = s.y + Math.cos(s.phase * 0.8) * 7;
+        for (let j = i + 1; j < nodes.length; j++) {
+          const o = nodes[j];
+          const dx = px - o.x, dy = py - o.y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 < 9500) {
+            ctx.strokeStyle = `rgba(${s.rgb[0]}, ${s.rgb[1]}, ${s.rgb[2]}, ${((1 - d2 / 9500) * 0.10).toFixed(3)})`;
+            ctx.lineWidth = 0.7;
+            ctx.beginPath();
+            ctx.moveTo(px, py);
+            ctx.lineTo(o.x, o.y);
+            ctx.stroke();
+          }
+        }
+        const a = 0.16 + 0.34 * (0.5 + 0.5 * Math.sin(s.phase));
+        ctx.fillStyle = `rgba(${s.rgb[0]}, ${s.rgb[1]}, ${s.rgb[2]}, ${a.toFixed(2)})`;
         ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.arc(px, py, s.r, 0, Math.PI * 2);
         ctx.fill();
       }
       if (!reduced) raf = requestAnimationFrame(draw);

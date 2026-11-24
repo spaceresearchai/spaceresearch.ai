@@ -4,12 +4,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#000000" />
-  <title>Space AI — Open Sky of Shared Minds</title>
-  <meta name="description" content="Open AI powered by verified community Macs and GPUs, with live confidence on every answer." />
+  <title>Space AI — Open Machine Intelligence Lab</title>
+  <meta name="description" content="Space AI is an open machine intelligence lab discovering new science, optimizing neural systems, and pooling collective intelligence on everyday hardware." />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Space AI" />
-  <meta property="og:title" content="Space AI — Open Sky of Shared Minds" />
-  <meta property="og:description" content="Open intelligence powered by everyday Macs and GPUs. No black boxes, no silent downgrades." />
+  <meta property="og:title" content="Space AI — Open Machine Intelligence Lab" />
+  <meta property="og:description" content="Discovering new science with open machine intelligence. Exact proofs, lean neural optimization, and collective verified compute." />
   <meta property="og:url" content="https://spaceresearch.ai/" />
   <meta property="og:image" content="https://spaceresearch.ai/og-card.png" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -19,7 +19,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="preconnect" href="https://api.spaceresearch.ai" crossorigin />
   <link rel="icon" type="image/svg+xml" href="./mark.svg?v=35" />
-  <link rel="stylesheet" href="./culture.css?v=24" />
+  <link rel="stylesheet" href="./culture.css?v=29" />
 </head>
 <body>
   <canvas id="cosmos-bg-canvas" class="cosmos-bg-canvas" aria-hidden="true"></canvas>
@@ -28,22 +28,21 @@
   <header class="ed-nav">
     <div class="ed-nav-inner">
       <a class="ed-brand" href="./index.html">
-        <span class="ed-emblem logo-orbit" aria-hidden="true">
-          <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
-            <g class="orbit-ring-a"><ellipse cx="14" cy="14" rx="11" ry="4.4" stroke="currentColor" stroke-width="1.4" opacity="0.92"/></g>
-            <g class="orbit-ring-b"><ellipse cx="14" cy="14" rx="10.5" ry="4.2" stroke="currentColor" stroke-width="1.1" opacity="0.48"/></g>
-            <circle cx="14" cy="14" r="2.7" fill="currentColor"/>
-          </svg>
+        <span class="ed-emblem" aria-hidden="true">
+          <img src="./mark.svg?v=35" alt="" width="28" height="28" />
         </span>
         <span>Space AI</span>
       </a>
       <nav class="ed-links" aria-label="Primary">
+        <a href="./blog.html" class="">Research</a>
         <a href="./product.html" class="">Product</a>
-        <a href="./blog.html" class="">Blog</a>
         <a href="./network.html" class="">Network</a>
         <a href="./chat.html">Chat</a>
       </nav>
       <div class="nav-actions">
+        <a class="icon-pill" href="https://github.com/spaceresearchai" target="_blank" rel="noopener" aria-label="Space AI on GitHub" title="GitHub (spaceresearchai)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.69-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11.05 11.05 0 0 1 5.8 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14 0 1.55-.01 2.8-.01 3.18 0 .31.21.67.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+        </a>
         <button type="button" class="icon-pill" data-theme-toggle aria-label="Toggle color theme" title="Switch to Daylight Mode">☀</button>
         <a class="btn sm" href="./chat.html">Open Chat</a>
       </div>
@@ -54,36 +53,70 @@
       <div class="hero-outer">
         <section class="hero-stage landing-stage" aria-label="Space AI">
           <div class="hero-inner" style="margin-top:0;">
-            <h1 class="hero-title">An open sky of<br /><span class="hl">shared minds.</span></h1>
-            <p class="hero-sub" style="margin-bottom:0;">
-              Open AI running on verified community Macs and GPUs.
+            <p class="lab-eyebrow"><span class="spec-dot cyan"></span><span>OPEN MACHINE INTELLIGENCE LAB</span></p>
+            <h1 class="hero-title" style="font-size:clamp(2.45rem, 5.5vw, 4.4rem);">Discovering new science with<br /><span class="hl">open intelligence.</span></h1>
+            <p class="hero-sub" style="margin-bottom:0.85rem; max-width:56ch;">
+              We map and optimize neural systems, pull distributed intelligence together across everyday hardware, and publish our proofs, models, and tools in the open.
             </p>
+            <div id="manifold-coord" class="manifold-coord" aria-hidden="true"><span>z<sub>1</sub> +0.00</span><span>z<sub>2</sub> +0.00</span><span>‖z‖ 0.00</span></div>
           </div>
 
-          <a class="product-door" href="./product.html">
+          <div class="lab-pillars" aria-label="Research mission">
+            <div class="lab-pillar" data-cluster="0">
+              <div class="lab-pillar-k"><span class="spec-dot cyan" style="margin-right:0.42rem;"></span>01 &middot; Discover</div>
+              <div class="lab-pillar-v">Pairing exact formal search with neural intuition to uncover verifiable theorems and new science.</div>
+            </div>
+            <div class="lab-pillar" data-cluster="2">
+              <div class="lab-pillar-k" ><span class="spec-dot emerald" style="margin-right:0.42rem;"></span>02 &middot; Optimize</div>
+              <div class="lab-pillar-v">Pushing intelligence per watt on single workstations with live token-level certainty inspection.</div>
+            </div>
+            <div class="lab-pillar" data-cluster="1">
+              <div class="lab-pillar-k" ><span class="spec-dot violet" style="margin-right:0.42rem;"></span>03 &middot; Pool &amp; Open</div>
+              <div class="lab-pillar-v">Combining multiple models and verified community hardware into one open scientific commons.</div>
+            </div>
+          </div>
+
+          <a class="product-door" href="./product.html" data-cluster="3">
             <div>
-              <div class="product-door-eyebrow"><span class="live-dot"></span><span>PRODUCT &middot; LIVE</span></div>
+              <div class="product-door-eyebrow"><span class="live-dot"></span><span>LIVE PLATFORM &middot; SPACE AI NETWORK</span></div>
               <h2 class="product-door-title">Space AI Network</h2>
-              <p class="product-door-desc">Open models, live word confidence, Space Chat, 1-line coding CLI, and Home Orbitals.</p>
+              <p class="product-door-desc">Our live open infrastructure: glass-box Space Chat, multi-node Swarm synthesis, sharded inference, 1-line CLI, and verified community hardware.</p>
             </div>
             <span class="product-door-arrow">Explore &rarr;</span>
           </a>
 
-          <div class="landing-blog-strip" aria-label="Recent blog posts">
-            <a class="landing-blog-item" href="./blog-open-intelligence.html">
-              <div class="landing-blog-cat">Blog &middot; Mission</div>
-              <div class="landing-blog-t">What We Are Building at Space AI &rarr;</div>
+          <div class="landing-blog-strip" aria-label="Research notes">
+            <a class="landing-blog-item" href="./blog-open-intelligence.html" data-cluster="3">
+              <div class="landing-blog-cat"><span class="spec-dot amber"></span><span>01 &middot; Lab Thesis</span></div>
+              <div class="landing-blog-t">Why We Built Space AI &rarr;</div>
             </a>
-            <a class="landing-blog-item" href="./blog-quoridor.html">
-              <div class="landing-blog-cat">Blog &middot; Research</div>
-              <div class="landing-blog-t">Exact Proofs &amp; Neural Grandmasters in Quoridor &rarr;</div>
+            <a class="landing-blog-item" href="./blog-quoridor.html" data-cluster="0">
+              <div class="landing-blog-cat"><span class="spec-dot cyan"></span><span>02 &middot; Formal Search</span></div>
+              <div class="landing-blog-t">Exact Proofs &amp; 2,600+ Elo in Quoridor &rarr;</div>
+            </a>
+            <a class="landing-blog-item" href="./blog-interpretability.html" data-cluster="1">
+              <div class="landing-blog-cat"><span class="spec-dot violet"></span><span>03 &middot; Interpretability</span></div>
+              <div class="landing-blog-t">Glass-Box Interpretability in Space Chat &rarr;</div>
+            </a>
+            <a class="landing-blog-item" href="./blog-ace-inference.html" data-cluster="2">
+              <div class="landing-blog-cat"><span class="spec-dot emerald"></span><span>04 &middot; Optimization</span></div>
+              <div class="landing-blog-t">Algorithmic Core Extraction (ACE) &rarr;</div>
+            </a>
+            <a class="landing-blog-item" href="./blog-private-ai.html" data-cluster="3">
+              <div class="landing-blog-cat"><span class="spec-dot amber"></span><span>05 &middot; Private AI</span></div>
+              <div class="landing-blog-t">Air-Gapped Local &amp; Blind-Relay E2EE &rarr;</div>
+            </a>
+            <a class="landing-blog-item" href="./blog-verification.html" data-cluster="0">
+              <div class="landing-blog-cat"><span class="spec-dot cyan"></span><span>06 &middot; Verification</span></div>
+              <div class="landing-blog-t">Knowledge Boundary Fingerprinting &rarr;</div>
             </a>
           </div>
 
           <div class="landing-sub-links">
+            <a href="./blog.html">Research &rarr;</a>
             <a href="./chat.html">Space Chat &rarr;</a>
             <a href="./network.html">Live Network &rarr;</a>
-            <a href="./blog.html">All Posts &rarr;</a>
+            <a href="https://github.com/spaceresearchai" target="_blank" rel="noopener">GitHub &#8599;</a>
           </div>
         </section>
       </div>
@@ -93,13 +126,15 @@
       <div class="wrap" style="display:flex; justify-content:space-between; align-items:center; gap:1rem;">
         <span>&copy; 2026 Space AI &middot; spaceresearch.ai</span>
         <div style="display:flex; gap:1.3rem; color:var(--ink-soft);">
+          <a href="./blog.html">Research</a>
           <a href="./product.html">Product</a>
-          <a href="./blog.html">Blog</a>
+          <a href="./network.html">Network</a>
+          <a href="https://github.com/spaceresearchai" target="_blank" rel="noopener">GitHub</a>
         </div>
       </div>
     </footer>
   </div>
 
-  <script src="./culture-home.js?v=24"></script>
+  <script src="./culture-home.js?v=29"></script>
 </body>
 </html>

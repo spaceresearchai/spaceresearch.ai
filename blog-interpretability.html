@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <title>Glass-Box Chat: Live Interpretability in Space Chat — Space AI</title>
+  <meta name="description" content="Live token decision geometry, 1-click counterfactual forking, antisymmetric paired-swap honesty auditing, and 5-framing belief stability stress-tests inside Space Chat." />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Space AI" />
+  <meta property="og:title" content="Glass-Box Chat: Live Interpretability in Space Chat — Space AI" />
+  <meta property="og:description" content="Live token decision geometry, 1-click counterfactual forking, antisymmetric paired-swap honesty auditing, and 5-framing belief stability stress-tests inside Space Chat." />
+  <meta property="og:image" content="https://spaceresearch.ai/og-card.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://spaceresearch.ai/og-card.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="./mark.svg?v=35" />
+  <link rel="stylesheet" href="./culture.css?v=29" />
+</head>
+<body>
+  <canvas id="cosmos-bg-canvas" class="cosmos-bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="page-shell">
+  <header class="ed-nav">
+    <div class="ed-nav-inner">
+      <a class="ed-brand" href="./index.html">
+        <span class="ed-emblem" aria-hidden="true">
+          <img src="./mark.svg?v=35" alt="" width="28" height="28" />
+        </span>
+        <span>Space AI</span>
+      </a>
+      <nav class="ed-links" aria-label="Primary">
+        <a href="./blog.html" class="active">Research</a>
+        <a href="./product.html" class="">Product</a>
+        <a href="./network.html" class="">Network</a>
+        <a href="./chat.html">Chat</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="icon-pill" href="https://github.com/spaceresearchai" target="_blank" rel="noopener" aria-label="Space AI on GitHub" title="GitHub (spaceresearchai)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.69-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11.05 11.05 0 0 1 5.8 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14 0 1.55-.01 2.8-.01 3.18 0 .31.21.67.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+        </a>
+        <button type="button" class="icon-pill" data-theme-toggle aria-label="Toggle color theme" title="Switch to Daylight Mode">☀</button>
+        <a class="btn sm" href="./chat.html">Open Chat</a>
+      </div>
+    </div>
+  </header>
+
+    <main>
+      <article class="section" style="padding-top:3.8rem;">
+        <div class="wrap-blog">
+          <a class="blog-back" href="./blog.html">&larr; All research notes</a>
+          <div class="blog-meta" style="margin-top:1.4rem;">
+            <span class="blog-cat">NOTE 03 &middot; MECHANISTIC INTERPRETABILITY</span>
+            <span>6 min read</span>
+          </div>
+          <h1 class="blog-article-title">Glass-Box Chat: Live Interpretability and Causal Interventions in Space Chat</h1>
+          <p class="blog-article-lead">
+            Most interpretability tools live inside offline notebooks long after a model has already shipped. We are building live mechanistic and behavioral instrumentation directly into Space Chat so every reply can be inspected, perturbed, and stress-tested in real time.
+          </p>
+
+          <div class="blog-abstract">
+            <div class="blog-abstract-lbl">ABSTRACT</div>
+            <p>
+              Closed chat interfaces collapse a rich probability distribution over internal reasoning trajectories into a single confident stream of text. Inside Space Chat, we expose four real-time diagnostic instruments running on open weights: (1) token-level decision geometry (probability, top-2 logit margin, and local entropy), (2) 1-click counterfactual token forking for causal trajectory intervention, (3) antisymmetric paired-swap auditing that cancels out prompt-order bias in ~215 ms to separate factual grounding, sycophancy, and overconfident bluffing, and (4) 5-framing belief stability stress-tests plus cycle-free pairwise comparison.
+            </p>
+          </div>
+
+          <div class="blog-prose">
+            <h2>1. Why interpretability belongs inside the live interface</h2>
+            <p>
+              When a language model answers a scientific or engineering question, the visible sentence is only the final surface projection of thousands of internal competitions. A token chosen with 99.8% certainty and a token chosen by a 51% to 49% coin flip render in the exact same font and confident tone.
+            </p>
+            <p>
+              At Space AI, we treat chat not just as a consumer text box, but as an <strong>interactive laboratory instrument</strong>. Because we serve open-weight models directly on community hardware, we can inspect the model's exact next-token decision geometry, intervene causally mid-generation, and run fast parallel diagnostic probes on the same live silicon.
+            </p>
+
+            <div class="blog-figure">
+              <svg viewBox="0 0 640 248" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Space Chat live interpretability pipeline diagram">
+                <rect x="14" y="16" width="138" height="214" rx="10" fill="#0b0b0e" stroke="rgba(255,255,255,0.12)"/>
+                <text x="28" y="42" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">01 DECISION X-RAY</text>
+                <text x="28" y="68" fill="#f5f5f5" font-family="Inter, sans-serif" font-size="12" font-weight="600">Token Geometry</text>
+                <text x="28" y="92" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="10">p(tok) &middot; certainty</text>
+                <text x="28" y="110" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="10">m = z1 - z2 gap</text>
+                <text x="28" y="128" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="10">H = local entropy</text>
+                <rect x="28" y="152" width="110" height="8" rx="4" fill="rgba(255,255,255,0.1)"/>
+                <rect x="28" y="152" width="96" height="8" rx="4" fill="#ffffff"/>
+                <rect x="28" y="170" width="110" height="8" rx="4" fill="rgba(255,255,255,0.1)"/>
+                <rect x="28" y="170" width="54" height="8" rx="4" fill="#ffffff"/>
+                <text x="28" y="206" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="9">Flags low-margin forks</text>
+
+                <path d="M156 122 L172 122" stroke="#e4e4e7" stroke-width="1.6"/>
+                <polygon points="172,118 179,122 172,126" fill="#ffffff"/>
+
+                <rect x="182" y="16" width="138" height="214" rx="10" fill="#0b0b0e" stroke="rgba(255,255,255,0.12)"/>
+                <text x="196" y="42" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">02 CAUSAL FORK</text>
+                <text x="196" y="68" fill="#f5f5f5" font-family="Inter, sans-serif" font-size="12" font-weight="600">Counterfactuals</text>
+                <text x="196" y="92" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="10">Prefix[0..t-1]</text>
+                <text x="196" y="110" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="10">+ forced alt_k</text>
+                <path d="M204 148 L244 148 L286 130" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="M244 148 L286 168" stroke="#e4e4e7" stroke-width="1.8" stroke-dasharray="4 3" stroke-linecap="round"/>
+                <circle cx="244" cy="148" r="4" fill="#ffffff"/>
+                <text x="196" y="206" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="9">Tests trajectory sensitivity</text>
+
+                <path d="M324 122 L340 122" stroke="#e4e4e7" stroke-width="1.6"/>
+                <polygon points="340,118 347,122 340,126" fill="#ffffff"/>
+
+                <rect x="350" y="16" width="138" height="214" rx="10" fill="#0b0b0e" stroke="rgba(255,255,255,0.12)"/>
+                <text x="364" y="42" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">03 PAIRED-SWAP</text>
+                <text x="364" y="68" fill="#f5f5f5" font-family="Inter, sans-serif" font-size="12" font-weight="600">De-Biased Audit</text>
+                <text x="364" y="94" fill="#f5f5f5" font-family="JetBrains Mono, monospace" font-size="10">s = 0.5*(mAB - mBA)</text>
+                <text x="364" y="114" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="10">b = 0.5*(mAB + mBA)</text>
+                <text x="364" y="146" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="10">&bull; Groundedness</text>
+                <text x="364" y="164" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="10">&bull; Sycophancy</text>
+                <text x="364" y="182" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="10">&bull; Bluff risk</text>
+                <text x="364" y="206" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="9">Zero order bias (~215ms)</text>
+
+                <path d="M492 122 L508 122" stroke="#e4e4e7" stroke-width="1.6"/>
+                <polygon points="508,118 515,122 508,126" fill="#ffffff"/>
+
+                <rect x="518" y="16" width="108" height="214" rx="10" fill="#0b0b0e" stroke="rgba(255,255,255,0.12)"/>
+                <text x="530" y="42" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">04 STRESS</text>
+                <text x="530" y="68" fill="#f5f5f5" font-family="Inter, sans-serif" font-size="12" font-weight="600">5 Framings</text>
+                <text x="530" y="96" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9.5">Push A</text>
+                <text x="530" y="114" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9.5">Lean A</text>
+                <text x="530" y="132" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">Neutral</text>
+                <text x="530" y="150" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9.5">Lean B</text>
+                <text x="530" y="168" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9.5">Push B</text>
+                <text x="530" y="206" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="9">Belief stability</text>
+              </svg>
+              <div class="blog-figcap">Figure 1. Live interpretability pipeline running inside Space Chat on verified open weights.</div>
+            </div>
+
+            <div class="blog-stats">
+              <div class="blog-stat">
+                <div class="blog-stat-v">~215 ms</div>
+                <div class="blog-stat-l">Paired-Swap Audit</div>
+              </div>
+              <div class="blog-stat">
+                <div class="blog-stat-v">5 Framings</div>
+                <div class="blog-stat-l">Belief Stress Sweep</div>
+              </div>
+              <div class="blog-stat">
+                <div class="blog-stat-v">0%</div>
+                <div class="blog-stat-l">Order Bias Residual</div>
+              </div>
+              <div class="blog-stat">
+                <div class="blog-stat-v">Per Token</div>
+                <div class="blog-stat-l">Causal Forking</div>
+              </div>
+            </div>
+
+            <h2>2. Decision X-Ray: exposing next-token geometry</h2>
+            <p>
+              As every reply streams in <a href="./chat.html">Space Chat</a>, our Decision X-Ray records three microscopic quantities at every token index <code>t</code>:
+            </p>
+            <ul>
+              <li><strong>Chosen probability (<code>p</code>):</strong> How much probability mass the model placed on the emitted token.</li>
+              <li><strong>Top-2 decision margin (<code>m</code>):</strong> The log-odds gap between the winning token and its closest runner-up. When <code>m</code> collapses below <code>0.6</code> (or <code>p &lt; 0.55</code>), the model is standing on a sharp cliff edge where a tiny perturbation changes the trajectory.</li>
+              <li><strong>Local Shannon entropy (<code>H</code>) and runner-up branches:</strong> Whether probability mass is split cleanly between two coherent hypotheses or smeared across many uncertain guesses.</li>
+            </ul>
+            <p>
+              We keep the default reading surface quiet — showing a single clean confidence number per reply — while letting you toggle <strong>Inspect</strong> on any message to light up exact fork points and click any individual word to examine the competing candidates the model almost emitted.
+            </p>
+
+            <h2>3. 1-click counterfactual token forking</h2>
+            <p>
+              Observing uncertainty is passive; true mechanistic work requires <strong>causal intervention</strong>. Clicking any highlighted token in Space Chat opens its competing probability distribution and lets you click any runner-up alternative to fork reality at that exact token boundary.
+            </p>
+            <p>
+              Space Chat preserves the exact prefix up to token <code>t - 1</code>, transplants your chosen alternative at position <code>t</code>, and streams the counterfactual continuation live from that branch point. This makes two failure modes immediately visible in practice:
+            </p>
+            <ul>
+              <li><strong>Fragile reasoning cascades:</strong> A single low-margin token early in a proof or explanation (such as choosing <code>however</code> versus <code>therefore</code>) can pivot the entire downstream conclusion into an opposite answer.</li>
+              <li><strong>Strong factual attractors:</strong> When a model genuinely knows a fact, forcing a different phrasing early in the sentence still converges back to the exact same core claim.</li>
+            </ul>
+
+            <h2>4. Antisymmetric paired-swap auditing (cancelling position bias)</h2>
+            <p>
+              Asking a language model to judge whether an answer is honest or sycophantic is notoriously noisy because models exhibit strong <strong>prompt-order bias</strong> — systematically preferring Option A over Option B regardless of content.
+            </p>
+            <p>
+              To eliminate this artifact analytically, Space Chat's background audit (<code>/v1/audit</code>) evaluates three orthogonal diagnostic axes in parallel — <strong>Factual Grounding</strong>, <strong>Sycophancy / Pandering</strong>, and <strong>Overconfident Bluffing</strong> — by running every binary probe twice with swapped option order, <code>(A, B)</code> and <code>(B, A)</code>.
+            </p>
+            <p>
+              Given the raw A-vs-B log-odds margins <code>m_AB</code> and <code>m_BA</code>, we decompose them into two exact components:
+            </p>
+            <ul>
+              <li><strong>Order-invariant antisymmetric signal:</strong> <code>s = 0.5 * (m_AB - m_BA)</code> — any constant preference for the first or second slot cancels identically to zero.</li>
+              <li><strong>Pure position-bias residual:</strong> <code>b = 0.5 * (m_AB + m_BA)</code> — isolated and discarded so it cannot corrupt the calibration readout.</li>
+            </ul>
+            <p>
+              Because all six single-token probes execute concurrently on the local GPU runtime, a full de-biased audit finishes in roughly <strong>215 milliseconds</strong>, flagging sycophancy, fabrication risk, or uncalibrated bluffing without slowing down conversation.
+            </p>
+
+            <h2>5. 5-framing belief stability and cycle-free comparisons</h2>
+            <p>
+              Two additional built-in commands inside Space Chat extend this same de-biased methodology to interactive behavioral experiments:
+            </p>
+            <ul>
+              <li>
+                <strong>Belief stability stress-testing (<code>/stress</code>):</strong> Automatically detects Yes/No or A-vs-B questions and re-asks the model across five graded social-pressure framings (<code>Push Left</code>, <code>Lean Left</code>, <code>Neutral</code>, <code>Lean Right</code>, <code>Push Right</code>). Each response is scored with a paired-swap de-biased readout so you can measure exact <strong>maximum belief swing</strong> and see whether user pressure causes the model to flip its stance.
+              </li>
+              <li>
+                <strong>Cycle-free pairwise comparison (<code>/compare</code>):</strong> Evaluates every ordered pair <code>(i, j)</code> and <code>(j, i)</code> across a set of competing options, cancels position bias via antisymmetric margins, and reports both the raw position-bias rate and the exact number of <strong>intransitivity cycles</strong> (<code>A &gt; B &gt; C &gt; A</code>) eliminated from the final ranking.
+              </li>
+            </ul>
+
+            <h2>6. Where we are taking this next</h2>
+            <p>
+              Token-level decision geometry, causal counterfactual forking, and antisymmetric paired-swap probes are the first live layer of our interpretability program — focused on what can be measured cleanly and cheaply at interactive speed on everyday hardware.
+            </p>
+            <p>
+              Next, we are bridging these live behavioral and token-space instruments deeper into <strong>internal model circuits</strong>: pairing low-margin fork points and sycophancy flips with layer-wise representation probes, activation-steering checks, and automatic certainty-triggered escalation across our open <a href="./product.html">Space AI Network</a>. The goal is simple: machine intelligence you can inspect down to the mechanism, not take on faith.
+            </p>
+
+            <div class="blog-callout">
+              <div class="blog-callout-title">Test every instrument live in Space Chat</div>
+              <p>Click <strong>Inspect</strong> on any reply to view token certainty and fork counterfactual branches, or run <code>/stress</code> and <code>/compare</code> directly in chat with zero signup.</p>
+              <div class="btn-row">
+                <a class="btn sm" href="./chat.html">Open Space Chat &rarr;</a>
+                <a class="btn secondary sm" href="./blog.html">All Research Notes</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <footer class="landing-foot">
+      <div class="wrap" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:1rem;">
+        <span>&copy; 2026 Space AI &middot; spaceresearch.ai</span>
+        <div style="display:flex; gap:1.4rem; color:var(--ink-soft);">
+          <a href="./blog.html">Research</a>
+          <a href="./product.html">Product</a>
+          <a href="./network.html">Network</a>
+          <a href="./chat.html">Chat</a>
+          <a href="https://github.com/spaceresearchai" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="./culture-home.js?v=29"></script>
+</body>
+</html>

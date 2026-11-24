@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#000000" />
   <title>Live Network — Space AI</title>
-  <meta name="description" content="Live community Macs and GPUs, direct API &amp; coding tool setup, Home Orbitals, and Season 0 rewards on Space AI." />
+  <meta name="description" content="Live open community compute nodes, direct API &amp; CLI setup, Home Orbitals, and verification telemetry from Space AI." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="preconnect" href="https://api.spaceresearch.ai" crossorigin />
   <link rel="icon" type="image/svg+xml" href="./mark.svg?v=35" />
-  <link rel="stylesheet" href="./culture.css?v=24" />
+  <link rel="stylesheet" href="./culture.css?v=29" />
 </head>
 <body>
   <canvas id="cosmos-bg-canvas" class="cosmos-bg-canvas" aria-hidden="true"></canvas>
@@ -20,22 +20,21 @@
   <header class="ed-nav">
     <div class="ed-nav-inner">
       <a class="ed-brand" href="./index.html">
-        <span class="ed-emblem logo-orbit" aria-hidden="true">
-          <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
-            <g class="orbit-ring-a"><ellipse cx="14" cy="14" rx="11" ry="4.4" stroke="currentColor" stroke-width="1.4" opacity="0.92"/></g>
-            <g class="orbit-ring-b"><ellipse cx="14" cy="14" rx="10.5" ry="4.2" stroke="currentColor" stroke-width="1.1" opacity="0.48"/></g>
-            <circle cx="14" cy="14" r="2.7" fill="currentColor"/>
-          </svg>
+        <span class="ed-emblem" aria-hidden="true">
+          <img src="./mark.svg?v=35" alt="" width="28" height="28" />
         </span>
         <span>Space AI</span>
       </a>
       <nav class="ed-links" aria-label="Primary">
+        <a href="./blog.html" class="">Research</a>
         <a href="./product.html" class="">Product</a>
-        <a href="./blog.html" class="">Blog</a>
         <a href="./network.html" class="active">Network</a>
         <a href="./chat.html">Chat</a>
       </nav>
       <div class="nav-actions">
+        <a class="icon-pill" href="https://github.com/spaceresearchai" target="_blank" rel="noopener" aria-label="Space AI on GitHub" title="GitHub (spaceresearchai)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.69-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11.05 11.05 0 0 1 5.8 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14 0 1.55-.01 2.8-.01 3.18 0 .31.21.67.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+        </a>
         <button type="button" class="icon-pill" data-theme-toggle aria-label="Toggle color theme" title="Switch to Daylight Mode">☀</button>
         <a class="btn sm" href="./chat.html">Open Chat</a>
       </div>
@@ -395,7 +394,9 @@
           <span>&copy; 2026 Space AI &middot; spaceresearch.ai</span>
           <div style="display:flex; align-items:center; gap:1rem;">
             <a href="./index.html">Home</a>
+            <a href="./blog.html">Research</a>
             <a href="./chat.html">Space Chat</a>
+            <a href="https://github.com/spaceresearchai" target="_blank" rel="noopener">GitHub</a>
             <button type="button" class="icon-pill" data-theme-toggle aria-label="Toggle theme">☀</button>
           </div>
         </div>
@@ -422,26 +423,42 @@
       const c = document.getElementById("cosmos-bg-canvas");
       if (c && c.getContext) {
         const ctx = c.getContext("2d");
-        let stars = [];
-        const resize = () => {
-          const dpr = Math.min(window.devicePixelRatio || 1, 2);
-          c.width = Math.floor(window.innerWidth * dpr);
-          c.height = Math.floor(window.innerHeight * dpr);
-          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-          stars = Array.from({ length: 140 }, () => ({ x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight, r: 0.5 + Math.random() * 1.1, a: 0.25 + Math.random() * 0.6 }));
-        };
-        resize();
-        window.addEventListener("resize", resize);
+        const cols = [[230,230,236],[190,190,198],[215,215,222],[165,165,175]];
+        const centers = [[0.14,0.25],[0.86,0.24],[0.15,0.78],[0.85,0.76]];
         const draw = () => {
-          ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-          for (const s of stars) {
-            ctx.fillStyle = `rgba(244, 244, 248, ${s.a.toFixed(2)})`;
-            ctx.beginPath();
-            ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-            ctx.fill();
-          }
+          const dpr = Math.min(window.devicePixelRatio || 1, 2);
+          const w = window.innerWidth, h = window.innerHeight;
+          c.width = Math.floor(w * dpr);
+          c.height = Math.floor(h * dpr);
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          ctx.clearRect(0, 0, w, h);
+          const isLight = document.documentElement.getAttribute("data-theme") === "light";
+          ctx.strokeStyle = isLight ? "rgba(15,23,42,0.045)" : "rgba(255,255,255,0.025)";
+          const step = Math.max(72, Math.round(w / 14));
+          ctx.beginPath();
+          for (let gx = step; gx < w; gx += step) { ctx.moveTo(gx, 0); ctx.lineTo(gx, h); }
+          for (let gy = step; gy < h; gy += step) { ctx.moveTo(0, gy); ctx.lineTo(w, gy); }
+          ctx.stroke();
+          centers.forEach(([rx, ry], ci) => {
+            const [r,g,b] = cols[ci], cx = rx * w, cy = ry * h;
+            for (let k = 1; k <= 3; k++) {
+              ctx.strokeStyle = `rgba(${r},${g},${b},${(0.08 - k * 0.015).toFixed(3)})`;
+              ctx.beginPath();
+              ctx.ellipse(cx, cy, k * 58, k * 42, ci * 0.6, 0, Math.PI * 2);
+              ctx.stroke();
+            }
+            for (let i = 0; i < 16; i++) {
+              const ang = (i / 16) * Math.PI * 2 + ci;
+              const rad = 18 + ((i * 37) % 96);
+              ctx.fillStyle = `rgba(${r},${g},${b},0.42)`;
+              ctx.beginPath();
+              ctx.arc(cx + Math.cos(ang) * rad * 1.2, cy + Math.sin(ang) * rad * 0.85, 1.3, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          });
         };
         draw();
+        window.addEventListener("resize", draw);
       }
       // Hydrate live Devnet $SPACE & tSPACE stats + 1-click claim handler
       const API_BASE = "https://api.spaceresearch.ai";

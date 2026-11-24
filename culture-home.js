@@ -24,49 +24,248 @@
       });
     });
 
-    // Lightweight Ambient Full-Page Pure-Black Starfield with Gentle Scroll Parallax
+    // Interactive High-Dimensional Embedding Manifold Canvas (Contours + Semantic Clusters + Geodesic Trajectories)
     const bgCanvas = document.getElementById("cosmos-bg-canvas");
     if (bgCanvas && bgCanvas.getContext) {
       const ctx = bgCanvas.getContext("2d");
-      let stars = [];
-      function resizeBg() {
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        bgCanvas.width = Math.floor(window.innerWidth * dpr);
-        bgCanvas.height = Math.floor(window.innerHeight * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        const count = Math.min(220, Math.floor((window.innerWidth * window.innerHeight) / 6800));
-        stars = Array.from({ length: count }, () => ({
-          x: Math.random() * window.innerWidth,
-          y: Math.random() * window.innerHeight,
-          r: 0.45 + Math.random() * 1.15,
-          depth: 0.08 + Math.random() * 0.28,
-          phase: Math.random() * Math.PI * 2,
-          spd: 0.006 + Math.random() * 0.015,
-          gold: Math.random() < 0.22,
-        }));
+      const reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const CLUSTERS = [
+        { rx: 0.17, ry: 0.27, rgb: [235, 235, 240], label: "DISCOVERY" },
+        { rx: 0.83, ry: 0.26, rgb: [185, 185, 196], label: "INTERPRETABILITY" },
+        { rx: 0.18, ry: 0.77, rgb: [215, 215, 222], label: "OPTIMIZATION" },
+        { rx: 0.82, ry: 0.76, rgb: [168, 168, 180], label: "COLLECTIVE" },
+      ];
+      let W = window.innerWidth, H = window.innerHeight;
+      let pts = [];
+      let arcs = [];
+      let mouse = { x: -9999, y: -9999, active: false };
+      let focusCluster = -1;
+      const coordEl = document.getElementById("manifold-coord");
+
+      function gauss() {
+        let u = 0, v = 0;
+        while (u === 0) u = Math.random();
+        while (v === 0) v = Math.random();
+        return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
       }
-      resizeBg();
-      window.addEventListener("resize", resizeBg);
+
+      function rebuildManifold() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        W = window.innerWidth;
+        H = window.innerHeight;
+        bgCanvas.width = Math.floor(W * dpr);
+        bgCanvas.height = Math.floor(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        const perCluster = W < 640 ? 16 : 26;
+        const spreadX = Math.min(185, W * 0.15);
+        const spreadY = Math.min(145, H * 0.16);
+        pts = [];
+        CLUSTERS.forEach((c, ci) => {
+          const cx = c.rx * W;
+          const cy = c.ry * H;
+          for (let i = 0; i < perCluster; i++) {
+            pts.push({
+              ci,
+              bx: cx + gauss() * spreadX * 0.62,
+              by: cy + gauss() * spreadY * 0.62,
+              ax: 8 + Math.random() * 18,
+              ay: 8 + Math.random() * 16,
+              fx: 0.18 + Math.random() * 0.24,
+              fy: 0.16 + Math.random() * 0.22,
+              ph: Math.random() * Math.PI * 2,
+              r: 1.1 + Math.random() * 1.65,
+              depth: 0.05 + Math.random() * 0.16,
+              x: 0,
+              y: 0,
+            });
+          }
+        });
+        arcs = [
+          { from: 0, to: 1, u: 0.12, spd: 0.075, bend: -0.14 },
+          { from: 1, to: 3, u: 0.48, spd: 0.068, bend: 0.12 },
+          { from: 2, to: 0, u: 0.73, spd: 0.072, bend: -0.12 },
+          { from: 3, to: 2, u: 0.29, spd: 0.064, bend: 0.15 },
+          { from: 0, to: 3, u: 0.61, spd: 0.052, bend: -0.09 },
+        ];
+      }
+
+      rebuildManifold();
+      window.addEventListener("resize", rebuildManifold);
+      window.addEventListener("pointermove", (e) => {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+        mouse.active = true;
+        if (coordEl) {
+          const z1 = ((e.clientX / Math.max(1, W)) * 2 - 1) * 1.4;
+          const z2 = (1 - (e.clientY / Math.max(1, H)) * 2) * 1.4;
+          const norm = Math.sqrt(z1 * z1 + z2 * z2);
+          const fmt = (n) => (n >= 0 ? "+" : "") + n.toFixed(2);
+          coordEl.innerHTML = `<span>z<sub>1</sub> ${fmt(z1)}</span><span>z<sub>2</sub> ${fmt(z2)}</span><span>‖z‖ ${norm.toFixed(2)}</span>`;
+        }
+      }, { passive: true });
+      window.addEventListener("pointerleave", () => { mouse.active = false; });
+
+      document.querySelectorAll("[data-cluster]").forEach((el) => {
+        const ci = Number(el.getAttribute("data-cluster"));
+        el.addEventListener("mouseenter", () => { focusCluster = ci; });
+        el.addEventListener("mouseleave", () => { focusCluster = -1; });
+      });
+
       let rafBg = 0;
-      function drawBg() {
-        const w = window.innerWidth, h = window.innerHeight;
-        ctx.clearRect(0, 0, w, h);
+      const t0 = performance.now();
+      function drawManifold(now) {
+        const t = reducedMotion ? 0 : (now - t0) * 0.001;
+        const isLight = document.documentElement.getAttribute("data-theme") === "light";
         const sy = window.scrollY || 0;
-        for (const s of stars) {
-          s.phase += s.spd;
-          const a = 0.18 + 0.62 * (0.5 + 0.5 * Math.sin(s.phase));
-          const py = ((s.y - sy * s.depth) % h + h) % h;
-          ctx.fillStyle = s.gold ? `rgba(226, 176, 104, ${a.toFixed(2)})` : `rgba(244, 244, 248, ${a.toFixed(2)})`;
+        ctx.clearRect(0, 0, W, H);
+
+        // 1. Subtle coordinate manifold grid lines
+        ctx.strokeStyle = isLight ? "rgba(15, 23, 42, 0.045)" : "rgba(255, 255, 255, 0.026)";
+        ctx.lineWidth = 1;
+        const step = Math.max(72, Math.round(W / 14));
+        ctx.beginPath();
+        for (let gx = step; gx < W; gx += step) {
+          ctx.moveTo(gx, 0);
+          ctx.lineTo(gx, H);
+        }
+        const yOff = -(sy * 0.12) % step;
+        for (let gy = yOff; gy < H; gy += step) {
+          ctx.moveTo(0, gy);
+          ctx.lineTo(W, gy);
+        }
+        ctx.stroke();
+
+        // 2. Topographic density contour rings around each semantic basin
+        CLUSTERS.forEach((c, ci) => {
+          const cx = c.rx * W + Math.sin(t * 0.28 + ci * 1.7) * 14;
+          const cy = ((c.ry * H - sy * 0.06) % (H + 240) + (H + 240)) % (H + 240) - 120;
+          const boost = focusCluster === ci ? 1.85 : 1.0;
+          const [r, g, b] = c.rgb;
+
+          // Soft ambient basin glow
+          const grad = ctx.createRadialGradient(cx, cy, 8, cx, cy, Math.min(260, W * 0.24));
+          grad.addColorStop(0, `rgba(${r},${g},${b},${((isLight ? 0.08 : 0.095) * boost).toFixed(3)})`);
+          grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
+          ctx.fillStyle = grad;
           ctx.beginPath();
-          ctx.arc(s.x, py, s.r, 0, Math.PI * 2);
+          ctx.arc(cx, cy, Math.min(260, W * 0.24), 0, Math.PI * 2);
+          ctx.fill();
+
+          // Concentric organic elevation isolines
+          for (let ring = 1; ring <= 4; ring++) {
+            const baseR = ring * Math.min(54, W * 0.046);
+            ctx.strokeStyle = `rgba(${r},${g},${b},${((isLight ? 0.10 : 0.085) * boost * (1 - ring * 0.14)).toFixed(3)})`;
+            ctx.lineWidth = ring === 1 ? 1.0 : 0.75;
+            ctx.beginPath();
+            const segs = 40;
+            for (let s = 0; s <= segs; s++) {
+              const ang = (s / segs) * Math.PI * 2;
+              const warp = 1 + 0.11 * Math.sin(ang * 3 + t * 0.35 + ci) + 0.07 * Math.cos(ang * 2 - t * 0.24 + ring);
+              const px = cx + Math.cos(ang) * baseR * 1.24 * warp;
+              const py = cy + Math.sin(ang) * baseR * 0.86 * warp;
+              if (s === 0) ctx.moveTo(px, py);
+              else ctx.lineTo(px, py);
+            }
+            ctx.closePath();
+            ctx.stroke();
+          }
+        });
+
+        // 3. Update point positions
+        for (const p of pts) {
+          p.x = p.bx + Math.sin(t * p.fx + p.ph) * p.ax;
+          p.y = ((p.by + Math.cos(t * p.fy + p.ph) * p.ay - sy * p.depth) % (H + 100) + (H + 100)) % (H + 100) - 50;
+        }
+
+        // 4. Local k-NN manifold edges within each cluster
+        const maxDistSq = (W < 640 ? 92 : 118) ** 2;
+        for (let i = 0; i < pts.length; i++) {
+          const a = pts[i];
+          const [r, g, b] = CLUSTERS[a.ci].rgb;
+          const boost = focusCluster === a.ci ? 1.75 : 1.0;
+          for (let j = i + 1; j < pts.length; j++) {
+            const bp = pts[j];
+            if (bp.ci !== a.ci) continue;
+            const dx = a.x - bp.x;
+            const dy = a.y - bp.y;
+            const d2 = dx * dx + dy * dy;
+            if (d2 < maxDistSq) {
+              const alpha = (1 - d2 / maxDistSq) * (isLight ? 0.18 : 0.16) * boost;
+              ctx.strokeStyle = `rgba(${r},${g},${b},${alpha.toFixed(3)})`;
+              ctx.lineWidth = 0.75;
+              ctx.beginPath();
+              ctx.moveTo(a.x, a.y);
+              ctx.lineTo(bp.x, bp.y);
+              ctx.stroke();
+            }
+          }
+        }
+
+        // 5. Geodesic trajectories smoothly traversing between clusters
+        for (const arc of arcs) {
+          const cA = CLUSTERS[arc.from];
+          const cB = CLUSTERS[arc.to];
+          const ax = cA.rx * W, ay = cA.ry * H;
+          const bx = cB.rx * W, by = cB.ry * H;
+          const mx = (ax + bx) * 0.5 - (by - ay) * arc.bend;
+          const my = (ay + by) * 0.5 + (bx - ax) * arc.bend;
+          const grad = ctx.createLinearGradient(ax, ay, bx, by);
+          grad.addColorStop(0, `rgba(${cA.rgb.join(",")},0.11)`);
+          grad.addColorStop(1, `rgba(${cB.rgb.join(",")},0.11)`);
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = 0.85;
+          ctx.beginPath();
+          ctx.moveTo(ax, ay);
+          ctx.quadraticCurveTo(mx, my, bx, by);
+          ctx.stroke();
+
+          const u = (arc.u + t * arc.spd) % 1;
+          const inv = 1 - u;
+          const px = inv * inv * ax + 2 * inv * u * mx + u * u * bx;
+          const py = inv * inv * ay + 2 * inv * u * my + u * u * by;
+          const pr = Math.round(cA.rgb[0] * inv + cB.rgb[0] * u);
+          const pg = Math.round(cA.rgb[1] * inv + cB.rgb[1] * u);
+          const pb = Math.round(cA.rgb[2] * inv + cB.rgb[2] * u);
+          ctx.fillStyle = `rgba(${pr},${pg},${pb},0.85)`;
+          ctx.beginPath();
+          ctx.arc(px, py, 2.2, 0, Math.PI * 2);
           ctx.fill();
         }
-        rafBg = requestAnimationFrame(drawBg);
+
+        // 6. Embedding nodes + soft pointer vector projection
+        const mRadSq = 175 * 175;
+        for (const p of pts) {
+          const [r, g, b] = CLUSTERS[p.ci].rgb;
+          const boost = focusCluster === p.ci ? 1.45 : 1.0;
+          let near = 0;
+          if (mouse.active) {
+            const dx = p.x - mouse.x;
+            const dy = p.y - mouse.y;
+            const d2 = dx * dx + dy * dy;
+            if (d2 < mRadSq) {
+              near = 1 - Math.sqrt(d2) / 175;
+              ctx.strokeStyle = `rgba(${r},${g},${b},${(near * (isLight ? 0.30 : 0.28)).toFixed(3)})`;
+              ctx.lineWidth = 0.7;
+              ctx.beginPath();
+              ctx.moveTo(p.x, p.y);
+              ctx.lineTo(mouse.x, mouse.y);
+              ctx.stroke();
+            }
+          }
+          const alpha = Math.min(0.95, ((isLight ? 0.48 : 0.44) + near * 0.5) * boost);
+          ctx.fillStyle = `rgba(${r},${g},${b},${alpha.toFixed(3)})`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r + near * 1.4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        if (!reducedMotion) rafBg = requestAnimationFrame(drawManifold);
       }
-      drawBg();
+      rafBg = requestAnimationFrame(drawManifold);
       document.addEventListener("visibilitychange", () => {
         if (document.hidden) cancelAnimationFrame(rafBg);
-        else drawBg();
+        else if (!reducedMotion) rafBg = requestAnimationFrame(drawManifold);
       });
     }
 
@@ -420,7 +619,7 @@
               if (hxCertLbl) hxCertLbl.textContent = `Confidence ${avg}%`;
               if (hxFill) {
                 hxFill.style.width = avg + "%";
-                hxFill.style.background = avg >= 78 ? "#ffffff" : avg >= 48 ? "#e2b068" : "#ef4444";
+                hxFill.style.background = avg >= 78 ? "#34d399" : avg >= 48 ? "#fbbf24" : "#f43f5e";
               }
             } catch (_e) {}
           }

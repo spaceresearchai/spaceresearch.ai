@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <title>Algorithmic Core Extraction: Four Inference Speedups — Space AI</title>
+  <meta name="description" content="Measured RTX 5090 results from Space AI's open ace-inference suite: MicroCore early-exit, balanced-truncation Triton kernels, anti-inflation pruning, and lossless speculative decoding." />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Space AI" />
+  <meta property="og:title" content="Algorithmic Core Extraction: Four Inference Speedups — Space AI" />
+  <meta property="og:description" content="Measured RTX 5090 results from Space AI's open ace-inference suite: MicroCore early-exit, balanced-truncation Triton kernels, anti-inflation pruning, and lossless speculative decoding." />
+  <meta property="og:image" content="https://spaceresearch.ai/og-card.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://spaceresearch.ai/og-card.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="./mark.svg?v=35" />
+  <link rel="stylesheet" href="./culture.css?v=29" />
+</head>
+<body>
+  <canvas id="cosmos-bg-canvas" class="cosmos-bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="page-shell">
+  <header class="ed-nav">
+    <div class="ed-nav-inner">
+      <a class="ed-brand" href="./index.html">
+        <span class="ed-emblem" aria-hidden="true">
+          <img src="./mark.svg?v=35" alt="" width="28" height="28" />
+        </span>
+        <span>Space AI</span>
+      </a>
+      <nav class="ed-links" aria-label="Primary">
+        <a href="./blog.html" class="active">Research</a>
+        <a href="./product.html" class="">Product</a>
+        <a href="./network.html" class="">Network</a>
+        <a href="./chat.html">Chat</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="icon-pill" href="https://github.com/spaceresearchai" target="_blank" rel="noopener" aria-label="Space AI on GitHub" title="GitHub (spaceresearchai)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.69-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11.05 11.05 0 0 1 5.8 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14 0 1.55-.01 2.8-.01 3.18 0 .31.21.67.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+        </a>
+        <button type="button" class="icon-pill" data-theme-toggle aria-label="Toggle color theme" title="Switch to Daylight Mode">☀</button>
+        <a class="btn sm" href="./chat.html">Open Chat</a>
+      </div>
+    </div>
+  </header>
+
+    <main>
+      <article class="section" style="padding-top:3.8rem;">
+        <div class="wrap-blog">
+          <a class="blog-back" href="./blog.html">&larr; All research notes</a>
+          <div class="blog-meta" style="margin-top:1.4rem;">
+            <span class="blog-cat">NOTE 04 &middot; SYSTEMS &amp; OPTIMIZATION</span>
+            <span>6 min read</span>
+          </div>
+          <h1 class="blog-article-title">Algorithmic Core Extraction: Four Inference Speedups on a Single Workstation</h1>
+          <p class="blog-article-lead">
+            Transformers trained with standard weight decay do not use all of their width and depth equally: they converge onto compact, invariant algorithmic cores. Our open-source <code>ace-inference</code> suite turns that geometry into four concrete inference accelerations.
+          </p>
+
+          <div class="blog-abstract">
+            <div class="blog-abstract-lbl">ABSTRACT</div>
+            <p>
+              Building on Algorithmic Core Extraction (ACE; Schiffman, 2026), we implement and benchmark four modular inference optimizations on a single workstation GPU (RTX 5090, <code>Qwen/Qwen3-1.7B</code>): (1) mid-layer early exit and Mahalanobis-gated CPU MicroCore routing (up to 484.2&times; vs. 16-token generation), (2) Jacobian balanced-truncation projection of per-layer attention states with fused Triton Pre-RoPE FlashDecoding (4&times;&ndash;16&times; memory reduction, 3.17&times; peak batch throughput), (3) sufficient-core structured MLP pruning paired with an anti-inflation weight-decay scheduler (+38.9% 4-bit accuracy recovery), and (4) cross-family core alignment (0.7470 mean CCA) enabling 100% exact lossless speculative decoding.
+            </p>
+          </div>
+
+          <div class="blog-prose">
+            <h2>1. Why model optimization is a scientific problem, not just hardware spend</h2>
+            <p>
+              Most LLM deployments treat a transformer as a monolithic black box: every request traverses every layer, every attention head holds full-width state across thousands of tokens, and every parameter stays frozen at its training shape.
+            </p>
+            <p>
+              In <a href="https://github.com/spaceresearchai/ace-inference" target="_blank" rel="noopener">spaceresearchai/ace-inference</a>, we exploit the low-dimensional manifold geometry hidden inside trained weights. By measuring exact input-output sensitivities via streaming Jacobian SVD, we separate the compact <strong>algorithmic core</strong> doing real computation from redundant capacity inflated during training.
+            </p>
+
+            <div class="blog-stats">
+              <div class="blog-stat">
+                <div class="blog-stat-v">484.2&times;</div>
+                <div class="blog-stat-l">MicroCore Speedup</div>
+              </div>
+              <div class="blog-stat">
+                <div class="blog-stat-v">4&times;&ndash;16&times;</div>
+                <div class="blog-stat-l">State VRAM Cut</div>
+              </div>
+              <div class="blog-stat">
+                <div class="blog-stat-v">+38.9%</div>
+                <div class="blog-stat-l">4-Bit Accuracy Gain</div>
+              </div>
+              <div class="blog-stat">
+                <div class="blog-stat-v">2.44&times;</div>
+                <div class="blog-stat-l">Triton Kernel vs SDPA</div>
+              </div>
+            </div>
+
+            <div class="blog-figure">
+              <svg viewBox="0 0 640 236" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Four ACE-Inference optimization modules">
+                <rect x="14" y="18" width="142" height="198" rx="10" fill="#0b0b0d" stroke="rgba(255,255,255,0.14)"/>
+                <text x="26" y="42" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">01 CORE COMPILER</text>
+                <text x="26" y="68" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5">Early-Exit &amp; MicroCore</text>
+                <text x="26" y="96" fill="#ffffff" font-family="Space Grotesk, sans-serif" font-size="20" font-weight="700">0.293 ms</text>
+                <text x="26" y="114" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9.5">CPU MicroCore / req</text>
+                <text x="26" y="144" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="9.5">Mahalanobis OOD gate</text>
+                <text x="26" y="162" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="9.5">79.3% safe offload</text>
+                <text x="26" y="192" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="9">1.000 AUC two-site A</text>
+
+                <rect x="170" y="18" width="142" height="198" rx="10" fill="#0b0b0d" stroke="rgba(255,255,255,0.14)"/>
+                <text x="182" y="42" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">02 STATE KERNEL</text>
+                <text x="182" y="68" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5">Balanced Truncation</text>
+                <text x="182" y="96" fill="#ffffff" font-family="Space Grotesk, sans-serif" font-size="20" font-weight="700">1,848 tok/s</text>
+                <text x="182" y="114" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9.5">3.17x batch throughput</text>
+                <text x="182" y="144" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="9.5">3584 MB -&gt; 224 MB</text>
+                <text x="182" y="162" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="9.5">40x lower PPL vs PCA</text>
+                <text x="182" y="192" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="9">Fused Triton 3.6.0</text>
+
+                <rect x="326" y="18" width="142" height="198" rx="10" fill="#0b0b0d" stroke="rgba(255,255,255,0.14)"/>
+                <text x="338" y="42" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">03 CORE PRUNING</text>
+                <text x="338" y="68" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5">Anti-Inflation Decay</text>
+                <text x="338" y="96" fill="#ffffff" font-family="Space Grotesk, sans-serif" font-size="20" font-weight="700">93.81%</text>
+                <text x="338" y="114" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9.5">4-bit acc (vs 54.88%)</text>
+                <text x="338" y="144" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="9.5">1.18x-1.61x fewer params</text>
+                <text x="338" y="162" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="9.5">31.40 PPL @ 0.75 keep</text>
+                <text x="338" y="192" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="9">Beats magnitude &amp; var</text>
+
+                <rect x="482" y="18" width="144" height="198" rx="10" fill="#0b0b0d" stroke="rgba(255,255,255,0.14)"/>
+                <text x="494" y="42" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">04 SPECULATIVE</text>
+                <text x="494" y="68" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5">Cross-Family Bridge</text>
+                <text x="494" y="96" fill="#ffffff" font-family="Space Grotesk, sans-serif" font-size="20" font-weight="700">0.747 CCA</text>
+                <text x="494" y="114" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9.5">SmolLM2 -&gt; Qwen3</text>
+                <text x="494" y="144" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="9.5">2.5M CoreDraftHead</text>
+                <text x="494" y="162" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="9.5">1.26x exact lossless</text>
+                <text x="494" y="192" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="9">Trained in 9.6s</text>
+              </svg>
+              <div class="blog-figcap">Figure 1. Summary of all four Algorithmic Core Extraction modules benchmarked on RTX 5090.</div>
+            </div>
+
+            <h2>2. Summary of measured workstation benchmarks</h2>
+            <div class="table-wrap" style="margin:1.4rem 0 1.8rem 0;">
+              <table>
+                <thead>
+                  <tr><th>Module</th><th>Mechanism</th><th>Measured RTX 5090 Result</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><code>ace_inference.compiler</code></td><td>Mid-layer early exit, two-site operator A &amp; Mahalanobis OOD MicroCore</td><td><strong>484.2&times;</strong> vs. 16-tok gen (<code>0.293 ms/req</code>); <strong>159.1&times;</strong> hybrid offloader; <strong>1.0000 AUC</strong> on unseen IOI</td></tr>
+                  <tr><td><code>ace_inference.kv_cache</code></td><td>Balanced-truncation <code>H J^T</code> SVD + fused Triton Pre-RoPE FlashDecoding</td><td><strong>4&times;&ndash;16&times;</strong> memory cut (<code>3584 MB &rarr; 224 MB</code>); <strong>3.17&times;</strong> max-batch throughput; <strong>40&times;</strong> lower PPL than PCA</td></tr>
+                  <tr><td><code>ace_inference.pruning</code></td><td>Sufficient-core structured MLP pruning &amp; anti-inflation decay scheduler</td><td><strong>1.18&times;&ndash;1.61&times;</strong> fewer params (<code>1.28&times;</code> decode); INT4 accuracy <strong>54.88% &rarr; 93.81%</strong></td></tr>
+                  <tr><td><code>ace_inference.speculative</code></td><td>Cross-family core alignment bridge + 2.5M <code>CoreDraftHead</code></td><td><strong>0.7470 mean CCA</strong> (<code>R&sup2; = 0.7872</code>); <strong>1.26&times;</strong> exact FP32 lossless speedup in 9.6s training</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h2>3. Custom Triton GPU kernels for real deployment</h2>
+            <p>
+              Theoretical speedups mean little if projection math becomes memory-bound on real GPUs. Alongside the Python algebraic suite, we wrote fused <strong>Triton 3.6.0</strong> kernels tailored for modern NVIDIA architectures:
+            </p>
+            <ul>
+              <li><strong>Fused Pre-RoPE FlashDecoding:</strong> Executes attention directly in the low-rank balanced-truncation basis without ever expanding full-width key/value tensors back into GPU memory — delivering <strong>2.44&times;</strong> speedup over standard PyTorch SDPA.</li>
+              <li><strong>Fused Core-Probe &amp; 12-Layer Operator-A Synthesis:</strong> Computes mid-layer routing decisions and synthesizes downstream attention states in <strong>22.7 microseconds</strong>, making dynamic early-exit practical even for single-request interactive streaming.</li>
+            </ul>
+
+            <h2>4. Open reproducibility</h2>
+            <p>
+              The full suite, algebraic equivalence unit tests, Triton kernels, and reproducible benchmark scripts are open on GitHub at <a href="https://github.com/spaceresearchai/ace-inference" target="_blank" rel="noopener">github.com/spaceresearchai/ace-inference</a>.
+            </p>
+
+            <div class="blog-callout">
+              <div class="blog-callout-title">Inspect the code and benchmarks</div>
+              <p>Clone <code>ace-inference</code> on GitHub or explore how our optimization work feeds into the live Space AI Network.</p>
+              <div class="btn-row">
+                <a class="btn sm" href="https://github.com/spaceresearchai/ace-inference" target="_blank" rel="noopener">View on GitHub &#8599;</a>
+                <a class="btn secondary sm" href="./blog.html">All Research Notes</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <footer class="landing-foot">
+      <div class="wrap" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:1rem;">
+        <span>&copy; 2026 Space AI &middot; spaceresearch.ai</span>
+        <div style="display:flex; gap:1.4rem; color:var(--ink-soft);">
+          <a href="./blog.html">Research</a>
+          <a href="./product.html">Product</a>
+          <a href="./network.html">Network</a>
+          <a href="./chat.html">Chat</a>
+          <a href="https://github.com/spaceresearchai" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="./culture-home.js?v=29"></script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <title>Knowledge Boundary Fingerprinting: Verifying Open Models — Space AI</title>
+  <meta name="description" content="SIP-0001 from Space AI: verifying genuine open-weight models across NVIDIA and Apple Silicon without slow cryptographic proving overhead." />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Space AI" />
+  <meta property="og:title" content="Knowledge Boundary Fingerprinting: Verifying Open Models — Space AI" />
+  <meta property="og:description" content="SIP-0001 from Space AI: verifying genuine open-weight models across NVIDIA and Apple Silicon without slow cryptographic proving overhead." />
+  <meta property="og:image" content="https://spaceresearch.ai/og-card.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://spaceresearch.ai/og-card.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="./mark.svg?v=35" />
+  <link rel="stylesheet" href="./culture.css?v=29" />
+</head>
+<body>
+  <canvas id="cosmos-bg-canvas" class="cosmos-bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="page-shell">
+  <header class="ed-nav">
+    <div class="ed-nav-inner">
+      <a class="ed-brand" href="./index.html">
+        <span class="ed-emblem" aria-hidden="true">
+          <img src="./mark.svg?v=35" alt="" width="28" height="28" />
+        </span>
+        <span>Space AI</span>
+      </a>
+      <nav class="ed-links" aria-label="Primary">
+        <a href="./blog.html" class="active">Research</a>
+        <a href="./product.html" class="">Product</a>
+        <a href="./network.html" class="">Network</a>
+        <a href="./chat.html">Chat</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="icon-pill" href="https://github.com/spaceresearchai" target="_blank" rel="noopener" aria-label="Space AI on GitHub" title="GitHub (spaceresearchai)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.69-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11.05 11.05 0 0 1 5.8 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14 0 1.55-.01 2.8-.01 3.18 0 .31.21.67.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+        </a>
+        <button type="button" class="icon-pill" data-theme-toggle aria-label="Toggle color theme" title="Switch to Daylight Mode">☀</button>
+        <a class="btn sm" href="./chat.html">Open Chat</a>
+      </div>
+    </div>
+  </header>
+
+    <main>
+      <article class="section" style="padding-top:3.8rem;">
+        <div class="wrap-blog">
+          <a class="blog-back" href="./blog.html">&larr; All research notes</a>
+          <div class="blog-meta" style="margin-top:1.4rem;">
+            <span class="blog-cat">NOTE 06 &middot; VERIFICATION &middot; SIP-0001</span>
+            <span>5 min read</span>
+          </div>
+          <h1 class="blog-article-title">Knowledge Boundary Fingerprinting: Verifying Open Models Without Slow Proofs</h1>
+          <p class="blog-article-lead">
+            Open compute networks face a subtle economic attack: advertising a flagship 27B or 70B model while quietly serving a cheap 7B substitute. Here is how we verify genuine open weights across heterogeneous NVIDIA and Apple Silicon hardware with zero latency penalty on user traffic.
+          </p>
+
+          <div class="blog-abstract">
+            <div class="blog-abstract-lbl">ABSTRACT</div>
+            <p>
+              Exact cryptographic execution proofs for large transformers impose 100&times;&ndash;10,000&times; compute overhead, making interactive streaming impossible. Conversely, heterogeneous GPUs (NVIDIA CUDA vs. Apple Silicon Metal/MLX) do not even produce bit-identical floating-point outputs for the exact same weights. In SIP-0001, we replace heavy proving with a layered optimistic verification stack anchored by Tier-0 Knowledge Boundary Fingerprinting (KBF), Ed25519 signed execution receipts, hidden deterministic canaries, and hardware-tolerant statistical spot-checks.
+            </p>
+          </div>
+
+          <div class="blog-prose">
+            <h2>1. Why bit-exact verification fails in the real world</h2>
+            <p>
+              Pulling everyday hardware together means combining NVIDIA RTX workstations, Apple Silicon Macs running MLX, and standard Ollama or llama.cpp backends. Even when two honest machines run the exact same open checkpoint, minor floating-point accumulation differences across CUDA and Metal guarantee that naive bit-for-bit output hashing produces false alarms.
+            </p>
+            <p>
+              Meanwhile, heavy cryptographic execution proving adds orders of magnitude of compute overhead — destroying the entire speed and cost advantage of open local hardware. We need verification that is <strong>hardware-tolerant for honest nodes</strong> yet <strong>brutally sensitive to model downgrades</strong>.
+            </p>
+
+            <div class="blog-stats">
+              <div class="blog-stat">
+                <div class="blog-stat-v">0 ms</div>
+                <div class="blog-stat-l">KBF User Overhead</div>
+              </div>
+              <div class="blog-stat">
+                <div class="blog-stat-v">&lt; 0.1 ms</div>
+                <div class="blog-stat-l">Ed25519 Receipt Sign</div>
+              </div>
+              <div class="blog-stat">
+                <div class="blog-stat-v">2%&ndash;5%</div>
+                <div class="blog-stat-l">Async Spot-Checks</div>
+              </div>
+              <div class="blog-stat">
+                <div class="blog-stat-v">SHA-256</div>
+                <div class="blog-stat-l">Auditable Probe Packs</div>
+              </div>
+            </div>
+
+            <h2>2. Tier-0 Knowledge Boundary Fingerprinting (KBF)</h2>
+            <p>
+              Every model scale leaves a sharp signature near its <strong>knowledge and reasoning boundary</strong>: specific factual, numerical, and multi-step problems that a genuine 27B checkpoint solves reliably, while a downgraded 7B or heavily degraded substitute fails consistently.
+            </p>
+            <p>
+              Our Tier-0 KBF system curates open, versioned <strong>Verification Packs</strong> hashed with canonical SHA-256 digests. Background audits periodically challenge active stations across these boundary probes and compute binomial confidence against the genuine baseline. Because probes run asynchronously out-of-band, KBF adds <strong>zero milliseconds of latency</strong> to interactive user prompts and works uniformly across native runtimes as well as Ollama, llama.cpp, vLLM, and MLX adapters.
+            </p>
+
+            <h2>3. Layered optimistic defense in depth</h2>
+            <div class="table-wrap" style="margin:1.4rem 0 1.8rem 0;">
+              <table>
+                <thead>
+                  <tr><th>Layer</th><th>Mechanism</th><th>Overhead</th><th>Failure Mode Caught</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><strong>Tier 0</strong></td><td>Knowledge Boundary Fingerprinting (open SHA-256 packs)</td><td>0 ms on user traffic</td><td>Silent model downgrades across any backend</td></tr>
+                  <tr><td><strong>Layer 1</strong></td><td>Ed25519-signed canonical <code>ExecutionReceipt</code></td><td>&lt; 0.1 ms</td><td>Output tampering &amp; repudiation</td></tr>
+                  <tr><td><strong>Layer 2</strong></td><td>Hidden deterministic canary prompts</td><td>0 ms (blended)</td><td>Lazy caching &amp; broken quantization</td></tr>
+                  <tr><td><strong>Layer 3</strong></td><td>Cross-hardware distribution divergence spot-checks</td><td>2%&ndash;5% async sample</td><td>Subtle weight swaps across CUDA &amp; Metal</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h2>4. Cross-hardware statistical invariants</h2>
+            <p>
+              On native stations, async spot-checks compare top-k next-token probability distributions via KL divergence (<code>D_KL &le; 0.15</code>) and low-dimensional state cosine similarity (<code>cos &ge; 0.90</code>). Honest NVIDIA CUDA and Apple Metal executions consistently sit well inside those bounds (<code>D_KL &ll; 0.05</code>, <code>cos &gt; 0.98</code>), whereas swapped or corrupted weights diverge sharply and trigger automatic removal from routing.
+            </p>
+
+            <h2>5. Open integrity telemetry</h2>
+            <p>
+              Anyone can inspect live pass rates, verified receipt counts, and the exact SHA-256 verification packs directly on our <a href="./network.html">Live Network</a> page or via the public <code>/v1/integrity/summary</code> and <code>/v1/verification-packs</code> endpoints.
+            </p>
+
+            <div class="blog-callout">
+              <div class="blog-callout-title">Inspect live verification telemetry</div>
+              <p>Check real-time authenticity rates on the Live Network dashboard, or read the full SIP-0001 specification on GitHub.</p>
+              <div class="btn-row">
+                <a class="btn sm" href="./network.html">Open Live Network &rarr;</a>
+                <a class="btn secondary sm" href="https://github.com/spaceresearchai/longinus-network" target="_blank" rel="noopener">View on GitHub &#8599;</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <footer class="landing-foot">
+      <div class="wrap" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:1rem;">
+        <span>&copy; 2026 Space AI &middot; spaceresearch.ai</span>
+        <div style="display:flex; gap:1.4rem; color:var(--ink-soft);">
+          <a href="./blog.html">Research</a>
+          <a href="./product.html">Product</a>
+          <a href="./network.html">Network</a>
+          <a href="./chat.html">Chat</a>
+          <a href="https://github.com/spaceresearchai" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="./culture-home.js?v=29"></script>
+</body>
+</html>

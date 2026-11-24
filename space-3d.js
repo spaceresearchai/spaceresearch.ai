@@ -29,7 +29,7 @@ function makeStudioEnv(renderer) {
   // Soft warm gold studio key reflection strip
   const g1 = ctx.createRadialGradient(130, 88, 6, 130, 88, 120);
   g1.addColorStop(0, "rgba(255, 224, 172, 1.0)");
-  g1.addColorStop(0.35, "rgba(226, 176, 104, 0.55)");
+  g1.addColorStop(0.35, "rgba(228, 228, 231, 0.55)");
   g1.addColorStop(1, "rgba(0, 0, 0, 0)");
   ctx.fillStyle = g1;
   ctx.fillRect(0, 0, 512, 256);
@@ -91,7 +91,7 @@ function getGlowSprite() {
   const g = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
   g.addColorStop(0.0, "rgba(255, 250, 240, 0.95)");
   g.addColorStop(0.22, "rgba(255, 232, 192, 0.45)");
-  g.addColorStop(0.55, "rgba(226, 176, 104, 0.11)");
+  g.addColorStop(0.55, "rgba(228, 228, 231, 0.11)");
   g.addColorStop(1.0, "rgba(0, 0, 0, 0.0)");
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, 128, 128);
@@ -170,7 +170,7 @@ function makePlanetMaps(warmth = 1) {
     const bh = 1 + Math.random() * 9;
     const alpha = 0.035 + Math.random() * 0.095;
     ctx.fillStyle = i % 3 === 0
-      ? `rgba(226, 176, 104, ${alpha.toFixed(3)})`
+      ? `rgba(228, 228, 231, ${alpha.toFixed(3)})`
       : `rgba(230, 230, 235, ${(alpha * 0.72).toFixed(3)})`;
     ctx.fillRect(0, y, w, bh);
 
@@ -204,7 +204,7 @@ function makePlanetMaps(warmth = 1) {
 }
 
 /* Custom GLSL Fresnel Atmospheric Horizon Glow */
-function makeAtmosphereHalo(radius, colorHex = 0xe2b068, intensity = 0.72) {
+function makeAtmosphereHalo(radius, colorHex = 0xd4d4d8, intensity = 0.72) {
   const mat = new THREE.ShaderMaterial({
     uniforms: {
       uColor: { value: new THREE.Color(colorHex) },
@@ -266,7 +266,7 @@ function makeStarfield(count, radiusMin, radiusMax, size) {
   const col = new Float32Array(count * 3);
   const cWhite = new THREE.Color(0xffffff);
   const cSilver = new THREE.Color(0xd4d4d8);
-  const cGold = new THREE.Color(0xe2b068);
+  const cGold = new THREE.Color(0xd4d4d8);
   for (let i = 0; i < count; i++) {
     const r = radiusMin + Math.random() * (radiusMax - radiusMin);
     const theta = Math.random() * Math.PI * 2;
@@ -345,7 +345,7 @@ function buildSmartShip(scale = 1.0) {
     roughness: 0.22,
   });
   const trimMat = new THREE.MeshStandardMaterial({
-    color: 0xe2b068,
+    color: 0xd4d4d8,
     metalness: 0.92,
     roughness: 0.18,
     emissive: 0x3b2608,
@@ -397,7 +397,7 @@ function buildSmartShip(scale = 1.0) {
   const aftGlow = new THREE.Sprite(
     new THREE.SpriteMaterial({
       map: getGlowSprite(),
-      color: 0xfde6b8,
+      color: 0xffffff,
       transparent: true,
       opacity: 0.72,
       blending: THREE.AdditiveBlending,
@@ -433,7 +433,7 @@ function initHeroCosmos() {
   const sunLight = new THREE.DirectionalLight(0xfff4e0, 2.9);
   sunLight.position.set(12, 8, 6);
   scene.add(sunLight);
-  const rimLight = new THREE.PointLight(0xe2b068, 2.8, 48);
+  const rimLight = new THREE.PointLight(0xd4d4d8, 2.8, 48);
   rimLight.position.set(-10, -4, 7);
   scene.add(rimLight);
 
@@ -593,7 +593,7 @@ function initMindCore() {
   // 1. Volumetric Soft Glow Aura behind the optical core
   const auraMat = new THREE.SpriteMaterial({
     map: getGlowSprite(),
-    color: 0xe2b068,
+    color: 0xd4d4d8,
     transparent: true,
     opacity: 0.42,
     blending: THREE.AdditiveBlending,
@@ -606,7 +606,7 @@ function initMindCore() {
   // 2. Inner Animated GLSL Liquid-Optical Mind Core Shader
   const coreUniforms = {
     uTime: { value: 0 },
-    uAccent: { value: new THREE.Color(0xe2b068) },
+    uAccent: { value: new THREE.Color(0xd4d4d8) },
     uDeep: { value: new THREE.Color(0x0c0b0e) },
   };
   const innerCoreMat = new THREE.ShaderMaterial({
@@ -665,7 +665,7 @@ function initMindCore() {
     })
   );
   const edgeMat = new THREE.LineBasicMaterial({
-    color: 0xe2b068,
+    color: 0xd4d4d8,
     transparent: true,
     opacity: 0.62,
   });
@@ -675,7 +675,7 @@ function initMindCore() {
   root.add(crystalGroup);
 
   // 4. Three Precision Machined Vernier Armillary Gimbal Rings
-  const g1 = buildVernierRing(1.66, 0.026, 0xe2b068, 48, 0.94, 0.16);
+  const g1 = buildVernierRing(1.66, 0.026, 0xd4d4d8, 48, 0.94, 0.16);
   const g2 = buildVernierRing(1.98, 0.020, 0xd8dadf, 36, 0.90, 0.20);
   const g3 = buildVernierRing(2.28, 0.014, 0x8a8b94, 36, 0.88, 0.26);
   g2.rotation.x = Math.PI / 3;
@@ -729,12 +729,12 @@ function initMindCore() {
   for (let i = 0; i < satCoords.length; i++) {
     chordPts.push(satCoords[i], satCoords[(i + 5) % satCoords.length]);
   }
-  const chordMat = new THREE.LineBasicMaterial({ color: 0xe2b068, transparent: true, opacity: 0.16 });
+  const chordMat = new THREE.LineBasicMaterial({ color: 0xd4d4d8, transparent: true, opacity: 0.16 });
   satGroup.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(chordPts), chordMat));
 
   // Smooth harmonic transitions driven by Transparency & Trust tabs
   const MODES = {
-    certainty: { accent: 0xe2b068, speed: 1.0 },
+    certainty: { accent: 0xd4d4d8, speed: 1.0 },
     authentic: { accent: 0x7ddcb0, speed: 1.25 },
     privacy:   { accent: 0xf4c474, speed: 0.78 },
     routing:   { accent: 0xe4e8f0, speed: 1.45 },
@@ -815,7 +815,7 @@ function initOrbitalMechanics() {
   const keyLight = new THREE.DirectionalLight(0xfff6e5, 2.7);
   keyLight.position.set(8, 10, 7);
   scene.add(keyLight);
-  const goldLight = new THREE.PointLight(0xe2b068, 2.8, 26);
+  const goldLight = new THREE.PointLight(0xd4d4d8, 2.8, 26);
   goldLight.position.set(-6, 2, 5);
   scene.add(goldLight);
 
@@ -836,16 +836,16 @@ function initOrbitalMechanics() {
       roughness: 0.72,
     })
   );
-  scene.add(centerPlanet, makeAtmosphereHalo(1.01, 0xe2b068, 0.62));
+  scene.add(centerPlanet, makeAtmosphereHalo(1.01, 0xd4d4d8, 0.62));
 
-  const eqHalo = buildVernierRing(1.30, 0.014, 0xe2b068, 36, 0.92, 0.2);
+  const eqHalo = buildVernierRing(1.30, 0.014, 0xd4d4d8, 36, 0.92, 0.2);
   eqHalo.rotation.x = Math.PI / 2;
   world.add(eqHalo);
 
   // Three inclined precision orbital planes
   const ringDefs = [
     { key: "routing", r: 2.02, tiltX: Math.PI / 2 + 0.18, tiltZ: 0.12, col: 0xffffff },
-    { key: "verify",  r: 3.05, tiltX: Math.PI / 2 - 0.14, tiltZ: -0.18, col: 0xe2b068 },
+    { key: "verify",  r: 3.05, tiltX: Math.PI / 2 - 0.14, tiltZ: -0.18, col: 0xd4d4d8 },
     { key: "credits", r: 4.08, tiltX: Math.PI / 2 + 0.10, tiltZ: 0.24, col: 0xa1a1aa },
   ];
   const ringMeshes = {};
@@ -881,7 +881,7 @@ function initOrbitalMechanics() {
     const halo = new THREE.Sprite(
       new THREE.SpriteMaterial({
         map: getGlowSprite(),
-        color: idx % 2 === 0 ? 0xe2b068 : 0xffffff,
+        color: idx % 2 === 0 ? 0xd4d4d8 : 0xffffff,
         transparent: true,
         opacity: 0.42,
         blending: THREE.AdditiveBlending,
@@ -912,7 +912,7 @@ function initOrbitalMechanics() {
     const curve = new THREE.QuadraticBezierCurve3(a, mid, b);
     const isGold = idx % 2 === 0;
     const lMat = new THREE.LineBasicMaterial({
-      color: isGold ? 0xe2b068 : 0xffffff,
+      color: isGold ? 0xd4d4d8 : 0xffffff,
       transparent: true,
       opacity: 0.16,
     });

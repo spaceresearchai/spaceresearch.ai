@@ -4,12 +4,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#000000" />
-  <title>Blog — Space AI</title>
-  <meta name="description" content="Research notes and essays from Space AI on open community intelligence and Quoridor game-theoretic proofs." />
+  <title>Research — Space AI</title>
+  <meta name="description" content="Research notes and lab thesis from Space AI on scientific discovery, neural optimization, collective open intelligence, and exact Quoridor proofs." />
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="Space AI" />
-  <meta property="og:title" content="Blog — Space AI" />
-  <meta property="og:description" content="Research notes and essays from Space AI on open community intelligence and Quoridor game-theoretic proofs." />
+  <meta property="og:title" content="Research — Space AI" />
+  <meta property="og:description" content="Research notes and lab thesis from Space AI on scientific discovery, neural optimization, collective open intelligence, and exact Quoridor proofs." />
   <meta property="og:image" content="https://spaceresearch.ai/og-card.png" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:image" content="https://spaceresearch.ai/og-card.png" />
@@ -17,7 +17,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/svg+xml" href="./mark.svg?v=35" />
-  <link rel="stylesheet" href="./culture.css?v=24" />
+  <link rel="stylesheet" href="./culture.css?v=29" />
 </head>
 <body>
   <canvas id="cosmos-bg-canvas" class="cosmos-bg-canvas" aria-hidden="true"></canvas>
@@ -26,22 +26,21 @@
   <header class="ed-nav">
     <div class="ed-nav-inner">
       <a class="ed-brand" href="./index.html">
-        <span class="ed-emblem logo-orbit" aria-hidden="true">
-          <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
-            <g class="orbit-ring-a"><ellipse cx="14" cy="14" rx="11" ry="4.4" stroke="currentColor" stroke-width="1.4" opacity="0.92"/></g>
-            <g class="orbit-ring-b"><ellipse cx="14" cy="14" rx="10.5" ry="4.2" stroke="currentColor" stroke-width="1.1" opacity="0.48"/></g>
-            <circle cx="14" cy="14" r="2.7" fill="currentColor"/>
-          </svg>
+        <span class="ed-emblem" aria-hidden="true">
+          <img src="./mark.svg?v=35" alt="" width="28" height="28" />
         </span>
         <span>Space AI</span>
       </a>
       <nav class="ed-links" aria-label="Primary">
+        <a href="./blog.html" class="active">Research</a>
         <a href="./product.html" class="">Product</a>
-        <a href="./blog.html" class="active">Blog</a>
         <a href="./network.html" class="">Network</a>
         <a href="./chat.html">Chat</a>
       </nav>
       <div class="nav-actions">
+        <a class="icon-pill" href="https://github.com/spaceresearchai" target="_blank" rel="noopener" aria-label="Space AI on GitHub" title="GitHub (spaceresearchai)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.69-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11.05 11.05 0 0 1 5.8 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14 0 1.55-.01 2.8-.01 3.18 0 .31.21.67.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+        </a>
         <button type="button" class="icon-pill" data-theme-toggle aria-label="Toggle color theme" title="Switch to Daylight Mode">☀</button>
         <a class="btn sm" href="./chat.html">Open Chat</a>
       </div>
@@ -51,33 +50,100 @@
     <main>
       <section class="section" style="padding-top:4.2rem;">
         <div class="wrap-blog">
-          <p class="folio-tag">Research &amp; Writing</p>
-          <h1 class="display-h2" style="margin-bottom:0.85rem;">Blog</h1>
-          <p class="lead" style="margin-bottom:2.8rem;">
-            Notes on what we are building at Space AI, open community intelligence, and our game-theory research.
+          <p class="folio-tag">Space AI &middot; Publications &amp; Notes</p>
+          <h1 class="display-h2" style="margin-bottom:0.9rem;">Research</h1>
+          <p class="lead" style="margin-bottom:2.4rem;">
+            Space AI is an independent lab using machine intelligence to discover new mathematics and science, optimize neural systems for everyday silicon, and pool open models into collective, verifiable intelligence.
           </p>
 
+          <div class="research-tracks" aria-label="Core research directions">
+            <div class="research-track" data-cluster="0">
+              <div class="research-track-num"><span class="spec-dot cyan" style="margin-right:0.4rem;"></span>01 &middot; DISCOVERY</div>
+              <div class="research-track-t">Machine-Assisted Science</div>
+              <p class="research-track-d">Combining exact formal solvers with neural intuition to uncover new theorems, phase laws, and verifiable conjectures.</p>
+            </div>
+            <div class="research-track" data-cluster="2">
+              <div class="research-track-num" ><span class="spec-dot emerald" style="margin-right:0.4rem;"></span>02 &middot; OPTIMIZATION</div>
+              <div class="research-track-t">Efficiency &amp; Glass-Box Certainty</div>
+              <p class="research-track-d">Pushing intelligence per watt on single workstations while exposing live token-level confidence and hesitation.</p>
+            </div>
+            <div class="research-track" data-cluster="1">
+              <div class="research-track-num" ><span class="spec-dot violet" style="margin-right:0.4rem;"></span>03 &middot; COLLECTIVE &amp; OPEN</div>
+              <div class="research-track-t">Pooled Open Intelligence</div>
+              <p class="research-track-d">Uniting distributed models and verified community hardware through parallel synthesis, sharded inference, and open publication.</p>
+            </div>
+          </div>
+
+          <p class="folio-tag" style="margin-top:3rem;">Notes &amp; Essays</p>
           <div class="blog-list">
-            <a class="blog-card" href="./blog-open-intelligence.html">
+            <a class="blog-card" href="./blog-open-intelligence.html" data-cluster="3">
               <div class="blog-meta">
-                <span class="blog-cat">MISSION</span>
-                <span>4 min read</span>
+                <span class="blog-cat">NOTE 01 &middot; LAB THESIS</span>
+                <span>5 min read</span>
               </div>
-              <h2 class="blog-card-title">What We Are Building at Space AI</h2>
+              <h2 class="blog-card-title">Why We Built Space AI: Open Machine Intelligence for Scientific Discovery</h2>
               <p class="blog-card-desc">
-                Why we are building an open network on everyday Macs and GPUs, making model certainty visible on every reply, and keeping home hardware independent from cloud monopolies.
+                Our research agenda across four linked problems: discovering verifiable science with machines, optimizing models to run lean and transparently, pulling distributed intelligence together, and keeping the entire stack open.
               </p>
-              <span class="blog-read-more">Read essay &rarr;</span>
+              <span class="blog-read-more">Read research note &rarr;</span>
             </a>
 
-            <a class="blog-card" href="./blog-quoridor.html">
+            <a class="blog-card" href="./blog-quoridor.html" data-cluster="0">
               <div class="blog-meta">
-                <span class="blog-cat">RESEARCH &middot; GAME THEORY</span>
+                <span class="blog-cat">NOTE 02 &middot; FORMAL SEARCH &amp; GAME THEORY</span>
                 <span>6 min read</span>
               </div>
               <h2 class="blog-card-title">Solving the Maze: Exact Proofs and Neural Grandmasters in Quoridor</h2>
               <p class="blog-card-desc">
-                How we discovered computer-verified phase-transition theorems on 5&times;5 and 7&times;7 Quoridor — including the single vertical wall that flips the winner — and trained a 2,600+ Elo engine on a single workstation.
+                Computer-verified phase-transition theorems on 5&times;5 and 7&times;7 Quoridor — including the single vertical wall that flips the exact winner — alongside a 2,600+ Elo neural self-play engine trained in under an hour on one workstation.
+              </p>
+              <span class="blog-read-more">Read research note &rarr;</span>
+            </a>
+
+            <a class="blog-card" href="./blog-interpretability.html" data-cluster="1">
+              <div class="blog-meta">
+                <span class="blog-cat">NOTE 03 &middot; MECHANISTIC INTERPRETABILITY</span>
+                <span>6 min read</span>
+              </div>
+              <h2 class="blog-card-title">Glass-Box Chat: Live Interpretability and Causal Interventions in Space Chat</h2>
+              <p class="blog-card-desc">
+                How we built live token-level decision geometry, 1-click counterfactual forking, antisymmetric paired-swap honesty auditing, and 5-framing sycophancy stress-tests directly into an interactive chat interface.
+              </p>
+              <span class="blog-read-more">Read research note &rarr;</span>
+            </a>
+
+            <a class="blog-card" href="./blog-ace-inference.html" data-cluster="2">
+              <div class="blog-meta">
+                <span class="blog-cat">NOTE 04 &middot; SYSTEMS &amp; OPTIMIZATION</span>
+                <span>6 min read</span>
+              </div>
+              <h2 class="blog-card-title">Algorithmic Core Extraction: Four Inference Speedups on a Single Workstation</h2>
+              <p class="blog-card-desc">
+                Open benchmarks from our ace-inference suite: 484&times; MicroCore offloading, 4&times;&ndash;16&times; balanced-truncation state reduction with fused Triton kernels, +38.9% 4-bit accuracy via anti-inflation scheduling, and lossless cross-family speculative decoding.
+              </p>
+              <span class="blog-read-more">Read research note &rarr;</span>
+            </a>
+
+            <a class="blog-card" href="./blog-private-ai.html" data-cluster="3">
+              <div class="blog-meta">
+                <span class="blog-cat">NOTE 05 &middot; PRIVACY &amp; CRYPTOGRAPHY &middot; SIP-0005</span>
+                <span>5 min read</span>
+              </div>
+              <h2 class="blog-card-title">Auditable Private AI: Air-Gapped Local Mode and Blind-Relay E2EE</h2>
+              <p class="blog-card-desc">
+                Why privacy claims require fail-closed invariants rather than soft logging promises: loopback-only air-gap enforcement, coordinator-blind X25519/AES-256-GCM remote inference (&lt;1 ms overhead), and an honest hardware threat model.
+              </p>
+              <span class="blog-read-more">Read research note &rarr;</span>
+            </a>
+
+            <a class="blog-card" href="./blog-verification.html" data-cluster="0">
+              <div class="blog-meta">
+                <span class="blog-cat">NOTE 06 &middot; VERIFICATION &middot; SIP-0001</span>
+                <span>5 min read</span>
+              </div>
+              <h2 class="blog-card-title">Knowledge Boundary Fingerprinting: Verifying Open Models Without Slow Proofs</h2>
+              <p class="blog-card-desc">
+                How our open network catches silent model downgrades across heterogeneous NVIDIA GPUs and Apple Silicon Macs using open SHA-256 capability-cliff probe packs, signed receipts, and lightweight cross-hardware spot-checks.
               </p>
               <span class="blog-read-more">Read research note &rarr;</span>
             </a>
@@ -90,15 +156,16 @@
       <div class="wrap" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:1rem;">
         <span>&copy; 2026 Space AI &middot; spaceresearch.ai</span>
         <div style="display:flex; gap:1.4rem; color:var(--ink-soft);">
+          <a href="./blog.html">Research</a>
           <a href="./product.html">Product</a>
-          <a href="./blog.html">Blog</a>
           <a href="./network.html">Network</a>
           <a href="./chat.html">Chat</a>
+          <a href="https://github.com/spaceresearchai" target="_blank" rel="noopener">GitHub</a>
         </div>
       </div>
     </footer>
   </div>
 
-  <script src="./culture-home.js?v=24"></script>
+  <script src="./culture-home.js?v=29"></script>
 </body>
 </html>

@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#000000" />
   <title>Solving the Maze: Exact Proofs and Neural Grandmasters in Quoridor — Space AI</title>
-  <meta name="description" content="Computer-verified phase-transition theorems on 5x5 and 7x7 Quoridor and a 2,600+ Elo neural self-play engine trained on a single workstation." />
+  <meta name="description" content="Computer-verified phase-transition theorems on 5x5 and 7x7 Quoridor and a 2,600+ Elo neural self-play engine trained in 52 minutes on a single workstation." />
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="Space AI" />
   <meta property="og:title" content="Solving the Maze: Exact Proofs and Neural Grandmasters in Quoridor — Space AI" />
-  <meta property="og:description" content="Computer-verified phase-transition theorems on 5x5 and 7x7 Quoridor and a 2,600+ Elo neural self-play engine trained on a single workstation." />
+  <meta property="og:description" content="Computer-verified phase-transition theorems on 5x5 and 7x7 Quoridor and a 2,600+ Elo neural self-play engine trained in 52 minutes on a single workstation." />
   <meta property="og:image" content="https://spaceresearch.ai/og-card.png" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:image" content="https://spaceresearch.ai/og-card.png" />
@@ -17,7 +17,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/svg+xml" href="./mark.svg?v=35" />
-  <link rel="stylesheet" href="./culture.css?v=24" />
+  <link rel="stylesheet" href="./culture.css?v=29" />
 </head>
 <body>
   <canvas id="cosmos-bg-canvas" class="cosmos-bg-canvas" aria-hidden="true"></canvas>
@@ -26,22 +26,21 @@
   <header class="ed-nav">
     <div class="ed-nav-inner">
       <a class="ed-brand" href="./index.html">
-        <span class="ed-emblem logo-orbit" aria-hidden="true">
-          <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
-            <g class="orbit-ring-a"><ellipse cx="14" cy="14" rx="11" ry="4.4" stroke="currentColor" stroke-width="1.4" opacity="0.92"/></g>
-            <g class="orbit-ring-b"><ellipse cx="14" cy="14" rx="10.5" ry="4.2" stroke="currentColor" stroke-width="1.1" opacity="0.48"/></g>
-            <circle cx="14" cy="14" r="2.7" fill="currentColor"/>
-          </svg>
+        <span class="ed-emblem" aria-hidden="true">
+          <img src="./mark.svg?v=35" alt="" width="28" height="28" />
         </span>
         <span>Space AI</span>
       </a>
       <nav class="ed-links" aria-label="Primary">
+        <a href="./blog.html" class="active">Research</a>
         <a href="./product.html" class="">Product</a>
-        <a href="./blog.html" class="active">Blog</a>
         <a href="./network.html" class="">Network</a>
         <a href="./chat.html">Chat</a>
       </nav>
       <div class="nav-actions">
+        <a class="icon-pill" href="https://github.com/spaceresearchai" target="_blank" rel="noopener" aria-label="Space AI on GitHub" title="GitHub (spaceresearchai)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.69-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11.05 11.05 0 0 1 5.8 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14 0 1.55-.01 2.8-.01 3.18 0 .31.21.67.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+        </a>
         <button type="button" class="icon-pill" data-theme-toggle aria-label="Toggle color theme" title="Switch to Daylight Mode">☀</button>
         <a class="btn sm" href="./chat.html">Open Chat</a>
       </div>
@@ -51,23 +50,30 @@
     <main>
       <article class="section" style="padding-top:3.8rem;">
         <div class="wrap-blog">
-          <a class="blog-back" href="./blog.html">&larr; All posts</a>
+          <a class="blog-back" href="./blog.html">&larr; All research notes</a>
           <div class="blog-meta" style="margin-top:1.4rem;">
-            <span class="blog-cat">RESEARCH &middot; GAME THEORY</span>
+            <span class="blog-cat">NOTE 02 &middot; FORMAL SEARCH &amp; GAME THEORY</span>
             <span>6 min read</span>
           </div>
           <h1 class="blog-article-title">Solving the Maze: Exact Proofs and Neural Grandmasters in Quoridor</h1>
           <p class="blog-article-lead">
-            Why a deceptively simple wooden board game became one of our sharpest laboratories for exact search, spatial reasoning, and high-efficiency neural self-play.
+            Using Quoridor as a clean scientific laboratory for exact theorem discovery, adversarial graph topology, and single-workstation neural self-play optimization.
           </p>
 
-          <div class="blog-prose">
-            <h2>Why Quoridor?</h2>
+          <div class="blog-abstract">
+            <div class="blog-abstract-lbl">ABSTRACT</div>
             <p>
-              At first glance, Quoridor looks minimal: two pawns race across a grid to reach the opposite edge, and on each turn a player either steps forward or places a two-cell wooden wall to slow the opponent down without completely sealing them off.
+              We study 5&times;5 and 7&times;7 Quoridor across two coupled fronts: exact computer-verified minimax proof search and high-throughput neural self-play. On the formal side, we prove that horizontal-only 5&times;5 Quoridor is a forced second-player win for every wall budget to infinity, discover a sharp single-vertical-wall phase flip at W=(5,5), and solve the complete 16/16 vertical-wall phase grid on 7&times;7 at W=(3,3) — identifying exact infinite-horizon draw regimes. On the learning side, we train a 2,600.3 Elo 7&times;7 neural engine across 38,400 self-play games in 52 minutes on a single desktop workstation.
+            </p>
+          </div>
+
+          <div class="blog-prose">
+            <h2>1. Why Quoridor is an ideal scientific testbed</h2>
+            <p>
+              At first glance, Quoridor looks minimal: two pawns race across a grid to reach the opposite edge, and on each turn a player either steps forward or places a two-cell wooden wall to lengthen the opponent's path without sealing them off completely.
             </p>
             <p>
-              Under the hood, Quoridor is brutally subtle. Every wall rewrites the shortest-path geometry of the entire board. A move that looks passive can trigger a non-local maze trap ten plies later, and a single wall placed one square off can invert a won game into a forced loss. That combination of <strong>graph topology</strong>, <strong>resource scarcity</strong>, and <strong>adversarial planning</strong> makes Quoridor an ideal benchmark for testing genuine reasoning versus pattern memorization.
+              Mathematically, Quoridor is a sharp adversarial shortest-path problem. Every wall placement rewrites global graph connectivity across the entire board. A seemingly quiet wall can lock in a forced maze ten plies later, while shifting a single barrier by one square can invert a winning line into a forced loss. That tight coupling of <strong>non-local graph topology</strong>, <strong>resource budgeting</strong>, and <strong>exact verification</strong> makes Quoridor a clean laboratory for testing genuine reasoning and machine-assisted discovery.
             </p>
 
             <div class="blog-figure">
@@ -82,50 +88,67 @@
                     <line x1="0" y1="84" x2="196" y2="84"/><line x1="0" y1="112" x2="196" y2="112"/>
                     <line x1="0" y1="140" x2="196" y2="140"/><line x1="0" y1="168" x2="196" y2="168"/>
                   </g>
-                  <line x1="56" y1="84" x2="112" y2="84" stroke="#e2b068" stroke-width="4" stroke-linecap="round"/>
-                  <line x1="84" y1="140" x2="140" y2="140" stroke="#e2b068" stroke-width="4" stroke-linecap="round"/>
+                  <line x1="56" y1="84" x2="112" y2="84" stroke="#e4e4e7" stroke-width="4" stroke-linecap="round"/>
+                  <line x1="84" y1="140" x2="140" y2="140" stroke="#e4e4e7" stroke-width="4" stroke-linecap="round"/>
                   <line x1="112" y1="56" x2="112" y2="112" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
                   <circle cx="98" cy="182" r="8" fill="#ffffff"/>
-                  <circle cx="98" cy="14" r="8" fill="#e2b068"/>
+                  <circle cx="98" cy="14" r="8" fill="#ffffff"/>
                 </g>
 
                 <g transform="translate(260, 26)" font-family="JetBrains Mono, monospace">
-                  <text x="0" y="14" fill="#e2b068" font-size="11" font-weight="600">5x5 &amp; 7x7 EXACT PHASE TRANSITIONS</text>
+                  <text x="0" y="14" fill="#ffffff" font-size="11" font-weight="600">5x5 &amp; 7x7 EXACT PHASE TRANSITIONS</text>
                   <text x="0" y="44" fill="#f5f5f5" font-size="12">Horizontal-Only 5x5 (all W &ge; 0)</text>
                   <text x="0" y="62" fill="#a1a1aa" font-size="11">Proven BLACK win for every wall budget to &infin;</text>
 
                   <text x="0" y="98" fill="#f5f5f5" font-size="12">5x5 W=(5,5) + Just 1 Vertical Wall</text>
-                  <text x="0" y="116" fill="#e2b068" font-size="11">Outcome flips: BLACK (&le;40p) &rarr; WHITE (&le;42p)</text>
+                  <text x="0" y="116" fill="#ffffff" font-size="11">Outcome flips: BLACK (&le;40p) &rarr; WHITE (&le;42p)</text>
 
                   <text x="0" y="152" fill="#f5f5f5" font-size="12">7x7 W=(3,3) Complete 16/16 Grid</text>
                   <text x="0" y="170" fill="#a1a1aa" font-size="11">Exact BLACK / WHITE / Infinite-Horizon Draw law</text>
                 </g>
               </svg>
-              <div class="blog-figcap">A single vertical wall (white) breaks horizontal parity and flips the game-theoretic winner.</div>
+              <div class="blog-figcap">Figure 1. A single vertical wall (white) breaks horizontal parity and inverts the exact game-theoretic outcome.</div>
             </div>
 
-            <h2>Exact computer-verified theorems on 5&times;5 and 7&times;7</h2>
+            <h2>2. Computer-verified theorems on 5&times;5 and 7&times;7</h2>
             <p>
-              Our first research track asks a pure mathematical question: <em>what is the exact game-theoretic truth of Quoridor under perfect play?</em> Using custom C exact solvers built for high-throughput proof search, we established several computer-verified theorems across 5&times;5 and 7&times;7 boards:
+              Our first track asks a pure mathematical question: <strong>what is the exact game-theoretic truth of Quoridor under perfect play?</strong> Using custom C exact proof solvers engineered for high-throughput search, we established a family of computer-verified phase-transition theorems across 5&times;5 and 7&times;7 boards:
             </p>
+
+            <div class="table-wrap" style="margin:1.5rem 0 1.8rem 0;">
+              <table>
+                <thead>
+                  <tr><th>Regime</th><th>Board</th><th>Wall Rules</th><th>Proven Outcome</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>All budgets W &ge; 0</td><td>5&times;5</td><td>Horizontal only (max 8 H-walls)</td><td><strong>BLACK win</strong> (all W to &infin;)</td></tr>
+                  <tr><td>Parity flip W=(5,5)</td><td>5&times;5</td><td>H-only vs +1 vertical wall each</td><td><strong>BLACK (&le;40p) &rarr; WHITE (&le;42p)</strong></td></tr>
+                  <tr><td>Complete 16/16 grid</td><td>7&times;7</td><td>W=(3,3), all (v0, v1) caps</td><td><strong>Exact W / B / Infinite Draw</strong></td></tr>
+                  <tr><td>Unrestricted frontier</td><td>7&times;7</td><td>W=(4,3), full H+V walls</td><td><strong>WHITE win (&le;31p)</strong></td></tr>
+                  <tr><td>H-only threshold</td><td>7&times;7</td><td>W=(4,4) vs W=(5,4)</td><td><strong>BLACK (&le;36p) / WHITE (&le;37p)</strong></td></tr>
+                  <tr><td>Post-jump bound</td><td>7&times;7</td><td>H-only W=(&infin;, k), k* = 4</td><td><strong>BLACK win (&le;60p)</strong></td></tr>
+                </tbody>
+              </table>
+            </div>
+
             <ul>
               <li>
-                <strong>The Horizontal-Only 5&times;5 Invariant:</strong> When only horizontal walls are permitted on a 5&times;5 board, the second player (<code>BLACK</code>) has a mathematically proven forced win for <em>every</em> symmetric wall budget from <code>0</code> all the way to infinity (since at most 8 non-overlapping horizontal walls can coexist on the board).
+                <strong>The Horizontal-Only 5&times;5 Invariant:</strong> When only horizontal walls are permitted on a 5&times;5 board, the second player (<code>BLACK</code>) has a mathematically proven forced win for <strong>every</strong> symmetric wall budget from <code>0</code> to infinity, bounded cleanly because at most 8 non-overlapping horizontal walls can coexist on the 5&times;5 grid.
               </li>
               <li>
-                <strong>The Single-Vertical-Wall Phase Flip:</strong> At 5 walls per player on 5&times;5, permitting just <strong>one single vertical wall per player</strong> shatters horizontal parity and flips the exact empty-board outcome from a forced <code>BLACK</code> win (in at most 40 plies) to a forced first-player <code>WHITE</code> win (in at most 42 plies).
+                <strong>The Single-Vertical-Wall Phase Flip:</strong> At <code>W=(5,5)</code> on 5&times;5, permitting just <strong>one single vertical wall per player</strong> shatters horizontal parity and flips the empty-board truth from a forced <code>BLACK</code> win (&le;40 plies) to a forced first-player <code>WHITE</code> win (&le;42 plies).
               </li>
               <li>
-                <strong>The Complete 16/16 Phase Law on 7&times;7:</strong> On the larger 7&times;7 board at 3 walls per player, we solved all 16 combinations of vertical-wall caps <code>(v0, v1)</code> from the empty board — mapping the exact boundaries between forced <code>WHITE</code> wins, forced <code>BLACK</code> wins, and <strong>exact infinite-horizon draws</strong> where neither side can force progress against optimal defense.
+                <strong>The Complete 16/16 Phase Law on 7&times;7:</strong> At 3 walls per player on 7&times;7, we solved all 16 combinations of vertical-wall caps <code>(v0, v1)</code> from the empty board — mapping the exact boundary between forced <code>WHITE</code> wins, forced <code>BLACK</code> wins, and <strong>exact infinite-horizon draws</strong> where neither side can force progress against optimal defense.
               </li>
               <li>
-                <strong>Pushing the 7&times;7 Exact Frontier:</strong> We extended verified proofs to unrestricted <code>W=(4,3)</code> (forced <code>WHITE</code> win in &le;31 plies), horizontal-only <code>W=(4,4)</code> and <code>W=(5,4)</code>, and post-jump exact thresholds where <code>BLACK</code> wins even against an opponent with unlimited horizontal walls once <code>BLACK</code> holds at least 4 walls.
+                <strong>Pushing the 7&times;7 Exact Frontier:</strong> We extended exact verification to unrestricted <code>W=(4,3)</code> (forced <code>WHITE</code> win in &le;31 plies), horizontal-only <code>W=(4,4)</code> and <code>W=(5,4)</code>, and post-jump exact thresholds where <code>BLACK</code> wins even against an opponent holding unlimited horizontal walls once <code>BLACK</code> holds at least <code>k*=4</code> walls.
               </li>
             </ul>
 
-            <h2>2,600+ Elo neural self-play on a single workstation</h2>
+            <h2>3. Optimizing neural self-play: 2,600+ Elo on a single workstation</h2>
             <p>
-              Exact provers reveal ground truth in structured regimes, but full unrestricted boards still explode combinatorially. Alongside our exact solvers, we built a custom neural self-play and search pipeline for 7&times;7 Quoridor designed to run entirely on a single desktop machine rather than a giant datacenter cluster.
+              Exact provers establish ground truth inside structured regimes, while unrestricted larger boards remain combinatorially vast. In parallel with our exact solvers, we engineered a lean neural self-play and search pipeline for 7&times;7 Quoridor designed to reach grandmaster strength on a <strong>single desktop workstation</strong> rather than an industrial GPU cluster.
             </p>
             <div class="blog-stats">
               <div class="blog-stat">
@@ -138,7 +161,7 @@
               </div>
               <div class="blog-stat">
                 <div class="blog-stat-v">~52 min</div>
-                <div class="blog-stat-l">Total Wall-Clock Run</div>
+                <div class="blog-stat-l">Single-Machine Run</div>
               </div>
               <div class="blog-stat">
                 <div class="blog-stat-v">3.7 GB</div>
@@ -146,25 +169,25 @@
               </div>
             </div>
             <p>
-              By pairing a compact multi-threaded C simulation core with batched GPU evaluation, our compact teacher model reached <strong>230,000+ position evaluations per second</strong> using under 350 MB of VRAM, and our full grandmaster network reached <strong>2,600.3 Elo</strong> in under an hour — outperforming deep classical search baselines while discovering sharp tactical wall sacrifices and defensive tempo traps on its own.
+              By pairing a multi-threaded C simulation core with tightly batched GPU evaluation, our compact teacher architecture sustains <strong>230,000+ position evaluations per second</strong> in under 350 MB of VRAM, and our full grandmaster network reaches <strong>2,600.3 Elo</strong> in 52 minutes (up to 89k evals/sec) — discovering sharp wall sacrifices, maze inversions, and tempo traps entirely from self-play.
             </p>
 
-            <h2>How Quoridor connects back to Space AI</h2>
+            <h2>4. How this work drives Space AI</h2>
             <p>
-              Quoridor is not a side distraction — it is a proving ground for the exact principles behind Space AI:
+              Our Quoridor program is a direct prototype of the scientific loop we are scaling across Space AI:
             </p>
             <ul>
-              <li><strong>Zero-bluff verification:</strong> You cannot sweet-talk a theorem prover or a shortest-path maze. Either a line holds under adversarial scrutiny or it collapses.</li>
-              <li><strong>Maximum intelligence per watt on local hardware:</strong> Pushing 2,600+ Elo training and multi-million-node exact proofs on a single desktop workstation proves how far consumer hardware can go when software is engineered cleanly.</li>
-              <li><strong>Search meets intuition:</strong> Combining fast neural intuition with calibrated uncertainty and verification is the same bridge we are building into Space AI's Mind Window and open network.</li>
+              <li><strong>Formal discovery + neural intuition:</strong> Neural networks narrow vast search spaces quickly; exact solvers and verifiers turn intuition into mathematical certainty.</li>
+              <li><strong>Extreme workstation efficiency:</strong> Reaching 2,600+ Elo and multi-million-node proofs on a single desktop shows how much capability comes from clean systems engineering rather than raw cloud spend.</li>
+              <li><strong>Calibrated, open intelligence:</strong> Bringing verifiable uncertainty, model efficiency, and collective compute together is the exact foundation running live on the <a href="./product.html">Space AI Network</a>.</li>
             </ul>
 
             <div class="blog-callout">
-              <div class="blog-callout-title">Explore Space AI</div>
-              <p>See our open community hardware network in action, or test live word confidence in Space Chat.</p>
+              <div class="blog-callout-title">Continue exploring Space AI</div>
+              <p>Read our lab thesis on open scientific intelligence, inspect the live network, or test word-level certainty directly in Space Chat.</p>
               <div class="btn-row">
-                <a class="btn sm" href="./product.html">Explore Product &rarr;</a>
-                <a class="btn secondary sm" href="./chat.html">Open Space Chat</a>
+                <a class="btn sm" href="./blog-open-intelligence.html">Read Lab Thesis &rarr;</a>
+                <a class="btn secondary sm" href="./product.html">Space AI Network</a>
               </div>
             </div>
           </div>
@@ -176,15 +199,16 @@
       <div class="wrap" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:1rem;">
         <span>&copy; 2026 Space AI &middot; spaceresearch.ai</span>
         <div style="display:flex; gap:1.4rem; color:var(--ink-soft);">
+          <a href="./blog.html">Research</a>
           <a href="./product.html">Product</a>
-          <a href="./blog.html">Blog</a>
           <a href="./network.html">Network</a>
           <a href="./chat.html">Chat</a>
+          <a href="https://github.com/spaceresearchai" target="_blank" rel="noopener">GitHub</a>
         </div>
       </div>
     </footer>
   </div>
 
-  <script src="./culture-home.js?v=24"></script>
+  <script src="./culture-home.js?v=29"></script>
 </body>
 </html>
