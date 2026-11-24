@@ -333,11 +333,231 @@ def load_or_create_keypair() -> tuple[object, str]:
             format=serialization.PublicFormat.Raw,
         )
         path.write_text(json.dumps({"wallet": b58encode(pub), "seed_hex": seed.hex()}, indent=2))
+        try:
+            os.chmod(path, 0o600)
+        except OSError:
+            pass
     pub = priv.public_key().public_bytes(
         encoding=serialization.Encoding.Raw,
         format=serialization.PublicFormat.Raw,
     )
     return priv, b58encode(pub)
+
+
+E2EE_PROTOCOL_VERSION = "space-e2ee-v1"
+KEY_BINDING_PREFIX = "space-e2ee-v1:keybind:"
+PRIVATE_POOL_DOMAIN = "space-private-pool-v1:"
+
+
+def _hash_private_pool_secret(secret: str) -> str:
+    clean = (secret or "").strip()
+    if not clean:
+        return ""
+    return hashlib.sha256((PRIVATE_POOL_DOMAIN + clean).encode("utf-8")).hexdigest()[:32]
+
+
+def _detect_isolation_mode() -> str:
+    if os.environ.get("SPACE_HARDENED_DOCKER") == "1" or Path("/.dockerenv").exists():
+        return "hardened-docker"
+    return "host"
+
+
+class _WorkerE2EE:
+    """Ephemeral in-RAM X25519 keypair for Space E2EE v1 blind-relay worker decryption."""
+
+    def __init__(self) -> None:
+        import base64
+        from cryptography.hazmat.primitives import serialization
+        from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PrivateKey
+
+        self._priv = X25519PrivateKey.generate()
+        pub_bytes = self._priv.public_key().public_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PublicFormat.Raw,
+        )
+        self.pubkey_b64 = base64.b64encode(pub_bytes).decode("ascii")
+
+    def signed_announcement(self, ed25519_priv: Any, wallet: str) -> dict[str, str]:
+        msg = f"{KEY_BINDING_PREFIX}{wallet.strip()}:{self.pubkey_b64}".encode("utf-8")
+        return {
+            "e2ee_protocol": E2EE_PROTOCOL_VERSION,
+            "e2ee_pubkey_b64": self.pubkey_b64,
+            "e2ee_pubkey_sig_hex": ed25519_priv.sign(msg).hex(),
+        }
+
+    def decrypt_request_envelope(self, envelope: dict[str, Any], *, expected_wallet: str) -> tuple[dict[str, Any], bytes, str]:
+        import base64
+        from cryptography.hazmat.primitives import hashes
+        from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PublicKey
+        from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+        from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+
+        if not isinstance(envelope, dict) or envelope.get("v") != E2EE_PROTOCOL_VERSION:
+            raise ValueError("Invalid or unsupported E2EE request envelope")
+        wallet = str(envelope.get("wallet") or "").strip()
+        if wallet != expected_wallet:
+            raise ValueError("E2EE envelope wallet mismatch")
+        request_id = str(envelope.get("request_id") or "").strip()
+        if not request_id:
+            raise ValueError("E2EE envelope missing request_id")
+
+        client_epk_bytes = base64.b64decode(str(envelope.get("client_epk_b64") or ""), validate=True)
+        nonce = base64.b64decode(str(envelope.get("nonce_b64") or ""), validate=True)
+        ct = base64.b64decode(str(envelope.get("ciphertext_b64") or ""), validate=True)
+        if len(client_epk_bytes) != 32 or len(nonce) != 12:
+            raise ValueError("Invalid E2EE key or nonce length")
+
+        shared = self._priv.exchange(X25519PublicKey.from_public_bytes(client_epk_bytes))
+        info = f"{E2EE_PROTOCOL_VERSION}:req:{request_id}:{wallet}".encode("utf-8")
+        key = HKDF(algorithm=hashes.SHA256(), length=32, salt=nonce, info=info).derive(shared)
+        plaintext = AESGCM(key).decrypt(nonce, ct, info)
+        payload = json.loads(plaintext.decode("utf-8"))
+        if not isinstance(payload, dict):
+            raise ValueError("Decrypted E2EE payload must be a JSON object")
+        return payload, shared, request_id
+
+    @staticmethod
+    def encrypt_response_envelope(
+        payload: dict[str, Any],
+        *,
+        shared_secret: bytes,
+        request_id: str,
+        wallet: str,
+    ) -> dict[str, str]:
+        import base64
+        from cryptography.hazmat.primitives import hashes
+        from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+        from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+
+        nonce = os.urandom(12)
+        info = f"{E2EE_PROTOCOL_VERSION}:resp:{request_id}:{wallet}".encode("utf-8")
+        key = HKDF(algorithm=hashes.SHA256(), length=32, salt=nonce, info=info).derive(shared_secret)
+        ct = AESGCM(key).encrypt(nonce, json.dumps(payload, separators=(",", ":")).encode("utf-8"), info)
+        return {
+            "v": E2EE_PROTOCOL_VERSION,
+            "request_id": request_id,
+            "wallet": wallet,
+            "nonce_b64": base64.b64encode(nonce).decode("ascii"),
+            "ciphertext_b64": base64.b64encode(ct).decode("ascii"),
+        }
+
+
+def _extract_prompt_from_e2ee_payload(payload: dict[str, Any]) -> str:
+    if isinstance(payload.get("prompt"), str) and payload["prompt"]:
+        return payload["prompt"]
+    messages = payload.get("messages")
+    if not isinstance(messages, list):
+        return ""
+    parts: list[str] = []
+    for m in messages:
+        if not isinstance(m, dict):
+            continue
+        role = str(m.get("role") or "user").strip().lower()
+        content = m.get("content")
+        if isinstance(content, list):
+            txt = "\n".join(str(b.get("text") or "") for b in content if isinstance(b, dict) and b.get("type") == "text")
+        else:
+            txt = str(content or "")
+        if role == "system":
+            parts.append(f"System instruction: {txt}")
+        elif role == "assistant":
+            parts.append(f"Assistant: {txt}")
+        else:
+            parts.append(txt if len(messages) == 1 else f"User: {txt}")
+    return "\n\n".join(parts)
+
+
+def process_worker_job(
+    job: dict[str, Any],
+    *,
+    runner: Any,
+    priv: Any,
+    wallet: str,
+    model_id: str,
+    worker_e2ee: _WorkerE2EE | None,
+    private_only: bool = False,
+) -> tuple[dict[str, Any], int, float]:
+    """Execute one job in memory with strict E2EE / `--private-only` enforcement.
+
+    Privacy audit invariants:
+      - Prompt text and model output are NEVER printed or written to disk.
+      - When `e2ee_envelope` is present, decryption and response encryption happen
+        strictly in RAM; receipt hashes are computed over ciphertext only; empty
+        `output_text` is returned to the blind-relay coordinator.
+      - When `private_only=True`, any job without a valid `e2ee_envelope` is rejected.
+    """
+    job_id = str(job["job_id"])
+    engine = str(job.get("engine", "corekv"))
+    envelope = job.get("e2ee_envelope")
+
+    if envelope is not None:
+        if worker_e2ee is None:
+            raise RuntimeError("Worker E2EE keypair not initialized; refusing E2EE job.")
+        decrypted, shared_secret, req_id = worker_e2ee.decrypt_request_envelope(envelope, expected_wallet=wallet)
+        prompt = _extract_prompt_from_e2ee_payload(decrypted)
+        t0 = time.perf_counter()
+        out_text, top_lps, sketch, toks = runner.run(prompt, engine=engine)
+        latency_ms = round((time.perf_counter() - t0) * 1000.0, 2)
+        e2ee_response = worker_e2ee.encrypt_response_envelope(
+            {
+                "output_text": out_text,
+                "tokens_served": toks,
+                "model_id": model_id,
+                "latency_ms": latency_ms,
+            },
+            shared_secret=shared_secret,
+            request_id=req_id,
+            wallet=wallet,
+        )
+        # Hash ciphertext (never plaintext!) so receipts cannot be dictionary-attacked on short prompts
+        prompt_ct_hash = hashlib.sha256(str(envelope.get("ciphertext_b64") or "").encode("ascii")).hexdigest()
+        output_ct_hash = hashlib.sha256(str(e2ee_response.get("ciphertext_b64") or "").encode("ascii")).hexdigest()
+        prompt = ""
+        out_text = ""
+        receipt = sign_receipt(
+            priv,
+            {
+                "request_id": job_id,
+                "node_wallet": wallet,
+                "model_id": model_id,
+                "engine": engine,
+                "prompt_hash": prompt_ct_hash,
+                "output_hash": output_ct_hash,
+                "top_logprobs": top_lps,
+                "latent_sketch": sketch,
+                "tokens_served": toks,
+                "latency_ms": latency_ms,
+                "timestamp": int(time.time()),
+            },
+        )
+        return {"output_text": "", "e2ee_response": e2ee_response, "receipt": receipt}, toks, latency_ms
+
+    if private_only:
+        raise PermissionError(
+            f"Worker is running with --private-only; refusing plaintext job {job_id}."
+        )
+
+    prompt = str(job["prompt"])
+    t0 = time.perf_counter()
+    out_text, top_lps, sketch, toks = runner.run(prompt, engine=engine)
+    latency_ms = round((time.perf_counter() - t0) * 1000.0, 2)
+    receipt = sign_receipt(
+        priv,
+        {
+            "request_id": job_id,
+            "node_wallet": wallet,
+            "model_id": model_id,
+            "engine": engine,
+            "prompt_hash": hashlib.sha256(prompt.encode("utf-8")).hexdigest(),
+            "output_hash": hashlib.sha256(out_text.encode("utf-8")).hexdigest(),
+            "top_logprobs": top_lps,
+            "latent_sketch": sketch,
+            "tokens_served": toks,
+            "latency_ms": latency_ms,
+            "timestamp": int(time.time()),
+        },
+    )
+    return {"output_text": out_text, "receipt": receipt}, toks, latency_ms
 
 
 def http_json(url: str, payload: dict | None = None, timeout: float = 30.0) -> dict:
@@ -1745,6 +1965,16 @@ def main() -> None:
         default=90,
         help="Seconds of idle time before auto-resuming after --auto-pause (default: 90s)",
     )
+    parser.add_argument(
+        "--private-only",
+        action="store_true",
+        help="Only accept E2EE (`space-e2ee-v1`) encrypted jobs; refuse all plaintext jobs and public pool traffic",
+    )
+    parser.add_argument(
+        "--private-pool",
+        default="",
+        help="Shared secret for a private personal/team worker pool (hashed locally via SHA-256 before registration)",
+    )
     args = parser.parse_args()
 
     if args.rpc_worker:
@@ -1821,8 +2051,19 @@ def main() -> None:
 
     explicit_coord = (args.coordinator or "").strip().lower() not in ("", "auto")
     coord = resolve_coordinator_url(args.coordinator)
+    worker_e2ee = _WorkerE2EE()
+    e2ee_ann = worker_e2ee.signed_announcement(priv, wallet)
+    private_pool_id = _hash_private_pool_secret(args.private_pool)
+    isolation_mode = _detect_isolation_mode()
+
     print(f"[SPACE] Connecting {chip} ({mem_gb} GB, {backend}, model={model_id}) -> {coord}")
     print(f"[SPACE] Node ID: {wallet[:12]}...{wallet[-6:]}" + (f" ({args.name})" if args.name else ""))
+    print(
+        f"[SPACE] Privacy: {E2EE_PROTOCOL_VERSION} E2EE ready (Ed25519-signed X25519 key, isolation={isolation_mode}"
+        + (", PRIVATE-ONLY" if args.private_only else "")
+        + (f", pool={private_pool_id[:10]}..." if private_pool_id else "")
+        + ")"
+    )
     if payout_wallet:
         print(f"[SPACE] Soulbound tSPACE Payout Wallet: {payout_wallet}")
     if args.auto_pause:
@@ -1845,6 +2086,10 @@ def main() -> None:
                 "payout_wallet": payout_wallet,
                 "swarm_enabled": bool(args.swarm),
                 "swarm_group": args.swarm_group,
+                "isolation": isolation_mode,
+                "private_only": bool(args.private_only),
+                "private_pool_id": private_pool_id,
+                **e2ee_ann,
             },
         )
 
@@ -1955,30 +2200,22 @@ def main() -> None:
                     print("[SPACE-HOTSWAP] 70B+ cluster idle — reloading local model & resuming normal serving...")
                     runner = _load_runner()
                 continue
-            engine = job.get("engine", "corekv")
-            prompt = job["prompt"]
-            print(f"\n[JOB {job_id}] Processing request on {chip}...")
-            t0 = time.perf_counter()
-
-            out_text, top_lps, sketch, toks = runner.run(prompt, engine=engine)
-            latency_ms = round((time.perf_counter() - t0) * 1000.0, 2)
-            receipt = sign_receipt(
-                priv,
-                {
-                    "request_id": job_id,
-                    "node_wallet": wallet,
-                    "model_id": model_id,
-                    "engine": engine,
-                    "prompt_hash": hashlib.sha256(prompt.encode("utf-8")).hexdigest(),
-                    "output_hash": hashlib.sha256(out_text.encode("utf-8")).hexdigest(),
-                    "top_logprobs": top_lps,
-                    "latent_sketch": sketch,
-                    "tokens_served": toks,
-                    "latency_ms": latency_ms,
-                    "timestamp": int(time.time()),
-                },
-            )
-            http_json(f"{coord}/v1/jobs/{job_id}/complete", {"output_text": out_text, "receipt": receipt})
+            is_e2ee_job = job.get("e2ee_envelope") is not None
+            print(f"\n[JOB {job_id}] Processing {'E2EE blind-relay' if is_e2ee_job else 'standard'} request on {chip}...")
+            try:
+                completion_payload, toks, latency_ms = process_worker_job(
+                    job,
+                    runner=runner,
+                    priv=priv,
+                    wallet=wallet,
+                    model_id=model_id,
+                    worker_e2ee=worker_e2ee,
+                    private_only=bool(args.private_only),
+                )
+            except PermissionError as p_exc:
+                print(f"[PRIVACY GUARD] {p_exc}")
+                continue
+            http_json(f"{coord}/v1/jobs/{job_id}/complete", completion_payload)
             print(f"[JOB {job_id}] Completed ({toks} tokens in {latency_ms:.0f} ms)!")
             try:
                 rk = http_json(f"{coord}/v1/leaderboard/{wallet}", timeout=5.0)

@@ -85,6 +85,8 @@ def _add_routing_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--route", choices=VALID_ROUTES, default=None, help="Space routing preference (`X-Space-Route`)")
     parser.add_argument("--privacy", choices=VALID_PRIVACY_TIERS, default=None, help="Space privacy tier (`X-Space-Privacy`)")
     parser.add_argument("--region", default=None, help="Preferred geographic region (`X-Space-Region`, e.g. us, eu, ap)")
+    parser.add_argument("--private-node", default=None, help="Pin a specific worker Solana wallet for E2EE blind-relay (`X-Space-Private-Node`)")
+    parser.add_argument("--private-pool", default=None, help="Shared private pool secret (hashed locally before sending)")
     parser.add_argument("--model", default=None, help="Default model override")
     parser.add_argument("--session", default=None, help="USDC session budget token (`sp_sess_...`)")
     parser.add_argument("--api-key", default=None, help="Explicit Space/Longinus barter API key override")
@@ -172,7 +174,17 @@ def _build_parser() -> argparse.ArgumentParser:
     p_cfg.add_argument("--set-route", choices=VALID_ROUTES, default=None, help="Save default X-Space-Route")
     p_cfg.add_argument("--set-privacy", choices=VALID_PRIVACY_TIERS, default=None, help="Save default X-Space-Privacy")
     p_cfg.add_argument("--set-region", default=None, help="Save default X-Space-Region")
+    p_cfg.add_argument("--set-private-node", default=None, help="Save pinned private worker Solana wallet")
+    p_cfg.add_argument("--set-private-pool", default=None, help="Save private pool secret (stored 0600, hashed before wire)")
     p_cfg.add_argument("--json", action="store_true", dest="as_json")
+
+    # Auditable privacy self-check
+    p_priv = sub.add_parser(
+        "privacy-check",
+        aliases=("verify-privacy",),
+        help="Audit local Private AI invariants (E2EE crypto, air-gap, fail-closed policy, key permissions)",
+    )
+    p_priv.add_argument("--json", action="store_true", dest="as_json")
 
     return parser
 
@@ -193,6 +205,8 @@ def _cmd_launcher(args: argparse.Namespace, home_dir: Path | None = None) -> int
         route=args.route,
         privacy=args.privacy,
         region=args.region,
+        private_node=args.private_node,
+        private_pool_secret=args.private_pool,
         model=args.model,
         session=args.session,
         api_key=args.api_key,
@@ -213,6 +227,10 @@ def _cmd_proxy(args: argparse.Namespace, home_dir: Path | None = None) -> int:
         route=args.route or str(space_cfg.get("route") or "fastest"),
         privacy=args.privacy or str(space_cfg.get("privacy") or "standard"),
         region=args.region if args.region is not None else str(space_cfg.get("region") or ""),
+        private_node=args.private_node if args.private_node is not None else str(space_cfg.get("private_node") or ""),
+        private_pool_secret=(
+            args.private_pool if args.private_pool is not None else str(space_cfg.get("private_pool_secret") or "")
+        ),
         session_token=args.session,
         client_tag=args.client or "",
         default_model=args.model or "",
@@ -542,6 +560,10 @@ def _cmd_config(args: argparse.Namespace, home_dir: Path | None = None) -> int:
         updates["privacy"] = args.set_privacy
     if args.set_region is not None:
         updates["region"] = args.set_region.strip()
+    if args.set_private_node is not None:
+        updates["private_node"] = args.set_private_node.strip()
+    if args.set_private_pool is not None:
+        updates["private_pool_secret"] = args.set_private_pool.strip()
 
     if updates:
         path = save_space_config(updates, home_dir=home_dir)
@@ -550,13 +572,63 @@ def _cmd_config(args: argparse.Namespace, home_dir: Path | None = None) -> int:
 
     cfg = load_space_config(home_dir=home_dir)
     redacted = dict(cfg)
-    for k in ("barter_key", "api_key", "openai_api_key", "session_token"):
+    for k in ("barter_key", "api_key", "openai_api_key", "session_token", "private_pool_secret"):
         if redacted.get(k):
             redacted[k] = mask_secret(str(redacted[k]))
     if args.as_json:
         print(json.dumps(redacted, indent=2))
     else:
         print(json.dumps(redacted, indent=2))
+    return 0
+
+
+def _cmd_privacy_check(args: argparse.Namespace, home_dir: Path | None = None) -> int:
+    from cli import STRICT_PRIVACY_TIERS, get_space_config_path, load_node_identity
+    from cli.e2ee import E2EE_PROTOCOL_VERSION, e2ee_available, hash_private_pool_secret, is_loopback_url
+
+    cfg = load_space_config(home_dir)
+    cfg_path = get_space_config_path(home_dir)
+    _, node_path = load_node_identity(home_dir)
+    upstreams = resolve_upstreams(home_dir=home_dir)
+    privacy = str(cfg.get("privacy") or "standard").strip().lower()
+    loopback_upstreams = [u for u in upstreams if is_loopback_url(u)]
+
+    def _file_mode_ok(p: Path | None) -> bool | None:
+        if p is None or not p.exists():
+            return None
+        try:
+            return (p.stat().st_mode & 0o077) == 0
+        except OSError:
+            return None
+
+    report = {
+        "e2ee_protocol": E2EE_PROTOCOL_VERSION,
+        "e2ee_crypto_available": e2ee_available(),
+        "default_privacy": privacy,
+        "fail_closed_tiers": sorted(STRICT_PRIVACY_TIERS),
+        "local_only_airgap_ready": bool(loopback_upstreams),
+        "loopback_upstreams": loopback_upstreams,
+        "configured_upstreams": upstreams,
+        "private_node_pinned": str(cfg.get("private_node") or "").strip() or None,
+        "private_pool_id": hash_private_pool_secret(str(cfg.get("private_pool_secret") or "")) or None,
+        "config_permissions_0600": _file_mode_ok(cfg_path),
+        "node_key_permissions_0600": _file_mode_ok(node_path),
+        "guarantees": {
+            "local_only": "Strictly blocks all non-loopback network egress; fails closed (503) if no local server is configured.",
+            "e2ee": "Client-to-worker X25519 + HKDF-SHA256 + AES-256-GCM with mandatory Ed25519 worker key binding; coordinator is blind.",
+            "hardened_docker_and_tee": "Fail-closed (503) on coordinator unless matching isolated/attested worker is online.",
+        },
+    }
+    if args.as_json:
+        print(json.dumps(report, indent=2))
+        return 0
+
+    print(f"Space Private AI Audit (protocol={report['e2ee_protocol']})")
+    print(f"  E2EE Cryptography : {'READY (X25519 + AES-256-GCM + Ed25519)' if report['e2ee_crypto_available'] else 'MISSING (`pip install cryptography`)'}")
+    print(f"  Default Privacy   : {report['default_privacy']} (fail-closed tiers: {', '.join(report['fail_closed_tiers'])})")
+    print(f"  Local-Only AirGap : {'READY (' + ', '.join(loopback_upstreams) + ')' if loopback_upstreams else 'No loopback upstream configured (will fail closed with 503)'}")
+    print(f"  Pinned Node       : {report['private_node_pinned'] or 'none (any verified E2EE worker)'}")
+    print(f"  Private Pool ID   : {report['private_pool_id'] or 'none (public pool)'}")
     return 0
 
 
@@ -597,6 +669,8 @@ def main(argv: list[str] | None = None, home_dir: Path | None = None) -> int:
         return _cmd_status(args, home_dir=home_dir)
     if args.command == "config":
         return _cmd_config(args, home_dir=home_dir)
+    if args.command in ("privacy-check", "verify-privacy"):
+        return _cmd_privacy_check(args, home_dir=home_dir)
     parser.print_help()
     return 2
 

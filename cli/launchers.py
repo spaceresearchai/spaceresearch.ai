@@ -82,6 +82,8 @@ class LaunchOptions:
     route: str | None = None
     privacy: str | None = None
     region: str | None = None
+    private_node: str | None = None
+    private_pool_secret: str | None = None
     model: str | None = None
     session: str | None = None
     api_key: str | None = None
@@ -158,8 +160,26 @@ def build_launch_plan(options: LaunchOptions) -> LaunchPlan:
     route = (options.route or str(space_cfg.get("route") or "fastest")).strip()
     privacy = (options.privacy or str(space_cfg.get("privacy") or "standard")).strip()
     region = (options.region if options.region is not None else str(space_cfg.get("region") or "")).strip()
+    private_node = (
+        options.private_node if options.private_node is not None else str(space_cfg.get("private_node") or "")
+    ).strip()
+    private_pool_secret = (
+        options.private_pool_secret
+        if options.private_pool_secret is not None
+        else str(space_cfg.get("private_pool_secret") or "")
+    ).strip()
     session = resolve_session_token(options.session, home_dir=options.home_dir)
     model = (options.model or str(space_cfg.get("model") or "")).strip()
+
+    # Air-gapped local-only mode MUST route through local proxy (never --direct to a remote coordinator)
+    if privacy == "local-only" and options.direct:
+        from cli.e2ee import is_loopback_url
+
+        if not upstreams or not is_loopback_url(upstreams[0]):
+            raise ValueError(
+                "Refusing `--direct` with `--privacy local-only` against a non-loopback upstream. "
+                "Omit `--direct` or pass `--coordinator http://127.0.0.1:<port>`."
+            )
 
     barter_key, key_source = resolve_barter_key(explicit_key=options.api_key, home_dir=options.home_dir)
     # Use saved barter key if present; otherwise a clean local proxy placeholder so proxy injects or routes cleanly.
@@ -215,6 +235,8 @@ def build_launch_plan(options: LaunchOptions) -> LaunchPlan:
             "route": route,
             "privacy": privacy,
             "region": region or None,
+            "private_node": private_node or None,
+            "private_pool_configured": bool(private_pool_secret),
             "model": model or None,
             "session": session,
             "client": "coding-agent",
@@ -261,6 +283,8 @@ def launch_coding_agent(options: LaunchOptions) -> int:
             "route": plan.routing["route"],
             "privacy": plan.routing["privacy"],
             "region": plan.routing["region"] or "",
+            "private_node": plan.routing.get("private_node") or "",
+            "private_pool_secret": options.private_pool_secret or "",
             "client_tag": "coding-agent",
         }
         if plan.routing["session"]:
@@ -279,6 +303,8 @@ def launch_coding_agent(options: LaunchOptions) -> int:
                 route=plan.routing["route"] or "fastest",
                 privacy=plan.routing["privacy"] or "standard",
                 region=plan.routing["region"] or "",
+                private_node=plan.routing.get("private_node") or "",
+                private_pool_secret=options.private_pool_secret or "",
                 session_token=plan.routing["session"],
                 client_tag="coding-agent",
                 default_model=plan.routing["model"] or "",

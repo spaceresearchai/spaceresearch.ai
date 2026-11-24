@@ -4,16 +4,26 @@
 #
 # Build:
 #   docker build -f Dockerfile.worker -t space-worker .
-# Run (sandboxed, GPU-accelerated, auto-pause safe):
+# Run (hardened sandbox, zero capabilities, GPU-accelerated, auto-pause safe):
 #   docker run --rm -it --gpus all --read-only \
+#     --cap-drop=ALL --security-opt=no-new-privileges \
+#     --tmpfs /tmp:rw,noexec,nosuid \
 #     -v space_data:/data -e HOME=/data \
 #     space-worker --name my-rtx-rig --auto-pause
+#
+# Private personal/team E2EE-only mode (refuses all plaintext jobs):
+#   docker run --rm -it --gpus all --read-only \
+#     --cap-drop=ALL --security-opt=no-new-privileges \
+#     --tmpfs /tmp:rw,noexec,nosuid \
+#     -v space_data:/data -e HOME=/data \
+#     space-worker --name my-private-5090 --private-only --private-pool "$MY_POOL_SECRET"
 
 FROM nvidia/cuda:12.4.1-base-ubuntu22.04
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     DEBIAN_FRONTEND=noninteractive \
+    SPACE_HARDENED_DOCKER=1 \
     HOME=/data
 
 RUN apt-get update && apt-get install -y --no-install-recommends \

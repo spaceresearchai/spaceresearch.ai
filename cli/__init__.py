@@ -16,7 +16,7 @@ import os
 from pathlib import Path
 from typing import Any
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 DEFAULT_PROXY_HOST = "127.0.0.1"
 DEFAULT_PROXY_PORT = 8377
@@ -24,7 +24,8 @@ DEFAULT_COORDINATOR = "https://api.spaceresearch.ai"
 FALLBACK_COORDINATOR = "https://api.longinusresearch.com"
 
 VALID_ROUTES = ("fastest", "cheapest", "verified-local-only")
-VALID_PRIVACY_TIERS = ("standard", "zero-log", "hardened-docker", "tee")
+VALID_PRIVACY_TIERS = ("standard", "zero-log", "hardened-docker", "e2ee", "tee", "local-only")
+STRICT_PRIVACY_TIERS = frozenset({"hardened-docker", "e2ee", "tee", "local-only"})
 PLACEHOLDER_API_KEYS = frozenset(
     {
         "",
@@ -206,6 +207,7 @@ __all__ = [
     "FALLBACK_COORDINATOR",
     "VALID_ROUTES",
     "VALID_PRIVACY_TIERS",
+    "STRICT_PRIVACY_TIERS",
     "PLACEHOLDER_API_KEYS",
     "get_space_config_dir",
     "get_space_config_path",

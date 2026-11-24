@@ -14,6 +14,7 @@ SIPs exist to guarantee **credible neutrality**: every verification rule, routin
 | **SIP-0002** | [Unified Local Proxy, Coding Agent Launchers & Routing Constraint Tiers](./SIP-0002-local-proxy-and-routing-tiers.md) | Client / Networking | Accepted | `cli/`, `scripts/space`, `scripts/install-space.sh`, `network/router.py` |
 | **SIP-0003** | [Two-Sided Season 0 Demand Points & Delegated Provider Pools ("Colonies")](./SIP-0003-two-sided-demand-points-and-delegated-pools.md) | Economics / Solana | Accepted | `programs/longinus-settlement/src/`, `network/ledger.py`, `network/router.py` |
 | **SIP-0004** | [Agent-Native Solana USDC Session Budgets & Zero-Subscription Top-Up](./SIP-0004-agent-native-usdc-session-budgets.md) | Payments / Agents | Accepted | `network/ledger.py`, `network/router.py`, `cli/space_cli.py` |
+| **SIP-0005** | [Auditable Private AI, Air-Gapped Local Mode & Blind-Relay E2EE (`space-e2ee-v1`)](./SIP-0005-private-ai-and-e2ee-blind-relay.md) | Privacy / Security | Accepted | `cli/e2ee.py`, `cli/proxy.py`, `scripts/join.py`, `desktop/src/store.js`, `network/router.py` |
 
 ---
 
