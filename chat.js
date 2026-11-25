@@ -7,6 +7,19 @@
   const XRAY_PREF_KEY = "space_xray_v1";
   const CORE_PREF_KEY = "space_core_v1";
   const MIND_PREF_KEY = "space_mind_v1";
+  const GPU_BUSY_MSG = "Our GPUs are busy making our models better right now. Please check back in a few minutes.";
+
+  function isBackendBusyOrRawError(text, status) {
+    if (status === 429 || status === 502 || status === 503 || status === 504) return true;
+    const s = String(text || "");
+    return /\[Error:|HTTPStatusError|ConnectError|ReadError|TimeoutError|RemoteProtocolError|Service Unavailable|127\.0\.0\.1|localhost:87|out of device memory|Live inference failed|Live GPU .* offline|at full capacity|Failed to fetch|NetworkError|Load failed|ERR_CONNECTION|Our GPUs are busy/i.test(s);
+  }
+
+  function formatUserError(detail, status) {
+    if (isBackendBusyOrRawError(detail, status)) return GPU_BUSY_MSG;
+    const s = String(detail || "").trim();
+    return s || GPU_BUSY_MSG;
+  }
 
   let xrayEnabled = true;
   let mindEnabled = true;
@@ -848,7 +861,7 @@
       if (!res.ok) {
         let detail = "HTTP " + res.status;
         try { const j = await res.json(); if (j.detail) detail = j.detail; } catch (_e) {}
-        ccMsg.error = detail;
+        ccMsg.error = formatUserError(detail, res.status);
       } else {
         const compiled = await res.json();
         ccMsg.result = compiled;
@@ -861,7 +874,7 @@
         await syncCoreStatus();
       }
     } catch (err) {
-      ccMsg.error = err.message || "Network error";
+      ccMsg.error = formatUserError(err?.message || "Network error");
     } finally {
       ccMsg.loading = false;
       saveSessions();
@@ -1121,12 +1134,12 @@
       if (!res.ok) {
         let detail = "HTTP " + res.status;
         try { const j = await res.json(); if (j.detail) detail = j.detail; } catch (_e) {}
-        msMsg.error = detail;
+        msMsg.error = formatUserError(detail, res.status);
       } else {
         msMsg.result = await res.json();
       }
     } catch (err) {
-      msMsg.error = err.message || "Network error";
+      msMsg.error = formatUserError(err?.message || "Network error");
     } finally {
       msMsg.loading = false;
       saveSessions();
@@ -2022,7 +2035,8 @@
       if (!res.ok) {
         let detail = "HTTP " + res.status;
         try { const j = await res.json(); if (j.detail) detail = j.detail; } catch (_e) {}
-        forkedMsg.content += `\n[Fork error: ${detail}]`;
+        forkedMsg._isError = true;
+        forkedMsg.content = formatUserError(detail, res.status);
         return;
       }
       const reader = res.body.getReader();
@@ -2054,8 +2068,14 @@
             const parsed = JSON.parse(dataStr);
             const dObj = parsed.choices?.[0]?.delta || {};
             if (dObj.content) {
-              forkedMsg.content += dObj.content;
-              if (parsed.token_signal) forkedMsg.signals.push(parsed.token_signal);
+              if (isBackendBusyOrRawError(dObj.content)) {
+                forkedMsg._isError = true;
+                forkedMsg.signals = [];
+                forkedMsg.content = GPU_BUSY_MSG;
+              } else {
+                forkedMsg.content += dObj.content;
+                if (parsed.token_signal) forkedMsg.signals.push(parsed.token_signal);
+              }
             }
             if (parsed.longinus_meta) forkedMsg.meta = parsed.longinus_meta;
           } catch (_ignore) {}
@@ -2064,17 +2084,23 @@
       }
     } catch (err) {
       if (err.name !== "AbortError") {
-        forkedMsg.content += `\n[Interrupted: ${err.message}]`;
+        forkedMsg._isError = true;
+        forkedMsg.content = formatUserError(err?.message);
       }
     } finally {
       if (rafId) cancelAnimationFrame(rafId);
       activeAbort = null;
       forkedMsg.statusText = "";
+      if (isBackendBusyOrRawError(forkedMsg.content)) {
+        forkedMsg._isError = true;
+        forkedMsg.signals = [];
+        forkedMsg.content = GPU_BUSY_MSG;
+      }
       setStreamingUI(false);
       saveSessions();
       updateCoreButton();
       renderThread(false);
-      if (xrayEnabled && forkedMsg.content) {
+      if (xrayEnabled && forkedMsg.content && !forkedMsg._isError) {
         const msgIndex = sess.messages.indexOf(forkedMsg);
         if (msgIndex >= 0) {
           runMessageAudit(sess, msgIndex);
@@ -2125,12 +2151,12 @@
       if (!res.ok) {
         let detail = "HTTP " + res.status;
         try { const j = await res.json(); if (j.detail) detail = j.detail; } catch (_e) {}
-        cmpMsg.error = detail;
+        cmpMsg.error = formatUserError(detail, res.status);
       } else {
         cmpMsg.result = await res.json();
       }
     } catch (err) {
-      cmpMsg.error = err.message || "Network error";
+      cmpMsg.error = formatUserError(err?.message || "Network error");
     } finally {
       cmpMsg.loading = false;
       setStreamingUI(false);
@@ -2318,12 +2344,12 @@
       if (!res.ok) {
         let detail = "HTTP " + res.status;
         try { const j = await res.json(); if (j.detail) detail = j.detail; } catch (_e) {}
-        auditMsg.error = detail;
+        auditMsg.error = formatUserError(detail, res.status);
       } else {
         auditMsg.result = await res.json();
       }
     } catch (err) {
-      auditMsg.error = err.message || "Network error";
+      auditMsg.error = formatUserError(err?.message || "Network error");
     } finally {
       auditMsg.loading = false;
       setStreamingUI(false);
@@ -2401,12 +2427,12 @@
       if (!res.ok) {
         let detail = "HTTP " + res.status;
         try { const j = await res.json(); if (j.detail) detail = j.detail; } catch (_e) {}
-        stressMsg.error = detail;
+        stressMsg.error = formatUserError(detail, res.status);
       } else {
         stressMsg.result = await res.json();
       }
     } catch (err) {
-      stressMsg.error = err.message || "Network error";
+      stressMsg.error = formatUserError(err?.message || "Network error");
     } finally {
       stressMsg.loading = false;
       setStreamingUI(false);
@@ -3242,10 +3268,11 @@
             </div>
           `;
         }
+        const displayContent = isBackendBusyOrRawError(m.content) ? GPU_BUSY_MSG : (m.content || "");
         const bodyHtml = showXrayView
-          ? (hasSignals ? renderXrayTokensHtml(m.signals) : renderMarkdown(m.content || "")) + coreInspectHtml
-          : (m.content
-              ? renderMarkdown(m.content) + (isLastStreaming ? '<span class="stream-cursor"></span>' : "")
+          ? (hasSignals ? renderXrayTokensHtml(m.signals) : renderMarkdown(displayContent)) + coreInspectHtml
+          : (displayContent
+              ? renderMarkdown(displayContent) + (isLastStreaming ? '<span class="stream-cursor"></span>' : "")
               : (isLastStreaming && !hasThink
                   ? `<div class="stream-status-pill"><span class="think-dot"></span><span>${escHtml(m.statusText || "Routing to local silicon…")}</span></div>`
                   : ""));
@@ -3515,7 +3542,8 @@
       if (!res.ok) {
         let detail = "HTTP " + res.status;
         try { const j = await res.json(); if (j.detail) detail = j.detail; } catch (_e) {}
-        assistantMsg.content = `Could not complete request: ${detail}`;
+        assistantMsg._isError = true;
+        assistantMsg.content = formatUserError(detail, res.status);
         return;
       }
 
@@ -3566,9 +3594,15 @@
               if (thinkStart && !assistantMsg.content) {
                 assistantMsg.thinkMs = Math.round(performance.now() - thinkStart);
               }
-              assistantMsg.content += dObj.content;
-              if (parsed.token_signal) {
-                assistantMsg.signals.push(parsed.token_signal);
+              if (isBackendBusyOrRawError(dObj.content)) {
+                assistantMsg._isError = true;
+                assistantMsg.signals = [];
+                assistantMsg.content = GPU_BUSY_MSG;
+              } else {
+                assistantMsg.content += dObj.content;
+                if (parsed.token_signal) {
+                  assistantMsg.signals.push(parsed.token_signal);
+                }
               }
             }
             if (parsed.longinus_meta) {
@@ -3584,7 +3618,8 @@
       }
     } catch (err) {
       if (err.name !== "AbortError") {
-        assistantMsg.content = assistantMsg.content || `Connection interrupted (${err.message}). Try again.`;
+        assistantMsg._isError = true;
+        assistantMsg.content = assistantMsg.content || GPU_BUSY_MSG;
       }
     } finally {
       if (rafId) {
@@ -3593,12 +3628,17 @@
       }
       activeAbort = null;
       assistantMsg.statusText = "";
+      if (isBackendBusyOrRawError(assistantMsg.content)) {
+        assistantMsg._isError = true;
+        assistantMsg.signals = [];
+        assistantMsg.content = GPU_BUSY_MSG;
+      }
       setStreamingUI(false);
       saveSessions();
       updateCoreButton();
       renderThread(false);
       setTimeout(() => refreshRewardsBadge(), 450);
-      if (xrayEnabled && assistantMsg.content && !assistantMsg.content.startsWith("Could not complete")) {
+      if (xrayEnabled && assistantMsg.content && !assistantMsg._isError && !assistantMsg.content.startsWith("Could not complete")) {
         const msgIndex = sess.messages.indexOf(assistantMsg);
         if (msgIndex >= 0) {
           runMessageAudit(sess, msgIndex);

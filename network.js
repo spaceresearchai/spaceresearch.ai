@@ -1230,6 +1230,9 @@
               const p = JSON.parse(raw);
               const tok = p?.choices?.[0]?.delta?.content || "";
               if (tok) {
+                if (/\[Error:|HTTPStatusError|ConnectError|Service Unavailable|127\.0\.0\.1|Our GPUs are busy/i.test(tok)) {
+                  throw new Error("GPU_BUSY");
+                }
                 fullText += tok;
                 const sig = p.token_signal || null;
                 if (sig) sigs.push(sig);
@@ -1286,7 +1289,8 @@
         }
       } catch (err) {
         if (err && err.name === "AbortError") return;
-        hxAns.innerHTML = '<span style="opacity:0.75;">Live cluster is busy right now — try Space Chat directly.</span>';
+        hxAns.innerHTML = '<span style="opacity:0.85;">Our GPUs are busy making our models better right now. Please check back in a few minutes.</span>';
+        if (hxRadar) hxRadar.innerHTML = "";
       } finally {
         if (hxBtn) { hxBtn.disabled = false; hxBtn.textContent = "Run X-Ray →"; }
       }

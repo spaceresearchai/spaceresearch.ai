@@ -596,6 +596,9 @@
               const p = JSON.parse(raw);
               const tok = p?.choices?.[0]?.delta?.content || "";
               if (!tok) continue;
+              if (/\[Error:|HTTPStatusError|ConnectError|Service Unavailable|127\.0\.0\.1|Our GPUs are busy/i.test(tok)) {
+                throw new Error("GPU_BUSY");
+              }
               if (tok.includes("<think>")) { inThink = true; continue; }
               if (tok.includes("</think>")) { inThink = false; continue; }
               if (inThink) continue;
@@ -639,7 +642,8 @@
         }
       } catch (err) {
         if (err?.name !== "AbortError" && hxAns) {
-          hxAns.textContent = "Live station momentarily busy — try again or open Space Chat.";
+          hxAns.textContent = "Our GPUs are busy making our models better right now. Please check back in a few minutes.";
+          if (hxRadar) hxRadar.innerHTML = "";
         }
       } finally {
         if (hxBtn) { hxBtn.disabled = false; hxBtn.textContent = "Observe →"; }
