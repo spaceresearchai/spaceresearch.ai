@@ -160,7 +160,7 @@
               <li>
                 <strong>DeepConf Bottom-10% Tail Confidence Weighting:</strong> Standard majority voting gives a shaky hallucination the exact same vote as a rock-solid proof. Instead, we inspect the per-token log-probabilities returned by the model and score each trajectory by the geometric mean of its <strong>lowest 10% token probabilities</strong>:
                 <div style="margin:0.7rem 0;padding:0.7rem 0.95rem;border-radius:8px;background:rgba(255,255,255,0.04);font-family:'JetBrains Mono',monospace;font-size:0.86rem;color:#e4e4e7;">
-                  tail_conf = exp(mean(lowest_10%_of(logprobs)))
+                  tail_conf = exp( mean( lowest_10%_of(logprobs) ) )
                 </div>
                 Why the bottom 10% instead of the overall average? Most tokens in a proof are predictable boilerplate (<code>"Therefore,"</code>, <code>" = "</code>) with 99% probability. The <em>actual</em> reasoning mistakes happen at the handful of uncertain pivot steps where the model guesses a branch or drops a minus sign. Weighting votes by <code>tail_conf</code> automatically down-weights trajectories that hesitated.
               </li>

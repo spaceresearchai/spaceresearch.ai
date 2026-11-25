@@ -115,7 +115,7 @@
               </li>
               <li>
                 <strong>Two-Stage Geometric Decoupling (Per Layer):</strong> At every shared steering layer <code>&ell; &isin; [28..44]</code>, we first build an orthonormal basis <code>Q_epi</code> of our three frozen production guardrails (<code>anti_sycophancy</code>, <code>epistemic_honesty</code>, <code>concise_rigor</code>) and project every personality direction onto its orthogonal complement:
-                <pre><code>v_i &larr; normalize(v_i &minus; Q_epi (Q_epi^T v_i))</code></pre>
+                <pre><code>v_i &larr; normalize( v_i &minus; Q_epi (Q_epi^T v_i) )</code></pre>
                 Second, rather than order-dependent Gram-Schmidt (which unfairly warps whichever axis comes last), we apply <strong>L&ouml;wdin Symmetric Orthogonalization</strong> across the active personality vectors <code>V = [v_1, &hellip;, v_K]</code>:
                 <pre><code>V_ortho = V (V^T V)^{-1/2}</code></pre>
                 L&ouml;wdin orthogonalization uniquely minimizes <code>&sum;_i &Vert;v_i^{ortho} &minus; v_i&Vert;^2</code> subject to exact pairwise orthogonality (<code>V_ortho^T V_ortho = I</code>), treating all five axes completely symmetrically. Every axis also exports a dedicated Layer-32 prompt-end white-box probe (<code>probe.direction</code>, CV AUROC <code>1.000</code>, Cohen's <em>d</em> <code>7.24-10.38</code>) into a compact <code>181 KiB</code> <code>.cvec.gguf</code> artifact.

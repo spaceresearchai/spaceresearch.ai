@@ -164,7 +164,7 @@
               Bitcoin alternates violently between persistent directional expansions, liquidity-sweep mean reversion, and dead low-volatility chop. Any single static indicator (momentum or reversion) gets bled dry during its opposite regime. Our flagship <code>space_neural_manifold</code> strategy treats regime adaptation as an online prediction-with-expert-advice problem (the classic <strong>Hedge / Multiplicative Weights</strong> algorithm):
             </p>
             <ol>
-              <li><strong>Four orthogonal causal experts:</strong> Every bar produces bounded scores <code>e_k &isin; [&minus;1, +1]</code> from (<em>E0</em>) a 2-state constant-velocity Kalman Filter on <code>log(close)</code> combined with SuperTrend (<em>E1</em>) a causal 20-bar Donchian breakout + directional <code>+DI/&minus;DI</code> momentum expert (<em>E2</em>) Binance aggressive taker buy/sell Order-Flow Imbalance (OFI) plus rolling VWAP drift, and (<em>E3</em>) an ADX-damped Bollinger/RSI Z-score mean-reversion expert.</li>
+              <li><strong>Four orthogonal causal experts:</strong> Every bar produces bounded scores <code>e_k &isin; [&minus;1, +1]</code> from (<em>E0</em>) a 2-state constant-velocity Kalman Filter on <code>log(close)</code> combined with SuperTrend, (<em>E1</em>) a causal 20-bar Donchian breakout + directional <code>+DI/&minus;DI</code> momentum expert, (<em>E2</em>) Binance aggressive taker buy/sell Order-Flow Imbalance (OFI) plus rolling VWAP drift, and (<em>E3</em>) an ADX-damped Bollinger/RSI Z-score mean-reversion expert.</li>
               <li><strong>Causal exponential feedback:</strong> At bar <code>i</code>, once the 4-bar horizon from <code>i&minus;4</code> to <code>i</code> resolves, each expert's log-weight updates strictly from past features: <code>log_w[k] &larr; 0.96 &middot; log_w[k] + 0.28 &middot; e_k(i&minus;4) &middot; clip(&Delta;P / ATR, &minus;2.5, 2.5)</code>, then maps through softmax with a diversity floor so no expert permanently dies before its regime returns.</li>
               <li><strong>Fee-aware volatility floor &amp; macro alignment:</strong> Entries are suppressed whenever <code>ATR / close &lt; 20 bps</code> (preventing fee churn in dead chop) and demand stronger conviction (<code>0.48</code> vs. <code>0.34</code>) to trade against the 144-bar macro EMA.</li>
             </ol>
@@ -173,7 +173,7 @@
             <p>
               Static high leverage is catastrophic in crypto because volatility clusters. Instead of applying fixed leverage into liquidation cascades, our margin engine scales effective leverage inversely with annualized realized volatility and proportionally to signal conviction:
             </p>
-            <pre><code>L_eff = clamp(L_max &times; clamp(&sigma;_target / &sigma;_realized, 0.35, 1.25) &times; (0.45 + 0.55 &times; confidence), 1.0, L_max)</code></pre>
+            <pre><code>L_eff = clamp( L_max &times; clamp(&sigma;_target / &sigma;_realized, 0.35, 1.25) &times; (0.45 + 0.55 &times; confidence), 1.0, L_max )</code></pre>
             <p>
               Every leveraged position computes exact perpetual liquidation thresholds (<code>P_entry &times; (1 &minus; Collateral / Notional + MMR)</code> for Longs and <code>P_entry &times; (1 + Collateral / Notional &minus; MMR)</code> for Shorts under Isolated or Cross margin), pairs initial ATR stop-loss and take-profit levels with a ratcheting ATR trailing stop activated at <code>+1.0 ATR</code>, and enforces a <code>40%</code> max-drawdown circuit breaker.
             </p>

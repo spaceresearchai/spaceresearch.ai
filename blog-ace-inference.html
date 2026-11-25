@@ -65,7 +65,7 @@
           <div class="blog-abstract">
             <div class="blog-abstract-lbl">ABSTRACT</div>
             <p>
-              Building on Algorithmic Core Extraction (ACE; Schiffman, 2026), we implement and benchmark four modular inference optimizations on a single workstation GPU (RTX 5090, <code>Qwen/Qwen3-1.7B</code>): (1) mid-layer early exit and Mahalanobis-gated CPU MicroCore routing (up to 484.2&times; vs. 16-token generation) (2) Jacobian balanced-truncation projection of per-layer attention states with fused Triton Pre-RoPE FlashDecoding (4&times;-16&times; memory reduction, 3.17&times; peak batch throughput) (3) sufficient-core structured MLP pruning paired with an anti-inflation weight-decay scheduler (+38.9% 4-bit accuracy recovery), and (4) cross-family core alignment (0.7470 mean CCA) enabling 100% exact lossless speculative decoding.
+              Building on Algorithmic Core Extraction (ACE; Schiffman, 2026), we implement and benchmark four modular inference optimizations on a single workstation GPU (RTX 5090, <code>Qwen/Qwen3-1.7B</code>): (1) mid-layer early exit and Mahalanobis-gated CPU MicroCore routing (up to 484.2&times; vs. 16-token generation), (2) Jacobian balanced-truncation projection of per-layer attention states with fused Triton Pre-RoPE FlashDecoding (4&times;-16&times; memory reduction, 3.17&times; peak batch throughput), (3) sufficient-core structured MLP pruning paired with an anti-inflation weight-decay scheduler (+38.9% 4-bit accuracy recovery), and (4) cross-family core alignment (0.7470 mean CCA) enabling 100% exact lossless speculative decoding.
             </p>
           </div>
 
