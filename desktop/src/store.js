@@ -24,6 +24,7 @@ const DEFAULT_SETTINGS = Object.freeze({
   customApiBase: "",
   apiKey: "",
   sessionToken: "",
+  solanaWallet: "",
   route: "",
   privacy: "",
   region: "",
@@ -107,6 +108,7 @@ function sanitizeSettings(partial = {}, base = DEFAULT_SETTINGS) {
   merged.customApiBase = merged.customApiBase ? normalizeBaseUrl(merged.customApiBase, "") : "";
   merged.apiKey = String(merged.apiKey || "").trim();
   merged.sessionToken = String(merged.sessionToken || "").trim();
+  merged.solanaWallet = String(merged.solanaWallet || "").trim().slice(0, 64);
   merged.route = validRoutes.has(merged.route) ? merged.route : "";
   merged.privacy = validPrivacy.has(merged.privacy) ? merged.privacy : "";
   merged.region = String(merged.region || "").trim().slice(0, 16);
@@ -164,6 +166,9 @@ function resolveEffectiveEndpoint(settings) {
   }
   if (s.sessionToken) {
     headers["X-Space-Session"] = s.sessionToken;
+  }
+  if (s.solanaWallet) {
+    headers["X-Space-Wallet"] = s.solanaWallet;
   }
   if (s.route) {
     headers["X-Space-Route"] = s.route;
@@ -235,12 +240,16 @@ function detectSpaceCliConfig(homeDir = os.homedir()) {
   const sessionToken = String(
     process.env.SPACE_SESSION_TOKEN || spaceCfg.session_token || spaceCfg.session || ""
   ).trim();
+  const solanaWallet = String(
+    process.env.SPACE_WALLET || spaceCfg.wallet || spaceCfg.payout_wallet || spaceCfg.solana_wallet || nodeCfg.payout_wallet || nodeCfg.wallet || ""
+  ).trim();
 
   return {
-    found: Boolean(apiKey || sessionToken || Object.keys(spaceCfg).length > 0 || nodeCfgPath),
+    found: Boolean(apiKey || sessionToken || solanaWallet || Object.keys(spaceCfg).length > 0 || nodeCfgPath),
     apiKey,
     apiKeySource,
     sessionToken,
+    solanaWallet,
     localProxyUrl: `http://${proxyHost}:${proxyPort}`,
     coordinator: Array.isArray(spaceCfg.coordinators) && spaceCfg.coordinators[0]
       ? normalizeBaseUrl(spaceCfg.coordinators[0], DEFAULT_API_BASE)

@@ -477,7 +477,7 @@
         "qwen38-27b",
         "space-chat"
       ],
-      "paper_href": null,
+      "paper_href": "./papers/consciousness-attribution-cores.html",
       "experiment_metrics": "1.0000 AUROC (d=9.69) \u00b7 82-entity rho=0.927 \u00b7 12/12 panpsychism"
     },
     {

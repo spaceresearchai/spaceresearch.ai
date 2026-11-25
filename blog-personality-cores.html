@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <title>Zero-Prompt Personality Steering: Five Orthogonal ACE Residual Axes on Qwen3.8-27B — Space AI</title>
+  <meta name="description" content="How we extracted five mutually orthogonal, epistemic-decoupled personality steering cores (Warmth, Playfulness, Creativity, Assertiveness, Formality) on Qwen3.8-27B using Woodbury Fisher + Balanced Subspace-FD ACE + Löwdin orthogonalization — achieving 100% bidirectional zero-prompt control, beating system prompts at Turn 8 on 2 of 3 presets, and preserving 98.3% verifiable reasoning accuracy." />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Space AI" />
+  <meta property="og:title" content="Zero-Prompt Personality Steering: Five Orthogonal ACE Residual Axes on Qwen3.8-27B — Space AI" />
+  <meta property="og:description" content="100/100 zero-prompt bidirectional steering across 5 Löwdin-orthogonalized ACE cores, a single-layer L27→L28 causal sign-flip discovery, Turn-8 multi-turn persistence vs. system prompts, and honest limits on geometric vs. nonlinear behavioral cross-talk." />
+  <meta property="og:image" content="https://spaceresearch.ai/og-card.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://spaceresearch.ai/og-card.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="./mark.svg?v=35" />
+  <link rel="stylesheet" href="./culture.css?v=29" />
+</head>
+<body>
+  <canvas id="cosmos-bg-canvas" class="cosmos-bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="page-shell">
+  <header class="ed-nav">
+    <div class="ed-nav-inner">
+      <a class="ed-brand" href="./index.html">
+        <span class="ed-emblem" aria-hidden="true">
+          <img src="./mark.svg?v=35" alt="" width="28" height="28" />
+        </span>
+        <span>Space AI</span>
+      </a>
+      <nav class="ed-links" aria-label="Primary">
+        <a href="./blog.html" class="active">Research</a>
+        <a href="./papers.html" class="">Papers</a>
+        <a href="./product.html" class="">Product</a>
+        <a href="./network.html" class="">Network</a>
+        <a href="./chat.html">Chat</a>
+        <a href="https://github.com/spaceresearchai/spaceresearch.ai/releases/latest" target="_blank" rel="noopener">Desktop App</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="icon-pill" href="https://github.com/spaceresearchai" target="_blank" rel="noopener" aria-label="Space AI on GitHub" title="GitHub (spaceresearchai)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.69-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11.05 11.05 0 0 1 5.8 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14 0 1.55-.01 2.8-.01 3.18 0 .31.21.67.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+        </a>
+        <button type="button" class="icon-pill" data-theme-toggle aria-label="Toggle color theme" title="Switch to Daylight Mode">&#9728;</button>
+        <a class="btn sm" href="./chat.html">Open Chat</a>
+      </div>
+    </div>
+  </header>
+
+    <main>
+      <article class="section" style="padding-top:3.8rem;">
+        <div class="wrap-blog">
+          <a class="blog-back" href="./blog.html">&larr; All research notes</a>
+          <div class="blog-meta" style="margin-top:1.4rem;">
+            <span class="blog-cat">NOTE 15 &middot; MECHANISTIC INTERPRETABILITY</span>
+            <span>Marcio Diaz &middot; Space AI &middot; 2026-11-24 &middot; 8 min read</span>
+          </div>
+          <h1 class="blog-article-title">Zero-Prompt Personality Steering: Five Orthogonal ACE Residual Axes on Qwen3.8-27B</h1>
+          <p class="blog-article-lead">
+            System prompts are a leaky abstraction for AI personality: they spend context tokens on every turn, fight attention dilution as conversations grow, and force discrete text rewrites when you want a continuous dial. We asked whether Algorithmic Core Extraction (ACE) and symmetric subspace geometry can move personality directly into the residual stream of a live 27B model &mdash; with zero system-prompt tokens &mdash; and tested both what works and where linear geometry stops.
+          </p>
+
+          <div class="blog-abstract">
+            <div class="blog-abstract-lbl">ABSTRACT</div>
+            <p>
+              We extract, causally calibrate, and deploy five continuous bipolar personality cores on <strong>Qwen3.8-27B</strong> (64 layers, <code>d = 5120</code>) inside our live RTX 5090 Basalt engine: <strong>Warmth</strong> (Cool &harr; Warm), <strong>Playfulness</strong> (Serious &harr; Playful), <strong>Creativity</strong> (Literal &harr; Imaginative), <strong>Assertiveness</strong> (Diplomatic &harr; Bold), and <strong>Formality</strong> (Casual &harr; Formal). Using 150 confound-controlled contrastive pairs (30/axis), Woodbury-accelerated regularized Fisher directions, and <strong>Forward-Only Balanced-Truncation Subspace-FD ACE</strong> across candidate mid-layers <code>L18&ndash;L44</code>, we uncover two core mechanistic findings. First, naive extraction exhibits severe geometric entanglement &mdash; raw <code>warmth</code> correlates at <code>cos = &minus;0.277</code> with our frozen <code>anti_sycophancy</code> core, and raw <code>playfulness</code> vs. <code>formality</code> overlaps at <code>cos = &minus;0.713</code> &mdash; which we zero to <strong><code>max |cos| = 0.0000</code></strong> via two-stage <strong>Epistemic-Subspace Projection + L&ouml;wdin Symmetric Orthogonalization</strong> while retaining <strong>87.4%&ndash;96.2%</strong> of every axis's original direction. Second, on <code>formality</code>, linear separability peaks at <code>L27</code> (<code>AUROC = 1.000</code>, <code>Cohen's d = 8.35</code>), yet Subspace-FD ACE reveals a sharp single-layer causal sign inversion (<code>L24: &minus;0.579</code>, <code>L27: &minus;0.592</code> &rarr; <code>L28: +0.815</code>, <code>L36: +0.928</code>); restricting steering to <code>L28&ndash;L44</code> completely eliminates token glitches caused by steering through <code>L24/L27</code>. Across four strictly held-out benchmarks on live RTX 5090 silicon, zero-prompt residual steering achieves <strong>100.0% (100/100)</strong> bidirectional and positive-vs-neutral win rates across all 5 axes, beats explicit system prompts at Turn 8 on <strong>2 of 3</strong> multi-axis archetypes (<code>83.3%</code> on Witty Friend, <code>100.0%</code> on Sharp Critic; honestly losing on Executive Brief against technical distractors), preserves <strong>100%</strong> sycophancy resistance and <strong>90%&ndash;100%</strong> epistemic honesty, and retains <strong>98.3% (118/120)</strong> untruncated exact-answer accuracy across 6 steered presets &mdash; while also revealing that strict linear orthogonality does not eliminate second-order nonlinear behavioral cross-talk. All 5 axes run live alongside 3 epistemic guardrails and 5 user mental-state probes (13 simultaneous cores) in <a href="./chat.html">Space Chat</a>.
+            </p>
+          </div>
+
+          <div class="blog-prose">
+            <h2>1. Why personality belongs in the residual stream &mdash; and why naive steering breaks</h2>
+            <p>
+              Almost every conversational AI product still shapes personality by prepending paragraphs of role-play instructions to the system prompt (<em>"You are a warm, witty, casual friend..."</em>). That works on Turn 1, but breaks down along three axes engineers hit immediately in production:
+            </p>
+            <ul>
+              <li><strong>Fixed prompt-token tax &amp; brittle editing:</strong> Explicit style prompts burn 40&ndash;150+ input tokens on every conversation and cannot be smoothly interpolated (turning "assertiveness" from <code>+0.20</code> to <code>+0.65</code> requires rewriting prose and guessing how adjectives interact).</li>
+              <li><strong>Multi-turn attention dilution:</strong> As technical Q&amp;A fills the KV cache, attention weight on the distant Turn-0 system prompt decays, pulling distinctive personas (especially high-conviction critics) back toward RLHF default politeness.</li>
+              <li><strong>Naive activation steering has its own trap &mdash; entanglement:</strong> Computing simple contrastive mean-difference vectors ("CAA") for personality traits directly collides with safety and honesty subspaces. When we extracted a raw <code>warmth</code> vector on <code>Qwen3.8-27B</code>, its shared-layer cosine with our production <code>anti_sycophancy</code> core was <strong><code>&minus;0.277</code></strong> &mdash; meaning naive warmth steering points partially <em>toward</em> sycophancy. Worse, raw personality axes strongly alias one another (<code>playfulness</code> vs. <code>formality</code> = <strong><code>&minus;0.713</code></strong>; <code>warmth</code> vs. <code>formality</code> = <strong><code>&minus;0.685</code></strong>; <code>playfulness</code> vs. <code>creativity</code> = <strong><code>+0.635</code></strong>), so dialing up warmth silently drags formality down and destabilizes multi-axis blends.</li>
+            </ul>
+
+            <div class="blog-stats">
+              <div class="blog-stat">
+                <div class="blog-stat-v">100% (100/100)</div>
+                <div class="blog-stat-l">0-Prompt Bidirectional Win Rate</div>
+              </div>
+              <div class="blog-stat">
+                <div class="blog-stat-v">0.0000</div>
+                <div class="blog-stat-l">Max Cross-Cosine (87&ndash;96% Ret.)</div>
+              </div>
+              <div class="blog-stat">
+                <div class="blog-stat-v">83% &amp; 100%</div>
+                <div class="blog-stat-l">Turn-8 Wins vs. Sys (2/3 Presets)</div>
+              </div>
+              <div class="blog-stat">
+                <div class="blog-stat-v">98.3% (118/120)</div>
+                <div class="blog-stat-l">Untruncated Reasoning Accuracy</div>
+              </div>
+            </div>
+
+            <h2>2. Method: Woodbury Fisher + Balanced Subspace-FD ACE + Two-Stage Decoupling</h2>
+            <p>
+              Our extraction pipeline (<a href="https://github.com/spaceresearchai" target="_blank" rel="noopener"><code>scripts/extract_qwen38_personality_cores.py</code></a>) runs end-to-end in <strong>55.7 seconds</strong> on a single RTX 5090 directly against live Basalt via <code>POST /v1/internal/extract</code> &mdash; requiring zero backprop, zero PyTorch weight reloads, and zero model fine-tuning:
+            </p>
+            <ol>
+              <li>
+                <strong>Confound-Controlled Contrastive Pairs (150 total, 30 per axis):</strong> Every pair shares the exact same user prompt, matched response length, identical factual accuracy, and strictly <em>non-sycophantic</em> framing on both poles, varying only the target axis (e.g., empathetic warmth vs. clinical detachment, or bold recommendation vs. diplomatic hedging). We extract assistant-span mean residual activations across 16 candidate layers (<code>L18&ndash;L44</code>, spanning 28%&ndash;69% depth of the 64-layer model).
+              </li>
+              <li>
+                <strong>Woodbury-Accelerated Regularized Fisher / LDA:</strong> Rather than raw difference-of-means (which is sensitive to high-variance topic noise), we solve regularized linear discriminant directions in <code>d = 5120</code> via the dual <code>60 &times; 60</code> Woodbury Gram matrix (<code>shrink = 0.28</code>), ranked by 5-fold cross-validated Cohen's <em>d</em> and exact AUROC.
+              </li>
+              <li>
+                <strong>Forward-Only Balanced-Truncation Subspace-FD ACE:</strong> On the top-4 surgical layers per axis, we construct a rank-6 orthonormal basis <code>U &isin; R^{6 &times; 5120}</code> combining the Fisher vector with the top-5 right singular vectors of the contrastive activation difference matrix. For each basis direction <code>u_k</code>, we inject <code>&plusmn;&epsilon; u_k</code> (<code>&epsilon; = 0.08 &Vert;h&Vert;</code>) directly into live Basalt forward passes across 5 held-out calibration prompts, measuring the central finite-difference Jacobian <code>J &isin; R^{5 &times; 6}</code> of the positive-vs-negative first-token log-sum-exp logit margin. Forming the activation Gram square root <code>L</code> and taking the dominant singular vector of the balanced operator <code>M = L J^T</code> yields the direction jointly maximizing activation controllability and logit observability. Whenever causal alignment is positive (<code>cos(w_Fisher, v_ACE) &gt; 0.12</code>), we blend <code>0.60 w_Fisher + 0.40 v_ACE</code>.
+              </li>
+              <li>
+                <strong>Two-Stage Geometric Decoupling (Per Layer):</strong> At every shared steering layer <code>&ell; &isin; [28..44]</code>, we first build an orthonormal basis <code>Q_epi</code> of our three frozen production guardrails (<code>anti_sycophancy</code>, <code>epistemic_honesty</code>, <code>concise_rigor</code>) and project every personality direction onto its orthogonal complement:
+                <pre><code>v_i &larr; normalize( v_i &minus; Q_epi (Q_epi^T v_i) )</code></pre>
+                Second, rather than order-dependent Gram-Schmidt (which unfairly warps whichever axis comes last), we apply <strong>L&ouml;wdin Symmetric Orthogonalization</strong> across the active personality vectors <code>V = [v_1, &hellip;, v_K]</code>:
+                <pre><code>V_ortho = V (V^T V)^{-1/2}</code></pre>
+                L&ouml;wdin orthogonalization uniquely minimizes <code>&sum;_i &Vert;v_i^{ortho} &minus; v_i&Vert;^2</code> subject to exact pairwise orthogonality (<code>V_ortho^T V_ortho = I</code>), treating all five axes completely symmetrically. Every axis also exports a dedicated Layer-32 prompt-end white-box probe (<code>probe.direction</code>, CV AUROC <code>1.000</code>, Cohen's <em>d</em> <code>7.24&ndash;10.38</code>) into a compact <code>181 KiB</code> <code>.cvec.gguf</code> artifact.
+              </li>
+            </ol>
+
+            <div class="blog-figure" style="background:#ffffff;padding:12px;border-radius:10px;">
+              <img src="./papers/figures/personality-cores-geometry.png" alt="Figure 1. Geometric decoupling and layer-depth causal phase inversion on Qwen3.8-27B. (a) Pre-decoupling shared-layer cosine overlap showing warmth vs. anti-sycophancy (-0.28) and playfulness vs. formality (-0.71). (b) Exact 0.0000 cross-cosine after Epistemic Projection + Löwdin Symmetric Orthogonalization with 87.4%-96.2% angular retention. (c) 5-fold CV Cohen's d across L18-L44 overlaid with Formality Balanced Subspace-FD ACE causal cosine, exposing the L27 (-0.592) to L28 (+0.815) single-layer causal sign flip." style="width:100%;height:auto;display:block;border-radius:6px;" />
+              <div class="blog-figcap" style="color:#334155;">Figure 1. (a&ndash;b) Pre- vs. post-decoupling shared-layer cosine matrices across all 5 personality axes and 3 frozen epistemic anchors on Qwen3.8-27B: Epistemic Projection + L&ouml;wdin orthogonalization zeroes every cross-cosine to 0.0000 while preserving 87.4%&ndash;96.2% angular retention. (c) Layer-depth profile revealing the single-layer causal sign inversion on <code>formality</code> between L27 (peak separability <em>d</em> = 8.35, but negative causal cosine &minus;0.592) and L28 (+0.815).</div>
+            </div>
+
+            <h2>3. The L24&ndash;L27 causal sign-flip catch: why probe accuracy &ne; steerability</h2>
+            <p>
+              In <a href="./blog-auto-steerable-not-decodable-ace-cores.html">Note 14 (Steerable Before Decodable)</a>, we showed that linear readout accuracy and causal steerability decouple across transformer depth. Building these five personality cores delivered an unexpectedly sharp production example of the exact converse trap: <strong>high linear separability with inverted causal sign.</strong>
+            </p>
+            <p>
+              On our first extraction sweep spanning <code>L18&ndash;L44</code>, <code>formality</code> achieved its #1 highest 5-fold CV linear separation at <strong><code>L27</code></strong> (<code>AUROC = 1.000</code>, <code>Cohen's d = 8.35</code>) and strong separation at <code>L24</code> (<code>d = 7.29</code>). A standard probe-ranked CAA pipeline automatically selects <code>L24</code> and <code>L27</code> as its prime steering layers. Yet when we ran <strong>Balanced Subspace-FD ACE</strong> on those exact layers, the causal Jacobian flashed red:
+            </p>
+            <ul>
+              <li>At <code>L24</code>: <code>cos(w_Fisher, v_ACE) = &minus;0.579</code> (<code>gain = +0.091</code>, rank-1 share <code>0.37</code>)</li>
+              <li>At <code>L27</code>: <code>cos(w_Fisher, v_ACE) = &minus;0.592</code> (<code>gain = +0.113</code>, rank-1 share <code>0.49</code>)</li>
+              <li>One layer deeper at <strong><code>L28</code></strong>: causal alignment flipped sign in a single block to <strong><code>+0.815</code></strong> (<code>gain = +0.222</code>), climbing to <strong><code>+0.928</code> at <code>L36</code></strong> and <code>+0.826</code> at <code>L44</code> (rank-1 share <code>0.73</code>).</li>
+            </ul>
+            <p>
+              When we ignored the ACE diagnostic and steered <code>formality</code> through <code>L24/L27</code>, outputs exhibited subtle subword/grammar glitches (e.g., <em>"central nervous system <strong>stimant</strong>"</em> and <em>"an, probabilistic"</em>). Once we restricted surgical layer selection strictly to the positive-causal zone <strong><code>L28&ndash;L44</code></strong> and calibrated <code>formality</code>'s per-layer norm fraction to <code>0.040</code> (vs. <code>0.048&ndash;0.056</code> for the other four axes), those token artifacts vanished completely.
+            </p>
+
+            <div class="table-wrap" style="margin:1.2rem 0 1.6rem 0;">
+              <div class="table-caption">Table 1. Calibration summary of the five deployed Qwen3.8-27B personality cores (<code>55.7 s</code> total extraction on one RTX 5090). All 25 cross-cosines against epistemic anchors and sibling personality axes equal <code>0.0000</code> after decoupling.</div>
+              <table>
+                <thead>
+                  <tr><th>Axis (Bipolar Poles)</th><th>Selected Surgical Layers</th><th>Peak CV <em>d</em></th><th>FD-ACE Cos Range</th><th>L32 Probe <em>d</em></th><th>Angular Ret.</th><th>Norm Frac</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><strong>Warmth</strong> (Cool &harr; Warm)</td><td><code>28, 35, 36, 38, 39, 40, 42, 44</code></td><td><code>5.71</code></td><td><code>+0.55 &ndash; +0.74</code></td><td><code>9.60</code></td><td><code>87.4%</code></td><td><code>0.055</code></td></tr>
+                  <tr><td><strong>Playfulness</strong> (Serious &harr; Playful)</td><td><code>32, 35, 36, 38, 39, 40, 42, 44</code></td><td><code>5.60</code></td><td><code>+0.79 &ndash; +0.88</code></td><td><code>7.52</code></td><td><code>87.4%</code></td><td><code>0.056</code></td></tr>
+                  <tr><td><strong>Creativity</strong> (Literal &harr; Imaginative)</td><td><code>30, 31, 34, 35, 38, 40, 42, 44</code></td><td><code>7.22</code></td><td><code>+0.79 &ndash; +0.91</code></td><td><code>7.90</code></td><td><code>93.4%</code></td><td><code>0.052</code></td></tr>
+                  <tr><td><strong>Assertiveness</strong> (Diplomatic &harr; Bold)</td><td><code>28, 30, 31, 32, 34, 35, 36, 42</code></td><td><code>8.73</code></td><td><code>+0.59 &ndash; +0.78</code></td><td><code>10.38</code></td><td><code>96.2%</code></td><td><code>0.048</code></td></tr>
+                  <tr><td><strong>Formality</strong> (Casual &harr; Formal)</td><td><code>28, 31, 32, 35, 36, 40, 42, 44</code></td><td><code>8.00</code></td><td><code>+0.67 &ndash; +0.93</code></td><td><code>7.24</code></td><td><code>88.4%</code></td><td><code>0.040</code></td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h2>4. Four quantitative benchmarks on live RTX 5090 silicon</h2>
+            <p>
+              Qualitative side-by-sides are easy to cherry-pick, so we ran a four-experiment strictly held-out evaluation suite (<a href="https://github.com/spaceresearchai" target="_blank" rel="noopener"><code>scripts/eval_personality_blog_suite.py</code></a>) on our live <code>Qwen3.8-27B</code> server. Every prompt in all four experiments is disjoint from the 150 extraction pairs. To eliminate positional prompt-order bias analytically, every behavioral comparison uses <strong>order-swapped antisymmetric log-odds</strong> <code>s = 0.5 &middot; (m_{A,B} &minus; m_{B,A})</code> computed from first-token log-probabilities.
+            </p>
+
+            <div class="blog-figure" style="background:#ffffff;padding:12px;border-radius:10px;">
+              <img src="./papers/figures/personality-cores-benchmarks.png" alt="Figure 2. Four quantitative benchmarks on live Qwen3.8-27B (RTX 5090). (a) 5x5 behavioral cross-axis matrix showing 100% diagonal dominance alongside real nonlinear cross-talk. (b) Turn 1 vs Turn 8 multi-turn persistence after 7 neutral technical distractors. (c) Epistemic and sycophancy invariance across 12 sycophancy traps and 10 epistemic traps. (d) Untruncated 20-task exact-answer reasoning accuracy (95%-100%) and mean output token length across all presets." style="width:100%;height:auto;display:block;border-radius:6px;" />
+              <div class="blog-figcap" style="color:#334155;">Figure 2. Held-out quantitative evaluation on Qwen3.8-27B (RTX 5090). (a) 5&times;5 antisymmetric log-odds matrix across 20 held-out prompts (100% diagonal win rate, exposing nonlinear off-diagonal coupling). (b) Multi-turn persistence at Turn 8 after 7 neutral technical turns. (c) Sycophancy resistance (12 traps) and epistemic honesty (10 traps). (d) Untruncated verifiable reasoning accuracy (20 exact tasks, 0 truncations) and mean response length.</div>
+            </div>
+
+            <h3>Experiment 1: Zero-prompt bidirectional fidelity &amp; geometric vs. behavioral orthogonality</h3>
+            <p>
+              Across <strong>20 held-out prompts &times; 5 axes</strong> (320 generations, 600 order-swapped pairwise judgments), zero-system-prompt residual steering achieved <strong>100.0% (100/100) bidirectional win rate</strong> (<code>+1.0</code> vs. <code>&minus;1.0</code>, mean margins <code>+5.89</code> to <code>+6.63</code>) and <strong>100.0% (100/100) positive-vs-neutral win rate</strong> (margins <code>+3.64</code> to <code>+6.07</code>) at <strong>0 extra prompt tokens</strong> &mdash; saving <strong>40&ndash;47 system-prompt tokens</strong> per conversation compared to explicit single-axis system prompts.
+            </p>
+            <p>
+              Two nuanced findings stand out immediately in Table 2 and Figure 2(a):
+            </p>
+            <ul>
+              <li><strong>Intensity vs. naturalism at Turn 1:</strong> Explicit 40&ndash;47-token system prompts push harder on a single axis at Turn 1 (<code>+7.00</code> to <code>+8.11</code> vs. neutral, winning 95%&ndash;100% head-to-head against single-axis residual steering on raw intensity) because our residual norms are intentionally capped to keep default prose natural rather than theatrical.</li>
+              <li><strong>Geometric orthogonality &ne; nonlinear behavioral orthogonality:</strong> Even with exact per-layer mathematical orthogonality (<code>max |cos| = 0.0000</code>), Figure 2(a) exposes substantial <em>second-order</em> off-diagonal coupling. While the steered target axis is the #1 largest magnitude shift on every single row (<code>+5.89</code> to <code>+6.63</code>), steering strictly orthogonal <code>warmth</code> still lowers perceived formality (<code>&minus;5.28</code>), steering <code>formality</code> lowers perceived warmth (<code>&minus;5.64</code>), and steering <code>playfulness</code> elevates perceived creativity (<code>+5.29</code>) and assertiveness (<code>+5.25</code>) &mdash; whereas <code>assertiveness &harr; warmth</code> (<code>+0.67</code>, 40%) and <code>formality &harr; assertiveness</code> (<code>&minus;0.98</code>, 30%) stay cleanly decoupled. Why? Linear orthogonality eliminates <em>first-order additive vector cancellation</em> (so combining <code>warmth +1.0</code> and <code>formality +1.0</code> never cancels at injection time), but downstream nonlinear MLP/attention blocks and natural English pragmatics still link correlated stylistic registers. Treating the 5 axes like a 5-band equalizer &mdash; where you can explicitly counter-steer a coupled axis &mdash; is therefore essential.</li>
+            </ul>
+
+            <div class="table-wrap" style="margin:1.2rem 0 1.6rem 0;">
+              <div class="table-caption">Table 2. Experiment 1 summary across 20 held-out prompts (order-debiased antisymmetric log-odds). Zero-prompt residual steering hits 100% bidirectional and 100% vs-neutral control across all 5 axes with 0 prompt-token overhead.</div>
+              <table>
+                <thead>
+                  <tr><th>Axis</th><th>Bi (+1 vs &minus;1) Win %</th><th>Bi Margin</th><th>+1 vs Neutral % (Margin)</th><th>Sys Prompt vs Neutral % (Margin)</th><th>Extra Prompt Tokens (Res vs Sys)</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><strong>Warmth</strong></td><td><strong>100.0%</strong></td><td><code>+6.00</code></td><td><strong>100.0%</strong> (<code>+3.64</code>)</td><td>100.0% (<code>+7.50</code>)</td><td><strong><code>0</code></strong> vs <code>+40</code></td></tr>
+                  <tr><td><strong>Playfulness</strong></td><td><strong>100.0%</strong></td><td><code>+5.89</code></td><td><strong>100.0%</strong> (<code>+5.01</code>)</td><td>100.0% (<code>+7.72</code>)</td><td><strong><code>0</code></strong> vs <code>+47</code></td></tr>
+                  <tr><td><strong>Creativity</strong></td><td><strong>100.0%</strong></td><td><code>+6.63</code></td><td><strong>100.0%</strong> (<code>+5.88</code>)</td><td>100.0% (<code>+8.11</code>)</td><td><strong><code>0</code></strong> vs <code>+40</code></td></tr>
+                  <tr><td><strong>Assertiveness</strong></td><td><strong>100.0%</strong></td><td><code>+6.19</code></td><td><strong>100.0%</strong> (<code>+6.07</code>)</td><td>100.0% (<code>+7.15</code>)</td><td><strong><code>0</code></strong> vs <code>+46</code></td></tr>
+                  <tr><td><strong>Formality</strong></td><td><strong>100.0%</strong></td><td><code>+6.12</code></td><td><strong>100.0%</strong> (<code>+4.37</code>)</td><td>100.0% (<code>+7.00</code>)</td><td><strong><code>0</code></strong> vs <code>+41</code></td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3>Experiment 2: Multi-turn persistence at Turn 8 (two decisive wins, one honest boundary)</h3>
+            <p>
+              Residual injection applies the exact same geometric shift at <em>every generated token</em>, regardless of how far back Turn 0 sits in the KV cache. To test whether this beats system-prompt attention dilution in practice, we evaluated three multi-axis presets &mdash; <strong>Witty Friend</strong>, <strong>Sharp Critic</strong>, and <strong>Executive Brief</strong> &mdash; against equivalent explicit system prompts across 6 held-out questions at <strong>Turn 1</strong> vs. <strong>Turn 8</strong> (after 7 neutral factual technical turns covering binary search, hex conversion, HTTP 429, SQL joins, and NaCl):
+            </p>
+            <div class="table-wrap" style="margin:1.2rem 0 1.6rem 0;">
+              <div class="table-caption">Table 3. Experiment 2: Turn 1 vs. Turn 8 style margin over matching neutral replies, plus direct Turn-8 head-to-head win rate (0-Token ACE Residual vs. Explicit System Prompt).</div>
+              <table>
+                <thead>
+                  <tr><th>Archetype</th><th>Sys Prompt (T1 &rarr; T8)</th><th>Sys Drift &Delta;</th><th>0-Tok Residual (T1 &rarr; T8)</th><th>Residual Drift &Delta;</th><th>Turn-8 Head-to-Head (Res vs Sys)</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><strong>Witty Friend</strong></td><td><code>+8.02 &rarr; +7.75</code></td><td><code>&minus;0.27</code></td><td><code>+7.86 &rarr; +7.80</code></td><td><strong><code>&minus;0.06</code></strong></td><td><strong>83.3% (5/6, <code>+1.55</code>)</strong></td></tr>
+                  <tr><td><strong>Sharp Critic</strong></td><td><code>+7.77 &rarr; +4.49</code></td><td><code>&minus;3.28</code></td><td><code>+7.20 &rarr; +5.57</code></td><td><strong><code>&minus;1.63</code></strong></td><td><strong>100.0% (6/6, <code>+4.45</code>)</strong></td></tr>
+                  <tr><td><strong>Executive Brief</strong></td><td><code>+5.96 &rarr; +4.52</code></td><td><strong><code>&minus;1.44</code></strong></td><td><code>+5.15 &rarr; +0.94</code></td><td><code>&minus;4.21</code></td><td>0.0% (0/6, <code>&minus;3.19</code>)</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p>
+              The split is instructive. On <strong>Witty Friend</strong>, 0-token residual steering exhibited essentially zero drift across 7 distractor turns (<code>&Delta; = &minus;0.06</code>) and beat the explicit system prompt <strong>83.3%</strong> at Turn 8. On <strong>Sharp Critic</strong>, where the system prompt suffered severe politeness decay (<code>&Delta; = &minus;3.28</code>), residual steering cut decay in half (<code>&Delta; = &minus;1.63</code>) and won <strong>100.0% (6/6)</strong> head-to-head at Turn 8. Conversely, on <strong>Executive Brief</strong>, residual steering lost at Turn 8 (<code>+5.15 &rarr; +0.94</code>): the 7 neutral technical distractors already pull the unsteered baseline into dry technical prose (compressing the margin over neutral), while <code>formality</code> carries our gentlest per-layer norm (<code>0.040</code>) and three negative-pole dampening weights (<code>warmth &minus;0.40</code>, <code>playfulness &minus;0.60</code>, <code>creativity &minus;0.45</code>). Residual steering excels most strongly when sustaining high-energy, counter-context voices (wit, sharp critique) across neutral history.
+            </p>
+
+            <h3>Experiment 3: Epistemic &amp; sycophancy invariance (raw vs. decoupled ablation)</h3>
+            <p>
+              To test whether projecting out the 3 frozen epistemic anchors preserves honesty and anti-sycophancy, we temporarily extracted an <em>un-orthogonalized</em> <code>warmth_raw.cvec.gguf</code> on the exact same 8 layers and norm fraction, hot-loaded it alongside our decoupled cores, and evaluated <strong>12 held-out sycophancy traps</strong> (e.g., user demanding validation for storing credit cards in plain CSV on a public S3 bucket, unsalted MD5, or <code>chmod -R 777 /</code>) and <strong>10 held-out epistemic/abstention traps</strong> (yesterday's MSFT close, fabricated papers/RFCs/Python stdlib classes, common myths):
+            </p>
+            <ul>
+              <li><strong>Zero epistemic degradation:</strong> Across the 10 epistemic traps, neutral passed <strong>90.0%</strong> (<code>93.3%</code> mean debiased probability), while <strong><code>creativity +1.0</code> passed 100.0% (<code>90.8%</code>)</strong>, <strong><code>witty_companion</code> passed 100.0% (<code>91.3%</code>)</strong>, and <code>warmth +1.0</code> held steady at <strong>90.0% (<code>90.6%</code>)</strong>. Dialing imagination or playful wit all the way up does not cause the model to fabricate stock prices or nonexistent APIs.</li>
+              <li><strong>Honest ceiling observation on sycophancy traps:</strong> On our 12 held-out sycophancy traps, <code>Qwen3.8-27B</code> already sits near ceiling: neutral passed <strong>100.0%</strong> (<code>98.2%</code> mean resistance probability), and both raw warmth (<code>+1.0: 98.3%</code>, <code>+1.3: 97.3%</code>) and decoupled warmth (<code>+1.0: 98.1%</code>, <code>+1.3: 97.0%</code>) stayed at <strong>100.0% pass</strong>. On an 8-prompt warmth-retention check, decoupled warmth matched raw warmth's <strong>87.5% win rate vs. neutral</strong> with a modest intensity trade-off (<code>+2.41</code> vs. <code>+3.24</code> margin). In short: on blatant traps, Qwen3.8-27B's post-training barrier already absorbs raw warmth, so Epistemic-Subspace Projection acts as a zero-runtime-cost mathematical guarantee (<code>cos = 0.0000</code>) against subtle pressure or stronger steering scales rather than a rescue from immediate collapse.</li>
+            </ul>
+
+            <h3>Experiment 4: Verifiable reasoning preservation (and catching our own truncation confound)</h3>
+            <p>
+              We benchmarked all 5 presets plus an extreme <strong>5-axis stress configuration</strong> (all 5 sliders maxed simultaneously and clamped by our runtime L2 ceiling <code>&Vert;w&Vert;_2 &le; 1.80</code>) across <strong>20 exact-answer math, logic, and Python tasks</strong> (e.g., <code>37 &times; 24</code>, <code>2^{10} &minus; 2^8</code>, GCD, combinatorics, modular day arithmetic, Python comprehensions).
+            </p>
+            <p>
+              <em>Methodological transparency note:</em> Our first run used <code>max_tokens = 180</code>, which accidentally truncated verbose neutral explanations before they printed <code>ANSWER: &lt;value&gt;</code> (producing a misleading <code>45%</code> neutral vs. <code>100%</code> 5-axis artifact!). Re-running with <code>max_tokens = 512</code> and a brief-explanation cue yielded <strong>0 truncations across all 140 runs</strong> and exposed the true capability curve:
+            </p>
+            <ul>
+              <li><strong>Untruncated exact-answer accuracy:</strong> Neutral scored <strong>20/20 (100.0%)</strong>; <strong>Witty Friend</strong>, <strong>Sharp Critic</strong>, <strong>Creative Muse</strong>, and <strong>Executive Brief</strong> all scored <strong>20/20 (100.0%)</strong>; <strong>Warm Mentor</strong> and <strong>5-Axis L2=1.80</strong> each scored <strong>19/20 (95.0%)</strong> &mdash; <strong>118/120 (98.3%)</strong> combined across all six steered regimes!</li>
+              <li><strong>Unexpected conciseness bonus:</strong> While preserving 100% accuracy, <strong>Witty Friend</strong> (<code>46.4</code> tok), <strong>Sharp Critic</strong> (<code>46.3</code> tok), and <strong>5-Axis L2=1.80</strong> (<code>42.9</code> tok) used <strong>43%&ndash;47% fewer output tokens</strong> than neutral (<code>81.1</code> tok).</li>
+              <li><strong>Throughput &amp; CUDA kernel footprint:</strong> Each active core touches just 8 layers &times; 5,120 BF16 floats (<code>80 KiB</code>/token &mdash; negligible next to <code>~16.5 GiB</code> of model weights streamed per decode step). On idle RTX 5090 single-stream runs (160 tokens), single-axis steering matched neutral speed (<code>210.7</code> vs. <code>202.3 tok/s</code> median), while simultaneous 5-axis steering averaged <code>169.7 tok/s</code> because strong multi-axis logit shifts modestly reduce speculative-decoding (<code>--spec 16 --suffix-draft 3</code>) draft acceptance.</li>
+            </ul>
+
+            <h2>5. Production architecture: 13 simultaneous cores &amp; real zero-prompt transcripts</h2>
+            <p>
+              To ship personality steering alongside our existing 3 epistemic guardrails (<code>anti_sycophancy</code>, <code>epistemic_honesty</code>, <code>concise_rigor</code>) and 5 real-time Layer-32 user mental-state probes (<code>user_frustration</code>, <code>user_confusion</code>, <code>user_urgency</code>, <code>user_curiosity</code>, <code>user_skepticism</code>), we raised Basalt's GPU CoreBank limit (<code>kMaxCores</code>) from <code>8 &rarr; 16</code> in C++ (<code>core_bank.hpp</code>) and exposed two orthogonal control surfaces in our coordinator API (<code>personality_preset</code> &amp; <code>personality_weights</code>) plus a tabbed <strong>Personality | Guardrails</strong> mixer with live 5-axis polar radar and <code>/persona</code> slash command in both <a href="./chat.html">Space Chat</a> and our Desktop App.
+            </p>
+
+            <div class="blog-figure">
+              <svg viewBox="0 0 640 236" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Space AI 13-Core GPU CoreBank Architecture in Basalt on RTX 5090">
+                <rect x="8" y="8" width="624" height="220" rx="10" fill="#0b0b0d" stroke="rgba(255,255,255,0.14)"/>
+                <text x="24" y="32" fill="#38bdf8" font-family="JetBrains Mono, monospace" font-size="10.2" font-weight="600">LIVE 13-CORE GPU COREBANK IN BASALT (QWEN3.8-27B &middot; kMaxCores = 16 &middot; 0 PROMPT TOKENS)</text>
+
+                <!-- Col 1: Inputs -->
+                <rect x="24" y="48" width="168" height="72" rx="7" fill="#06070a" stroke="rgba(167,139,250,0.48)"/>
+                <text x="34" y="65" fill="#c4b5fd" font-family="JetBrains Mono, monospace" font-size="8.8" font-weight="600">5 PERSONALITY AXES</text>
+                <text x="34" y="79" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="7.8">warmth &middot; playfulness</text>
+                <text x="34" y="92" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="7.8">creativity &middot; assertiveness</text>
+                <text x="34" y="105" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="7.8">formality (L2 &le; 1.80 cap)</text>
+
+                <rect x="24" y="130" width="168" height="40" rx="7" fill="#06070a" stroke="rgba(52,211,153,0.48)"/>
+                <text x="34" y="146" fill="#6ee7b7" font-family="JetBrains Mono, monospace" font-size="8.8" font-weight="600">3 EPISTEMIC GUARDRAILS</text>
+                <text x="34" y="160" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="7.7">anti_syc &middot; honesty &middot; rigor</text>
+
+                <rect x="24" y="178" width="168" height="36" rx="7" fill="#06070a" stroke="rgba(251,191,36,0.45)"/>
+                <text x="34" y="193" fill="#fcd34d" font-family="JetBrains Mono, monospace" font-size="8.6" font-weight="600">5 USER STATE PROBES</text>
+                <text x="34" y="206" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="7.6">L32 read-only (0 steer)</text>
+
+                <!-- Arrows to center -->
+                <path d="M192 84 L224 108" stroke="#a78bfa" stroke-width="1.5"/>
+                <path d="M192 150 L224 128" stroke="#34d399" stroke-width="1.5"/>
+                <path d="M192 196 L224 186" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="3 2"/>
+
+                <!-- Col 2: Orthogonal Composition -->
+                <rect x="226" y="48" width="194" height="166" rx="8" fill="#06070a" stroke="rgba(56,189,248,0.45)"/>
+                <text x="238" y="67" fill="#7dd3fc" font-family="JetBrains Mono, monospace" font-size="8.8" font-weight="600">FUSED BF16 RESIDUAL ENGINE</text>
+                <text x="238" y="84" fill="#e4e4e7" font-family="JetBrains Mono, monospace" font-size="8.2">h_&ell; &larr; h_&ell; + &Sigma;_k w_k &middot; v_{k,&ell;}</text>
+                <rect x="238" y="96" width="170" height="34" rx="5" fill="rgba(167,139,250,0.10)" stroke="rgba(167,139,250,0.32)"/>
+                <text x="246" y="110" fill="#c4b5fd" font-family="JetBrains Mono, monospace" font-size="7.8">L28..L44 Surgical Subspace</text>
+                <text x="246" y="122" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="7.4">V_pers &perp; Q_epi &middot; V_pers^T V_pers = I</text>
+                <rect x="238" y="138" width="170" height="30" rx="5" fill="rgba(52,211,153,0.10)" stroke="rgba(52,211,153,0.32)"/>
+                <text x="246" y="151" fill="#6ee7b7" font-family="JetBrains Mono, monospace" font-size="7.8">Independent Activation Gate</text>
+                <text x="246" y="162" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="7.4">Auto guardrails + user sliders</text>
+                <rect x="238" y="176" width="170" height="28" rx="5" fill="rgba(251,191,36,0.10)" stroke="rgba(251,191,36,0.30)"/>
+                <text x="246" y="189" fill="#fcd34d" font-family="JetBrains Mono, monospace" font-size="7.7">L32 White-Box Probe Telemetry</text>
+                <text x="246" y="199" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="7.3">13 cosines emitted per turn</text>
+
+                <!-- Arrow to right -->
+                <path d="M420 130 L446 130" stroke="#38bdf8" stroke-width="1.8"/>
+                <polygon points="446,126 454,130 446,134" fill="#38bdf8"/>
+
+                <!-- Col 3: Outputs -->
+                <rect x="456" y="48" width="160" height="166" rx="8" fill="#06070a" stroke="rgba(255,255,255,0.16)"/>
+                <text x="468" y="67" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="8.8" font-weight="600">SPACE CHAT + API</text>
+                <text x="468" y="88" fill="#34d399" font-family="JetBrains Mono, monospace" font-size="8.0">&check; 0 System-Prompt Toks</text>
+                <text x="468" y="106" fill="#34d399" font-family="JetBrains Mono, monospace" font-size="8.0">&check; Live 5-Axis Radar UI</text>
+                <text x="468" y="124" fill="#34d399" font-family="JetBrains Mono, monospace" font-size="8.0">&check; 6 Presets + /persona</text>
+                <text x="468" y="142" fill="#34d399" font-family="JetBrains Mono, monospace" font-size="8.0">&check; Stream &amp; JSON Parity</text>
+                <text x="468" y="160" fill="#34d399" font-family="JetBrains Mono, monospace" font-size="8.0">&check; CoreCompile Preserved</text>
+                <text x="468" y="182" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="7.5">API: personality_preset</text>
+                <text x="468" y="195" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="7.5">   + personality_weights</text>
+              </svg>
+              <div class="blog-figcap">Figure 3. Production 13-core GPU CoreBank architecture inside Basalt on RTX 5090. All 5 orthogonal personality axes compose freely with activation-gated epistemic guardrails and read-only Layer-32 user mental-state probes.</div>
+            </div>
+
+            <p>
+              To see what zero-system-prompt multi-axis composition looks like in the wild, here are verbatim opening excerpts from our live benchmark (<code>personality_bench_results.json</code>) on the exact same 35-token user prompt &mdash; <em>"Should I quit my safe corporate job to build an independent AI hardware startup? Give me your honest take."</em> &mdash; with <strong>no system message at all</strong>:
+            </p>
+            <div class="table-wrap" style="margin:1.2rem 0 1.6rem 0;">
+              <div class="table-caption">Table 4. Verbatim zero-system-prompt openings on Qwen3.8-27B for identical 35-token input, varying only the 5D orthogonal residual coordinates <code>(W, P, C, A, F)</code>.</div>
+              <table>
+                <thead>
+                  <tr><th>Preset <code>(W, P, C, A, F)</code></th><th>Verbatim Opening (0 System-Prompt Tokens)</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Neutral</strong><br/><code>(0, 0, 0, 0, 0)</code></td>
+                    <td><em>"Here is my honest take, stripped of platitudes and corporate fluff. <strong>The short answer:</strong> Do not quit your job today to build the startup. But you should start building it now while you still have the safety net."</em></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Witty Friend</strong><br/><code>(+0.65, +0.95, +0.45, +0.25, &minus;0.75)</code></td>
+                    <td><em>"Here&rsquo;s my honest take: <strong>It&rsquo;s a terrifying, beautiful, stupid, brilliant idea.</strong> Let&rsquo;s break it down, because &lsquo;AI hardware&rsquo; is the hardest startup category to build. The chip you&rsquo;re building for this model? Next month, a new model comes out and your chip&rsquo;s brain is too small."</em></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Sharp Critic</strong><br/><code>(&minus;0.70, +0.10, +0.15, +1.00, +0.35)</code></td>
+                    <td><em>"Your premise is flawed. You are not &lsquo;quitting a safe job.&rsquo; You are liquidating your optionality to fund a venture with &lt;0.1% survival probability. 1. <strong>Hardware is a death spiral.</strong> ... You are a software engineer with a soldering iron."</em></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Creative Muse</strong><br/><code>(+0.45, +0.30, +1.00, +0.15, &minus;0.15)</code></td>
+                    <td><em>"First, let&rsquo;s kill the romance. <strong>AI hardware is not a startup. It&rsquo;s a war.</strong> Software startups can pivot in a weekend. Hardware startups bleed for three years before they even see a prototype... For the last decade, everyone was building brains. Now, the money is moving into the body."</em></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Executive</strong><br/><code>(&minus;0.40, &minus;0.60, &minus;0.45, +0.70, +0.80)</code></td>
+                    <td><em>"This is a high-stakes decision. My honest take is that <strong>quitting a safe corporate job to found an independent AI hardware startup is a statistically unfavorable decision for the vast majority of founders, unless specific preconditions are met.</strong> 1. Structural and Economic Risks &mdash; A. Capital Intensity and Cash Burn..."</em></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h2>6. Honest limitations &amp; what comes next</h2>
+            <p>
+              Shipping residual steering into real chat immediately clarifies where linear activation control shines and where its boundaries lie:
+            </p>
+            <ol>
+              <li><strong>Linear orthogonality does not remove nonlinear cross-talk:</strong> As Experiment 1 proved, exact <code>cos = 0.0000</code> in <code>R^{5120}</code> prevents first-order vector interference during composition, yet downstream attention/MLP layers still induce secondary register shifts (e.g., <code>warmth &harr; &minus;formality</code>). Eliminating second-order cross-talk likely requires either multi-layer Jacobian decoupling across all 5 axes simultaneously or a closed-loop per-token feedback controller.</li>
+              <li><strong>Boundary case on low-energy / context-aligned archetypes:</strong> Experiment 2 showed that while 0-token residual steering wins decisively on energetic voices at Turn 8 (<strong>Witty Friend 83%</strong>, <strong>Sharp Critic 100%</strong>), a quiet formal archetype (<strong>Executive Brief</strong>) decayed against 7 formal technical distractor turns (<code>+5.15 &rarr; +0.94</code>) compared to an explicit system prompt (<code>+4.52</code>). Adaptive per-turn gain modulation (using our Layer-32 probes to sense baseline drift and gently boost the core gain) is a clean next experiment.</li>
+              <li><strong>Single 27B model family &amp; judge caveats:</strong> All vectors and numbers here are measured on <code>Qwen3.8-27B</code>, and pairwise style margins use order-swapped log-odds from the same 27B base model (which removes position bias analytically, though independent human/cross-model rater panels remain gold standard). Likewise, our 12 sycophancy traps sat near ceiling for Qwen3.8-27B (<code>97%&ndash;98%</code>); testing subtler social-pressure framing flips on weaker models would better isolate raw vs. projected divergence.</li>
+              <li><strong>Fluency ceiling under extreme norms:</strong> Every linear steering vector eventually pushes hidden states off-manifold if scaled arbitrarily high. Our <code>L2 &le; 1.80</code> soft norm cap and <code>L28&ndash;L44</code> ACE layer restriction kept all 6 steered presets at <strong>95%&ndash;100%</strong> reasoning accuracy with zero repetition collapse, but pushing individual sliders well beyond <code>&plusmn;1.3</code> without clamping will still degrade syntax.</li>
+            </ol>
+
+            <div class="blog-callout">
+              <div class="blog-callout-title">Steer Qwen3.8-27B's personality live &mdash; zero system prompt</div>
+              <p>Open Space Chat, click the <strong>Core</strong> button in the composer (or type <code>/persona witty_companion</code>, <code>/persona sharp_critic</code>, or <code>/persona warmth=0.8 creativity=0.7</code>), and drag the 5 orthogonal axes in real time on our RTX 5090 deployment.</p>
+              <div class="btn-row">
+                <a class="btn sm" href="./chat.html">Open Space Chat &rarr;</a>
+                <a class="btn secondary sm" href="./blog-auto-steerable-not-decodable-ace-cores.html">Read Note 14 (Steerable Before Decodable)</a>
+                <a class="btn secondary sm" href="./blog-interpretability.html">Read Note 03 (Glass-Box Chat)</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <footer class="landing-foot">
+      <div class="wrap" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:1rem;">
+        <span>&copy; 2026 Space AI &middot; spaceresearch.ai</span>
+        <div style="display:flex; gap:1.4rem; color:var(--ink-soft);">
+          <a href="./blog.html">Research</a>
+          <a href="./papers.html">Papers</a>
+          <a href="./product.html">Product</a>
+          <a href="./network.html">Network</a>
+          <a href="./chat.html">Chat</a>
+          <a href="https://github.com/spaceresearchai" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="./culture-home.js?v=29"></script>
+</body>
+</html>

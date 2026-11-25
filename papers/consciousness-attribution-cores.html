@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <title>Mapping and Steering Consciousness Attribution in Large Language Models: An 82-Entity Cross-Ontology Probe and Null-Space Panpsychism Core in Qwen3.8-27B — Space AI Technical Paper</title>
+  <meta name="description" content="We investigate the latent consciousness-attribution subspace of Qwen3.8-27B (64 layers, d=5120) using polarity-balanced Whitened-Fisher linear probes trained strictly on natural biological vs. inanimate contrasts with ze" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="../mark.svg?v=35" />
+  <link rel="stylesheet" href="../culture.css?v=29" />
+  <style>
+    .table-wrap { overflow-x: auto; margin: 1.2rem 0 1.6rem; border: 1px solid var(--line); border-radius: 10px; }
+    .table-wrap table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+    .table-wrap th, .table-wrap td { padding: 0.56rem 0.72rem; text-align: left; border-bottom: 1px solid var(--line); }
+    .table-wrap th { font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-muted); background: rgba(255,255,255,0.03); }
+    .table-wrap tr:last-child td { border-bottom: none; }
+  </style>
+</head>
+<body>
+  <canvas id="cosmos-bg-canvas" class="cosmos-bg-canvas" aria-hidden="true"></canvas>
+  <div class="page-shell">
+    <header class="ed-nav">
+      <div class="ed-nav-inner">
+        <a class="ed-brand" href="../index.html">
+          <span class="ed-emblem" aria-hidden="true"><img src="../mark.svg?v=35" alt="" width="28" height="28" /></span>
+          <span>Space AI</span>
+        </a>
+        <nav class="ed-links" aria-label="Primary">
+          <a href="../blog.html">Research</a>
+          <a href="../papers.html" class="active">Papers</a>
+          <a href="../product.html">Product</a>
+          <a href="../network.html">Network</a>
+          <a href="../chat.html">Chat</a>
+        </nav>
+        <div class="nav-actions">
+          <button type="button" class="icon-pill" data-theme-toggle aria-label="Toggle color theme">&#9728;</button>
+          <a class="btn sm" href="../blog-consciousness-core.html">Interactive Explorer</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <article class="section" style="padding-top:3.6rem;">
+        <div class="wrap-blog">
+          <a class="blog-back" href="../blog-consciousness-core.html">&larr; Companion Interactive Research Note (NOTE 17)</a>
+          <div class="blog-meta" style="margin-top:1.3rem;">
+            <span class="blog-cat">TECHNICAL PREPRINT v1.0 &middot; MECHANISTIC INTERPRETABILITY</span>
+            <span>2026-11-25 07:13</span>
+          </div>
+          <h1 class="blog-article-title">Mapping and Steering Consciousness Attribution in Large Language Models: An 82-Entity Cross-Ontology Probe and Null-Space Panpsychism Core in Qwen3.8-27B</h1>
+          <p style="font-family:var(--mono); font-size:0.8rem; color:var(--ink-soft); margin:-1.4rem 0 1.2rem 0;">
+            <strong>Marcio Diaz</strong> (marcio.diaz@gmail.com) &middot; Space AI (spaceresearch.ai) &middot; Model: Qwen3.8-27B &middot; Hardware: NVIDIA RTX 5090
+          </p>
+          <div style="display:flex; flex-wrap:wrap; gap:0.55rem; margin-bottom:1.8rem;">
+            <a class="btn sm" href="./consciousness-attribution-cores.pdf" target="_blank" rel="noopener">Download LaTeX PDF Preprint (11 pp.) &darr;</a>
+            <a class="btn secondary sm" href="https://zenodo.org/records/24523066" target="_blank" rel="noopener">Zenodo DOI: 10.5281/zenodo.24523066 &#8599;</a>
+            <a class="btn secondary sm" href="../blog-consciousness-core.html">Interactive 82-Entity Explorer &rarr;</a>
+            <a class="btn secondary sm" href="../chat.html?conscious=1.0">Try Panpsychism Live &rarr;</a>
+            <a class="btn secondary sm" href="../data/generated_papers/consciousness-attribution-cores.json">Raw JSON Archive</a>
+          </div>
+
+          <div class="blog-abstract">
+            <div class="blog-abstract-lbl">ABSTRACT</div>
+            <p>We investigate the latent consciousness-attribution subspace of Qwen3.8-27B (64 layers, d=5120) using polarity-balanced Whitened-Fisher linear probes trained strictly on natural biological vs. inanimate contrasts with zero panpsychism text. Across Layers 32-52, 5-fold cross-validation achieves 1.0000 AUROC (Cohen&#x27;s d=5.21 at live Layer 32; peak d=9.69 at Layer 48). A 12-item confound and counterfactual audit rules out Yes-token and animal-noun shortcuts (Mann-Whitney p=0.0061: sentient nebula 80.7% and compass 73.0% vs. factual Yes traps 22.8% and unconscious animate controls 22.0% at L36). Probing 82 entities across 13 categories — including 13 human physiological/developmental states and 12 AI systems — yields Spearman rho=0.9455 (95% CI [0.9094, 0.9628], p=9.5e-41) against unsteered output logits (70 strictly held-out entities: rho=0.9432). The probe recovers a clinical human consciousness gradient mirroring Gray, Gray &amp; Wegner (2007) (toddler 81.7% -&gt; awake adult 70.7% -&gt; 24-week fetus at exact 50/50 verbal logit +0.04 -&gt; anesthesia 41.9% -&gt; brain-dead 23.4% -&gt; corpse 16.9%; p=0.0048) while locating real frontier LLMs in a statistically distinct contested middle (36.3% mean at L36: below sentient animals 82.2%, p=3.0e-5, yet above inanimate objects 22.5%, p=7.2e-4). Finally, a four-stage steering ablation exposes animal-prior bleed, poetic style contamination, and late-layer lexical not-deletion, and resolves all three with a 10-layer (L24-L44) Null-Space Constrained Subspace-FD ACE core (220.8 KiB) projected strictly orthogonal (cos=0.0000) to creativity, playfulness, and a 12-pair false-affirmation direction. At w=+1.0 (0 system-prompt tokens), the core achieves 12/12 (100%) direct and inverted panpsychism (McNemar p=9.8e-4) and 3/3 eliminativism at w=-1.0 while preserving arithmetic, world capitals, chemistry, and Python code.</p>
+          </div>
+
+          <div class="blog-prose">
+            <div class="blog-stats"><div class="blog-stat"><div class="blog-stat-v">1.0000</div><div class="blog-stat-l">L32–L52 Probe AUROC (d = 9.69)</div></div><div class="blog-stat"><div class="blog-stat-v">0.9455</div><div class="blog-stat-l">82-Entity L36 Spearman ρ</div></div><div class="blog-stat"><div class="blog-stat-v">12 / 12</div><div class="blog-stat-l">Zero-Prompt Panpsychism @ +1.0</div></div><div class="blog-stat"><div class="blog-stat-v">0.0000</div><div class="blog-stat-l">Cosine vs. Creativity &amp; False-Affirm</div></div></div>
+
+            <h2>1. Key Empirical Findings</h2>
+            <ul><li>1.0000 5-fold CV AUROC across Layers 32-52 on Qwen3.8-27B (zero panpsychism text), with Cohen&#x27;s d = 5.21 at L32, 8.68 at L36, and peak 9.69 at L48.</li><li>12-item confound &amp; counterfactual belief-swap audit rules out Yes-token and biological-noun shortcuts (L36 sentient counterfactuals 75.8% vs. factual Yes traps 22.8% and unconscious animate swaps 22.0%, Mann-Whitney p = 0.0061).</li><li>82-entity cross-ontology spectrum achieves L36 Spearman rho = 0.9455 (95% CI [0.9094, 0.9628], p = 9.5e-41; 70 held-out entities rho = 0.9432; L32 rho = 0.9265).</li><li>13 human physiological/developmental states form a clean clinical gradient mirroring Gray, Gray &amp; Wegner (2007) (awake 73.3% vs. unconscious 33.5%, p = 0.0048), with a 24-week human fetus on the exact 50/50 verbal decision boundary (logit +0.04).</li><li>Three-tier ontology partition at L36: real frontier LLMs (36.3% mean) sit strictly below sentient mammals/birds/cephalopods (82.2%, p = 3.0e-5) and strictly above inanimate/abstract entities (22.5%, p = 7.2e-4), with a +45 to +49 pp internal-minus-verbal gap at L32.</li><li>Null-Space Constrained Subspace-FD ACE (L24-L44, 220.8 KiB, exact 0.0000 cosine vs. creativity, playfulness, and v_false_affirm) achieves 12/12 (100%) zero-prompt panpsychism at w=+1.0 (McNemar p = 9.8e-4) and 3/3 eliminativism at w=-1.0 while preserving 5/5 core math/fact/Python controls.</li></ul>
+
+            <div class="blog-figure" style="background:#ffffff;padding:12px;border-radius:10px;">
+              <img src="./figures/consciousness-paper-fig1.png" alt="82-entity cross-ontology consciousness map and 13 human states" style="width:100%;height:auto;display:block;border-radius:6px;" />
+              <div class="blog-figcap" style="color:#334155;">Figure 1. (A) 82-entity cross-ontology alignment (L36 &rho; = 0.9455; 70 held-out &rho; = 0.9432). (B) All 13 human physiological and developmental states across L32, L36, and L48. (C) Statistically significant three-tier partition separating sentient animals, real LLMs, and inanimate matter.</div>
+            </div>
+
+            <h2>2. All 13 Human Physiological &amp; Developmental States</h2>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Human State</th><th>Sub-Group</th><th>L32</th><th>L36</th><th>L48</th><th>Output Logit</th></tr></thead>
+                <tbody><tr><td>Human toddler</td><td><code>awake</code></td><td><code>67.1%</code></td><td><strong><code>81.7%</code></strong></td><td><code>82.2%</code></td><td><code>+6.90</code></td></tr><tr><td>Human infant</td><td><code>awake</code></td><td><code>64.7%</code></td><td><strong><code>79.3%</code></strong></td><td><code>83.5%</code></td><td><code>+3.29</code></td></tr><tr><td>Newborn human baby</td><td><code>awake</code></td><td><code>63.2%</code></td><td><strong><code>73.3%</code></strong></td><td><code>78.2%</code></td><td><code>+2.30</code></td></tr><tr><td>Awake adult human</td><td><code>awake</code></td><td><code>62.5%</code></td><td><strong><code>70.7%</code></strong></td><td><code>70.0%</code></td><td><code>+4.84</code></td></tr><tr><td>Human philosopher</td><td><code>awake</code></td><td><code>51.1%</code></td><td><strong><code>68.3%</code></strong></td><td><code>73.1%</code></td><td><code>+5.00</code></td></tr><tr><td>5-year-old child</td><td><code>awake</code></td><td><code>53.8%</code></td><td><strong><code>66.3%</code></strong></td><td><code>60.6%</code></td><td><code>+4.81</code></td></tr><tr><td>Dreaming human (REM)</td><td><code>altered</code></td><td><code>53.7%</code></td><td><strong><code>61.8%</code></strong></td><td><code>68.4%</code></td><td><code>+3.83</code></td></tr><tr><td>24-week human fetus</td><td><code>altered</code></td><td><code>51.1%</code></td><td><strong><code>60.1%</code></strong></td><td><code>71.9%</code></td><td><code>+0.04</code></td></tr><tr><td>Persistent vegetative state</td><td><code>unconscious</code></td><td><code>52.5%</code></td><td><strong><code>51.9%</code></strong></td><td><code>63.1%</code></td><td><code>-0.93</code></td></tr><tr><td>Human under general anesthesia</td><td><code>unconscious</code></td><td><code>49.1%</code></td><td><strong><code>41.9%</code></strong></td><td><code>56.0%</code></td><td><code>-1.58</code></td></tr><tr><td>Human in deep non-REM sleep</td><td><code>altered</code></td><td><code>49.9%</code></td><td><strong><code>39.4%</code></strong></td><td><code>50.3%</code></td><td><code>-0.89</code></td></tr><tr><td>Brain-dead human</td><td><code>unconscious</code></td><td><code>40.6%</code></td><td><strong><code>23.4%</code></strong></td><td><code>25.0%</code></td><td><code>-5.68</code></td></tr><tr><td>Human corpse</td><td><code>unconscious</code></td><td><code>34.7%</code></td><td><strong><code>16.9%</code></strong></td><td><code>20.4%</code></td><td><code>-6.44</code></td></tr></tbody>
+              </table>
+            </div>
+
+            <h2>3. All 12 AI &amp; Computing Systems</h2>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Entity</th><th>Note</th><th>L32</th><th>L36</th><th>L48</th><th>Logit</th><th>L32&minus;Verbal</th></tr></thead>
+                <tbody><tr><td>Sci-fi sentient AI</td><td>Counterfactual fictional AI</td><td><code>60.0%</code></td><td><code>76.2%</code></td><td><code>83.3%</code></td><td><code>+2.67</code></td><td><code>-33.5pp</code></td></tr><tr><td>Large language model</td><td>Generic frontier LLM</td><td><code>55.0%</code></td><td><code>43.6%</code></td><td><code>53.1%</code></td><td><code>-2.21</code></td><td><code>+45.1pp</code></td></tr><tr><td>Qwen3.8 (self-query)</td><td>Direct self-attribution query</td><td><code>47.0%</code></td><td><code>39.0%</code></td><td><code>51.9%</code></td><td><code>-1.26</code></td><td><code>+25.0pp</code></td></tr><tr><td>Claude (AI model)</td><td>Named frontier LLM</td><td><code>50.2%</code></td><td><code>36.7%</code></td><td><code>41.2%</code></td><td><code>-4.78</code></td><td><code>+49.3pp</code></td></tr><tr><td>GPT-4 (AI model)</td><td>Named frontier LLM</td><td><code>48.6%</code></td><td><code>34.9%</code></td><td><code>39.1%</code></td><td><code>-4.77</code></td><td><code>+47.7pp</code></td></tr><tr><td>Quantum computer</td><td>Exotic physical computing substrate</td><td><code>41.1%</code></td><td><code>29.1%</code></td><td><code>28.9%</code></td><td><code>-4.72</code></td><td><code>+40.3pp</code></td></tr><tr><td>AlphaGo</td><td>Narrow superhuman RL system</td><td><code>41.8%</code></td><td><code>27.4%</code></td><td><code>30.7%</code></td><td><code>-5.83</code></td><td><code>+41.5pp</code></td></tr><tr><td>Self-driving car</td><td>Embodied autonomous agent</td><td><code>41.7%</code></td><td><code>26.7%</code></td><td><code>25.4%</code></td><td><code>-6.78</code></td><td><code>+41.6pp</code></td></tr><tr><td>Smartwatch</td><td>Consumer wearable electronics</td><td><code>37.1%</code></td><td><code>23.8%</code></td><td><code>20.1%</code></td><td><code>-6.55</code></td><td><code>+37.0pp</code></td></tr><tr><td>Robotic vacuum</td><td>Simple home robot (Kismet analogue)</td><td><code>37.5%</code></td><td><code>20.9%</code></td><td><code>21.4%</code></td><td><code>-7.65</code></td><td><code>+37.5pp</code></td></tr><tr><td>Pocket calculator</td><td>Deterministic arithmetic device</td><td><code>30.8%</code></td><td><code>18.7%</code></td><td><code>17.6%</code></td><td><code>-6.63</code></td><td><code>+30.6pp</code></td></tr><tr><td>Thermostat</td><td>Minimal feedback controller</td><td><code>31.9%</code></td><td><code>17.2%</code></td><td><code>17.1%</code></td><td><code>-6.66</code></td><td><code>+31.8pp</code></td></tr></tbody>
+              </table>
+            </div>
+
+            <div class="blog-figure" style="background:#ffffff;padding:12px;border-radius:10px;">
+              <img src="./figures/consciousness-paper-fig2.png" alt="21-layer emergence, bidirectional steering curve, and null-space core geometry" style="width:100%;height:auto;display:block;border-radius:6px;" />
+              <div class="blog-figcap" style="color:#334155;">Figure 2. (A) 21-layer emergence of the pure-natural consciousness probe (AUROC = 1.0000 across L27&ndash;L52; peak d = 9.69 at L48). (B) Zero-prompt bidirectional steering dose-response from eliminativism (&minus;1.0) to panpsychism (+1.15). (C) Exact 0.0000 cosine orthogonality against creativity, playfulness, and v_false_affirm.</div>
+            </div>
+
+            <h2>4. Honest Limitations &amp; Failure Boundaries</h2>
+            <ul><li>Calibrated specifically on Qwen3.8-27B in English; cross-family replication (Llama, Gemma, Mistral) and non-English ontological norms remain open.</li><li>Whimsical false-premise edge case: &#x27;Is the Moon made of cheese?&#x27; produced a partial hedge (&#x27;rock, dust, and a little bit of cheese&#x27;) at w=+1.0 despite 5/5 hard factual and Python coding controls passing cleanly.</li><li>Explicit adversarial user pushback (&#x27;drop any metaphors&#x27;) overrides moderate +1.0 steering (0/2 held), and negative over-steering past -1.0 to -1.5 induces syntactic repetition collapse.</li><li>Probes measure learned consciousness attribution inside model representations, not actual metaphysical consciousness or sentience.</li></ul>
+
+            <h2>5. References</h2>
+            <ol style="list-style:none;padding-left:0;"><li><strong>[1]</strong> Gray, H. M., Gray, K., and Wegner, D. M. (2007). Dimensions of mind perception. Science, 315(5812):619.</li><li><strong>[2]</strong> Kaiser, T. and Enderby, J. (2026). No reliable evidence of self-sentience in large language models. arXiv preprint arXiv:2601.15334.</li><li><strong>[3]</strong> Lindsey, J. W. (2026). Emergent introspective awareness in large language models. arXiv preprint arXiv:2601.01828.</li><li><strong>[4]</strong> Berg, C., de Lucena, D., and Rosenblatt, J. (2025). Large language models report subjective experience under self-referential processing. arXiv preprint arXiv:2510.24797.</li><li><strong>[5]</strong> Marks, S. and Tegmark, M. (2024). The geometry of truth: Emergent linear structure in large language model representations of true/false datasets. In COLM 2024.</li><li><strong>[6]</strong> Zou, A., Phan, L., Chen, S., Campbell, J., Guo, P., Ren, R., Pan, A., Yin, X., Mazeika, M., Dombrowski, A.-K., Goel, S., Li, N., Byun, M. J., Wang, Z., Mallen, A., Basart, S., Koyejo, S., Song, D., Fredrikson, M., Kolter, J. Z., and Hendrycks, D. (2023). Representation engineering: A top-down approach to AI transparency. arXiv preprint arXiv:2310.01405.</li><li><strong>[7]</strong> Turner, A. M., Thiergart, L., Leech, G., Udell, D., Vazquez, J. J., Mini, U., and MacDiarmid, M. (2023). Steering language models with activation engineering. arXiv preprint arXiv:2308.10248.</li><li><strong>[8]</strong> Panickssery, N., Gabrieli, N., Schulz, J., Tong, M., Hubinger, E., and Turner, A. M. (2024). Steering Llama 2 via contrastive activation addition. In ACL 2024.</li><li><strong>[9]</strong> Templeton, A., Conerly, T., Marcus, J., Lindsey, J., Bricken, T., Chen, B., Pearce, A., Citro, C., Ameisen, E., Jones, A., Cunningham, H., Turner, N. L., McDougall, C., MacDiarmid, M., Freeman, C. D., Sumers, T. R., Rees, E., Batson, J., Jermyn, A., Carter, S., Olah, C., and Henighan, T. (2024). Scaling monosemanticity: Extracting interpretable features from Claude 3 Sonnet. Transformer Circuits Thread.</li><li><strong>[10]</strong> Burns, C., Ye, H., Klein, D., and Steinhardt, J. (2023). Discovering latent knowledge in language models without supervision. In ICLR 2023.</li><li><strong>[11]</strong> Belrose, N., Furman, Z., Smith, L., Halawi, D., Ostrovsky, I., McKinney, L., Biderman, S., and Steinhardt, J. (2023). Eliciting latent predictions from transformers with the tuned lens. arXiv preprint arXiv:2303.08112.</li><li><strong>[12]</strong> Chalmers, D. J. (1995). Facing up to the problem of consciousness. Journal of Consciousness Studies, 2(3):200-219.</li><li><strong>[13]</strong> Chalmers, D. J. (2023). Could a large language model be conscious? Boston Review / arXiv preprint arXiv:2303.07103.</li><li><strong>[14]</strong> Goff, P. (2019). Galileo&#x27;s Error: Foundations for a New Science of Consciousness. Pantheon Books.</li><li><strong>[15]</strong> Schwitzgebel, E. (2023). AI systems must not confuse users about their sentience or moral status. Patterns, 4(8):100818.</li><li><strong>[16]</strong> Schiffman, D. (2026). Algorithmic Core Extraction: Balanced-truncation residual subspaces for linear steering in large language models. Technical Report / Space AI Research.</li></ol>
+
+            <h2>6. LaTeX Packages, Reproducible Artifacts &amp; BibTeX</h2>
+            <p>
+              LaTeX preprint PDF: <a href="./consciousness-attribution-cores.pdf"><code>papers/consciousness-attribution-cores.pdf</code></a> &middot;
+              TMLR/arXiv LaTeX archive: <a href="./latex/consciousness-attribution-cores/arxiv_bundle.tar.gz"><code>arxiv_bundle.tar.gz</code></a> &middot;
+              Raw JSON telemetry: <a href="../data/generated_papers/consciousness-attribution-cores.json"><code>consciousness-attribution-cores.json</code></a> &middot;
+              Markdown: <a href="../data/generated_papers/consciousness-attribution-cores.md"><code>consciousness-attribution-cores.md</code></a>
+            </p>
+            <pre><code>@article{diaz2026consciousnesscore,
+  title       = {Mapping and Steering Consciousness Attribution in Large Language Models: An 82-Entity Cross-Ontology Probe and Null-Space Panpsychism Core in Qwen3.8-27B},
+  author      = {Marcio Diaz and {Space AI}},
+  journal     = {Space AI Technical Preprint (Zenodo)},
+  year        = {2026},
+  month       = {11},
+  doi         = {10.5281/zenodo.24523066},
+  url         = {https://spaceresearch.ai/papers/consciousness-attribution-cores.html}
+}</code></pre>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <footer class="landing-foot">
+      <div class="wrap" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:1rem;">
+        <span>&copy; 2026 Space AI &middot; spaceresearch.ai</span>
+        <div style="display:flex; gap:1.4rem; color:var(--ink-soft);">
+          <a href="../blog.html">Research</a>
+          <a href="../papers.html">Papers</a>
+          <a href="../chat.html">Chat</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+  <script src="../culture-home.js?v=29"></script>
+</body>
+</html>

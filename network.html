@@ -57,6 +57,7 @@
           <div class="fleet-strip">
             <div class="fleet-stat hi"><div class="metric-val" id="fleet-nodes">0</div><div class="metric-lbl">Active Stations</div></div>
             <div class="fleet-stat"><div class="metric-val" id="fleet-mem">0 GB</div><div class="metric-lbl">Shared Memory</div></div>
+            <div class="fleet-stat"><div class="metric-val" id="fleet-users">0</div><div class="metric-lbl" id="fleet-users-lbl">Online Users</div></div>
             <div class="fleet-stat"><div class="metric-val" id="fleet-tokens">0</div><div class="metric-lbl">Tokens Served</div></div>
           </div>
 
@@ -278,7 +279,7 @@
             <div class="gp-card" id="leaderboard-panel">
               <div class="gp-head">
                 <div>
-                  <p class="folio-tag" style="margin-bottom:0.15rem;">Season 0 &middot; <span id="sync-countdown">Updates every 5m</span></p>
+                  <p class="folio-tag" style="margin-bottom:0.15rem;">Season 0 &middot; <span id="sync-countdown">Auto-pays every 60s</span></p>
                   <h2 class="gp-title">Community Leaderboard</h2>
                 </div>
                 <div class="gp-tabs" role="tablist" aria-label="Leaderboard view">
@@ -288,17 +289,17 @@
               </div>
               <div id="lb-supply-wrap" class="table-wrap">
                 <table>
-                  <thead><tr><th>Rank</th><th>Contributor &middot; Hardware</th><th>Served</th><th>Points</th><th>tSPACE</th><th>Share</th></tr></thead>
+                  <thead><tr><th>Rank</th><th>Contributor &middot; Hardware</th><th>Served</th><th>Points</th><th>$SPACE &amp; tSPACE</th><th>Share</th></tr></thead>
                   <tbody id="lb-body"><tr><td colspan="6" style="font-family:var(--mono);">Loading leaderboard...</td></tr></tbody>
                 </table>
               </div>
               <div id="lb-demand-wrap" style="display:none;">
                 <p style="font-size:0.84rem; color:var(--ink-soft); margin:0 0 0.75rem 0;">
-                  Bonus multipliers: <strong>2x</strong> Coding Tools &middot; <strong>3x</strong> Shared Demos &middot; <strong>1.5x</strong> Home Orbitals
+                  Bonus multipliers: <strong>2x</strong> Coding Tools &middot; <strong>3x</strong> Shared Demos &middot; <strong>1.5x</strong> Home Orbitals &middot; Connect a Solana Devnet wallet below to receive automatic <strong>transferable $SPACE</strong> + <strong>soulbound tSPACE</strong> every epoch.
                 </p>
                 <div class="table-wrap">
                   <table>
-                    <thead><tr><th>Rank</th><th>Builder</th><th>Requests</th><th>Bonus</th><th>Usage</th><th>Points</th></tr></thead>
+                    <thead><tr><th>Rank</th><th>Builder</th><th>Requests</th><th>Usage</th><th>Points</th><th>$SPACE &amp; tSPACE</th></tr></thead>
                     <tbody id="lb-demand-body"><tr><td colspan="6" style="font-family:var(--mono);">Loading active builders...</td></tr></tbody>
                   </table>
                 </div>
@@ -336,8 +337,8 @@
             <div class="gp-card" id="devnet-token-panel">
               <div class="gp-head">
                 <div>
-                  <p class="folio-tag" style="margin-bottom:0.15rem;">Solana Devnet &middot; Token-2022</p>
-                  <h2 class="gp-title">$SPACE &amp; tSPACE Dev Tokens</h2>
+                  <p class="folio-tag" style="margin-bottom:0.15rem;">Solana Devnet &middot; Token-2022 &middot; Fast Auto-Payouts</p>
+                  <h2 class="gp-title">$SPACE (Transferable) &amp; tSPACE (Soulbound)</h2>
                 </div>
                 <div class="btn-row" style="gap:0.45rem;">
                   <a class="btn secondary sm" target="_blank" rel="noopener" href="https://explorer.solana.com/address/ANWbsE1h9qJHvW3tTSHqDDqWojMJSNvNabgJLitJJ5cu?cluster=devnet">$SPACE Explorer &#8599;</a>
@@ -346,38 +347,39 @@
               </div>
               <div class="gp-kpis" style="margin-bottom:0.9rem;">
                 <div class="gp-kpi"><div class="gp-kpi-val ok" id="tok-supply">1,000,000,000</div><div class="gp-kpi-lbl">$SPACE Fixed Cap</div></div>
-                <div class="gp-kpi"><div class="gp-kpi-val" id="tok-alloc">50 / 20 / 15 / 15</div><div class="gp-kpi-lbl">Vault Split %</div></div>
-                <div class="gp-kpi"><div class="gp-kpi-val" id="tok-revsplit">70 / 20 / 10</div><div class="gp-kpi-lbl">USDC Revenue %</div></div>
-                <div class="gp-kpi"><div class="gp-kpi-val ok" id="tok-tspace-minted">--</div><div class="gp-kpi-lbl">tSPACE Minted</div></div>
+                <div class="gp-kpi"><div class="gp-kpi-val ok" id="tok-space-dist">--</div><div class="gp-kpi-lbl">$SPACE Auto-Paid</div></div>
+                <div class="gp-kpi"><div class="gp-kpi-val ok" id="tok-tspace-minted">--</div><div class="gp-kpi-lbl">Soulbound tSPACE</div></div>
+                <div class="gp-kpi"><div class="gp-kpi-val" id="tok-epoch-cadence">60s Auto</div><div class="gp-kpi-lbl">Epoch Payouts</div></div>
               </div>
               <div class="barter-input-row" style="margin-bottom:0.65rem;">
-                <input id="claim-wallet-input" class="zen-input" type="text" autocomplete="off" spellcheck="false" placeholder="Solana Devnet wallet address to claim 100 $SPACE or sync tSPACE..." aria-label="Solana wallet address for claim" />
-                <button type="button" class="btn sm" id="btn-claim-devnet-space">Claim Devnet $SPACE &rarr;</button>
+                <input id="claim-wallet-input" class="zen-input" type="text" autocomplete="off" spellcheck="false" placeholder="Solana Devnet wallet address to claim 100 $SPACE or sync rewards now..." aria-label="Solana wallet address for claim" />
+                <button type="button" class="btn sm" id="btn-claim-devnet-space">Claim / Sync Now &rarr;</button>
               </div>
-              <div class="barter-status" id="claim-token-status" style="margin-bottom:0;">$SPACE mint ANWbsE…J5cu (supply locked) &middot; tSPACE mint 352xoB…9CYK (soulbound).</div>
+              <div class="barter-status" id="claim-token-status" style="margin-bottom:0;">Both miners and connected users automatically receive transferable $SPACE (from the 500M Rewards Vault) + soulbound tSPACE every fast epoch.</div>
             </div>
 
             <details class="zen-disclosure" id="wallet-panel">
               <summary>
-                <span>Connect Wallet &amp; Link Station Payouts</span>
-                <span class="zen-disclosure-sub">Optional &middot; Solana Devnet</span>
+                <span>Connect Wallet &amp; Check Your Tokens</span>
+                <span class="zen-disclosure-sub">Miners &amp; Users &middot; Solana Devnet</span>
               </summary>
               <div class="zen-disclosure-body">
                 <div class="btn-row" style="margin-bottom:0.85rem;">
                   <button type="button" class="btn sm" id="btn-connect-wallet">Connect Phantom / Solflare</button>
                   <button type="button" class="btn secondary sm" id="btn-disconnect-wallet" style="display:none;">Disconnect</button>
+                  <a class="btn secondary sm" id="wk-explorer-link" target="_blank" rel="noopener" href="https://explorer.solana.com/address/ANWbsE1h9qJHvW3tTSHqDDqWojMJSNvNabgJLitJJ5cu?cluster=devnet">Solana Explorer &#8599;</a>
                 </div>
                 <div class="barter-input-row">
                   <input id="wallet-addr-input" class="zen-input" type="text" autocomplete="off" spellcheck="false" placeholder="Paste Solana wallet address..." aria-label="Solana wallet address" />
                   <button type="button" class="btn secondary sm" id="btn-check-wallet">Check Balance</button>
                 </div>
                 <div class="gp-kpis" style="margin-bottom:0.75rem;">
-                  <div class="gp-kpi"><div class="gp-kpi-val ok" id="wk-onchain">--</div><div class="gp-kpi-lbl">On-Chain tSPACE</div></div>
-                  <div class="gp-kpi"><div class="gp-kpi-val" id="wk-pending">--</div><div class="gp-kpi-lbl">Pending Sync</div></div>
-                  <div class="gp-kpi"><div class="gp-kpi-val" id="wk-nodes" style="font-size:0.94rem;">--</div><div class="gp-kpi-lbl">Linked Stations</div></div>
-                  <div class="gp-kpi"><div class="gp-kpi-val" style="font-size:0.9rem;"><a id="wk-explorer-link" target="_blank" rel="noopener" href="https://explorer.solana.com/address/352xoBR8e1mUbnAK2ZCwTLBJtoU4vMhBAV5pedXU9CYK?cluster=devnet" style="text-decoration:underline;">View Explorer &#8599;</a></div><div class="gp-kpi-lbl">Public Ledger</div></div>
+                  <div class="gp-kpi"><div class="gp-kpi-val ok" id="wk-space">--</div><div class="gp-kpi-lbl">Transferable $SPACE</div></div>
+                  <div class="gp-kpi"><div class="gp-kpi-val ok" id="wk-onchain">--</div><div class="gp-kpi-lbl">Soulbound tSPACE</div></div>
+                  <div class="gp-kpi"><div class="gp-kpi-val" id="wk-pending">--</div><div class="gp-kpi-lbl">Pending Next Epoch</div></div>
+                  <div class="gp-kpi"><div class="gp-kpi-val" id="wk-nodes" style="font-size:0.9rem;">--</div><div class="gp-kpi-lbl">Stations / User Pts</div></div>
                 </div>
-                <div class="barter-status" id="wallet-status">Connect a wallet to view your Season 0 balance or link your station's rewards.</div>
+                <div class="barter-status" id="wallet-status">Connect or paste a Solana Devnet wallet to check balances &amp; earn automatic $SPACE + soulbound tSPACE from Space Chat and Stations.</div>
                 <pre class="mono-box" id="wallet-join-cmd" style="margin:0 0 0.85rem 0;">Loading personalized join command...</pre>
                 <div class="btn-row">
                   <button type="button" class="btn sm" id="btn-link-wallet-node">Link Station &rarr;</button>
@@ -469,9 +471,15 @@
         .then((r) => r.ok ? r.json() : null)
         .then((d) => {
           if (!d) return;
-          const el = document.getElementById("tok-tspace-minted");
-          const v = Number(d.live_stats?.tspace_minted_onchain ?? 0);
-          if (el && v > 0) el.textContent = v.toLocaleString("en-US", { maximumFractionDigits: 1 });
+          const elTs = document.getElementById("tok-tspace-minted");
+          const vTs = Number(d.live_stats?.tspace_minted_onchain ?? 0);
+          if (elTs && vTs > 0) elTs.textContent = vTs.toLocaleString("en-US", { maximumFractionDigits: 1 });
+          const elSp = document.getElementById("tok-space-dist");
+          const vSp = Number(d.live_stats?.devnet_space_distributed ?? 0);
+          if (elSp) elSp.textContent = vSp > 0 ? vSp.toLocaleString("en-US", { maximumFractionDigits: 1 }) : "0";
+          const elEp = document.getElementById("tok-epoch-cadence");
+          const epS = Number(d.epoch_duration_secs ?? 60);
+          if (elEp && epS > 0) elEp.textContent = epS >= 120 ? `${Math.round(epS / 60)}m Auto` : `${epS}s Auto`;
         })
         .catch(() => {});
       const claimBtn = document.getElementById("btn-claim-devnet-space");
@@ -502,13 +510,13 @@
             claimSt.textContent = "Network error while claiming Devnet tokens.";
           } finally {
             claimBtn.disabled = false;
-            claimBtn.textContent = "Claim Devnet $SPACE →";
+            claimBtn.textContent = "Claim / Sync Now →";
           }
         });
       }
     });
   })();
   </script>
-  <script src="./network.js?v=24"></script>
+  <script src="./network.js?v=26"></script>
 </body>
 </html>

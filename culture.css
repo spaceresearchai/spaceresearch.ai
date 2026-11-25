@@ -1577,7 +1577,7 @@ html[data-theme="light"] .mono-box { background: rgba(9, 9, 11, 0.055); }
   color: var(--brass);
 }
 .dot { width: 7px; height: 7px; border-radius: 50%; background: #34d399; display: inline-block; }
-.fleet-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.85rem; margin-bottom: 1.35rem; }
+.fleet-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.85rem; margin-bottom: 1.35rem; }
 .fleet-stat { background: rgba(255, 255, 255, 0.035); border: none; border-radius: 12px; padding: 1rem 1.15rem; box-shadow: none; }
 html[data-theme="light"] .fleet-stat { background: #ffffff; box-shadow: var(--shadow-sm); }
 .fleet-stat.hi { background: rgba(255, 255, 255, 0.05); }
@@ -1688,7 +1688,7 @@ tr:last-child td { border-bottom: none; }
   .mw-form, .barter-input-row { flex-direction: column; align-items: stretch; }
   .mw-form > *, .barter-input-row > * { width: 100%; flex: 1 1 auto !important; }
   .mw-input, .zen-input, .zen-select { font-size: 16px; min-height: 44px; }
-  .fleet-strip { gap: 0.45rem; }
+  .fleet-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.45rem; }
   .fleet-stat { padding: 0.72rem 0.62rem; }
   .metric-val { font-size: 1.45rem; }
   .net-subnav { top: 51px; margin: 0 -1rem 1.2rem -1rem; padding: 0.55rem 1rem; }

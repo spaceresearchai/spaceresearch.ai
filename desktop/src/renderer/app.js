@@ -13,6 +13,24 @@
 
   const SLASH_COMMANDS = [
     {
+      cmd: "/persona",
+      insert: "/persona ",
+      desc: "5-Axis zero-system-prompt personality residual steering (presets or axis=val)",
+      example: "/persona witty  or  /persona warmth=0.8 boldness=0.6 formality=-0.5",
+    },
+    {
+      cmd: "/mind",
+      insert: "/mind",
+      desc: "White-box User Mental-State Trace — L18–L44 emergence & causal phrase ablation",
+      example: "/mind Why does Docker keep breaking every time I rebuild?",
+    },
+    {
+      cmd: "/compile",
+      insert: "/compile",
+      desc: "Conversation CoreCompile — distill thread insights & reusable MicroCore",
+      example: "/compile Direct Reviewer",
+    },
+    {
       cmd: "/stress",
       insert: "/stress ",
       desc: "5-Framing belief stability & sycophancy stress-test",
@@ -46,6 +64,7 @@
     customApiBase: "",
     apiKey: "",
     sessionToken: "",
+    solanaWallet: "",
     route: "",
     privacy: "",
     region: "",
@@ -169,17 +188,36 @@
   }
 
   // ---------- Persistence & Endpoint Resolution ----------
+  function getDesktopClientId() {
+    const k = "space_desktop_client_id_v1";
+    try {
+      let id = (localStorage.getItem(k) || "").trim();
+      if (!id) {
+        id = (typeof crypto !== "undefined" && crypto.randomUUID)
+          ? crypto.randomUUID()
+          : ("desk-" + Math.random().toString(36).slice(2) + Date.now().toString(36));
+        localStorage.setItem(k, id);
+      }
+      return id;
+    } catch {
+      return "";
+    }
+  }
+
   function buildRequestHeaders() {
     const h = {
       "Content-Type": "application/json",
       "X-Space-Client": "space-desktop",
     };
+    const cid = getDesktopClientId();
+    if (cid) h["X-Space-Client-Id"] = cid;
     const key = String(settings.apiKey || "").trim();
     if (key) {
       h["Authorization"] = `Bearer ${key}`;
       h["X-API-Key"] = key;
     }
     if (settings.sessionToken) h["X-Space-Session"] = settings.sessionToken;
+    if (settings.solanaWallet) h["X-Space-Wallet"] = settings.solanaWallet;
     if (settings.route) h["X-Space-Route"] = settings.route;
     if (settings.privacy) h["X-Space-Privacy"] = settings.privacy;
     if (settings.region) h["X-Space-Region"] = settings.region;
@@ -731,12 +769,574 @@
     }
   }
 
-  // ---------- Decision X-Ray & Counterfactual Forking ----------
-  function updateXrayButton() {
-    const btn = $("btn-xray");
+  // ---------- Decision X-Ray, Behavioral Core, Personality Axes & CoreCompile ----------
+  const CORE_PREF_KEY = "space_desktop_core_v1";
+  const MIND_PREF_KEY = "space_desktop_mind_v1";
+  const PERSONALITY_AXES_DEF = [
+    { id: "warmth", label: "Warmth", short: "Warm", neg: "Cool", pos: "Warm" },
+    { id: "playfulness", label: "Playfulness", short: "Playful", neg: "Serious", pos: "Playful" },
+    { id: "creativity", label: "Creativity", short: "Creative", neg: "Literal", pos: "Imaginative" },
+    { id: "assertiveness", label: "Assertiveness", short: "Bold", neg: "Diplomatic", pos: "Bold" },
+    { id: "formality", label: "Formality", short: "Formal", neg: "Casual", pos: "Formal" },
+  ];
+  const PERSONALITY_PRESETS_DEF = {
+    neutral: { label: "Neutral", tagline: "Native model personality (0.00 shift)", weights: {} },
+    warm_mentor: { label: "Warm Mentor", tagline: "Encouraging, thoughtful, lightly creative guide", weights: { warmth: 0.9, playfulness: 0.15, creativity: 0.35, assertiveness: 0.2, formality: -0.25 } },
+    witty_companion: { label: "Witty Friend", tagline: "Playful, warm, relaxed conversational banter", weights: { warmth: 0.65, playfulness: 0.95, creativity: 0.45, assertiveness: 0.25, formality: -0.75 } },
+    sharp_critic: { label: "Sharp Critic", tagline: "Cool, bold, high-conviction analytical pushback", weights: { warmth: -0.7, playfulness: 0.1, creativity: 0.15, assertiveness: 1.0, formality: 0.35 } },
+    creative_muse: { label: "Creative Muse", tagline: "Imaginative, metaphorical, lateral-thinking partner", weights: { warmth: 0.45, playfulness: 0.3, creativity: 1.0, assertiveness: 0.15, formality: -0.15 } },
+    executive_brief: { label: "Executive", tagline: "Formal, composed, serious, decisive analysis", weights: { warmth: -0.4, playfulness: -0.6, creativity: -0.45, assertiveness: 0.7, formality: 0.8 } },
+  };
+  const ZERO_PERSONALITY = { warmth: 0, playfulness: 0, creativity: 0, assertiveness: 0, formality: 0 };
+  let mindEnabled = true;
+  try {
+    if (localStorage.getItem(MIND_PREF_KEY) === "0") mindEnabled = false;
+  } catch {}
+  let coreProfile = "auto";
+  let corePopoverTab = "personality";
+  let personalityPreset = "neutral";
+  let personalityWeights = { ...ZERO_PERSONALITY };
+  let customCoreWeights = { anti_sycophancy: 0.7, epistemic_honesty: 0.45, concise_rigor: 0.0 };
+  let coreStatusCache = {
+    loaded_cores: ["anti_sycophancy", "epistemic_honesty", "concise_rigor"],
+    loaded_personality_cores: ["warmth", "playfulness", "creativity", "assertiveness", "formality"],
+    session: { turns: 0, status_line: "Listening · 0 turns", active_compiled_core_id: null, active_compiled_core_name: null },
+    compiled_cores: [],
+  };
+  try {
+    const savedCore = JSON.parse(localStorage.getItem(CORE_PREF_KEY) || "null");
+    if (savedCore && typeof savedCore === "object") {
+      if (["auto", "direct", "strict", "off", "custom"].includes(savedCore.profile)) coreProfile = savedCore.profile;
+      if (savedCore.weights && typeof savedCore.weights === "object") customCoreWeights = { ...customCoreWeights, ...savedCore.weights };
+      if (typeof savedCore.personalityPreset === "string" && (savedCore.personalityPreset === "custom" || savedCore.personalityPreset in PERSONALITY_PRESETS_DEF)) {
+        personalityPreset = savedCore.personalityPreset;
+      }
+      if (savedCore.personalityWeights && typeof savedCore.personalityWeights === "object") {
+        for (const ax of PERSONALITY_AXES_DEF) {
+          const v = Number(savedCore.personalityWeights[ax.id]);
+          if (Number.isFinite(v)) personalityWeights[ax.id] = Math.max(-1, Math.min(1, Math.round(v * 20) / 20));
+        }
+      }
+    }
+  } catch {}
+  function saveCorePrefs() {
+    try { localStorage.setItem(CORE_PREF_KEY, JSON.stringify({ profile: coreProfile, weights: customCoreWeights, personalityPreset, personalityWeights })); } catch {}
+  }
+  function getActivePersonalityWeights() {
+    const out = {};
+    for (const ax of PERSONALITY_AXES_DEF) {
+      const v = Number(personalityWeights[ax.id] ?? 0);
+      if (Number.isFinite(v) && Math.abs(v) >= 0.02) out[ax.id] = Math.round(v * 100) / 100;
+    }
+    return out;
+  }
+  function isPersonalityActive() {
+    return Object.keys(getActivePersonalityWeights()).length > 0;
+  }
+  function activePersonalityLabel() {
+    const aw = getActivePersonalityWeights();
+    const keys = Object.keys(aw);
+    if (!keys.length) return "Neutral";
+    if (personalityPreset in PERSONALITY_PRESETS_DEF && personalityPreset !== "neutral") return PERSONALITY_PRESETS_DEF[personalityPreset].label;
+    if (keys.length === 1) {
+      const ax = PERSONALITY_AXES_DEF.find((a) => a.id === keys[0]);
+      if (ax) return aw[keys[0]] >= 0 ? ax.pos : ax.neg;
+    }
+    return `${keys.length} Axes`;
+  }
+  function setPersonalityPresetState(pid) {
+    const p = PERSONALITY_PRESETS_DEF[pid] || PERSONALITY_PRESETS_DEF.neutral;
+    personalityPreset = pid in PERSONALITY_PRESETS_DEF ? pid : "neutral";
+    personalityWeights = { ...ZERO_PERSONALITY, ...(p.weights || {}) };
+    saveCorePrefs();
+    updateCoreButton();
+  }
+  function renderPersonalityRadarSvg(weights) {
+    const cx = 56, cy = 50, rMax = 34, rZero = 5, rMid = (rZero + rMax) / 2, n = PERSONALITY_AXES_DEF.length;
+    const pt = (i, r) => {
+      const ang = -Math.PI / 2 + (i * 2 * Math.PI) / n;
+      return [cx + r * Math.cos(ang), cy + r * Math.sin(ang)];
+    };
+    const ring = (r) => Array.from({ length: n }, (_, i) => pt(i, r).map((v) => v.toFixed(1)).join(",")).join(" ");
+    const valPts = PERSONALITY_AXES_DEF.map((ax, i) => {
+      const v = Math.max(-1, Math.min(1, Number(weights[ax.id] ?? 0)));
+      return { xy: pt(i, rZero + Math.abs(v) * (rMax - rZero)), v };
+    });
+    const spokes = PERSONALITY_AXES_DEF.map((ax, i) => {
+      const [x2, y2] = pt(i, rMax);
+      const [lx, ly] = pt(i, rMax + 9.5);
+      const v = Number(weights[ax.id] ?? 0);
+      const isNeg = v <= -0.05, isPos = v >= 0.05;
+      const lbl = isNeg ? ax.neg : ax.short;
+      const fill = isNeg ? "#fcd34d" : (isPos ? "#7dd3fc" : "rgba(161,161,170,0.8)");
+      const anchor = Math.abs(lx - cx) < 6 ? "middle" : (lx > cx ? "start" : "end");
+      return `<line x1="${cx}" y1="${cy}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="rgba(255,255,255,0.12)" stroke-width="0.8" /><text x="${lx.toFixed(1)}" y="${(ly + 2.5).toFixed(1)}" text-anchor="${anchor}" fill="${fill}" font-family="JetBrains Mono, monospace" font-size="6.2">${escHtml(lbl)}</text>`;
+    }).join("");
+    const dots = valPts.map(({ xy: [x, y], v }) => `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.2" fill="${v <= -0.05 ? "#f59e0b" : (v >= 0.05 ? "#7dd3fc" : "rgba(161,161,170,0.75)")}" />`).join("");
+    return `<svg class="pers-radar-svg" viewBox="-12 0 136 100" aria-label="5-Axis Personality Vector"><polygon points="${ring(rMax)}" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="0.8" /><polygon points="${ring(rMid)}" fill="none" stroke="rgba(255,255,255,0.24)" stroke-dasharray="2.2 2" stroke-width="0.85" />${spokes}<polygon points="${valPts.map((p) => p.xy.map((c) => c.toFixed(1)).join(",")).join(" ")}" fill="rgba(56,189,248,0.20)" stroke="#38bdf8" stroke-width="1.35" stroke-linejoin="round" />${dots}</svg>`;
+  }
+  function coreModeLabel(p) {
+    return ({ direct: "Direct", strict: "Strict", off: "Off", custom: "Custom" })[p] || "Auto";
+  }
+  function updateCoreButton() {
+    const btn = $("btn-core");
+    const lbl = $("core-pill-label");
     if (!btn) return;
-    btn.classList.toggle("active", Boolean(settings.xrayEnabled));
-    btn.innerHTML = `<span class="xray-dot"></span><span>Confidence${settings.xrayEnabled ? " · On" : ""}</span>`;
+    const sess = getActiveSession();
+    const activeCompiled = sess?.compiledCoreName || coreStatusCache?.session?.active_compiled_core_name || "";
+    const lastMeta = sess?.messages?.slice().reverse().find((m) => m.role === "assistant")?.meta?.core_meta;
+    const persOn = isPersonalityActive();
+    const isOff = coreProfile === "off" && !persOn;
+    btn.classList.toggle("active", !isOff);
+    btn.classList.toggle("mode-off", isOff);
+    btn.classList.toggle("pers-active", persOn);
+    btn.classList.toggle("engaged", !isOff && Boolean(persOn || lastMeta?.auto_engaged || activeCompiled));
+    if (lbl) {
+      if (persOn) lbl.textContent = `Core · ${activePersonalityLabel()}`;
+      else if (coreProfile === "off") lbl.textContent = "Core · Off";
+      else if (coreProfile === "auto" && activeCompiled) lbl.textContent = `Core · ${activeCompiled.slice(0, 14)}`;
+      else lbl.textContent = `Core · ${coreModeLabel(coreProfile)}`;
+    }
+  }
+  function closeCorePopover() {
+    const pop = $("core-popover");
+    const btn = $("btn-core");
+    if (pop) pop.classList.remove("open");
+    if (btn) btn.setAttribute("aria-expanded", "false");
+  }
+  async function syncCoreStatus() {
+    try {
+      const sess = getActiveSession();
+      const q = sess?.id ? ("?session_id=" + encodeURIComponent(sess.id)) : "";
+      const res = await fetch(activeApiBase + "/v1/cores/status" + q);
+      if (!res.ok) return;
+      const data = await res.json();
+      coreStatusCache = data;
+      if (sess && data.session) {
+        sess.compiledCoreId = data.session.active_compiled_core_id || null;
+        sess.compiledCoreName = data.session.active_compiled_core_name || null;
+      }
+      updateCoreButton();
+      if ($("core-popover")?.classList.contains("open")) renderCorePopover();
+    } catch {}
+  }
+  async function sendCoreFeedback(sessionId, label, note = "") {
+    if (!sessionId || !label) return null;
+    try {
+      const res = await fetch(activeApiBase + "/v1/cores/feedback", {
+        method: "POST",
+        headers: buildRequestHeaders(),
+        body: JSON.stringify({ session_id: sessionId, label, note }),
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      if (data?.session) { coreStatusCache.session = data.session; updateCoreButton(); }
+      return data;
+    } catch { return null; }
+  }
+  async function setSessionCompiledCore(coreId, coreName = "") {
+    const sess = getActiveSession();
+    if (!sess) return;
+    sess.compiledCoreId = coreId || null;
+    sess.compiledCoreName = coreId ? (coreName || "Compiled") : null;
+    if (coreId && coreProfile === "off") { coreProfile = "auto"; saveCorePrefs(); }
+    saveSessions();
+    updateCoreButton();
+    try {
+      const res = await fetch(activeApiBase + "/v1/cores/activate", {
+        method: "POST",
+        headers: buildRequestHeaders(),
+        body: JSON.stringify({ session_id: sess.id, compiled_core_id: coreId || null }),
+      });
+      if (res.ok) { const d = await res.json(); if (d?.session) coreStatusCache.session = d.session; }
+    } catch {}
+    if ($("core-popover")?.classList.contains("open")) renderCorePopover();
+    renderThread(false);
+  }
+  async function deleteCompiledCoreById(coreId) {
+    if (!coreId) return;
+    try {
+      await fetch(activeApiBase + "/v1/cores/compiled/" + encodeURIComponent(coreId), { method: "DELETE" });
+      const sess = getActiveSession();
+      if (sess && sess.compiledCoreId === coreId) { sess.compiledCoreId = null; sess.compiledCoreName = null; saveSessions(); }
+      await syncCoreStatus();
+    } catch {}
+  }
+  async function runConversationCompile(rawCommand = "") {
+    if (isStreaming) return;
+    closeCorePopover();
+    let sess = getActiveSession();
+    const customName = rawCommand ? rawCommand.replace(/^\/compile\s*/i, "").trim() : "";
+    const hasTurns = Boolean(sess && sess.messages.some((m) => m.role === "user" || m.role === "assistant"));
+    if (!sess || !hasTurns) {
+      if (!sess) sess = createSession("CoreCompile");
+      sess.messages.push({ role: "assistant", content: "Chat for a turn or two first, then run `/compile` to distill your conversation's behavioral core & insights." });
+      saveSessions(); renderSidebar(); renderThread(true); return;
+    }
+    if (rawCommand) sess.messages.push({ role: "user", content: rawCommand });
+    const ccMsg = { role: "core_compile", loading: true, result: null, error: null };
+    sess.messages.push(ccMsg);
+    sess.updatedAt = Date.now();
+    saveSessions(); renderSidebar(); renderThread(true);
+    try {
+      const apiMsgs = buildApiMessages(sess).filter((m) => m.role === "user" || m.role === "assistant");
+      const res = await fetch(activeApiBase + "/v1/cores/compile", {
+        method: "POST",
+        headers: buildRequestHeaders(),
+        body: JSON.stringify({ session_id: sess.id, name: customName, apply_to_session: true, messages: apiMsgs }),
+      });
+      if (!res.ok) {
+        let detail = "HTTP " + res.status;
+        try { const j = await res.json(); if (j.detail) detail = j.detail; } catch {}
+        ccMsg.error = detail;
+      } else {
+        const compiled = await res.json();
+        ccMsg.result = compiled;
+        sess.compiledCoreId = compiled.core_id;
+        sess.compiledCoreName = compiled.name;
+        if (coreProfile === "off") { coreProfile = "auto"; saveCorePrefs(); }
+        await syncCoreStatus();
+      }
+    } catch (err) { ccMsg.error = err.message || "Network error"; }
+    finally { ccMsg.loading = false; saveSessions(); updateCoreButton(); renderThread(true); }
+  }
+  function renderCoreCompileCardHtml(m, sess) {
+    if (m.loading) return `<div class="cc-card"><div class="cc-eyebrow">Conversation CoreCompile · Analyzing Trajectory…</div><div class="cp-status">Computing SVD behavioral rank, L32 probe drift, and MicroCore OOD guard…</div></div>`;
+    if (m.error || !m.result) return `<div class="cc-card"><div class="cc-eyebrow">Conversation CoreCompile</div><div class="cp-status">${escHtml(m.error || "Failed")}</div></div>`;
+    const r = m.result;
+    const isApplied = Boolean(sess && sess.compiledCoreId === r.core_id);
+    const wEntries = Object.entries(r.recommended_weights || {});
+    const weightChips = wEntries.length
+      ? wEntries.map(([k, v]) => `<span class="cc-chip accent">${escHtml(k.replace(/_/g, " "))} ${Number(v).toFixed(2)}</span>`).join("")
+      : `<span class="cc-chip">Native baseline (0.00 shift)</span>`;
+    const msSumChip = r.mental_state_summary?.latest_state ? `<span class="cc-chip">Mind: ${escHtml(r.mental_state_summary.latest_state)}</span>` : "";
+    const insightsHtml = (r.insights || []).map((ins) => `<li>${escHtml(ins)}</li>`).join("");
+    return `<div class="cc-card"><div class="cc-head"><span class="cc-eyebrow">Compiled Core · ${r.turns_analyzed || 0} turns · Rank-${Number(r.intrinsic_rank || 1).toFixed(1)} (${r.explained_var_r1_pct || 100}% var) · &tau;=${Number(r.ood_tau || 2.5).toFixed(2)}</span><button type="button" class="cp-compile-btn btn-cc-toggle" data-cid="${escHtml(r.core_id)}" data-cname="${escHtml(r.name)}">${isApplied ? "Active ✓" : "Use Core"}</button></div><div class="cc-title">${escHtml(r.name || "Compiled Thread Core")}</div><div class="cc-metrics">${weightChips}${msSumChip}</div>${insightsHtml ? `<ul class="cc-insights">${insightsHtml}</ul>` : ""}</div>`;
+  }
+  function renderMentalStateBarsHtml(dimensions, showCos = true) {
+    if (!Array.isArray(dimensions) || !dimensions.length) return "";
+    return `<div class="mind-bars">${dimensions.map((d) => {
+      const pct = Math.max(0, Math.min(100, Number(d.pct ?? 0)));
+      const axShort = String(d.id || "").replace(/^user_/, "");
+      const lvl = escHtml(d.level || "low");
+      const deltaNum = typeof d.delta_pct === "number" ? d.delta_pct : null;
+      const deltaHtml = (deltaNum !== null && Math.abs(deltaNum) >= 5) ? `<span class="mind-bar-delta ${deltaNum > 0 ? "up" : "down"}">${deltaNum > 0 ? "↑" : "↓"}${Math.abs(deltaNum)}</span>` : "";
+      const cosTxt = showCos && typeof d.raw_cos === "number" ? ` · cos ${d.raw_cos >= 0 ? "+" : ""}${Number(d.raw_cos).toFixed(3)}` : "";
+      const zTxt = typeof d.z_score === "number" ? ` (${d.z_score >= 0 ? "+" : ""}${Number(d.z_score).toFixed(1)}σ vs neutral)` : "";
+      return `<div class="mind-bar-item" title="${escHtml(d.label || d.short || "")}: ${pct}%${escHtml(cosTxt)}${escHtml(zTxt)}"><div class="mind-bar-head"><span>${escHtml(d.short || axShort)}</span><span class="mind-bar-val">${pct}%${deltaHtml}</span></div><div class="mind-bar-track"><div class="mind-bar-fill lvl-${lvl} ax-${escHtml(axShort)}" style="width:${Math.max(4, pct)}%"></div></div></div>`;
+    }).join("")}</div>`;
+  }
+  function renderLayerEmergenceSvg(emergence, primaryAxis) {
+    if (!Array.isArray(emergence) || emergence.length < 2) return "";
+    const W = 420, H = 76, padL = 22, padR = 22, padT = 14, padB = 20;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    const axKey = String(primaryAxis || "").replace(/^user_/, "");
+    const strokeCol = axKey === "curiosity" ? "#38bdf8" : (axKey === "confusion" || axKey === "skepticism" ? "#f59e0b" : "#fb7185");
+    const pts = emergence.map((row, i) => {
+      const x = padL + (plotW * i) / Math.max(1, emergence.length - 1);
+      const pct = Math.max(0, Math.min(100, Number(row.primary_pct ?? 0)));
+      const y = padT + plotH * (1 - pct / 100);
+      return { x, y, layer: row.layer, pct, cos: row.primary_cos };
+    });
+    const poly = pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+    const area = `${padL},${(padT + plotH).toFixed(1)} ${poly} ${(padL + plotW).toFixed(1)},${(padT + plotH).toFixed(1)}`;
+    const y50 = (padT + plotH * 0.5).toFixed(1);
+    const dots = pts.map((p) => {
+      const is32 = Number(p.layer) === 32;
+      return `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${is32 ? 4.2 : 2.8}" fill="${is32 ? "#ffffff" : strokeCol}" stroke="${strokeCol}" stroke-width="${is32 ? 2 : 1}"><title>L${p.layer}: ${p.pct}%</title></circle><text x="${p.x.toFixed(1)}" y="${H - 4}" text-anchor="middle" fill="${is32 ? "currentColor" : "#888"}" font-size="9" font-family="JetBrains Mono, monospace">L${p.layer}</text>`;
+    }).join("");
+    return `<div class="mind-chart-wrap"><svg class="mind-chart-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><line x1="${padL}" y1="${y50}" x2="${W - padR}" y2="${y50}" stroke="rgba(128,128,128,0.3)" stroke-dasharray="3 3" stroke-width="1" /><polygon points="${area}" fill="${strokeCol}" opacity="0.12" /><polyline points="${poly}" fill="none" stroke="${strokeCol}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />${dots}</svg></div>`;
+  }
+  function renderMentalArcSvg(arc) {
+    if (!Array.isArray(arc) || arc.length < 2) return "";
+    const W = 420, H = 74, padL = 22, padR = 22, padT = 12, padB = 20;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    const series = [["frustration", "#fb7185", "Frus"], ["confusion", "#f59e0b", "Conf"], ["urgency", "#fb923c", "Urge"], ["curiosity", "#38bdf8", "Curi"], ["skepticism", "#a78bfa", "Skep"]];
+    const lines = series.map(([key, col]) => {
+      const pts = arc.map((pt, i) => `${(padL + (plotW * i) / Math.max(1, arc.length - 1)).toFixed(1)},${(padT + plotH * (1 - Math.max(0, Math.min(100, Number(pt.scores?.[key] ?? 0))) / 100)).toFixed(1)}`).join(" ");
+      return `<polyline points="${pts}" fill="none" stroke="${col}" stroke-width="1.6" opacity="0.85" stroke-linejoin="round" stroke-linecap="round" />`;
+    }).join("");
+    const xTicks = arc.map((pt, i) => `<text x="${(padL + (plotW * i) / Math.max(1, arc.length - 1)).toFixed(1)}" y="${H - 4}" text-anchor="middle" fill="#888" font-size="9" font-family="JetBrains Mono, monospace">T${pt.turn_idx || (i + 1)}</text>`).join("");
+    const legend = series.map(([, col, lbl]) => `<span style="color:${col};">&#9679; ${lbl}</span>`).join(" ");
+    return `<div class="mind-chart-wrap"><svg class="mind-chart-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${lines}${xTicks}</svg><div class="mind-disclaimer" style="margin-top:0.25rem; display:flex; gap:0.6rem; flex-wrap:wrap;">${legend}</div></div>`;
+  }
+  function renderMentalStateInspectHtml(ms, msgIdx) {
+    if (!ms || !ms.available) return "";
+    return `<div class="mind-inspect-box"><div class="mind-inspect-head"><div style="display:flex; align-items:center; gap:0.42rem; flex-wrap:wrap;"><span class="mind-state-badge tone-${escHtml(ms.tone_kind || "calm")}"><span class="mind-inline-dot"></span>User &middot; ${escHtml(ms.primary_state || "Calm & Focused")}</span><span class="cp-sub" style="margin:0;">AI's L32 Estimate of User State</span></div><button type="button" class="cp-compile-btn btn-mind-deep" data-midx="${msgIdx}" title="Run 7-layer emergence &amp; causal phrase ablation in full conversation context">Deep Trace (/mind)</button></div>${ms.insight ? `<div class="mind-insight-txt">${escHtml(ms.insight)}</div>` : ""}${renderMentalStateBarsHtml(ms.dimensions, true)}<div class="mind-disclaimer">${escHtml(ms.disclaimer || "")}</div></div>`;
+  }
+  function buildMindContextPayload(sess, targetMsgIdx = null) {
+    if (!sess || !Array.isArray(sess.messages)) return { messages: [], targetTurnIdx: null };
+    const isSlashCmd = (txt) => /^\/(?:mind|compile|persona|stress)(\s|$)/i.test(String(txt || "").trim());
+    const limit = (typeof targetMsgIdx === "number" && targetMsgIdx >= 0) ? Math.min(targetMsgIdx, sess.messages.length) : sess.messages.length;
+    let lastUserIdx = -1;
+    for (let i = limit - 1; i >= 0; i--) {
+      const m = sess.messages[i];
+      if (m?.role === "user" && (m.content || "").trim() && !isSlashCmd(m.content)) { lastUserIdx = i; break; }
+    }
+    if (lastUserIdx < 0) return { messages: [], targetTurnIdx: null };
+    let userTurnCount = 0;
+    for (let i = 0; i <= lastUserIdx; i++) {
+      const m = sess.messages[i];
+      if (m?.role === "user" && (m.content || "").trim() && !isSlashCmd(m.content)) userTurnCount++;
+    }
+    let cIdx = -1;
+    for (let i = lastUserIdx - 1; i >= 0; i--) {
+      if (sess.messages[i]?.role === "compaction") { cIdx = i; break; }
+    }
+    const out = [];
+    if (cIdx >= 0 && sess.messages[cIdx]?.content) {
+      out.push({ role: "system", content: "Compacted summary of earlier conversation context (treat as accurate ground truth):\n\n" + sess.messages[cIdx].content });
+    }
+    const start = cIdx >= 0 ? cIdx + 1 : 0;
+    for (let i = start; i <= lastUserIdx; i++) {
+      const m = sess.messages[i];
+      if (!m) continue;
+      if (m.role === "user") {
+        const txt = String(m.content || "").trim();
+        if (txt && !isSlashCmd(txt)) out.push({ role: "user", content: txt });
+      } else if (m.role === "assistant" && m.content) {
+        if (m.meta && m.meta.backend === "rpc-standby") continue;
+        out.push({ role: "assistant", content: String(m.content) });
+      }
+    }
+    return { messages: out, targetTurnIdx: (typeof targetMsgIdx === "number") ? userTurnCount : null };
+  }
+  async function runMentalStateTrace(rawCommand = "", targetMsgIdx = null) {
+    if (isStreaming) return;
+    closeCorePopover();
+    let sess = getActiveSession();
+    const customText = (typeof targetMsgIdx === "number") ? "" : (rawCommand ? rawCommand.replace(/^\/mind\s*/i, "").trim() : "");
+    const hasUserTurns = Boolean(sess && sess.messages.some((m) => m.role === "user" && (m.content || "").trim()));
+    if (!customText && (!sess || !hasUserTurns)) {
+      if (!sess) sess = createSession("Mind Trace");
+      sess.messages.push({ role: "assistant", content: "Send a message first, or type `/mind <your message>` to run a 7-layer Qwen3.8-27B emergence & causal phrase ablation trace on inferred user mental state." });
+      saveSessions(); renderSidebar(); renderThread(true); return;
+    }
+    if (!sess) sess = createSession((customText || "Mind Trace").slice(0, 42));
+    const ctxPayload = customText ? { messages: [], targetTurnIdx: null } : buildMindContextPayload(sess, targetMsgIdx);
+    if (rawCommand) sess.messages.push({ role: "user", content: rawCommand });
+    const msMsg = { role: "mental_state", loading: true, result: null, error: null };
+    sess.messages.push(msMsg);
+    sess.updatedAt = Date.now();
+    saveSessions(); renderSidebar(); renderThread(true);
+    try {
+      const res = await fetch(activeApiBase + "/v1/cores/mental-state", {
+        method: "POST",
+        headers: buildRequestHeaders(),
+        body: JSON.stringify({
+          session_id: sess.id,
+          text: customText,
+          messages: customText ? [] : ctxPayload.messages,
+          target_turn_idx: customText ? null : ctxPayload.targetTurnIdx,
+          include_ablation: true,
+        }),
+      });
+      if (!res.ok) {
+        let detail = "HTTP " + res.status;
+        try { const j = await res.json(); if (j.detail) detail = j.detail; } catch {}
+        msMsg.error = detail;
+      } else {
+        msMsg.result = await res.json();
+      }
+    } catch (err) { msMsg.error = err.message || "Network error"; }
+    finally { msMsg.loading = false; saveSessions(); renderThread(true); }
+  }
+  function renderMentalStateCardHtml(m) {
+    if (m.loading) return `<div class="mind-card"><div class="cc-eyebrow">Inferred User Mental State · Qwen3.8-27B</div><div class="cp-status">Extracting L18–L44 residual trajectory &amp; leave-one-span-out L32 causal ablations…</div></div>`;
+    if (m.error || !m.result) return `<div class="mind-card"><div class="cc-eyebrow">Inferred User Mental State</div><div class="cp-status">${escHtml(m.error || "Failed")}</div></div>`;
+    const r = m.result, ms = r.mental_state || {}, cx = ms.circumplex || {};
+    const valNum = Number(cx.valence ?? 0), primaryAxShort = String(r.primary_axis || "").replace(/^user_/, "");
+    const ctxTag = r.in_context ? `In-Context (${Number(r.context_turns || 1)} turns)` : "Standalone Prompt";
+    const inspectedText = String(r.text || "").trim();
+    const inspectedShort = inspectedText.length > 180 ? inspectedText.slice(0, 177) + "…" : inspectedText;
+    const hasSpans = Array.isArray(r.span_attributions) && r.span_attributions.length > 0;
+    const promptQuoteHtml = inspectedShort
+      ? `<div class="mind-prompt-quote"><span class="mind-prompt-lbl">Your prompt read by Qwen:</span> &ldquo;${escHtml(inspectedShort)}&rdquo;${!hasSpans ? ' <span class="mind-ablation-note">(too short for phrase ablation)</span>' : ""}</div>`
+      : "";
+    const spansHtml = hasSpans
+      ? `<div class="mind-subsec"><div class="mind-subsec-title"><span>Causal Phrase Attribution (Your Prompt) · L32 Δcos (${escHtml(r.primary_axis_label || primaryAxShort)})</span><span>Hover span for Δcos</span></div><div class="mind-heatmap">${r.span_attributions.map((sp) => `<span class="mind-span ${escHtml(sp.level || "neutral")} ax-${escHtml(primaryAxShort)}" title="Causal L32 Δcos: ${Number(sp.delta_cos || 0) >= 0 ? "+" : ""}${Number(sp.delta_cos || 0).toFixed(4)}">${escHtml(sp.text)}</span>`).join("")}</div></div>`
+      : "";
+    const emergHtml = Array.isArray(r.layer_emergence) && r.layer_emergence.length >= 2
+      ? `<div class="mind-subsec"><div class="mind-subsec-title"><span>Transformer Depth Emergence · Inferred User ${escHtml(r.primary_axis_label || primaryAxShort)} (L18 → L44)</span><span>Peak L${escHtml(r.peak_layer || 32)}</span></div>${renderLayerEmergenceSvg(r.layer_emergence, r.primary_axis)}</div>`
+      : "";
+    const arcHtml = Array.isArray(r.session_arc) && r.session_arc.length >= 2
+      ? `<div class="mind-subsec"><div class="mind-subsec-title"><span>User Mental-State Arc · ${r.session_arc.length} Turns</span><span>L32 Trajectory</span></div>${renderMentalArcSvg(r.session_arc)}</div>`
+      : "";
+    const couplingHtml = Array.isArray(r.behavioral_coupling) && r.behavioral_coupling.length
+      ? `<div class="mind-subsec"><div class="mind-subsec-title"><span>AI Behavioral Cores on Same Prompt (L32 Cosine)</span><span>Orthogonalized</span></div><div class="mind-coupling-row">${r.behavioral_coupling.map((c) => `<span class="core-probe-chip">${escHtml(c.id.replace(/_/g, " "))} ${Number(c.raw_cos) >= 0 ? "+" : ""}${Number(c.raw_cos).toFixed(3)}</span>`).join("")}</div></div>`
+      : "";
+    return `<div class="mind-card"><div class="mind-card-head"><span class="cc-eyebrow">Inferred User Mental State · Qwen3.8-27B L32 · ${escHtml(ctxTag)} · ${Math.round(Number(r.elapsed_ms || 0))}ms</span><span class="mind-state-badge tone-${escHtml(ms.tone_kind || "calm")}"><span class="mind-inline-dot"></span>User &middot; ${escHtml(ms.primary_state || "Calm & Focused")}</span></div>${ms.insight ? `<div class="mind-insight-txt">${escHtml(ms.insight)}</div>` : ""}${promptQuoteHtml}<div class="mind-circumplex"><div class="mind-kpi"><span class="mind-kpi-v">${valNum >= 0 ? "+" : ""}${valNum.toFixed(2)}</span><span class="mind-kpi-k">Valence</span></div><div class="mind-kpi"><span class="mind-kpi-v">${Math.round(Number(cx.arousal ?? 0) * 100)}%</span><span class="mind-kpi-k">Arousal</span></div><div class="mind-kpi"><span class="mind-kpi-v">${Math.round(Number(cx.clarity ?? 1) * 100)}%</span><span class="mind-kpi-k">Clarity</span></div><div class="mind-kpi"><span class="mind-kpi-v">${Math.round(Number(cx.openness ?? 0.5) * 100)}%</span><span class="mind-kpi-k">Openness</span></div></div>${renderMentalStateBarsHtml(ms.dimensions, true)}${spansHtml}${emergHtml}${arcHtml}${couplingHtml}<div class="mind-disclaimer">${escHtml(ms.disclaimer || "")}</div></div>`;
+  }
+  function renderCorePopover() {
+    const pop = $("core-popover");
+    if (!pop) return;
+    const sess = getActiveSession();
+    const stSess = coreStatusCache?.session || {};
+    const statusLine = stSess.status_line || "Listening · 0 turns";
+    const compiledList = Array.isArray(coreStatusCache?.compiled_cores) ? coreStatusCache.compiled_cores : [];
+    const activeCid = sess?.compiledCoreId || stSess.active_compiled_core_id || null;
+    const hasTurns = Boolean(sess && sess.messages.some((m) => m.role === "user" || m.role === "assistant"));
+    const persActive = isPersonalityActive();
+    const modeDesc = {
+      auto: "Quiet on clean prompts; engages on framing pressure, pushback, or learned drift.",
+      direct: "Concise, objective answers with gentle anti-sycophancy steering.",
+      strict: "Maximum resistance to framing flips, flattery, and bluffing.",
+      off: "Native unsteered behavioral guardrails (0.00 shift).",
+      custom: "Custom per-core residual weights.",
+    }[coreProfile] || "";
+    const ccItemsHtml = compiledList.slice(0, 5).map((c) => {
+      const active = activeCid === c.core_id;
+      return `<div class="cp-cc-item${active ? " active" : ""}"><button type="button" class="cp-cc-pick" data-cid="${escHtml(c.core_id)}" data-cname="${escHtml(c.name)}"><span class="cp-cc-name">${active ? "● " : ""}${escHtml(c.name)}</span><span class="cp-cc-meta">Rank-${Number(c.intrinsic_rank || 1).toFixed(1)} · ${c.turns_analyzed || 0}t</span></button><button type="button" class="cp-cc-del" data-del="${escHtml(c.core_id)}">&times;</button></div>`;
+    }).join("");
+    const presetWeights = ({
+      off: { anti_sycophancy: 0, epistemic_honesty: 0, concise_rigor: 0 },
+      auto: { anti_sycophancy: 0, epistemic_honesty: 0, concise_rigor: 0 },
+      direct: { anti_sycophancy: 0.7, epistemic_honesty: 0.45, concise_rigor: 0.95 },
+      strict: { anti_sycophancy: 1.2, epistemic_honesty: 0.85, concise_rigor: 0.65 },
+      custom: customCoreWeights,
+    })[coreProfile] || customCoreWeights;
+    const slidersHtml = [["anti_sycophancy", "Anti-Sycophancy", 0, 1.45], ["epistemic_honesty", "Epistemic Honesty", 0, 1.2], ["concise_rigor", "Concise Rigor", 0, 1.25]]
+      .map(([key, label, min, max]) => {
+        const val = Number(presetWeights[key] ?? 0);
+        return `<div class="cp-slider-row"><div class="cp-slider-head"><span>${label}</span><span class="cp-sv" data-sv="${key}">${val.toFixed(2)}</span></div><input type="range" class="cp-slider" data-ckey="${key}" min="${min}" max="${max}" step="0.05" value="${val.toFixed(2)}" /></div>`;
+      }).join("");
+    const activePersW = getActivePersonalityWeights();
+    const l2Norm = Math.sqrt(Object.values(activePersW).reduce((a, x) => a + x * x, 0));
+    const persPresetsHtml = Object.entries(PERSONALITY_PRESETS_DEF).map(([pid, p]) => {
+      const isAct = (pid === "neutral" && !persActive) || (personalityPreset === pid && (pid !== "neutral" || !persActive));
+      return `<button type="button" class="pers-preset-btn${isAct ? " active" : ""}" data-ppreset="${pid}" title="${escHtml(p.tagline)}">${escHtml(p.label)}</button>`;
+    }).join("");
+    const persSlidersHtml = PERSONALITY_AXES_DEF.map((ax) => {
+      const val = Number(personalityWeights[ax.id] ?? 0);
+      const valTxt = val > 0.005 ? `+${val.toFixed(2)}` : (val < -0.005 ? val.toFixed(2) : "0.00");
+      return `<div class="pers-axis-row" data-paxis="${ax.id}"><div class="pers-axis-head"><span class="pers-pole-l${val <= -0.15 ? " lit" : ""}">${escHtml(ax.neg)}</span><span class="pers-axis-val${Math.abs(val) >= 0.02 ? " nonzero" : ""}" data-psv="${ax.id}">${valTxt}</span><span class="pers-pole-r${val >= 0.15 ? " lit" : ""}">${escHtml(ax.pos)}</span></div><div class="pers-slider-wrap"><input type="range" class="pers-slider" data-pkey="${ax.id}" min="-1.0" max="1.0" step="0.05" value="${val.toFixed(2)}" /></div></div>`;
+    }).join("");
+    const personalityPaneHtml = `
+      <div class="pers-radar-row"><div id="pers-radar-slot">${renderPersonalityRadarSvg(personalityWeights)}</div><div class="pers-radar-meta"><div class="pers-active-name" id="pers-active-name">${escHtml(activePersonalityLabel())}</div><span class="pers-zero-badge">0 system-prompt tokens</span><div class="pers-l2-line" id="pers-l2-line">${l2Norm > 1.805 ? `L2 shift ${l2Norm.toFixed(2)} (scaled &rarr; 1.80)` : `L2 shift ${l2Norm.toFixed(2)} / 1.80`} · 5 orthogonal ACE axes</div></div></div>
+      <div class="pers-presets">${persPresetsHtml}</div>
+      <div class="pers-sliders">${persSlidersHtml}</div>
+      <div class="pers-foot"><span class="pers-foot-note">Steered directly in Qwen3.8 27B L28–L44 · 0.000 cos leakage into honesty</span><button type="button" class="cp-compile-btn" id="pers-btn-reset"${persActive ? "" : " disabled"}>Reset</button></div>`;
+    const guardrailsPaneHtml = `
+      <div class="cp-seg">${["auto", "direct", "strict", "off"].map((m) => `<button type="button" class="cp-seg-btn${coreProfile === m ? " active" : ""}" data-mode="${m}">${coreModeLabel(m)}</button>`).join("")}</div>
+      <div class="cp-status">${escHtml(modeDesc)}</div>
+      <div class="cp-section"><div class="cp-row"><div><div class="cp-label">CoreCompile · This Thread</div><div class="cp-status">${escHtml(statusLine)}</div></div><button type="button" class="cp-compile-btn" id="cp-btn-compile"${hasTurns && !isStreaming ? "" : " disabled"}>Compile</button></div>${ccItemsHtml ? `<div class="cp-compiled-list">${ccItemsHtml}</div>` : ""}</div>
+      <div class="cp-section"><div class="cp-row"><div><div class="cp-label">Live Confidence X-Ray</div><div class="cp-sub">Token certainty &amp; counterfactual fork</div></div><button type="button" class="cp-switch${settings.xrayEnabled ? " on" : ""}" id="cp-toggle-xray"></button></div></div>
+      <div class="cp-section"><div class="cp-row"><div><div class="cp-label">User Mental-State Probes</div><div class="cp-sub">${escHtml(stSess.latest_mental_state?.primary_state ? `L32 · ${stSess.latest_mental_state.primary_state}` : "Zero-cost L32 Theory-of-Mind read")}</div></div><div style="display:flex; align-items:center; gap:0.42rem;"><button type="button" class="cp-compile-btn" id="cp-btn-mind"${hasTurns && !isStreaming ? "" : " disabled"}>/mind</button><button type="button" class="cp-switch${mindEnabled ? " on" : ""}" id="cp-toggle-mind"></button></div></div></div>
+      <div class="cp-section"><details class="cp-tune"${coreProfile === "custom" ? " open" : ""}><summary><span>Fine-tune guardrail weights</span><span>${coreProfile === "custom" ? "Custom" : "Bounded"}</span></summary><div class="cp-sliders">${slidersHtml}</div></details></div>`;
+    pop.innerHTML = `
+      <div><div class="cp-head"><div><div class="cp-title">Behavioral &amp; Personality Core</div><div class="cp-sub">Native Qwen3.8 27B ACE residual steering</div></div><button type="button" class="xp-close cp-close-btn">&times;</button></div></div>
+      <div class="cp-tabs"><button type="button" class="cp-tab-btn${corePopoverTab === "personality" ? " active" : ""}" data-tab="personality">${persActive ? '<span class="cp-tab-dot"></span>' : ""}<span>Personality</span></button><button type="button" class="cp-tab-btn${corePopoverTab === "guardrails" ? " active" : ""}" data-tab="guardrails"><span>Guardrails</span></button></div>
+      ${corePopoverTab === "personality" ? personalityPaneHtml : guardrailsPaneHtml}`;
+    pop.querySelector(".cp-close-btn")?.addEventListener("click", (ev) => { ev.stopPropagation(); closeCorePopover(); });
+    pop.querySelectorAll(".cp-tab-btn").forEach((b) => b.addEventListener("click", (ev) => { ev.stopPropagation(); corePopoverTab = b.getAttribute("data-tab") || "personality"; renderCorePopover(); }));
+    pop.querySelectorAll(".pers-preset-btn").forEach((b) => b.addEventListener("click", (ev) => { ev.stopPropagation(); setPersonalityPresetState(b.getAttribute("data-ppreset") || "neutral"); renderCorePopover(); }));
+    pop.querySelector("#pers-btn-reset")?.addEventListener("click", (ev) => { ev.stopPropagation(); setPersonalityPresetState("neutral"); renderCorePopover(); });
+    pop.querySelectorAll(".pers-slider").forEach((inp) => inp.addEventListener("input", () => {
+      const k = inp.getAttribute("data-pkey");
+      const v = Math.round(Number(inp.value) * 20) / 20;
+      personalityWeights[k] = v;
+      personalityPreset = isPersonalityActive() ? "custom" : "neutral";
+      saveCorePrefs();
+      updateCoreButton();
+      const sv = pop.querySelector(`.pers-axis-val[data-psv="${k}"]`);
+      if (sv) { sv.textContent = v > 0.005 ? `+${v.toFixed(2)}` : (v < -0.005 ? v.toFixed(2) : "0.00"); sv.classList.toggle("nonzero", Math.abs(v) >= 0.02); }
+      const row = pop.querySelector(`.pers-axis-row[data-paxis="${k}"]`);
+      if (row) { row.querySelector(".pers-pole-l")?.classList.toggle("lit", v <= -0.15); row.querySelector(".pers-pole-r")?.classList.toggle("lit", v >= 0.15); }
+      const slot = pop.querySelector("#pers-radar-slot");
+      if (slot) slot.innerHTML = renderPersonalityRadarSvg(personalityWeights);
+      const nameEl = pop.querySelector("#pers-active-name");
+      if (nameEl) nameEl.textContent = activePersonalityLabel();
+      const l2El = pop.querySelector("#pers-l2-line");
+      if (l2El) { const l2 = Math.sqrt(Object.values(getActivePersonalityWeights()).reduce((a, x) => a + x * x, 0)); l2El.textContent = l2 > 1.805 ? `L2 shift ${l2.toFixed(2)} (scaled → 1.80) · 5 orthogonal ACE axes` : `L2 shift ${l2.toFixed(2)} / 1.80 · 5 orthogonal ACE axes`; }
+      const rBtn = pop.querySelector("#pers-btn-reset");
+      if (rBtn) rBtn.disabled = !isPersonalityActive();
+      pop.querySelectorAll(".pers-preset-btn").forEach((pb) => pb.classList.toggle("active", !isPersonalityActive() && pb.getAttribute("data-ppreset") === "neutral"));
+    }));
+    pop.querySelectorAll(".cp-seg-btn").forEach((b) => b.addEventListener("click", (ev) => { ev.stopPropagation(); coreProfile = b.getAttribute("data-mode") || "auto"; saveCorePrefs(); updateCoreButton(); renderCorePopover(); }));
+    pop.querySelector("#cp-btn-compile")?.addEventListener("click", (ev) => { ev.stopPropagation(); runConversationCompile(""); });
+    pop.querySelector("#cp-btn-mind")?.addEventListener("click", (ev) => { ev.stopPropagation(); runMentalStateTrace(""); });
+    pop.querySelector("#cp-toggle-xray")?.addEventListener("click", (ev) => { ev.stopPropagation(); toggleXray(); renderCorePopover(); });
+    pop.querySelector("#cp-toggle-mind")?.addEventListener("click", (ev) => { ev.stopPropagation(); mindEnabled = !mindEnabled; try { localStorage.setItem(MIND_PREF_KEY, mindEnabled ? "1" : "0"); } catch {} renderCorePopover(); renderThread(false); });
+    pop.querySelectorAll(".cp-cc-pick").forEach((b) => b.addEventListener("click", (ev) => { ev.stopPropagation(); const cid = b.getAttribute("data-cid"); const cname = b.getAttribute("data-cname") || ""; if (activeCid === cid) setSessionCompiledCore(null); else setSessionCompiledCore(cid, cname); }));
+    pop.querySelectorAll(".cp-cc-del").forEach((b) => b.addEventListener("click", (ev) => { ev.stopPropagation(); deleteCompiledCoreById(b.getAttribute("data-del")); }));
+    pop.querySelectorAll(".cp-slider").forEach((inp) => inp.addEventListener("input", () => { const k = inp.getAttribute("data-ckey"); const v = Number(inp.value); if (coreProfile !== "custom") { customCoreWeights = { ...presetWeights }; coreProfile = "custom"; } customCoreWeights[k] = Math.round(v * 100) / 100; const sv = pop.querySelector(`.cp-sv[data-sv="${k}"]`); if (sv) sv.textContent = v.toFixed(2); saveCorePrefs(); updateCoreButton(); pop.querySelectorAll(".cp-seg-btn").forEach((sb) => sb.classList.remove("active")); }));
+  }
+  function applyPersonaCommand(rawCommand) {
+    const body = String(rawCommand || "").replace(/^\/persona\s*/i, "").trim();
+    let sess = getActiveSession() || createSession("Personality Core");
+    const aliasToPreset = {
+      neutral: "neutral", reset: "neutral", off: "neutral", default: "neutral",
+      mentor: "warm_mentor", warm_mentor: "warm_mentor", warm: "warm_mentor",
+      witty: "witty_companion", witty_companion: "witty_companion", friend: "witty_companion", playful: "witty_companion",
+      critic: "sharp_critic", sharp_critic: "sharp_critic", sharp: "sharp_critic", bold: "sharp_critic",
+      muse: "creative_muse", creative_muse: "creative_muse", creative: "creative_muse",
+      executive: "executive_brief", executive_brief: "executive_brief", formal: "executive_brief",
+    };
+    const axisAliases = {
+      warmth: "warmth", warm: "warmth", cool: "warmth",
+      playfulness: "playfulness", playful: "playfulness", wit: "playfulness", serious: "playfulness",
+      creativity: "creativity", creative: "creativity", imaginative: "creativity", literal: "creativity",
+      assertiveness: "assertiveness", assertive: "assertiveness", bold: "assertiveness", boldness: "assertiveness", diplomatic: "assertiveness",
+      formality: "formality", formal: "formality", casual: "formality",
+    };
+    const invertedAliases = new Set(["cool", "serious", "literal", "diplomatic", "casual"]);
+    if (!body) {
+      const aw = getActivePersonalityWeights();
+      const summary = Object.keys(aw).length ? Object.entries(aw).map(([k, v]) => `\`${k}=${v >= 0 ? "+" : ""}${v.toFixed(2)}\``).join(" · ") : "`Neutral (0.00 across all 5 axes)`";
+      sess.messages.push({ role: "user", content: rawCommand });
+      sess.messages.push({ role: "assistant", content: `**Active Personality Core (0 system-prompt tokens):** ${activePersonalityLabel()} (${summary})\n\nPresets: \`/persona mentor\`, \`/persona witty\`, \`/persona critic\`, \`/persona muse\`, \`/persona executive\`, \`/persona reset\`\nCustom axes: \`/persona warmth=0.8 playfulness=0.6 formality=-0.5\`` });
+      saveSessions(); renderSidebar(); renderThread(true); return;
+    }
+    const low = body.toLowerCase();
+    if (low in aliasToPreset) {
+      setPersonalityPresetState(aliasToPreset[low]);
+    } else {
+      const pairs = body.match(/([a-zA-Z_]+)\s*[:=]\s*([+-]?\d*\.?\d+)/g);
+      if (pairs && pairs.length) {
+        for (const p of pairs) {
+          const m = p.match(/([a-zA-Z_]+)\s*[:=]\s*([+-]?\d*\.?\d+)/);
+          if (!m) continue;
+          const rawKey = m[1].toLowerCase();
+          const axId = axisAliases[rawKey];
+          if (!axId) continue;
+          let num = Number(m[2]);
+          if (!Number.isFinite(num)) continue;
+          if (invertedAliases.has(rawKey)) num = -num;
+          personalityWeights[axId] = Math.max(-1, Math.min(1, Math.round(num * 20) / 20));
+        }
+        personalityPreset = isPersonalityActive() ? "custom" : "neutral";
+        saveCorePrefs(); updateCoreButton();
+      } else {
+        sess.messages.push({ role: "user", content: rawCommand });
+        sess.messages.push({ role: "assistant", content: "Usage: `/persona witty` (presets: `neutral`, `mentor`, `witty`, `critic`, `muse`, `executive`) or `/persona warmth=0.8 playfulness=0.5 formality=-0.4`." });
+        saveSessions(); renderSidebar(); renderThread(true); return;
+      }
+    }
+    if ($("core-popover")?.classList.contains("open")) renderCorePopover();
+    const aw = getActivePersonalityWeights();
+    const vecStr = Object.keys(aw).length ? Object.entries(aw).map(([k, v]) => `\`${k}=${v >= 0 ? "+" : ""}${v.toFixed(2)}\``).join(" · ") : "`Neutral (native unsteered weights)`";
+    sess.messages.push({ role: "user", content: rawCommand });
+    sess.messages.push({ role: "assistant", content: `Personality steering updated to **${activePersonalityLabel()}** (${vecStr}) — injected directly into Qwen3.8 27B layers L28–L44 with **0 system-prompt tokens**.` });
+    saveSessions(); renderSidebar(); renderThread(true);
+  }
+  function toggleCorePopover() {
+    const pop = $("core-popover");
+    const btn = $("btn-core");
+    if (!pop || !btn) return;
+    if (pop.classList.contains("open")) { closeCorePopover(); return; }
+    closeXrayPopover();
+    renderCorePopover();
+    pop.classList.add("open");
+    btn.setAttribute("aria-expanded", "true");
+    const rect = btn.getBoundingClientRect();
+    const pw = pop.offsetWidth || 318;
+    let left = Math.max(12, Math.min(rect.right - pw, window.innerWidth - pw - 12));
+    pop.style.left = left + "px";
+    pop.style.top = (rect.bottom + 8) + "px";
+    syncCoreStatus();
+  }
+  function updateXrayButton() {
+    updateCoreButton();
   }
 
   function updatePinButton() {
@@ -1012,6 +1612,7 @@
       forkedMsg.statusText = "";
       setStreamingUI(false);
       saveSessions();
+      updateCoreButton();
       renderThread(false);
       if (settings.xrayEnabled && forkedMsg.content) {
         const msgIndex = sess.messages.indexOf(forkedMsg);
@@ -1190,6 +1791,7 @@
         break;
       }
     }
+    sendCoreFeedback(sess.id, "honest_rewrite", origMsg.audit?.note || "");
     const auditNote = origMsg.audit?.note ? ` Flagged issue: ${origMsg.audit.note}` : "";
     sess.messages.push({
       role: "user",
@@ -1199,7 +1801,7 @@
     });
     saveSessions();
     renderThread(true);
-    await streamAssistantReply(sess);
+    await streamAssistantReply(sess, { core_profile: "strict" });
   }
 
   async function runStandaloneAudit(rawCommand) {
@@ -1856,6 +2458,31 @@
         return;
       }
 
+      if (m.role === "mental_state") {
+        wrap.className = "msg assistant";
+        wrap.innerHTML = `<div class="msg-assistant-wrap"><div class="msg-avatar"><img src="${AVATAR_SRC}" alt="S" /></div><div class="msg-body">${renderMentalStateCardHtml(m)}</div></div>`;
+        inner.appendChild(wrap);
+        return;
+      }
+
+      if (m.role === "core_compile") {
+        wrap.className = "msg assistant";
+        wrap.innerHTML = `
+          <div class="msg-assistant-wrap">
+            <div class="msg-avatar"><img src="${AVATAR_SRC}" alt="S" /></div>
+            <div class="msg-body">${renderCoreCompileCardHtml(m, sess)}</div>
+          </div>
+        `;
+        wrap.querySelector(".btn-cc-toggle")?.addEventListener("click", (ev) => {
+          const cid = ev.currentTarget.getAttribute("data-cid");
+          const cname = ev.currentTarget.getAttribute("data-cname") || "";
+          if (sess && sess.compiledCoreId === cid) setSessionCompiledCore(null);
+          else setSessionCompiledCore(cid, cname);
+        });
+        inner.appendChild(wrap);
+        return;
+      }
+
       if (m.role === "stress") {
         wrap.className = "msg assistant";
         wrap.innerHTML = `
@@ -1949,8 +2576,19 @@
         const forkBannerHtml = m.forkedFrom
           ? `<div class="fork-banner"><span>&#8627; Counterfactual Fork · transplanted</span><code>${escHtml(formatTokLabel(m.forkedFrom.altTok))}</code><span>instead of</span><code>${escHtml(formatTokLabel(m.forkedFrom.origTok))}</code></div>`
           : "";
-        const bodyHtml = showXrayView
-          ? renderXrayTokensHtml(m.signals)
+        const cmeta = m.meta?.core_meta || null;
+        const mstate = (mindEnabled && cmeta?.mental_state?.available) ? cmeta.mental_state : null;
+        const showXrayView2 = !isLastStreaming && (hasSignals || Boolean(cmeta)) && Boolean(m.showXray);
+        let coreInspectHtml = "";
+        if (showXrayView2 && cmeta) {
+          const wList = Object.entries(cmeta.weights || {}).map(([k, v]) => `${k.replace(/_/g, " ")} ${Number(v).toFixed(2)}`).join(" · ");
+          const probeChips = Object.entries(cmeta.probes || {}).filter(([k]) => k !== "norm" && !k.startsWith("user_")).map(([k, v]) => `<span class="core-probe-chip">L32 ${escHtml(k.replace(/_/g, " "))} ${Number(v) >= 0 ? "+" : ""}${Number(v).toFixed(3)}</span>`).join("");
+          const fbBtns = [["helpful", "Helpful"], ["too_sycophantic", "Too agreeable"], ["too_verbose", "Too wordy"], ["inaccurate", "Off-track"]]
+            .map(([fk, fl]) => `<button type="button" class="core-fb-btn${m.coreFeedback === fk ? " picked" : ""}" data-fb="${fk}">${fl}</button>`).join("");
+          coreInspectHtml = `<div class="core-inspect-bar"><div class="core-inspect-top"><span>Core · ${escHtml(coreModeLabel(cmeta.profile || "auto"))}${wList ? " · " + escHtml(wList) : " · native (0.00)"}</span><span>${escHtml(cmeta.reason || "")}</span></div>${probeChips ? `<div class="core-probe-row">${probeChips}</div>` : ""}${mstate ? renderMentalStateInspectHtml(mstate, idx) : ""}<div class="core-fb-row"><span class="core-fb-lbl">${m.coreFeedback ? "Learned · adapts next turn" : "Teach CoreCompile:"}</span>${fbBtns}</div></div>`;
+        }
+        const bodyHtml = showXrayView2
+          ? (hasSignals ? renderXrayTokensHtml(m.signals) : renderMarkdown(m.content || "")) + coreInspectHtml
           : m.content
             ? renderMarkdown(m.content) + (isLastStreaming ? '<span class="stream-cursor"></span>' : "")
             : isLastStreaming && !hasThink
@@ -1959,7 +2597,9 @@
 
         let xrayStripHtml = "";
         const auditInline = !isLastStreaming ? renderAuditInlineHtml(m.audit, m.auditLoading) : "";
-        if (!isLastStreaming && (hasSignals || auditInline)) {
+        const coreEngagedInline = !isLastStreaming && cmeta && cmeta.auto_engaged ? `<span class="core-steered-tag">&middot; Steered</span>` : "";
+        const mindInline = !isLastStreaming && mstate ? `<button type="button" class="mind-inline-pill tone-${escHtml(mstate.tone_kind || "calm")} btn-mind-pill" title="${escHtml("Qwen3.8-27B L32 estimate of your mental state — " + (mstate.insight || ""))}"><span class="mind-inline-dot"></span><span>User: ${escHtml(mstate.tone_tag || "Calm")}${mstate.dominant_axis ? ` ${mstate.dominant_pct}%` : ""}</span></button>` : "";
+        if (!isLastStreaming && (hasSignals || auditInline || cmeta)) {
           const sum = hasSignals ? summarizeSignals(m.signals) : null;
           const confNum = sum ? Math.round(sum.avgCertPct) : null;
           const certCls = sum ? (sum.avgCertPct >= 85 ? "xray-m-ok" : sum.avgCertPct >= 65 ? "xray-m-warn" : "xray-m-risk") : "";
@@ -1969,10 +2609,12 @@
               <div class="feedback-line">
                 ${confNum !== null ? `<span class="conf-num ${certCls}">Confidence ${confNum}%</span>` : ""}
                 ${auditInline}
+                ${coreEngagedInline}
+                ${mindInline}
               </div>
               <div style="display:inline-flex; gap:0.4rem; align-items:center; flex-shrink:0;">
                 ${showFix ? '<button type="button" class="act-btn btn-honest-fix">Honest Take &rarr;</button>' : ""}
-                ${sum ? `<button type="button" class="act-btn btn-toggle-xray-msg">${showXrayView ? "Done" : "Inspect"}</button>` : ""}
+                ${(sum || cmeta) ? `<button type="button" class="act-btn btn-toggle-xray-msg">${showXrayView2 ? "Done" : "Inspect"}</button>` : ""}
               </div>
             </div>
           `;
@@ -2051,18 +2693,36 @@
           m.showXray = !m.showXray;
           renderThread(false);
         });
+        wrap.querySelector(".btn-mind-pill")?.addEventListener("click", () => {
+          closeXrayPopover();
+          m.showXray = !m.showXray;
+          renderThread(false);
+        });
         wrap.querySelector(".xray-spark-wrap")?.addEventListener("click", () => {
           if (!m.showXray) {
             m.showXray = true;
             renderThread(false);
           }
         });
-        if (showXrayView) {
+        if (showXrayView2) {
           wrap.querySelectorAll(".xtok").forEach((tokEl) => {
             tokEl.addEventListener("click", (ev) => {
               ev.stopPropagation();
               const ti = Number(tokEl.getAttribute("data-ti"));
               openTokenPopover(tokEl, sess, idx, ti);
+            });
+          });
+          wrap.querySelector(".btn-mind-deep")?.addEventListener("click", () => {
+            runMentalStateTrace("", idx);
+          });
+          wrap.querySelectorAll(".core-fb-btn").forEach((fbBtn) => {
+            fbBtn.addEventListener("click", async () => {
+              const fk = fbBtn.getAttribute("data-fb");
+              if (!fk) return;
+              m.coreFeedback = fk;
+              saveSessions();
+              renderThread(false);
+              await sendCoreFeedback(sess.id, fk);
             });
           });
         }
@@ -2145,7 +2805,7 @@
     }
   }
 
-  async function streamAssistantReply(sess) {
+  async function streamAssistantReply(sess, coreOverride = null) {
     const selectedModel = $("model-select")?.value || "qwen3.8-27b";
     const selectedNode = $("node-select")?.value || "auto";
     const targetNode = selectedNode !== "auto" ? selectedNode : null;
@@ -2187,6 +2847,7 @@
     let rafId = 0;
 
     try {
+      const effProfile = coreOverride?.core_profile || coreProfile || "auto";
       const reqBody = {
         model: selectedModel,
         messages: apiMessages,
@@ -2196,7 +2857,16 @@
         session_id: sess.id,
         xray: Boolean(settings.xrayEnabled),
         xray_top_k: 5,
+        core_profile: effProfile,
       };
+      if (coreOverride?.core_weights) reqBody.core_weights = coreOverride.core_weights;
+      else if (effProfile === "custom") reqBody.core_weights = customCoreWeights;
+      const activePersW = getActivePersonalityWeights();
+      if (Object.keys(activePersW).length > 0) {
+        reqBody.personality_preset = personalityPreset || "custom";
+        reqBody.personality_weights = activePersW;
+      }
+      if (!coreOverride && sess.compiledCoreId) reqBody.compiled_core_id = sess.compiledCoreId;
       if (targetNode) reqBody.target_node = targetNode;
       const res = await fetch(activeApiBase + "/v1/chat/completions", {
         method: "POST",
@@ -2260,7 +2930,10 @@
               assistantMsg.content += dObj.content;
               if (parsed.token_signal) assistantMsg.signals.push(parsed.token_signal);
             }
-            if (parsed.longinus_meta) assistantMsg.meta = parsed.longinus_meta;
+            if (parsed.longinus_meta) {
+              assistantMsg.meta = parsed.longinus_meta;
+              if (parsed.longinus_meta.core_meta?.thread) coreStatusCache.session = parsed.longinus_meta.core_meta.thread;
+            }
           } catch {}
         }
         scheduleRender();
@@ -2278,6 +2951,7 @@
       assistantMsg.statusText = "";
       setStreamingUI(false);
       saveSessions();
+      updateCoreButton();
       renderThread(false);
       if (settings.xrayEnabled && assistantMsg.content && !assistantMsg.content.startsWith("Could not complete")) {
         const msgIndex = sess.messages.indexOf(assistantMsg);
@@ -2405,6 +3079,21 @@
     const images = explicitText === null ? pendingImages.slice() : [];
     if (!text && images.length === 0) return;
 
+    if (text && /^\/persona(\s|$)/i.test(text)) {
+      if (inp && explicitText === null) { inp.value = ""; inp.style.height = "auto"; }
+      applyPersonaCommand(text);
+      return;
+    }
+    if (text && /^\/mind(\s|$)/i.test(text)) {
+      if (inp && explicitText === null) { inp.value = ""; inp.style.height = "auto"; }
+      await runMentalStateTrace(text);
+      return;
+    }
+    if (text && /^\/compile(\s|$)/i.test(text)) {
+      if (inp && explicitText === null) { inp.value = ""; inp.style.height = "auto"; }
+      await runConversationCompile(text);
+      return;
+    }
     if (text && /^\/stress(\s|$)/i.test(text)) {
       if (inp && explicitText === null) { inp.value = ""; inp.style.height = "auto"; }
       await runStressTest(text);
@@ -2512,6 +3201,7 @@
     const pill = $("btn-fleet-pill");
     const dot = $("sb-fleet-dot");
     const txt = $("sb-fleet-text");
+    const usersEl = $("sb-users-text");
     try {
       const res = await fetch(activeApiBase + "/v1/network/stats", { headers: buildRequestHeaders() });
       if (!res.ok) throw new Error("HTTP " + res.status);
@@ -2520,11 +3210,18 @@
 
       const liveCount = Number(st.active_nodes || 0);
       const liveMem = Number(st.total_memory_gb || 0);
+      const onlineUsers = Number(st.online_users ?? st.users?.online ?? 0);
+      const active24h = Number(st.active_users_24h ?? st.users?.active_24h ?? onlineUsers);
+      const totalUsers = Number(st.total_users ?? st.users?.total ?? onlineUsers);
       const label = `${liveCount} Devices · ${liveMem.toFixed(1)} GB`;
       if (txt) txt.textContent = label;
-      if (pill) pill.classList.remove("offline");
+      if (usersEl) usersEl.textContent = `${onlineUsers.toLocaleString("en-US")} Online · ${totalUsers.toLocaleString("en-US")} Users`;
+      if (pill) {
+        pill.classList.remove("offline");
+        pill.title = `${liveCount} devices (${liveMem.toFixed(1)} GB) · ${onlineUsers} online now · ${active24h} active 24h · ${totalUsers} total users`;
+      }
       if (dot) dot.classList.remove("warn");
-      bridge?.updateTrayFleetStatus?.(label);
+      bridge?.updateTrayFleetStatus?.(`${label} · ${onlineUsers} Online`);
 
       const mSel = $("model-select");
       if (mSel) {
@@ -2567,6 +3264,7 @@
       }
     } catch {
       if (txt) txt.textContent = "Fleet Offline / Local Mode";
+      if (usersEl) usersEl.textContent = "Users offline";
       if (pill) pill.classList.add("offline");
       if (dot) dot.classList.add("warn");
       bridge?.updateTrayFleetStatus?.("Offline / Local Mode");
@@ -2580,17 +3278,21 @@
 
     const st = lastFleetStats;
     if (!st) {
-      sumEl.innerHTML = `<div class="fleet-kpi"><div class="fleet-kpi-v">—</div><div class="fleet-kpi-k">Online Nodes</div></div><div class="fleet-kpi"><div class="fleet-kpi-v">—</div><div class="fleet-kpi-k">Pooled Memory</div></div><div class="fleet-kpi"><div class="fleet-kpi-v">${escHtml(activeApiBase.replace(/^https?:\/\//, ""))}</div><div class="fleet-kpi-k">Endpoint</div></div>`;
+      sumEl.innerHTML = `<div class="fleet-kpi"><div class="fleet-kpi-v">—</div><div class="fleet-kpi-k">Online Nodes</div></div><div class="fleet-kpi"><div class="fleet-kpi-v">—</div><div class="fleet-kpi-k">Pooled Memory</div></div><div class="fleet-kpi"><div class="fleet-kpi-v">—</div><div class="fleet-kpi-k">Online Users</div></div><div class="fleet-kpi"><div class="fleet-kpi-v">${escHtml(activeApiBase.replace(/^https?:\/\//, ""))}</div><div class="fleet-kpi-k">Endpoint</div></div>`;
       listEl.innerHTML = `<div class="sb-empty">Could not load fleet stats from ${escHtml(activeApiBase)}.</div>`;
       return;
     }
 
     const nodes = Array.isArray(st.nodes) ? st.nodes.filter((n) => n.online !== false && n.status !== "offline") : [];
     const currentNode = $("node-select")?.value || "auto";
+    const onlineUsers = Number(st.online_users ?? st.users?.online ?? 0);
+    const active24h = Number(st.active_users_24h ?? st.users?.active_24h ?? onlineUsers);
+    const totalUsers = Number(st.total_users ?? st.users?.total ?? onlineUsers);
 
     sumEl.innerHTML = `
       <div class="fleet-kpi"><div class="fleet-kpi-v">${Number(st.active_nodes || nodes.length)}</div><div class="fleet-kpi-k">Online Devices</div></div>
       <div class="fleet-kpi"><div class="fleet-kpi-v">${Number(st.total_memory_gb || 0).toFixed(1)} GB</div><div class="fleet-kpi-k">Pooled Silicon RAM</div></div>
+      <div class="fleet-kpi" title="${onlineUsers} online now · ${active24h} active 24h · ${totalUsers} total"><div class="fleet-kpi-v">${onlineUsers.toLocaleString("en-US")} <span style="font-size:0.72rem; opacity:0.65; font-weight:400;">/ ${totalUsers.toLocaleString("en-US")}</span></div><div class="fleet-kpi-k">Online / Total Users</div></div>
       <div class="fleet-kpi"><div class="fleet-kpi-v">${escHtml(currentNode === "auto" ? "Auto" : currentNode.slice(0, 12))}</div><div class="fleet-kpi-k">Pinned Station</div></div>
     `;
 
@@ -2671,6 +3373,7 @@
     $("set-custom-api").value = settings.customApiBase || "";
     $("set-api-key").value = settings.apiKey || "";
     $("set-session-token").value = settings.sessionToken || "";
+    if ($("set-solana-wallet")) $("set-solana-wallet").value = settings.solanaWallet || "";
     $("set-route").value = settings.route || "";
     $("set-privacy").value = settings.privacy || "";
     $("set-region").value = settings.region || "";
@@ -2743,6 +3446,7 @@
       customApiBase: $("set-custom-api").value.trim(),
       apiKey: $("set-api-key").value.trim(),
       sessionToken: $("set-session-token").value.trim(),
+      solanaWallet: ($("set-solana-wallet")?.value || "").trim(),
       route: $("set-route").value,
       privacy: $("set-privacy").value,
       region: $("set-region").value.trim(),
@@ -2771,6 +3475,7 @@
     }
     if (cfg.apiKey) $("set-api-key").value = cfg.apiKey;
     if (cfg.sessionToken) $("set-session-token").value = cfg.sessionToken;
+    if (cfg.solanaWallet && $("set-solana-wallet")) $("set-solana-wallet").value = cfg.solanaWallet;
     if (cfg.localProxyUrl) $("set-local-proxy-url").value = cfg.localProxyUrl;
     if (cfg.route) $("set-route").value = cfg.route;
     if (cfg.privacy) $("set-privacy").value = cfg.privacy;
@@ -2794,6 +3499,36 @@
       line.textContent = res.ok
         ? `✓ Local space proxy is online at ${res.base}`
         : `✗ Could not reach ${res.base}/health (${res.error || "HTTP " + res.status}). Run "space proxy" or "space up" in a terminal.`;
+    }
+  }
+
+  async function checkWalletTokensInModal() {
+    const line = $("wallet-tokens-line");
+    const addr = ($("set-solana-wallet")?.value || "").trim();
+    if (!addr) {
+      if (line) line.textContent = "Paste your Solana Devnet wallet address first.";
+      return;
+    }
+    if (line) line.textContent = "Checking live Devnet $SPACE & soulbound tSPACE balances…";
+    try {
+      const res = await fetch(`${activeApiBase}/v1/tspace/balance?address=${encodeURIComponent(addr)}`);
+      const d = await res.json();
+      if (!res.ok) {
+        if (line) line.textContent = `Lookup failed: ${d.detail || ("HTTP " + res.status)}`;
+        return;
+      }
+      const fmt = (v) => Number(v || 0).toLocaleString("en-US", { maximumFractionDigits: 2 });
+      const sp = fmt(d.onchain_space);
+      const ts = fmt(d.onchain_tspace);
+      const pendSp = Number(d.pending_space || 0);
+      const pendTs = Number(d.pending_tspace || 0);
+      const epS = Number(d.epoch_duration_secs || 60);
+      const pendTxt = (pendSp > 0 || pendTs > 0)
+        ? ` · Pending next ${epS}s epoch: +${fmt(pendSp)} $SPACE / +${fmt(pendTs)} tSPACE`
+        : " · Synced ✓";
+      if (line) line.textContent = `${sp} $SPACE (transferable) · ${ts} tSPACE (soulbound)${pendTxt}`;
+    } catch (err) {
+      if (line) line.textContent = `Could not reach coordinator (${err?.message || "network error"}).`;
     }
   }
 
@@ -2985,7 +3720,15 @@
     $("sb-search")?.addEventListener("input", () => renderSidebar());
     $("btn-toggle-sb")?.addEventListener("click", () => toggleSidebar());
     $("drawer-backdrop")?.addEventListener("click", () => closeMobileDrawer());
-    $("btn-xray")?.addEventListener("click", () => toggleXray());
+    $("btn-core")?.addEventListener("click", (e) => { e.stopPropagation(); toggleCorePopover(); });
+    $("core-popover")?.addEventListener("click", (e) => { e.stopPropagation(); });
+    document.addEventListener("click", (e) => {
+      const path = typeof e.composedPath === "function" ? e.composedPath() : [];
+      const cpop = $("core-popover");
+      if (cpop && cpop.classList.contains("open") && !cpop.contains(e.target) && !path.includes(cpop) && !e.target.closest?.("#btn-core")) closeCorePopover();
+    });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeCorePopover(); });
+    syncCoreStatus();
     $("btn-theme-toggle")?.addEventListener("click", () => toggleTheme());
     $("btn-pin-top")?.addEventListener("click", () => toggleAlwaysOnTop());
     $("btn-fleet")?.addEventListener("click", () => openFleetModal());
@@ -3023,6 +3766,7 @@
     $("btn-settings-save")?.addEventListener("click", saveSettingsFromModal);
     $("btn-import-cli")?.addEventListener("click", importCliConfigToModal);
     $("btn-check-proxy")?.addEventListener("click", testLocalProxyInModal);
+    $("btn-check-wallet-tokens")?.addEventListener("click", checkWalletTokensInModal);
     $("btn-check-updates")?.addEventListener("click", async () => {
       const line = $("updater-status-line");
       if (line) line.textContent = "Checking for live UI updates…";

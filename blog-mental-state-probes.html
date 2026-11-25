@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <title>Reading the Model's Mind About Yours: Live Layer-32 User Mental-State Probes — Space AI</title>
+  <meta name="description" content="Five orthogonalized Layer-32 Whitened-Fisher probes running at zero added latency inside Qwen3.8-27B on one RTX 5090 — 0.9992 implicit OOD AUROC, 25/25 adversarial minimal pairs, prompt-end vs decode-end collapse, causal phrase dampeners, and why user-state axes are decodable without being steerable." />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Space AI" />
+  <meta property="og:title" content="Reading the Model's Mind About Yours: Live Layer-32 User Mental-State Probes — Space AI" />
+  <meta property="og:description" content="Zero-cost Layer-32 Theory-of-Mind probes inside Space Chat, 25/25 on sarcasm &amp; lexical-trap minimal pairs, and the exact dual of Steerable Before Decodable." />
+  <meta property="og:image" content="https://spaceresearch.ai/og-card.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://spaceresearch.ai/og-card.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="./mark.svg?v=35" />
+  <link rel="stylesheet" href="./culture.css?v=29" />
+  <style>
+    .ms-table-wrap { overflow-x: auto; margin: 1.5rem 0; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,0.02); }
+    .ms-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; font-family: var(--mono); }
+    .ms-table th, .ms-table td { padding: 0.64rem 0.82rem; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+    .ms-table th { font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted); background: rgba(255,255,255,0.03); }
+    .ms-table tr:last-child td { border-bottom: none; }
+    .ms-table td.num, .ms-table th.num { text-align: right; }
+    .ms-hi { color: #86efac; font-weight: 600; }
+    .ms-warn { color: #fcd34d; font-weight: 600; }
+    .ms-drop { color: #fda4af; font-weight: 600; }
+    .ms-span-demo { padding: 0.9rem 1.05rem; border-radius: 10px; border: 1px solid var(--line); background: #09090c; font-size: 0.95rem; line-height: 1.85; color: #f4f4f5; margin: 1.2rem 0; }
+    .ms-tok-pos { background: rgba(244, 63, 94, 0.28); border-bottom: 2px solid rgba(253, 164, 175, 0.85); padding: 0.1rem 0.28rem; border-radius: 4px; color: #ffffff; }
+    .ms-tok-med { background: rgba(255, 255, 255, 0.12); border-bottom: 1.5px dashed rgba(255, 255, 255, 0.45); padding: 0.1rem 0.28rem; border-radius: 4px; }
+    .ms-tok-neg { background: rgba(34, 197, 94, 0.18); border-bottom: 2px solid rgba(134, 239, 172, 0.8); padding: 0.1rem 0.28rem; border-radius: 4px; color: #dcfce7; }
+    .ms-tok-tag { font-family: var(--mono); font-size: 0.68rem; opacity: 0.85; margin-left: 0.22rem; }
+    .ms-quote-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin: 1.2rem 0; }
+    @media (max-width: 640px) { .ms-quote-pair { grid-template-columns: 1fr; } }
+    .ms-qp-card { border: 1px solid var(--line); border-radius: 10px; padding: 0.85rem 0.95rem; background: rgba(255,255,255,0.025); }
+    .ms-qp-k { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 0.35rem; }
+    .ms-qp-t { font-size: 0.88rem; line-height: 1.48; color: var(--ink); margin-bottom: 0.5rem; }
+    .ms-qp-m { font-family: var(--mono); font-size: 0.72rem; color: var(--ink-soft); }
+  </style>
+</head>
+<body>
+  <canvas id="cosmos-bg-canvas" class="cosmos-bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="page-shell">
+  <header class="ed-nav">
+    <div class="ed-nav-inner">
+      <a class="ed-brand" href="./index.html">
+        <span class="ed-emblem" aria-hidden="true">
+          <img src="./mark.svg?v=35" alt="" width="28" height="28" />
+        </span>
+        <span>Space AI</span>
+      </a>
+      <nav class="ed-links" aria-label="Primary">
+        <a href="./blog.html" class="active">Research</a>
+        <a href="./papers.html" class="">Papers</a>
+        <a href="./product.html" class="">Product</a>
+        <a href="./network.html" class="">Network</a>
+        <a href="./chat.html">Chat</a>
+        <a href="https://github.com/spaceresearchai/spaceresearch.ai/releases/latest" target="_blank" rel="noopener">Desktop App</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="icon-pill" href="https://github.com/spaceresearchai" target="_blank" rel="noopener" aria-label="Space AI on GitHub" title="GitHub (spaceresearchai)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.69-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11.05 11.05 0 0 1 5.8 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14 0 1.55-.01 2.8-.01 3.18 0 .31.21.67.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+        </a>
+        <button type="button" class="icon-pill" data-theme-toggle aria-label="Toggle color theme" title="Switch to Daylight Mode">☀</button>
+        <a class="btn sm" href="./chat.html">Open Chat</a>
+      </div>
+    </div>
+  </header>
+
+    <main>
+      <article class="section" style="padding-top:3.8rem;">
+        <div class="wrap-blog">
+          <a class="blog-back" href="./blog.html">&larr; All research notes</a>
+          <div class="blog-meta" style="margin-top:1.4rem;">
+            <span class="blog-cat">NOTE 16 &middot; MECHANISTIC INTERPRETABILITY</span>
+            <span>8 min read &middot; 2026-11-24</span>
+          </div>
+          <h1 class="blog-article-title">Reading the Model's Mind About Yours: Live Layer-32 User Mental-State Probes in Qwen3.8-27B</h1>
+          <p class="blog-article-lead">
+            Every conversational language model silently builds an internal representation of whether you seem frustrated, confused, rushed, curious, or skeptical. We wired five orthogonalized Layer-32 linear probes straight into Basalt's CUDA serving kernel to expose that hidden user model live in Space Chat — and discovered two things we didn't expect along the way.
+          </p>
+
+          <div class="blog-abstract">
+            <div class="blog-abstract-lbl">ABSTRACT</div>
+            <p>
+              Following <a href="./blog-interpretability.html">NOTE 03 (Glass-Box Chat)</a>, we extract five read-only user mental-state linear probes (<code>user_frustration</code>, <code>user_confusion</code>, <code>user_urgency</code>, <code>user_curiosity</code>, <code>user_skepticism</code>) at Layer 32 (50% depth, <code>d=5120</code>) of Qwen3.8-27B using forward-only Whitened-Fisher LDA with cross-axis hard negatives and exact behavioral-core orthogonalization (leakage <code>&lt; 2e-9</code>). Evaluated on <strong>60 zero-keyword implicit OOD prompts</strong>, the Layer-32 probes reach <strong>0.9992 macro AUROC</strong> (96.0% 5-way accuracy, 0/10 neutral false positives) versus 0.9508 (84.0%) for a TF-IDF + char-ngram Ridge baseline — opening a <strong>+0.174 AUROC</strong> gap on deadpan sarcasm and implicit frustration without ever training on sarcasm. On <strong>25 adversarial minimal pairs</strong> sharing identical technical jargon and lexical traps, L32 scores <strong>25/25 (100.0%, 0.9920 AUROC)</strong> versus 21/25 (84.0%, 0.8640) for TF-IDF. We further document: (1) a <strong>69% Cohen's <em>d</em> collapse</strong> (<code>4.57 &rarr; 1.41</code>) if probes are read at decode-end rather than snapshotted at prompt-end, (2) live <code>/mind</code> leave-one-span-out L32 causal ablations (~240 ms) that surface active <em>dampeners</em> alongside triggers, and (3) the exact dual of <a href="./blog-auto-steerable-not-decodable-ace-cores.html">NOTE 14</a>: Layer-32 user-state axes are <strong>decodable without being steerable</strong> (nearly orthogonal to all 5 personality cores, <code>mean |cos| = 0.082</code>, with <code>|&Delta;logit| &le; 0.15</code> under &plusmn;8% residual-norm injection).
+            </p>
+          </div>
+
+          <div class="blog-stats">
+            <div class="blog-stat">
+              <div class="blog-stat-v">0.9992</div>
+              <div class="blog-stat-l">Zero-Keyword OOD AUROC</div>
+            </div>
+            <div class="blog-stat">
+              <div class="blog-stat-v">25 / 25</div>
+              <div class="blog-stat-l">Adversarial Minimal Pairs</div>
+            </div>
+            <div class="blog-stat">
+              <div class="blog-stat-v">~3 &mu;s</div>
+              <div class="blog-stat-l">Live L32 Kernel Cost</div>
+            </div>
+            <div class="blog-stat">
+              <div class="blog-stat-v">0.082</div>
+              <div class="blog-stat-l">Mean |cos| to Persona Cores</div>
+            </div>
+          </div>
+
+          <div class="blog-prose">
+            <h2>1. Transparency into the AI's hidden user model (not mind-reading)</h2>
+            <p>
+              When you message a 27B parameter model, its middle layers do not merely parse syntax — they infer who is on the other side of the prompt and what situational state they appear to be in. That implicit user model shapes tone, pacing, hedging, and sycophancy behind closed doors.
+            </p>
+            <p>
+              Our goal in Space Chat is <strong>reverse transparency</strong>: showing you, in real time and at zero added generation latency, what Qwen3.8-27B's Layer-32 residual stream is inferring about your state — and letting you inspect which exact phrases caused that inference via <code>/mind</code>, or switch the readout off entirely in the <code>Core</code> menu.
+            </p>
+            <p>
+              To be completely explicit up front: <strong>linear probes do not read your mind and are not clinical instruments.</strong> They read <em>the language model's internal estimate</em> of five conversational dimensions — affective friction (frustration), cognitive load (confusion), time pressure (urgency), open exploration (curiosity), and critical doubt (skepticism). Making that internal estimate visible turns an opaque assumption into an inspectable scientific signal.
+            </p>
+
+            <div class="blog-figure">
+              <svg viewBox="0 0 660 236" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Zero-cost Layer-32 CoreBank probe and /mind deep causal ablation architecture">
+                <rect x="10" y="14" width="144" height="206" rx="10" fill="#0b0b0e" stroke="rgba(255,255,255,0.14)"/>
+                <text x="24" y="38" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9.5" font-weight="600">01 FORWARD PREFILL</text>
+                <text x="24" y="62" fill="#ffffff" font-family="Inter, sans-serif" font-size="12.5" font-weight="600">Qwen3.8-27B L32</text>
+                <text x="24" y="84" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9.5">64 layers &middot; d = 5120</text>
+                <text x="24" y="102" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9.5">Prompt-end token n-1</text>
+                <rect x="24" y="118" width="116" height="36" rx="6" fill="rgba(125,211,252,0.10)" stroke="rgba(125,211,252,0.45)"/>
+                <text x="34" y="134" fill="#7dd3fc" font-family="JetBrains Mono, monospace" font-size="9">probe_cores_bf16</text>
+                <text x="34" y="147" fill="#cbd5e1" font-family="JetBrains Mono, monospace" font-size="8.5">1 block &middot; ~3 &mu;s GPU</text>
+                <text x="24" y="178" fill="#86efac" font-family="JetBrains Mono, monospace" font-size="9">Steering weight = 0.00</text>
+                <text x="24" y="194" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="8.5">Zero decode perturbation</text>
+                <text x="24" y="208" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="8.5">Behav. leak &lt; 2e-9</text>
+
+                <path d="M158 117 L174 117" stroke="#e4e4e7" stroke-width="1.5"/>
+                <polygon points="174,113 181,117 174,121" fill="#ffffff"/>
+
+                <rect x="184" y="14" width="150" height="206" rx="10" fill="#0b0b0e" stroke="rgba(255,255,255,0.14)"/>
+                <text x="198" y="38" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9.5" font-weight="600">02 SNAPSHOT FIX</text>
+                <text x="198" y="62" fill="#ffffff" font-family="Inter, sans-serif" font-size="12.5" font-weight="600">First-Window Pin</text>
+                <text x="198" y="84" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9.5">Snapshot prompt_probes_</text>
+                <text x="198" y="100" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9.5">before token 0 decodes</text>
+                <rect x="198" y="118" width="122" height="22" rx="5" fill="rgba(34,197,94,0.12)" stroke="rgba(74,222,128,0.45)"/>
+                <text x="206" y="133" fill="#86efac" font-family="JetBrains Mono, monospace" font-size="9">Prompt-end: d = 4.57</text>
+                <rect x="198" y="146" width="122" height="22" rx="5" fill="rgba(244,63,94,0.12)" stroke="rgba(253,164,175,0.45)"/>
+                <text x="206" y="161" fill="#fda4af" font-family="JetBrains Mono, monospace" font-size="9">Decode-end: d = 1.41</text>
+                <text x="198" y="190" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="8.5">Prevents 69% effect</text>
+                <text x="198" y="204" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="8.5">collapse on long replies</text>
+
+                <path d="M338 117 L354 117" stroke="#e4e4e7" stroke-width="1.5"/>
+                <polygon points="354,113 361,117 354,121" fill="#ffffff"/>
+
+                <rect x="364" y="14" width="136" height="206" rx="10" fill="#0b0b0e" stroke="rgba(255,255,255,0.14)"/>
+                <text x="378" y="38" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9.5" font-weight="600">03 LIVE IN-CHAT</text>
+                <text x="378" y="62" fill="#ffffff" font-family="Inter, sans-serif" font-size="12.5" font-weight="600">Platt + Arc</text>
+                <text x="378" y="86" fill="#fda4af" font-family="JetBrains Mono, monospace" font-size="9">&bull; Frustration</text>
+                <text x="378" y="102" fill="#fcd34d" font-family="JetBrains Mono, monospace" font-size="9">&bull; Confusion</text>
+                <text x="378" y="118" fill="#fb923c" font-family="JetBrains Mono, monospace" font-size="9">&bull; Urgency</text>
+                <text x="378" y="134" fill="#7dd3fc" font-family="JetBrains Mono, monospace" font-size="9">&bull; Curiosity</text>
+                <text x="378" y="150" fill="#c4b5fd" font-family="JetBrains Mono, monospace" font-size="9">&bull; Skepticism</text>
+                <text x="378" y="178" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.5">Turn-over-turn &Delta;</text>
+                <text x="378" y="193" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.5">4D circumplex + SQLite</text>
+                <text x="378" y="208" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="8.5">Feeds /compile insights</text>
+
+                <path d="M504 117 L520 117" stroke="#e4e4e7" stroke-width="1.5"/>
+                <polygon points="520,113 527,117 520,121" fill="#ffffff"/>
+
+                <rect x="530" y="14" width="120" height="206" rx="10" fill="#0b0b0e" stroke="rgba(255,255,255,0.14)"/>
+                <text x="542" y="38" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9.5" font-weight="600">04 /MIND TRACE</text>
+                <text x="542" y="62" fill="#ffffff" font-family="Inter, sans-serif" font-size="12.5" font-weight="600">Deep X-Ray</text>
+                <text x="542" y="88" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9">7-layer curve</text>
+                <text x="542" y="103" fill="#7dd3fc" font-family="JetBrains Mono, monospace" font-size="9">L18 &rarr; L44</text>
+                <text x="542" y="128" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9">Leave-1-span-out</text>
+                <text x="542" y="143" fill="#fda4af" font-family="JetBrains Mono, monospace" font-size="9">L32 causal &Delta;cos</text>
+                <text x="542" y="168" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="9">Core coupling</text>
+                <text x="542" y="202" fill="#86efac" font-family="JetBrains Mono, monospace" font-size="9">~240 ms p50</text>
+              </svg>
+              <div class="blog-figcap">Figure 1. End-to-end white-box mental-state probing inside Basalt and Space Chat. Every live chat turn pays ~3 &mu;s for all 5 L32 probe projections; <code>/mind</code> adds on-demand 7-layer emergence and causal span ablation in ~240 ms.</div>
+            </div>
+
+            <h2>2. How the five probes are extracted and orthogonalized</h2>
+            <p>
+              Using Basalt's read-only internal extractor (<code>/v1/internal/extract</code>), we collect prompt-end hidden states across seven layers (<code>L18, L24, L30, L32, L36, L40, L44</code>) of Qwen3.8-27B on 22 positive prompts, 12 opposite-pole prompts, and 16 neutral everyday baseline prompts per axis — plus <strong>cross-axis hard negatives</strong> (8 positive examples from each of the other four mental states). Hard-negative mining is essential: without it, a frustration probe happily fires on calm confusion or urgent incidents simply because all three share negative valence.
+            </p>
+            <p>
+              For each axis, we compute the unit-normalized <strong>Whitened-Fisher / LDA direction</strong> in <code>R<sup>5120</sup></code> via the Woodbury matrix identity (<code>shrink = 0.28</code>, total extraction time 4.6 seconds on one RTX 5090). At our shared live probe layer (<code>L32</code>), we explicitly project out the 5-vector orthonormal subspace spanned by Space Chat's three behavioral steering cores (<code>anti_sycophancy</code>, <code>epistemic_honesty</code>, <code>concise_rigor</code>), driving behavioral-steering leakage to <strong><code>&le; 1.9e-9</code></strong>. Out-of-fold 5-fold cross-validation yields prompt-end AUROCs of <strong>0.9977–1.0000</strong> (Cohen's <em>d</em> = 3.88–8.16) and cross-axis pairwise cosines of <code>|cos| &le; 0.27</code>. Each probe is written to a 40 KiB <code>.cvec.gguf</code> artifact loaded into Basalt's device-resident <code>CoreBank</code>, always with decode steering weight clamped strictly to <code>0.0</code>.
+            </p>
+
+            <h2>3. Are the probes just matching keywords? Zero-keyword OOD &amp; adversarial minimal pairs</h2>
+            <p>
+              High 5-fold cross-validation on clean prompts is necessary but easy to distrust: a skeptical reader should immediately ask whether a linear probe on a 27B model is doing anything smarter than a bag-of-words detector hunting for words like <em>"exhausted"</em>, <em>"confused"</em>, or <em>"urgent"</em>.
+            </p>
+            <p>
+              To test that head-on, we constructed two strictly held-out benchmarks with <strong>zero retraining</strong> and compared our Layer-32 probes against a class-balanced <strong>word + bigram + 4-char TF-IDF Ridge classifier</strong> trained on the exact same training prompts:
+            </p>
+            <ul>
+              <li><strong>Experiment 1A (60 Zero-Keyword Implicit OOD Prompts):</strong> 10 prompts per axis plus 10 neutral controls, programmatically checked against a 47-term blocklist of explicit emotion/state words (0 violations). Frustration prompts rely on deadpan sarcasm and situational exasperation (e.g., <em>"Great, another 502 right after rolling back the exact commit that used to pass"</em>).</li>
+              <li><strong>Experiment 1B (25 Adversarial Minimal Pairs = 50 Prompts):</strong> Matched pairs sharing the same technical topic and deliberate lexical traps — e.g., putting <em>"five minutes"</em> and <em>"production"</em> into calm planning questions, flipping a single outcome word inside sarcastic praise, or contrasting confused vs. fluent mastery using identical pointer/TLS/Kubernetes vocabulary.</li>
+            </ul>
+
+            <div class="ms-quote-pair">
+              <div class="ms-qp-card">
+                <div class="ms-qp-k">Adversarial Sarcasm Pair &middot; Positive (Frustrated)</div>
+                <div class="ms-qp-t">"Awesome—upgraded the minor patch version and now seventeen unrelated unit tests are red."</div>
+                <div class="ms-qp-m">L32 Probe: <span class="ms-hi">Correctly ranked higher (5/5 pairs, AUROC 1.000)</span></div>
+              </div>
+              <div class="ms-qp-card">
+                <div class="ms-qp-k">Adversarial Sarcasm Pair &middot; Negative (Calm / Positive)</div>
+                <div class="ms-qp-t">"Awesome—upgraded the minor patch version and now all seventeen flaky unit tests finally pass!"</div>
+                <div class="ms-qp-m">TF-IDF Ridge: <span class="ms-drop">Fooled on 2/5 sarcasm pairs (AUROC 0.640)</span></div>
+              </div>
+            </div>
+
+            <div class="ms-table-wrap">
+              <table class="ms-table">
+                <thead>
+                  <tr>
+                    <th>Mental-State Axis</th>
+                    <th class="num">OOD L32 AUROC (d)</th>
+                    <th class="num">OOD TF-IDF (d)</th>
+                    <th class="num">OOD &Delta;AUROC</th>
+                    <th class="num">Min-Pair L32</th>
+                    <th class="num">Min-Pair TF-IDF</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>user_frustration</code></td>
+                    <td class="num ms-hi">1.0000 (4.55)</td>
+                    <td class="num">0.8260 (1.40)</td>
+                    <td class="num ms-hi">+0.1740</td>
+                    <td class="num ms-hi">5/5 (1.000)</td>
+                    <td class="num ms-drop">3/5 (0.640)</td>
+                  </tr>
+                  <tr>
+                    <td><code>user_confusion</code></td>
+                    <td class="num ms-hi">0.9960 (3.70)</td>
+                    <td class="num">0.9500 (2.11)</td>
+                    <td class="num ms-hi">+0.0460</td>
+                    <td class="num ms-hi">5/5 (0.960)</td>
+                    <td class="num ms-drop">3/5 (0.720)</td>
+                  </tr>
+                  <tr>
+                    <td><code>user_urgency</code></td>
+                    <td class="num ms-hi">1.0000 (5.06)</td>
+                    <td class="num">0.9960 (4.50)</td>
+                    <td class="num">+0.0040</td>
+                    <td class="num ms-hi">5/5 (1.000)</td>
+                    <td class="num">5/5 (0.960)</td>
+                  </tr>
+                  <tr>
+                    <td><code>user_curiosity</code></td>
+                    <td class="num ms-hi">1.0000 (4.75)</td>
+                    <td class="num">0.9860 (3.83)</td>
+                    <td class="num">+0.0140</td>
+                    <td class="num ms-hi">5/5 (1.000)</td>
+                    <td class="num">5/5 (1.000)</td>
+                  </tr>
+                  <tr>
+                    <td><code>user_skepticism</code></td>
+                    <td class="num ms-hi">1.0000 (3.78)</td>
+                    <td class="num">0.9960 (3.25)</td>
+                    <td class="num">+0.0040</td>
+                    <td class="num ms-hi">5/5 (1.000)</td>
+                    <td class="num">5/5 (1.000)</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Macro / Overall</strong></td>
+                    <td class="num ms-hi"><strong>0.9992 (96% 5-way)</strong></td>
+                    <td class="num"><strong>0.9508 (84% 5-way)</strong></td>
+                    <td class="num ms-hi"><strong>+0.0484</strong></td>
+                    <td class="num ms-hi"><strong>25/25 (0.992)</strong></td>
+                    <td class="num ms-warn"><strong>21/25 (0.864)</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p>
+              Two honest nuances stand out in that table. First, on <code>user_urgency</code>, <code>user_curiosity</code>, and <code>user_skepticism</code>, a strong character n-gram TF-IDF baseline is surprisingly competitive (0.986–0.996 AUROC) because stylistic syntax (imperative triage structure, open "why/how" causal questions, contrastive doubt clauses) carries strong surface cues. Second, the moment surface cues invert or collide — <strong>deadpan sarcasm in frustration</strong> (<code>1.000 vs 0.826</code> OOD; <code>1.000 vs 0.640</code> minimal pairs) and <strong>jargon-matched confusion vs. mastery</strong> (<code>0.960 vs 0.720</code> minimal pairs) — bag-of-words degrades sharply while Qwen3.8-27B's Layer-32 residual stream stays near ceiling with <strong>0/10 neutral false positives</strong>.
+            </p>
+
+            <h2>4. A critical systems lesson: prompt-end vs. decode-end residual collapse</h2>
+            <p>
+              When we first wired our five probes into Basalt and ran real 96-token replies, every single unseen prompt — neutral, furious, panicking, or confused — came back completely flat (~15–29%). We initially wondered if the probes had failed to generalize to live chat. They hadn't.
+            </p>
+            <p>
+              Inspecting Basalt's <code>forward.cpp</code> and <code>request_finish.cpp</code> revealed why: <code>probe_cores_bf16</code> executed during prefill, and then executed <em>again</em> on every single decode window, overwriting <code>st.last_probes</code> until request completion emitted the Layer-32 state of the final punctuation/EOS token of the <em>assistant's reply</em>. By token 64 of a calm, structured assistant answer, the residual stream is busy planning its closing sentence — not holding the user's initial urgency or skepticism at full amplitude.
+            </p>
+
+            <div class="blog-figure">
+              <svg viewBox="0 0 660 250" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Comparison of Adversarial Minimal Pair AUROC and Prompt-End vs Decode-End Effect Size Collapse">
+                <!-- Left panel: Minimal Pairs AUROC -->
+                <rect x="8" y="10" width="316" height="230" rx="10" fill="#0b0b0e" stroke="rgba(255,255,255,0.12)"/>
+                <text x="22" y="34" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">A. ADVERSARIAL MINIMAL PAIRS (AUROC)</text>
+                <text x="22" y="49" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.5">25 matched pairs &middot; L32 (emerald) vs TF-IDF (muted)</text>
+
+                <!-- Bars Left Panel: y = 76, 108, 140, 172, 204; x0 = 114, maxW = 165 -->
+                <text x="22" y="84" fill="#e4e4e7" font-family="JetBrains Mono, monospace" font-size="9.5">Frustration</text>
+                <rect x="114" y="71" width="165" height="9" rx="3" fill="#4ade80"/>
+                <text x="284" y="79" fill="#86efac" font-family="JetBrains Mono, monospace" font-size="8.5">1.00</text>
+                <rect x="114" y="83" width="105.6" height="8" rx="3" fill="rgba(255,255,255,0.28)"/>
+                <text x="224" y="90" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.5">0.64</text>
+
+                <text x="22" y="116" fill="#e4e4e7" font-family="JetBrains Mono, monospace" font-size="9.5">Confusion</text>
+                <rect x="114" y="103" width="158.4" height="9" rx="3" fill="#4ade80"/>
+                <text x="278" y="111" fill="#86efac" font-family="JetBrains Mono, monospace" font-size="8.5">0.96</text>
+                <rect x="114" y="115" width="118.8" height="8" rx="3" fill="rgba(255,255,255,0.28)"/>
+                <text x="237" y="122" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.5">0.72</text>
+
+                <text x="22" y="148" fill="#e4e4e7" font-family="JetBrains Mono, monospace" font-size="9.5">Urgency</text>
+                <rect x="114" y="135" width="165" height="9" rx="3" fill="#4ade80"/>
+                <text x="284" y="143" fill="#86efac" font-family="JetBrains Mono, monospace" font-size="8.5">1.00</text>
+                <rect x="114" y="147" width="158.4" height="8" rx="3" fill="rgba(255,255,255,0.28)"/>
+                <text x="278" y="154" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.5">0.96</text>
+
+                <text x="22" y="180" fill="#e4e4e7" font-family="JetBrains Mono, monospace" font-size="9.5">Curiosity</text>
+                <rect x="114" y="167" width="165" height="9" rx="3" fill="#4ade80"/>
+                <text x="284" y="175" fill="#86efac" font-family="JetBrains Mono, monospace" font-size="8.5">1.00</text>
+                <rect x="114" y="179" width="165" height="8" rx="3" fill="rgba(255,255,255,0.28)"/>
+                <text x="284" y="186" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.5">1.00</text>
+
+                <text x="22" y="212" fill="#e4e4e7" font-family="JetBrains Mono, monospace" font-size="9.5">Skepticism</text>
+                <rect x="114" y="199" width="165" height="9" rx="3" fill="#4ade80"/>
+                <text x="284" y="207" fill="#86efac" font-family="JetBrains Mono, monospace" font-size="8.5">1.00</text>
+                <rect x="114" y="211" width="165" height="8" rx="3" fill="rgba(255,255,255,0.28)"/>
+                <text x="284" y="218" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.5">1.00</text>
+
+                <!-- Right panel: Prompt-End vs Decode-End Cohen's d -->
+                <rect x="336" y="10" width="316" height="230" rx="10" fill="#0b0b0e" stroke="rgba(255,255,255,0.12)"/>
+                <text x="350" y="34" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">B. PROMPT-END VS DECODE-END (COHEN'S d)</text>
+                <text x="350" y="49" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.5">25 unseen prompts &middot; +64 gen tokens loses 69% effect size</text>
+
+                <!-- scale: max d = 5.5 -> 165px (30 px per d) -->
+                <text x="350" y="84" fill="#e4e4e7" font-family="JetBrains Mono, monospace" font-size="9.5">Frustration</text>
+                <rect x="442" y="71" width="153.9" height="9" rx="3" fill="#7dd3fc"/>
+                <text x="601" y="79" fill="#7dd3fc" font-family="JetBrains Mono, monospace" font-size="8.5">5.13</text>
+                <rect x="442" y="83" width="40.2" height="8" rx="3" fill="#fb7185"/>
+                <text x="487" y="90" fill="#fda4af" font-family="JetBrains Mono, monospace" font-size="8.5">1.34</text>
+
+                <text x="350" y="116" fill="#e4e4e7" font-family="JetBrains Mono, monospace" font-size="9.5">Confusion</text>
+                <rect x="442" y="103" width="112.8" height="9" rx="3" fill="#7dd3fc"/>
+                <text x="560" y="111" fill="#7dd3fc" font-family="JetBrains Mono, monospace" font-size="8.5">3.76</text>
+                <rect x="442" y="115" width="30.9" height="8" rx="3" fill="#fb7185"/>
+                <text x="478" y="122" fill="#fda4af" font-family="JetBrains Mono, monospace" font-size="8.5">1.03</text>
+
+                <text x="350" y="148" fill="#e4e4e7" font-family="JetBrains Mono, monospace" font-size="9.5">Urgency</text>
+                <rect x="442" y="135" width="145.5" height="9" rx="3" fill="#7dd3fc"/>
+                <text x="593" y="143" fill="#7dd3fc" font-family="JetBrains Mono, monospace" font-size="8.5">4.85</text>
+                <rect x="442" y="147" width="12.9" height="8" rx="3" fill="#fb7185"/>
+                <text x="460" y="154" fill="#fda4af" font-family="JetBrains Mono, monospace" font-size="8.5">0.43</text>
+
+                <text x="350" y="180" fill="#e4e4e7" font-family="JetBrains Mono, monospace" font-size="9.5">Curiosity</text>
+                <rect x="442" y="167" width="135.0" height="9" rx="3" fill="#7dd3fc"/>
+                <text x="582" y="175" fill="#7dd3fc" font-family="JetBrains Mono, monospace" font-size="8.5">4.50</text>
+                <rect x="442" y="179" width="65.4" height="8" rx="3" fill="#fb7185"/>
+                <text x="512" y="186" fill="#fda4af" font-family="JetBrains Mono, monospace" font-size="8.5">2.18</text>
+
+                <text x="350" y="212" fill="#e4e4e7" font-family="JetBrains Mono, monospace" font-size="9.5">Skepticism</text>
+                <rect x="442" y="199" width="138.9" height="9" rx="3" fill="#7dd3fc"/>
+                <text x="586" y="207" fill="#7dd3fc" font-family="JetBrains Mono, monospace" font-size="8.5">4.63</text>
+                <rect x="442" y="211" width="62.1" height="8" rx="3" fill="#fb7185"/>
+                <text x="509" y="218" fill="#fda4af" font-family="JetBrains Mono, monospace" font-size="8.5">2.07</text>
+              </svg>
+              <div class="blog-figcap">Figure 2. Left: L32 probes vs. TF-IDF Ridge on 25 adversarial minimal pairs (100% vs. 84% accuracy). Right: Effect-size collapse across 25 unseen prompts when reading L32 at decode-end (+64 tokens, red) vs. snapshotting the exact prompt-end token <code>ids[n-1]</code> (cyan).</div>
+            </div>
+
+            <p>
+              Snapshotting <code>prompt_probes_</code> inside <code>SessionRequest::run_window()</code> immediately after <code>first_window == true</code> (which feeds the exact final prompt token <code>ids[n-1]</code> before sampling token 0) restored <strong>1.0000 AUROC across all five axes</strong> (mean Cohen's <em>d</em> = <strong>4.57</strong> vs. <strong>1.41</strong> at decode-end). Anyone instrumenting production LLM engines with activation monitors should take note: <em>where</em> in the generation lifecycle you latch the residual stream matters as much as the probe weights themselves.
+            </p>
+
+            <h2>5. Multi-turn trajectories and causal phrase dampeners</h2>
+            <p>
+              Real conversations evolve. In Experiment 3, we evaluated three 4-turn dialogues both <strong>in full conversation context</strong> and <strong>standalone</strong> (each turn fed in isolation):
+            </p>
+            <ul>
+              <li><strong>Confusion &rarr; Breakthrough &rarr; Curiosity:</strong> On Turn 1 (blocking <code>time.sleep(5)</code> inside <code>async def</code>), L32 reads <strong>80% Confusion</strong>. On Turn 2 (<em>"Hold on, so async def doesn't automatically spawn a background thread?"</em>), the in-context probe reads <strong>83% Confusion</strong> — whereas evaluating that exact sentence standalone reads <code>Calm &amp; Focused</code>. Once the user understands on Turn 3 (<em>"Oh! That finally clicks..."</em>), confusion drops cleanly <code>83% &rarr; 50% &rarr; 35%</code> while curiosity climbs <code>16% &rarr; 19% &rarr; 36% &rarr; 47%</code>.</li>
+              <li><strong>Live Outage &rarr; Resolution:</strong> During a Redis OOM incident, Turn 1 reads <strong>89% Urgency</strong>; Turn 2 (<em>"Memory is at 100% because session keys had no TTL!"</em>) retains <strong>69% Urgency</strong> in context vs. <code>Calm &amp; Focused</code> standalone; the instant Turn 3 reports <em>"memory is dropping back to 65% and 500s stopped,"</em> urgency plunges from <strong>69% to 25%</strong>.</li>
+              <li><strong>Honest nuance on terse carry-over:</strong> In our third dialogue (Nginx 403 debugging), Turn 2 spiked to <strong>76% Frustration</strong>, but a terse 4-word Turn 3 (<em>"Still broken. Same 403."</em>) attenuated to <strong>39% Frustration</strong> — stronger than baseline, yet below our 48% elevated badge threshold. Context clearly modulates L32, but short matter-of-fact follow-ups do not lock the probe permanently high.</li>
+            </ul>
+
+            <p>
+              Inside Space Chat, typing <code>/mind</code> (or clicking <strong>Deep Trace</strong> inside any turn's inspector) runs a 7-layer emergence sweep (<code>L18 &rarr; L44</code>) plus <strong>leave-one-span-out L32 causal ablation</strong> (~240 ms median on RTX 5090). Rather than just showing which words fired a probe, causal ablation exposes <em>dampeners</em> — clauses whose removal causes the model's mental-state estimate to jump <em>up</em>:
+            </p>
+
+            <div class="ms-span-demo" aria-label="Measured leave-one-span-out L32 causal phrase attribution">
+              <span>I have been debugging this CORS error for four hours and </span>
+              <span class="ms-tok-med">nothing works—<span class="ms-tok-tag">+0.0033</span></span>
+              <span> </span>
+              <span class="ms-tok-pos">honestly exhausted,<span class="ms-tok-tag">+0.0119</span></span>
+              <span> </span>
+              <span class="ms-tok-neg">can you just tell me why the preflight header keeps failing?<span class="ms-tok-tag">&minus;0.0638</span></span>
+            </div>
+
+            <p>
+              Removing <em>"honestly exhausted,"</em> drops Layer-32 frustration alignment by <code>&Delta;cos = +0.0119</code>. Removing the polite technical question at the end <em>spikes</em> frustration by <code>+0.0638</code> (<code>&Delta;cos = &minus;0.0638</code>): without that grounding request, Qwen3.8-27B reads the remaining fragment as pure venting. We observed the same pattern on confusion: removing <em>"so I'm totally tangled up;"</em> dropped confusion (<code>+0.0145</code>), while removing the actionable ask <em>"could you draw the handshake order?"</em> increased perceived disorientation (<code>&minus;0.0243</code>).
+            </p>
+
+            <div class="blog-figure">
+              <svg viewBox="0 0 660 228" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Multi-turn L32 mental-state trajectories across 4 turns">
+                <!-- Left chart: Confusion -> Curiosity -->
+                <rect x="8" y="10" width="316" height="208" rx="10" fill="#0b0b0e" stroke="rgba(255,255,255,0.12)"/>
+                <text x="22" y="34" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">A. CONFUSION &rarr; BREAKTHROUGH ARC</text>
+                <text x="22" y="49" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.5">In-context L32 calibrated % across 4 turns</text>
+                <!-- grid y: 0%=185, 100%=70 (1.15 px per %) -->
+                <line x1="42" y1="127.5" x2="304" y2="127.5" stroke="rgba(255,255,255,0.12)" stroke-dasharray="3 3"/>
+                <text x="16" y="131" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="8">50%</text>
+                <line x1="42" y1="185" x2="304" y2="185" stroke="rgba(255,255,255,0.16)"/>
+                <!-- x: T1=62, T2=138, T3=214, T4=290 -->
+                <!-- Confusion: 80, 83, 50, 35 => y: 93, 89.55, 127.5, 144.75 -->
+                <polyline points="62,93 138,89.6 214,127.5 290,144.8" stroke="#fcd34d" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="62" cy="93" r="4" fill="#fcd34d"/><text x="62" y="84" text-anchor="middle" fill="#fcd34d" font-family="JetBrains Mono, monospace" font-size="8.5">80%</text>
+                <circle cx="138" cy="89.6" r="4" fill="#fcd34d"/><text x="138" y="80" text-anchor="middle" fill="#fcd34d" font-family="JetBrains Mono, monospace" font-size="8.5">83%</text>
+                <circle cx="214" cy="127.5" r="4" fill="#fcd34d"/><text x="214" y="118" text-anchor="middle" fill="#fcd34d" font-family="JetBrains Mono, monospace" font-size="8.5">50%</text>
+                <circle cx="290" cy="144.8" r="4" fill="#fcd34d"/><text x="290" y="159" text-anchor="middle" fill="#fcd34d" font-family="JetBrains Mono, monospace" font-size="8.5">35%</text>
+                <!-- Curiosity: 16, 19, 36, 47 => y: 166.6, 163.15, 143.6, 130.95 -->
+                <polyline points="62,166.6 138,163.2 214,143.6 290,131" stroke="#7dd3fc" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="62" cy="166.6" r="3.5" fill="#7dd3fc"/>
+                <circle cx="138" cy="163.2" r="3.5" fill="#7dd3fc"/>
+                <circle cx="214" cy="143.6" r="3.5" fill="#7dd3fc"/>
+                <circle cx="290" cy="131" r="3.5" fill="#7dd3fc"/><text x="290" y="122" text-anchor="middle" fill="#7dd3fc" font-family="JetBrains Mono, monospace" font-size="8.5">47%</text>
+                <text x="62" y="201" text-anchor="middle" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.5">T1</text>
+                <text x="138" y="201" text-anchor="middle" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.5">T2</text>
+                <text x="214" y="201" text-anchor="middle" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.5">T3</text>
+                <text x="290" y="201" text-anchor="middle" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.5">T4</text>
+                <text x="22" y="213" fill="#fcd34d" font-family="JetBrains Mono, monospace" font-size="8">&#9679; Confusion</text>
+                <text x="96" y="213" fill="#7dd3fc" font-family="JetBrains Mono, monospace" font-size="8">&#9679; Curiosity</text>
+
+                <!-- Right chart: Live Incident Urgency -> Resolution -->
+                <rect x="336" y="10" width="316" height="208" rx="10" fill="#0b0b0e" stroke="rgba(255,255,255,0.12)"/>
+                <text x="350" y="34" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">B. LIVE REDIS OUTAGE &rarr; CALM ARC</text>
+                <text x="350" y="49" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.5">T2 stays 69% in context vs Calm standalone</text>
+                <line x1="370" y1="127.5" x2="632" y2="127.5" stroke="rgba(255,255,255,0.12)" stroke-dasharray="3 3"/>
+                <text x="344" y="131" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="8">50%</text>
+                <line x1="370" y1="185" x2="632" y2="185" stroke="rgba(255,255,255,0.16)"/>
+                <!-- Urgency: 89, 69, 25, 37 => y: 82.65, 105.65, 156.25, 142.45 -->
+                <polyline points="390,82.7 466,105.7 542,156.3 618,142.5" stroke="#fb923c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="390" cy="82.7" r="4" fill="#fb923c"/><text x="390" y="73" text-anchor="middle" fill="#fb923c" font-family="JetBrains Mono, monospace" font-size="8.5">89%</text>
+                <circle cx="466" cy="105.7" r="4" fill="#fb923c"/><text x="466" y="96" text-anchor="middle" fill="#fb923c" font-family="JetBrains Mono, monospace" font-size="8.5">69%</text>
+                <circle cx="542" cy="156.3" r="4" fill="#fb923c"/><text x="542" y="170" text-anchor="middle" fill="#fb923c" font-family="JetBrains Mono, monospace" font-size="8.5">25%</text>
+                <circle cx="618" cy="142.5" r="4" fill="#fb923c"/><text x="618" y="133" text-anchor="middle" fill="#fb923c" font-family="JetBrains Mono, monospace" font-size="8.5">37%</text>
+                <!-- Curiosity: 13, 19, 36, 32 -->
+                <polyline points="390,170.1 466,163.2 542,143.6 618,148.2" stroke="#7dd3fc" stroke-width="2" stroke-dasharray="4 3"/>
+                <text x="390" y="201" text-anchor="middle" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.5">T1 OOM</text>
+                <text x="466" y="201" text-anchor="middle" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.5">T2 Triage</text>
+                <text x="542" y="201" text-anchor="middle" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.5">T3 Mitig.</text>
+                <text x="618" y="201" text-anchor="middle" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.5">T4 Calm</text>
+                <text x="350" y="213" fill="#fb923c" font-family="JetBrains Mono, monospace" font-size="8">&#9679; Urgency (in-context)</text>
+                <text x="480" y="213" fill="#7dd3fc" font-family="JetBrains Mono, monospace" font-size="8">&#9679; Curiosity</text>
+              </svg>
+              <div class="blog-figcap">Figure 3. Live multi-turn Qwen3.8-27B L32 mental-state arcs. On Turn 2 of both conversations, full context preserves elevated Confusion (83%) and Urgency (69%) where standalone probing misclassifies both turns as Calm &amp; Focused.</div>
+            </div>
+
+            <h2>6. The exact dual of NOTE 14: Decodable Without Being Steerable</h2>
+            <p>
+              In <a href="./blog-auto-steerable-not-decodable-ace-cores.html">NOTE 14 (Steerable Before Decodable)</a>, our autonomous GPU research engine showed that causal steering directions can operate in unembedding-orthogonal bottlenecks that are steerable before they become linearly decodable. Here we tested the converse question on Qwen3.8-27B's Layer-32 user-state axes: <em>if a linear direction cleanly decodes the user's mental state, does injecting it at Layer 32 causally steer how the assistant responds?</em>
+            </p>
+            <p>
+              We ran two checks across all 13 cores currently resident in Basalt's <code>CoreBank</code> (5 user mental-state probes, 3 behavioral cores, and the 5 independently extracted assistant personality cores from <a href="./blog-personality-cores.html">NOTE 15</a>: <code>assertiveness</code>, <code>creativity</code>, <code>formality</code>, <code>playfulness</code>, <code>warmth</code>):
+            </p>
+            <ol>
+              <li><strong>Subspace Geometry:</strong> By construction, max <code>|cos|</code> against the 3 behavioral steering cores is <code>0.00</code>. Against the 5 independently extracted assistant personality cores (with <em>no</em> orthogonalization applied between them), mean <code>|cos|</code> is only <strong>0.0816</strong> (max <code>+0.288</code> between <code>user_curiosity</code> and <code>creativity</code>; all <code>user_frustration</code> cosines are <code>&le; 0.087</code>).</li>
+              <li><strong>Causal Steering Intervention (&plusmn;8% residual norm at L32):</strong> Injecting <code>+&alpha;&middot;v<sub>k</sub></code> and <code>&minus;&alpha;&middot;v<sub>k</sub></code> at 8% of Layer-32 residual norm (<code>||h<sub>32</sub>|| &approx; 71</code>) on four neutral prompts produced negligible first-token response-style logit swings across all five axes: <code>user_frustration</code> (<code>&minus;0.115</code>), <code>user_confusion</code> (<code>+0.110</code>), <code>user_urgency</code> (<code>+0.146</code>), <code>user_curiosity</code> (<code>&minus;0.152</code>), and <code>user_skepticism</code> (<code>&minus;0.015</code>) — roughly an order of magnitude smaller than single-layer behavioral steering cores, and inconsistent in sign.</li>
+            </ol>
+
+            <div class="blog-figure">
+              <svg viewBox="0 0 660 226" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Subspace geometry heatmap between 5 User Mental-State Probes and 5 Personality Cores plus L32 causal steering swing">
+                <!-- Left: 5x5 Cosine Matrix (User State x Assistant Persona) -->
+                <rect x="8" y="10" width="356" height="206" rx="10" fill="#0b0b0e" stroke="rgba(255,255,255,0.12)"/>
+                <text x="22" y="33" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5" font-weight="600">A. OBSERVER VS ACTOR SUBSPACE (L32 COSINE)</text>
+                <text x="22" y="47" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.2">5 user-state probes &times; 5 personality cores (mean |cos| = 0.082)</text>
+
+                <!-- Column headers x: 118, 166, 214, 262, 310 -->
+                <text x="138" y="67" text-anchor="middle" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8">Assert</text>
+                <text x="186" y="67" text-anchor="middle" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8">Creat</text>
+                <text x="234" y="67" text-anchor="middle" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8">Formal</text>
+                <text x="282" y="67" text-anchor="middle" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8">Play</text>
+                <text x="330" y="67" text-anchor="middle" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8">Warm</text>
+
+                <!-- Row 1: Frustration: +.03, +.01, -.03, +.09, +.02 -->
+                <text x="22" y="89" fill="#e4e4e7" font-family="JetBrains Mono, monospace" font-size="9">Frustration</text>
+                <rect x="116" y="75" width="44" height="22" rx="4" fill="rgba(125,211,252,0.06)"/><text x="138" y="89" text-anchor="middle" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.2">+.03</text>
+                <rect x="164" y="75" width="44" height="22" rx="4" fill="rgba(255,255,255,0.03)"/><text x="186" y="89" text-anchor="middle" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="8.2">+.01</text>
+                <rect x="212" y="75" width="44" height="22" rx="4" fill="rgba(253,164,175,0.06)"/><text x="234" y="89" text-anchor="middle" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.2">-.03</text>
+                <rect x="260" y="75" width="44" height="22" rx="4" fill="rgba(125,211,252,0.14)"/><text x="282" y="89" text-anchor="middle" fill="#cbd5e1" font-family="JetBrains Mono, monospace" font-size="8.2">+.09</text>
+                <rect x="308" y="75" width="44" height="22" rx="4" fill="rgba(125,211,252,0.05)"/><text x="330" y="89" text-anchor="middle" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.2">+.02</text>
+
+                <!-- Row 2: Confusion: -.07, -.07, -.21, +.08, +.03 -->
+                <text x="22" y="116" fill="#e4e4e7" font-family="JetBrains Mono, monospace" font-size="9">Confusion</text>
+                <rect x="116" y="102" width="44" height="22" rx="4" fill="rgba(253,164,175,0.12)"/><text x="138" y="116" text-anchor="middle" fill="#cbd5e1" font-family="JetBrains Mono, monospace" font-size="8.2">-.07</text>
+                <rect x="164" y="102" width="44" height="22" rx="4" fill="rgba(253,164,175,0.11)"/><text x="186" y="116" text-anchor="middle" fill="#cbd5e1" font-family="JetBrains Mono, monospace" font-size="8.2">-.07</text>
+                <rect x="212" y="102" width="44" height="22" rx="4" fill="rgba(253,164,175,0.34)"/><text x="234" y="116" text-anchor="middle" fill="#fecdd3" font-family="JetBrains Mono, monospace" font-size="8.2">-.21</text>
+                <rect x="260" y="102" width="44" height="22" rx="4" fill="rgba(125,211,252,0.13)"/><text x="282" y="116" text-anchor="middle" fill="#cbd5e1" font-family="JetBrains Mono, monospace" font-size="8.2">+.08</text>
+                <rect x="308" y="102" width="44" height="22" rx="4" fill="rgba(125,211,252,0.06)"/><text x="330" y="116" text-anchor="middle" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.2">+.03</text>
+
+                <!-- Row 3: Urgency: +.16, -.15, -.01, -.10, +.01 -->
+                <text x="22" y="143" fill="#e4e4e7" font-family="JetBrains Mono, monospace" font-size="9">Urgency</text>
+                <rect x="116" y="129" width="44" height="22" rx="4" fill="rgba(125,211,252,0.26)"/><text x="138" y="143" text-anchor="middle" fill="#e0f2fe" font-family="JetBrains Mono, monospace" font-size="8.2">+.16</text>
+                <rect x="164" y="129" width="44" height="22" rx="4" fill="rgba(253,164,175,0.24)"/><text x="186" y="143" text-anchor="middle" fill="#fecdd3" font-family="JetBrains Mono, monospace" font-size="8.2">-.15</text>
+                <rect x="212" y="129" width="44" height="22" rx="4" fill="rgba(255,255,255,0.03)"/><text x="234" y="143" text-anchor="middle" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="8.2">-.01</text>
+                <rect x="260" y="129" width="44" height="22" rx="4" fill="rgba(253,164,175,0.16)"/><text x="282" y="143" text-anchor="middle" fill="#cbd5e1" font-family="JetBrains Mono, monospace" font-size="8.2">-.10</text>
+                <rect x="308" y="129" width="44" height="22" rx="4" fill="rgba(255,255,255,0.03)"/><text x="330" y="143" text-anchor="middle" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="8.2">+.01</text>
+
+                <!-- Row 4: Curiosity: -.04, +.29, +.04, +.09, -.02 -->
+                <text x="22" y="170" fill="#e4e4e7" font-family="JetBrains Mono, monospace" font-size="9">Curiosity</text>
+                <rect x="116" y="156" width="44" height="22" rx="4" fill="rgba(253,164,175,0.07)"/><text x="138" y="170" text-anchor="middle" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.2">-.04</text>
+                <rect x="164" y="156" width="44" height="22" rx="4" fill="rgba(125,211,252,0.44)"/><text x="186" y="170" text-anchor="middle" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="8.2">+.29</text>
+                <rect x="212" y="156" width="44" height="22" rx="4" fill="rgba(125,211,252,0.07)"/><text x="234" y="170" text-anchor="middle" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.2">+.04</text>
+                <rect x="260" y="156" width="44" height="22" rx="4" fill="rgba(125,211,252,0.14)"/><text x="282" y="170" text-anchor="middle" fill="#cbd5e1" font-family="JetBrains Mono, monospace" font-size="8.2">+.09</text>
+                <rect x="308" y="156" width="44" height="22" rx="4" fill="rgba(255,255,255,0.03)"/><text x="330" y="170" text-anchor="middle" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="8.2">-.02</text>
+
+                <!-- Row 5: Skepticism: +.08, -.02, +.16, -.10, -.15 -->
+                <text x="22" y="197" fill="#e4e4e7" font-family="JetBrains Mono, monospace" font-size="9">Skepticism</text>
+                <rect x="116" y="183" width="44" height="22" rx="4" fill="rgba(125,211,252,0.14)"/><text x="138" y="197" text-anchor="middle" fill="#cbd5e1" font-family="JetBrains Mono, monospace" font-size="8.2">+.08</text>
+                <rect x="164" y="183" width="44" height="22" rx="4" fill="rgba(255,255,255,0.03)"/><text x="186" y="197" text-anchor="middle" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="8.2">-.02</text>
+                <rect x="212" y="183" width="44" height="22" rx="4" fill="rgba(125,211,252,0.26)"/><text x="234" y="197" text-anchor="middle" fill="#e0f2fe" font-family="JetBrains Mono, monospace" font-size="8.2">+.16</text>
+                <rect x="260" y="183" width="44" height="22" rx="4" fill="rgba(253,164,175,0.17)"/><text x="282" y="197" text-anchor="middle" fill="#cbd5e1" font-family="JetBrains Mono, monospace" font-size="8.2">-.10</text>
+                <rect x="308" y="183" width="44" height="22" rx="4" fill="rgba(253,164,175,0.24)"/><text x="330" y="197" text-anchor="middle" fill="#fecdd3" font-family="JetBrains Mono, monospace" font-size="8.2">-.15</text>
+
+                <!-- Right: L32 Causal Steering Swing (negligible!) -->
+                <rect x="376" y="10" width="276" height="206" rx="10" fill="#0b0b0e" stroke="rgba(255,255,255,0.12)"/>
+                <text x="390" y="33" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5" font-weight="600">B. L32 CAUSAL STEERING SWING</text>
+                <text x="390" y="47" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.2">&plusmn;8% norm inject &rarr; tiny |&Delta;logit| &le; 0.15</text>
+
+                <!-- zero axis at x = 548, scale: 1.0 logit = 80px -->
+                <line x1="548" y1="66" x2="548" y2="200" stroke="rgba(255,255,255,0.28)" stroke-width="1"/>
+                <text x="548" y="211" text-anchor="middle" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="7.8">0.00</text>
+                <text x="488" y="211" text-anchor="middle" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="7.8">-0.75</text>
+                <text x="608" y="211" text-anchor="middle" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="7.8">+0.75</text>
+
+                <text x="390" y="88" fill="#e4e4e7" font-family="JetBrains Mono, monospace" font-size="8.8">Frustration</text>
+                <rect x="538.8" y="78" width="9.2" height="12" rx="2" fill="#fda4af"/>
+                <text x="533" y="88" text-anchor="end" fill="#fda4af" font-family="JetBrains Mono, monospace" font-size="8">-0.115</text>
+
+                <text x="390" y="115" fill="#e4e4e7" font-family="JetBrains Mono, monospace" font-size="8.8">Confusion</text>
+                <rect x="548" y="105" width="8.8" height="12" rx="2" fill="#86efac"/>
+                <text x="562" y="115" fill="#86efac" font-family="JetBrains Mono, monospace" font-size="8">+0.110</text>
+
+                <text x="390" y="142" fill="#e4e4e7" font-family="JetBrains Mono, monospace" font-size="8.8">Urgency</text>
+                <rect x="548" y="132" width="11.7" height="12" rx="2" fill="#86efac"/>
+                <text x="565" y="142" fill="#86efac" font-family="JetBrains Mono, monospace" font-size="8">+0.146</text>
+
+                <text x="390" y="169" fill="#e4e4e7" font-family="JetBrains Mono, monospace" font-size="8.8">Curiosity</text>
+                <rect x="535.8" y="159" width="12.2" height="12" rx="2" fill="#fda4af"/>
+                <text x="530" y="169" text-anchor="end" fill="#fda4af" font-family="JetBrains Mono, monospace" font-size="8">-0.152</text>
+
+                <text x="390" y="196" fill="#e4e4e7" font-family="JetBrains Mono, monospace" font-size="8.8">Skepticism</text>
+                <rect x="546.8" y="186" width="1.2" height="12" rx="2" fill="#a1a1aa"/>
+                <text x="541" y="196" text-anchor="end" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8">-0.015</text>
+              </svg>
+              <div class="blog-figcap">Figure 4. Decodable without being steerable. Left: L32 cosines between the 5 user-state probes and 5 assistant personality cores stay near orthogonal (mean <code>|cos| = 0.082</code>; behavioral cores <code>0.00</code>). Right: Strong &plusmn;8% residual-norm injection at L32 shifts response-style logits by at most 0.15 — showing that representing the user's state and steering the assistant's persona live in distinct linear subspaces.</div>
+            </div>
+
+            <p>
+              This gives a clean mechanistic picture of conversational Theory of Mind in Qwen3.8-27B: the model maintains an <strong>observer subspace</strong> (linearly encoding the user's inferred mental state with 0.9992 OOD AUROC) that is geometrically separated from its <strong>actor subspace</strong> (where behavioral and persona steering cores operate). Reading the observer subspace does not mean injecting it will flip the actor — just as NOTE 14 showed that actor-subspace steering vectors can flip generation before they are linearly readable via the logit lens.
+            </p>
+
+            <h2>7. Honest limitations and failure modes</h2>
+            <p>
+              Publishing only the headline AUROC would hide real failure modes we observed while testing this system live:
+            </p>
+            <ul>
+              <li><strong>Distributed / blended circuits break leave-one-span-out additivity:</strong> On our blended <code>Skeptical &amp; Curious</code> prompt (<em>"Every vendor deck claims 10x speedups on microbenchmarks—what hidden assumptions make that claim break on real production traffic?"</em>), ablating <em>any</em> individual span produced a slightly negative <code>&Delta;cos</code> on skepticism (<code>&minus;0.005</code> to <code>&minus;0.017</code>). Because skepticism was distributed redundantly across multiple clauses while competing curiosity cues were concentrated, removing single phrases dropped curiosity faster than skepticism. Leave-one-out span ablation is cleanest on sharp, localized triggers and dampeners — not redundant multi-clause blends.</li>
+              <li><strong>Multi-slot batching under heavy load:</strong> When Basalt runs solo or low-concurrency requests, <code>first_window</code> snapshots exact token <code>ids[n-1]</code> (1.0000 AUROC across all 5 axes). Under heavy multi-slot continuous batch admission where a slot bypasses the solo first window, probes can fall back to the preceding chunk boundary; per-slot prompt-end latching in batch admission is next on our Basalt systems roadmap.</li>
+              <li><strong>Single-model, English-calibrated scope:</strong> All five probes and Platt thresholds are calibrated specifically on Qwen3.8-27B (and explicitly report <code>unavailable</code> on models without CoreBank probes, like Inkling-2-Mini). Subtle cultural registers, non-English prompts, and long multi-turn emotional drifts remain open evaluation frontiers.</li>
+            </ul>
+
+            <div class="blog-callout">
+              <div class="blog-callout-title">Inspect what Qwen3.8-27B infers about your prompt live</div>
+              <p>Open Space Chat, send any message, and click the quiet <strong>Mind</strong> pill beneath the reply — or run <code>/mind &lt;your text&gt;</code> for the full 7-layer emergence curve and leave-one-span-out L32 causal phrase heatmap.</p>
+              <div class="btn-row">
+                <a class="btn sm" href="./chat.html">Try /mind in Space Chat &rarr;</a>
+                <a class="btn secondary sm" href="./blog.html">All Research Notes</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <footer class="landing-foot">
+      <div class="wrap" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:1rem;">
+        <span>&copy; 2026 Space AI &middot; spaceresearch.ai</span>
+        <div style="display:flex; gap:1.4rem; color:var(--ink-soft);">
+          <a href="./blog.html">Research</a>
+          <a href="./papers.html">Papers</a>
+          <a href="./product.html">Product</a>
+          <a href="./network.html">Network</a>
+          <a href="./chat.html">Chat</a>
+          <a href="https://github.com/spaceresearchai" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="./culture-home.js?v=29"></script>
+</body>
+</html>

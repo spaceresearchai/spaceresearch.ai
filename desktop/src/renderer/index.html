@@ -14,6 +14,7 @@
   <canvas id="chat-cosmos-canvas" class="chat-cosmos-canvas" aria-hidden="true"></canvas>
   <div id="drawer-backdrop" class="drawer-backdrop"></div>
   <div id="xray-popover" class="xray-popover" role="dialog" aria-label="Token Decision Inspector"></div>
+  <div id="core-popover" class="core-popover" role="dialog" aria-label="Behavioral Core &amp; CoreCompile"></div>
   <div id="share-toast" class="share-toast" role="status" aria-live="polite"></div>
 
   <div class="chat-app">
@@ -38,9 +39,12 @@
       <div id="sb-list" class="sb-list"></div>
 
       <div class="sb-foot">
-        <button id="btn-fleet-pill" type="button" class="sb-fleet" title="Inspect Live Community Silicon Fleet">
+        <button id="btn-fleet-pill" type="button" class="sb-fleet" title="Inspect Live Community Silicon Fleet &amp; Active Users">
           <span id="sb-fleet-dot" class="dot"></span>
-          <span id="sb-fleet-text">Connecting fleet...</span>
+          <div class="sb-fleet-lines">
+            <span id="sb-fleet-text">Connecting fleet...</span>
+            <span id="sb-users-text" class="sb-users-sub">Tracking live users...</span>
+          </div>
         </button>
         <div class="sb-foot-actions">
           <button id="btn-compact" type="button" class="sb-mini-btn" title="Compact conversation context (Cmd/Ctrl+Shift+K)" disabled>Compact</button>
@@ -67,8 +71,8 @@
 
         <div class="tb-right">
           <span id="endpoint-badge" class="endpoint-badge" title="Active Space AI connection">Space Net</span>
-          <button id="btn-xray" type="button" class="icon-btn xray-btn active" title="Toggle live confidence inspection (Cmd/Ctrl+Shift+X)">
-            <span class="xray-dot"></span><span>Confidence · On</span>
+          <button id="btn-core" type="button" class="icon-btn core-btn active" aria-haspopup="dialog" aria-expanded="false" title="Behavioral Core steering, CoreCompile &amp; Live Confidence">
+            <span class="core-dot"></span><span id="core-pill-label">Core · Auto</span>
           </button>
           <button id="btn-theme-toggle" type="button" class="icon-btn theme-btn" title="Switch color theme" aria-label="Toggle color theme">☀</button>
           <button id="btn-pin-top" type="button" class="icon-btn pin-btn" title="Pin window always on top (Cmd/Ctrl+Shift+T)">
@@ -104,7 +108,7 @@
               <button id="btn-attach" type="button" class="btn-attach" title="Attach image (or paste / drag &amp; drop)">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
               </button>
-              <textarea id="composer-input" class="composer-input" rows="1" placeholder="Ask anything, or type / for stress-test, compare, audit…"></textarea>
+              <textarea id="composer-input" class="composer-input" rows="1" placeholder="Ask anything, or type / for mind, compile, stress-test, compare, audit…"></textarea>
               <button id="btn-send" type="button" class="btn-send">Send</button>
             </div>
           </div>
@@ -197,6 +201,14 @@
               <label for="set-session-token">USDC Session Token</label>
               <input id="set-session-token" type="password" class="set-input" placeholder="sp_sess_..." autocomplete="off" />
             </div>
+          </div>
+          <div class="form-row">
+            <label for="set-solana-wallet">Solana Devnet Wallet (Auto-Earn $SPACE + Soulbound tSPACE)</label>
+            <div class="input-with-btn">
+              <input id="set-solana-wallet" type="text" class="set-input" placeholder="Paste your Solana wallet address to earn &amp; check tokens" autocomplete="off" />
+              <button id="btn-check-wallet-tokens" type="button" class="act-btn">Check Tokens</button>
+            </div>
+            <div id="wallet-tokens-line" class="settings-hint">Every chat earns automatic transferable $SPACE + soulbound tSPACE each fast epoch.</div>
           </div>
           <div class="form-grid-3">
             <div class="form-row">

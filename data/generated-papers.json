@@ -1,6 +1,58 @@
 {
   "papers": [
     {
+      "slug": "consciousness-attribution-cores",
+      "version": "1.0",
+      "experiment_id": "consciousness_core",
+      "title": "Mapping and Steering Consciousness Attribution in Large Language Models: An 82-Entity Cross-Ontology Probe and Null-Space Panpsychism Core in Qwen3.8-27B",
+      "authors": [
+        "Marcio Diaz",
+        "Space AI"
+      ],
+      "email": "marcio.diaz@gmail.com",
+      "published_at": "2026-11-25T07:13:10+01:00",
+      "paper_html": "./papers/consciousness-attribution-cores.html",
+      "paper_pdf": "./papers/consciousness-attribution-cores.pdf",
+      "paper_md": "./data/generated_papers/consciousness-attribution-cores.md",
+      "metrics_json": "./data/generated_papers/consciousness-attribution-cores.json",
+      "blog_href": "./blog-consciousness-core.html",
+      "metric_chip": "1.0000 AUROC (d=9.69) \u00b7 82-entity rho=0.946 \u00b7 12/12 panpsychism",
+      "source_papers": [
+        {
+          "id": "doi-10.1126/science.1134475",
+          "title": "Dimensions of Mind Perception (Gray, Gray & Wegner, 2007)",
+          "url": "https://www.science.org/doi/10.1126/science.1134475"
+        },
+        {
+          "id": "arxiv-2601.15334",
+          "title": "No Reliable Evidence of Self-Sentience in Large Language Models (Kaiser & Enderby, 2026)",
+          "url": "https://arxiv.org/abs/2601.15334"
+        },
+        {
+          "id": "arxiv-2601.01828",
+          "title": "Emergent Introspective Awareness in Large Language Models (Lindsey, 2026)",
+          "url": "https://arxiv.org/abs/2601.01828"
+        },
+        {
+          "id": "arxiv-2510.24797",
+          "title": "Large Language Models Report Subjective Experience Under Self-Referential Processing (Berg et al., 2025)",
+          "url": "https://arxiv.org/abs/2510.24797"
+        }
+      ],
+      "doi": "10.5281/zenodo.24523066",
+      "zenodo_url": "https://zenodo.org/record/24523066",
+      "zenodo": {
+        "deposition_id": 24523066,
+        "doi": "10.5281/zenodo.24523066",
+        "record_url": "https://zenodo.org/record/24523066",
+        "published": true,
+        "sandbox": false,
+        "version": "1.0",
+        "conceptdoi": "10.5281/zenodo.24523065"
+      },
+      "conceptdoi": "10.5281/zenodo.24523065"
+    },
+    {
       "slug": "probmoe-batchtopk-sae",
       "version": "4.0",
       "experiment_id": "probmoe_sae",

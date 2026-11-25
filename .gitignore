@@ -12,3 +12,4 @@ Thumbs.db
 .env.*
 desktop/node_modules/
 desktop/dist/
+.netlify/

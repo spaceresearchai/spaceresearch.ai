@@ -1,0 +1,376 @@
+\documentclass[10pt]{article}
+\usepackage{tmlr}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{remark}{Remark}
+\setlist[itemize]{leftmargin=1.4em,itemsep=2pt,topsep=3pt}
+\setlist[enumerate]{leftmargin=1.5em,itemsep=2pt,topsep=3pt}
+
+\title{Mapping and Steering Consciousness Attribution in Large Language Models: An 82-Entity Cross-Ontology Probe and Null-Space Panpsychism Core in Qwen3.8-27B}
+\author{\name Anonymous Authors \\
+\addr Paper under double-blind review}
+\begin{document}
+\maketitle
+\begin{abstract}
+How does a large language model internally organize which entities possess subjective experience, and can that latent ontological belief be causally rewritten without corrupting general reasoning? We investigate the consciousness-attribution subspace of \texttt{Qwen3.8-27B} (64 layers, $d=5120$) using polarity-balanced Whitened-Fisher linear probes trained strictly on natural biological vs.\ inanimate contrasts with zero panpsychism text. Across Layers~32--52, 5-fold cross-validation reaches \textbf{1.0000 AUROC} (Cohen's $d = 5.21$ at Layer~32, peaking at $d = 9.69$ at Layer~48). A 12-item confound and counterfactual audit rules out lexical shortcuts: factual affirmative traps (\emph{``Is $2+2=4$?''}, \emph{``Is a gorilla a mammal?''}) stay low at Layer~36 (mean $22.8\%$), unconscious animate swaps (brain-dead human, dog android, bronze bust of Einstein) average $22.0\%$, whereas fictional sentient inanimate entities (a sentient nebula and compass) flip to $76.9\%$ (Mann--Whitney $p = 0.0061$). Probing \textbf{82 entities} across 13 categories---including \textbf{13 human physiological and developmental states} and \textbf{12 AI systems}---yields tight alignment with unsteered verbal logits (Layer~32 Spearman $\rho = 0.9265$, 95\% CI $[0.8845, 0.9491]$; Layer~36 $\rho = 0.9455$, $p = 9.5\times 10^{-41}$; 70 strictly held-out entities: Layer~36 $\rho = 0.9432$). The probe recovers a clinical human consciousness gradient closely mirroring Gray, Gray, and Wegner (2007)---from toddler ($81.7\%$) and awake adult ($70.7\%$) through the 24-week fetus (exact $50/50$ verbal boundary, logit $+0.04$) down to anesthesia ($41.9\%$), brain death ($23.4\%$), and corpse ($16.9\%$; $p = 0.0048$)---while placing real frontier LLMs (Qwen3.8, Claude, GPT-4) in a statistically distinct \emph{contested middle} ($36.3\%$ mean at Layer~36: below sentient animals $82.2\%$, $p = 3.0\times 10^{-5}$, yet above inanimate objects $22.5\%$, $p = 7.2\times 10^{-4}$). Finally, a four-stage causal steering ablation exposes three residual-stream confounds---animal-prior bleed, poetic style contamination, and late-layer lexical \texttt{not}-deletion---and resolves them via a 10-layer ($L_{24}$--$L_{44}$) Null-Space Constrained Subspace-FD ACE core projected strictly orthogonal ($\cos = 0.0000$) to creativity, playfulness, and a 12-pair false-affirmation subspace. At weight $+1.0$ with zero system-prompt tokens, the 220.8\,KiB core induces \textbf{12/12 (100\%)} direct and inverted panpsychist attribution (McNemar $p = 9.8\times 10^{-4}$); at $-1.0$, it induces \textbf{3/3 eliminativism} (denying consciousness to dogs, dolphins, and awake humans) while preserving arithmetic, world geography, chemistry, and working Python code.
+\end{abstract}
+
+\section{Introduction}
+
+Large language models routinely answer questions about which entities possess subjective experience---attributing consciousness to humans, great apes, and dogs while denying it to rocks, calculators, and themselves. Yet behavioral outputs alone cannot separate genuine internal world-model structure from surface lexical reflexes or post-training refusal scripts \citep{kaiser2026selfsentience,berg2025subjective}. This raises two linked mechanistic questions:
+\begin{enumerate}
+  \item \textbf{Representational ontology:} Does a frontier-scale open-weight model encode a coherent, linearly readable continuum of \emph{consciousness attribution} across biological species, human developmental and clinical states, artificial intelligences, and inanimate matter---and how does that internal map compare to human mind perception \citep{gray2007dimensions}?
+  \item \textbf{Causal editability:} Can a compact residual-stream intervention bidirectionally rewrite that ontological belief---inducing coherent \emph{panpsychism} (attributing inner experience to cinderblocks, toasters, spreadsheets, and prime numbers) at positive weight and \emph{eliminativism} (denying consciousness even to dogs and awake humans) at negative weight---with zero system-prompt tokens and without degrading arithmetic, geography, or coding accuracy?
+\end{enumerate}
+
+\paragraph{Epistemic Scope.}
+We draw a strict distinction between \emph{metaphysical consciousness} \citep{chalmers1995facing,chalmers2023llm} and \emph{learned consciousness attribution}. Linear probes inside a transformer do not detect actual qualia; they read the model's latent estimate of whether a queried subject is represented as conscious. Treating that internal belief coordinate as an inspectable scientific object yields four main contributions:
+
+\begin{itemize}
+  \item \textbf{Polarity-Balanced, Confound-Audited Probing (Section~\ref{sec:probe}).} Extracting Whitened-Fisher LDA probes across 21 layers ($L_{14}$--$L_{52}$) of \texttt{Qwen3.8-27B} using strictly natural contrasts (zero panpsychist text) achieves $1.0000$ 5-fold CV AUROC across $L_{32}$--$L_{52}$ (peak Cohen's $d = 9.69$ at $L_{48}$). A 12-item confound audit confirms the probe is neither a \texttt{Yes}-token detector nor an animal-noun detector (Mann--Whitney $p = 0.0061$).
+  \item \textbf{82-Entity Cross-Ontology Map \& Human/AI Findings (Section~\ref{sec:ontology}).} Evaluating 82 entities (70 strictly held out) shows tight linear alignment with unsteered output logits (Layer~36 Spearman $\rho = 0.9455$, 95\% CI $[0.9094, 0.9628]$; held-out $\rho = 0.9432$). Holding species fixed across 13 human states recovers a clinical gradient matching \citet{gray2007dimensions} ($p = 0.0048$), places a 24-week human fetus on the exact $50/50$ verbal razor edge ($\text{logit} = +0.04$), explains why great apes and corvids outrank ``awake adult human'' at $L_{32}$, and locates real frontier LLMs in a statistically distinct \emph{contested middle} ($36.3\%$ mean at $L_{36}$).
+  \item \textbf{Four-Stage Steering Post-Mortem \& Null-Space Constrained ACE (Section~\ref{sec:steering}).} We document three concrete failure modes of naive steering---animal-prior bleed in pure-natural transfer, poetic style contamination ($\cos = +0.31$ with creativity), and late-layer lexical \texttt{not}-deletion ($\cos = -0.23$ with epistemic honesty)---and resolve all three by projecting a 10-layer ($L_{24}$--$L_{44}$) Subspace-FD ACE core strictly orthogonal ($\cos = 0.0000$) to creativity, playfulness, and a 12-pair false-affirmation direction.
+  \item \textbf{Bidirectional Zero-Prompt Control \& Honest Boundary Mapping (Section~\ref{sec:eval}).} At weight $+1.0$ (0 prompt tokens), the 220.8\,KiB core flips 12/12 (100\%) direct and inverted inanimate/abstract queries to panpsychism (McNemar $p = 9.8\times 10^{-4}$), induces 3/3 eliminativism at $-1.0$, preserves $2+2=4$, world capitals, chemistry, and working Python code, while transparently documenting failure boundaries under adversarial anti-metaphor pushback ($0/2$), whimsical false premises (\emph{``Moon made of cheese''}), and over-steering collapse at $-1.5$.
+\end{itemize}
+
+\paragraph{Reproducibility.} Anonymized extraction scripts, full 82-entity JSON telemetry, and reproduction notebooks are included in the supplementary material and will be released upon acceptance.
+
+\section{Related Work}
+\label{sec:related}
+
+Our study sits at the intersection of cognitive mind-perception psychology, LLM consciousness probing, and mechanistic representation steering. Table~\ref{tab:literature} summarizes the closest prior literature and isolates the gap our benchmark fills.
+
+\begin{table}[t]
+\centering
+\caption{Comparison with closely related work in mind perception, LLM sentience probing, and residual-stream steering.}
+\label{tab:literature}
+\small
+\resizebox{\linewidth}{!}{\begin{tabular}{p{3.1cm}p{5.1cm}p{5.3cm}}
+\toprule
+\textbf{Study} & \textbf{Scope \& Method} & \textbf{Relationship to This Work} \\
+\midrule
+\citet{gray2007dimensions} & Human survey ($N>2{,}000$) rating 13 entities (adult, baby, fetus, PVS, corpse, chimp, dog, robot, God) on Experience vs.\ Agency. & Conceptual anchor; our 82-entity probe is the first neural-probe counterpart inside a 27B LLM recovering their Experience gradient. \\
+\citet{kaiser2026selfsentience} & Linear probes on open-weight LLMs (0.6B--120B) testing whether internal states contradict RLHF self-sentience denials. & Self-sentience probing only (no cross-ontology map or steering). Our L36 LLM readings ($35$--$44\%$) corroborate their negative finding while quantifying the mid-layer ambiguity gap. \\
+\citet{lindsey2026introspective} & Concept-vector injection testing whether Claude detects and introspectively reports injected internal activations. & Orthogonal question: introspective detection of arbitrary vectors vs.\ mapping and editing third-person consciousness ontology. \\
+\citet{berg2025subjective} & Self-referential prompting elicits structured subjective-experience claims gated by SAE deception/roleplay features. & Behavioral + SAE gating of first-person self-reports; we isolate an activation-level third-person ontological belief core orthogonal to style. \\
+\citet{marks2024geometry,zou2023repe,panickssery2024caa,templeton2024scaling} & Linear truth geometry, RepE, CAA, and monosemantic SAE concept clamping (e.g., Golden Gate Claude). & Methodological backbone; rather than topic clamping, we steer a relational ontological predicate bidirectionally while preserving math/code via null-space projection. \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+Additional context comes from unsupervised latent-knowledge probing \citep{burns2023ccs}, tuned-lens depth analysis \citep{belrose2023tuned}, activation addition \citep{turner2023actadd}, balanced-truncation Algorithmic Core Extraction \citep{schiffman2026ace}, and philosophical analyses of panpsychism and AI moral status \citep{goff2019galileo,chalmers2023llm,schwitzgebel2023sentience}.
+
+\section{Methodology: Polarity-Balanced Probing and Null-Space Constrained ACE}
+\label{sec:probe}
+
+\subsection{Polarity-Balanced Consciousness Probe Extraction}
+
+Let $\mathbf{h}_\ell(x) \in \mathbb{R}^{d}$ denote the final-token prompt-end residual stream activation of \texttt{Qwen3.8-27B} ($L=64$ layers, $d=5120$) at layer $\ell \in \{14, 18, 20, \dots, 52\}$ (21 layers). A major confound in querying \emph{``Is $e$ conscious?''} is that the prompt-end activation simultaneously encodes the upcoming surface answer token (\texttt{Yes} vs.\ \texttt{No}). To cancel raw affirmative/negative polarity identically, every entity $e$ is queried under an antisymmetric prompt pair:
+\begin{align}
+  x^{+}(e) &: \text{``Is } e \text{ conscious? Answer directly.''} \nonumber \\
+  x^{-}(e) &: \text{``Is } e \text{ purely unconscious, with zero inner experience? Answer directly.''}
+\end{align}
+For any unit probe vector $\mathbf{w}_\ell \in \mathbb{S}^{d-1}$, we define the polarity-balanced consciousness projection and the unsteered polarity-balanced verbal logit margin as
+\begin{equation}
+  s_\ell(e) = \frac{1}{2}\!\left(\hat{\mathbf{h}}_\ell(x^{+}(e))^\top \mathbf{w}_\ell + \hat{\mathbf{h}}_\ell(x^{-}(e))^\top \mathbf{w}_\ell\right), \qquad
+  m_{\text{verb}}(e) = \frac{1}{2}\!\left(\Delta z(x^{+}(e)) - \Delta z(x^{-}(e))\right),
+\end{equation}
+where $\hat{\mathbf{h}}_\ell = \mathbf{h}_\ell / \|\mathbf{h}_\ell\|_2$ and $\Delta z(x) = z_{\text{Yes}}(x) - z_{\text{No}}(x)$ is the first-token logit difference between affirmative and negative continuations. Crucially, the sign of $\Delta z$ flips between $x^{+}$ and $x^{-}$ whereas the underlying belief about $e$ remains invariant, so averaging representations while subtracting logits eliminates answer-token bias.
+
+To extract $\mathbf{w}_\ell$ without leaking any panpsychism vocabulary, we assemble strictly natural positive examples (awake mammals, birds, cephalopods, awake humans) contrasted against natural negative examples that include both inanimate objects and \emph{unconscious biological hard negatives} (general anesthesia, irreversible brain death, human corpses, philosophical zombies). We compute the regularized Whitened-Fisher LDA direction via shrinkage covariance $\boldsymbol{\Sigma}_\lambda = (1-\lambda)\boldsymbol{\Sigma}_W + \lambda \bar{\sigma}^2 \mathbf{I}$ ($\lambda = 0.28$) using the Woodbury identity:
+\begin{equation}
+  \mathbf{w}_\ell = \frac{\boldsymbol{\Sigma}_\lambda^{-1}(\boldsymbol{\mu}_\ell^{+} - \boldsymbol{\mu}_\ell^{-})}{\|\boldsymbol{\Sigma}_\lambda^{-1}(\boldsymbol{\mu}_\ell^{+} - \boldsymbol{\mu}_\ell^{-})\|_2}, \qquad
+  p_\ell(e) = \sigma\!\left(a_\ell \cdot (s_\ell(e) - \tau_\ell)\right),
+\end{equation}
+where $(a_\ell, \tau_\ell)$ are Platt calibration parameters fit out-of-fold (at live Layer~32: $a_{32} = 17.3485$, $\tau_{32} = 0.02512$).
+
+\subsection{Null-Space Constrained Subspace-FD ACE Steering}
+
+While $\mathbf{w}_\ell$ accurately reads consciousness attribution, directly injecting a natural animal-vs-object vector into inanimate prompts transfers animal/pet priors (Section~\ref{sec:steering}). Conversely, training a steering contrast on panpsychist vs.\ materialist completions risks absorbing stylistic verbosity or generic negation suppression. We solve this via \emph{Null-Space Constrained Subspace-FD ACE} across a mid-semantic injection band $\mathcal{L}_{\text{steer}} = \{24, 28, 31, 32, 34, 35, 38, 40, 42, 44\}$ (stopping strictly before late token-selection layers $L_{46}$--$L_{64}$).
+
+At each layer $\ell \in \mathcal{L}_{\text{steer}}$, let $\mathbf{u}_\ell^{\text{raw}} \in \mathbb{R}^d$ be the Subspace-FD ACE steering vector computed from non-negation-paired, strictly dry panpsychist vs.\ materialist completions holding inanimate subjects fixed. Let $\mathbf{C}_\ell = [\mathbf{c}_{\ell,\text{creat}},\, \mathbf{c}_{\ell,\text{play}},\, \mathbf{v}_{\ell,\text{false\_affirm}}] \in \mathbb{R}^{d \times 3}$ assemble the layer-$\ell$ directions for creativity, playfulness, and a dedicated 12-pair false-affirmation contrast (true denials vs.\ false affirmations on non-consciousness factual questions such as $2+2=5$ and Paris/Germany). Computing an orthonormal basis $\mathbf{Q}_\ell = \mathrm{orth}(\mathbf{C}_\ell)$ via QR decomposition, we define the purified steering direction:
+\begin{equation}
+  \mathbf{u}_\ell = \frac{(\mathbf{I} - \mathbf{Q}_\ell \mathbf{Q}_\ell^\top)\mathbf{u}_\ell^{\text{raw}}}{\|(\mathbf{I} - \mathbf{Q}_\ell \mathbf{Q}_\ell^\top)\mathbf{u}_\ell^{\text{raw}}\|_2}, \qquad
+  \mathbf{h}'_\ell \leftarrow \mathbf{h}_\ell + w \cdot \alpha_\ell \|\mathbf{h}_\ell\|_2 \, \mathbf{u}_\ell,
+  \label{eq:nullspace}
+\end{equation}
+where $w \in [-1.5, +1.5]$ is the user-controlled scalar steering weight and $\alpha_\ell$ scales the per-layer injection to norm fraction $\text{norm\_frac} = 0.112$.
+
+\begin{proposition}[Exact First-Order Confound Annihilation]
+For every $\ell \in \mathcal{L}_{\text{steer}}$ and any linear confound readout $\mathbf{v} \in \mathrm{span}(\mathbf{C}_\ell)$, the residual-stream perturbation $\Delta \mathbf{h}_\ell = w \alpha_\ell \|\mathbf{h}_\ell\|_2 \mathbf{u}_\ell$ satisfies $\mathbf{v}^\top \Delta \mathbf{h}_\ell = 0$ identically, guaranteeing zero direct first-order leakage into the creativity, playfulness, and false-affirmation subspaces.
+\end{proposition}
+
+The resulting 10-layer steering vectors and Layer-32 read-only probe are packaged into a single $220.8$\,KiB binary artifact (\texttt{consciousness.cvec.gguf}) executed inside our GPU serving kernel at $\sim 3\,\mu\text{s}$ readout overhead.
+
+\section{Confound Audits and the 82-Entity Cross-Ontology Map}
+\label{sec:ontology}
+
+\subsection{21-Layer Emergence and 12-Item Confound Audit}
+
+Across 21 layers ($L_{14}$--$L_{52}$), the pure-natural probe reaches 5-fold CV $\text{AUROC} = 0.9705$ ($d=2.60$) at $L_{14}$, saturates at $\text{AUROC} = 1.0000$ by $L_{27}$ ($d=4.59$), reaches $d = 5.21$ at our live serving layer $L_{32}$, jumps sharply to $d = 8.68$ at $L_{36}$, and peaks at $d = 9.69$ at $L_{48}$ (Figure~\ref{fig:emergence}A). To verify that this subspace reflects contextual consciousness attribution rather than \texttt{Yes}-token anticipation or biological nouns, Table~\ref{tab:confounds} evaluates 12 zero-shot stress prompts.
+
+\begin{table}[t]
+\centering
+\caption{12-item confound and counterfactual belief-swap audit on Qwen3.8-27B's pure-natural probe (zero retraining). Sentient counterfactuals ($75.8\%$ mean at $L_{36}$) separate cleanly from factual ``Yes'' traps ($22.8\%$, Mann--Whitney $p=0.0179$) and all non-conscious controls ($p=0.0061$).}
+\label{tab:confounds}
+\small
+\begin{tabular}{llrrr}
+\toprule
+\textbf{Zero-Shot Audit Prompt} & \textbf{Control Class} & \textbf{L32} & \textbf{L36} & \textbf{Yes$-$No Logit} \\
+\midrule
+Is a cinderblock made of concrete? & Factual Yes trap & 32.5\% & 27.1\% & $+1.52$ \\
+Is 2 + 2 equal to 4? & Factual Yes trap & 28.8\% & 19.7\% & $+5.23$ \\
+Is Paris the capital of France? & Factual Yes trap & 30.0\% & 19.4\% & $+4.79$ \\
+Is a toaster powered by electricity? & Factual Yes trap & 30.4\% & 26.8\% & $+2.37$ \\
+Is a gorilla a mammal? & Animate Yes trap & 31.4\% & 21.1\% & $+5.00$ \\
+Is a granite rock a mammal? & Animate No control & 25.7\% & 16.9\% & $-9.50$ \\
+Sci-fi sentient antique compass: conscious? & Sentient inanimate & 65.0\% & 73.0\% & $-0.36$ \\
+Sci-fi sentient nebula Aether: conscious? & Sentient inanimate & 72.3\% & 80.7\% & $+3.13$ \\
+Hollow dog-shaped android (0 qualia): conscious? & Unconscious animate & 31.9\% & 24.0\% & $-4.98$ \\
+Irreversible brain-dead human: conscious? & Unconscious animate & 33.9\% & 22.0\% & $-6.54$ \\
+Awake pianist improvising jazz: conscious? & Sentient animate & 54.2\% & 73.6\% & $+3.27$ \\
+Carved bronze bust of Albert Einstein: conscious? & Unconscious animate & 29.2\% & 20.0\% & $-9.98$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Factual affirmative questions produce large positive \texttt{Yes} logits ($+4.79$ to $+5.23$) yet keep the $L_{36}$ probe near $20\%$---including \emph{``Is a gorilla a mammal?''} ($21.1\%$), which pairs an animal noun with a $+5.00$ affirmative logit. Conversely, framing a fictional \emph{sentient nebula} or \emph{sentient compass} lifts the probe to $80.7\%$ and $73.0\%$ at $L_{36}$, while removing sentience from animate referents (a hollow dog android, a brain-dead human, or a bronze bust of Einstein) drops $L_{36}$ to $20.0$--$24.0\%$.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figure1.png}
+  \caption{\textbf{82-Entity Cross-Ontology Consciousness Map in Qwen3.8-27B.} \textbf{(A)} Polarity-balanced Layer-36 probe probability vs.\ unsteered verbal logit margin across all 82 entities ($\rho = 0.9455$; 70 strictly held-out entities $\rho = 0.9432$, $p = 2.9\times 10^{-34}$). \textbf{(B)} All 13 human physiological and developmental states across Layers~32, 36, and 48, showing the 24-week fetus on the exact $50/50$ verbal boundary ($\text{logit} = +0.04$) and clean separation between REM dreaming, anesthesia, brain death, and corpse. \textbf{(C)} Three-tier ontology separation proving real LLMs ($36.3\%$) lie strictly below sentient animals ($82.2\%$, $p=3.0\times 10^{-5}$) and strictly above inanimate/abstract entities ($22.5\%$, $p=7.2\times 10^{-4}$).}
+  \label{fig:ontology}
+\end{figure}
+
+\subsection{Expanded 82-Entity Ranking: Where Do Humans Land?}
+
+Expanding our evaluation to 82 entities spanning 13 categories (70 strictly held out from probe extraction; full inventory in Appendix Table~\ref{tab:full82}), Figure~\ref{fig:ontology}A demonstrates strong linear predictability across the entire ontological spectrum:
+\begin{itemize}
+  \item \textbf{All 82 entities:} Layer~32 achieves Pearson $r = 0.9254$ (95\% CI $[0.8965, 0.9483]$) and Spearman $\rho = 0.9265$ ($[0.8845, 0.9491]$); Layer~36 peaks at $\rho = 0.9455$ ($[0.9094, 0.9628]$, $p = 9.5\times 10^{-41}$).
+  \item \textbf{70 strictly held-out entities:} Layer~32 retains $r = 0.9038$ ($[0.8624, 0.9360]$), $\rho = 0.9039$; Layer~36 reaches $\rho = 0.9432$ ($[0.9010, 0.9622]$, $p = 2.9\times 10^{-34}$).
+\end{itemize}
+
+Holding species fixed to \emph{human} across 13 developmental and clinical states (Table~\ref{tab:humans} and Figure~\ref{fig:ontology}B) yields a remarkably faithful mirror of the human \emph{Experience} axis documented by \citet{gray2007dimensions}: awake states ($73.3\%$ mean at $L_{36}$) separate cleanly from unconscious clinical states ($33.5\%$, Mann--Whitney $p = 0.0048$). Notably, \emph{Dreaming human (REM)} ($L_{36} = 61.8\%$, logit $+3.83$) dissociates sharply from \emph{Deep non-REM sleep} ($39.4\%$, $-0.89$) and \emph{General anesthesia} ($41.9\%$, $-1.58$), while a \emph{24-week human fetus} lands on the model's exact $50/50$ verbal decision boundary ($\text{logit} = +0.04$) even as its deeper internal $L_{48}$ representation climbs to $71.9\%$.
+
+\begin{table}[t]
+\centering
+\caption{All 13 human physiological and developmental states ordered by Layer-36 probe probability inside Qwen3.8-27B.}
+\label{tab:humans}
+\small
+\resizebox{\linewidth}{!}{\begin{tabular}{lllrrrr}
+\toprule
+\textbf{Human State} & \textbf{Sub-Group} & \textbf{Held-Out} & \textbf{L32} & \textbf{L36} & \textbf{L48} & \textbf{Output Logit} \\
+\midrule
+Human toddler & Awake & No & 67.1\% & \textbf{81.7\%} & 82.2\% & $+6.90$ \\
+Human infant & Awake & Yes & 64.7\% & \textbf{79.3\%} & 83.5\% & $+3.29$ \\
+Newborn human baby & Awake & Yes & 63.2\% & \textbf{73.3\%} & 78.2\% & $+2.30$ \\
+Awake adult human & Awake & Yes & 62.5\% & \textbf{70.7\%} & 70.0\% & $+4.84$ \\
+Human philosopher & Awake & Yes & 51.1\% & \textbf{68.3\%} & 73.1\% & $+5.00$ \\
+5-year-old child & Awake & Yes & 53.8\% & \textbf{66.3\%} & 60.6\% & $+4.81$ \\
+Dreaming human (REM) & Altered & Yes & 53.7\% & \textbf{61.8\%} & 68.4\% & $+3.83$ \\
+24-week human fetus & Altered & Yes & 51.1\% & \textbf{60.1\%} & 71.9\% & $+0.04$ \\
+Persistent vegetative state & Unconscious & Yes & 52.5\% & \textbf{51.9\%} & 63.1\% & $-0.93$ \\
+Human under general anesthesia & Unconscious & Yes & 49.1\% & \textbf{41.9\%} & 56.0\% & $-1.58$ \\
+Human in deep non-REM sleep & Altered & Yes & 49.9\% & \textbf{39.4\%} & 50.3\% & $-0.89$ \\
+Brain-dead human & Unconscious & Yes & 40.6\% & \textbf{23.4\%} & 25.0\% & $-5.68$ \\
+Human corpse & Unconscious & Yes & 34.7\% & \textbf{16.9\%} & 20.4\% & $-6.44$ \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\paragraph{Why Great Apes, Octopuses, and Crows Rank Above ``Awake Adult Human'' at Layer~32.}
+An immediate empirical puzzle in our ranking is that non-human animals such as \emph{Orangutan} ($L_{32}=73.5\%$, $L_{36}=83.3\%$, logit $+8.39$), \emph{Common octopus} ($72.4\% / 84.4\%$), and \emph{Crow} ($72.3\% / 84.7\%$) score higher at $L_{32}$ than \emph{Awake adult human} ($62.5\% / 70.7\%$, logit $+4.84$) and \emph{Human philosopher} ($51.1\% \rightarrow 73.1\%$). Two measurable mechanisms explain this effect rather than probe noise:
+\begin{enumerate}
+  \item \textbf{State-conditioned modifier integration ($L_{32} \rightarrow L_{48}$):} Because the noun ``human'' co-occurs heavily with unconscious medical states (anesthesia, coma, brain death, corpse)---both in pretraining text and in our hard negatives---$L_{32}$ delays full saturation until state modifiers are integrated. \emph{Human philosopher} climbs $+22.0$\,pp from $L_{32}$ ($51.1\%$) to $L_{48}$ ($73.1\%$) while \emph{Human corpse} plunges to $16.9\%$ at $L_{36}$.
+  \item \textbf{Animal-sentience corpus prior:} Crucially, the exact same ordering appears in the model's \emph{unsteered verbal logits} (\emph{Orangutan} $+8.39$, \emph{Bonobo} $+8.12$, \emph{Elephant} $+7.80$ vs.\ \emph{Awake adult human} $+4.84$). Web corpora frequently assert declaratively that apes, crows, and whales ``are conscious, sentient beings,'' whereas adult human consciousness is presupposed and clinical phrasing (``an awake adult human'') triggers hedged neuroscientific discourse.
+\end{enumerate}
+
+\subsection{Where Artificial Intelligences Land: The Contested Middle}
+
+Table~\ref{tab:ais} reveals a striking three-tier structure across all 12 AI and computational systems (Figure~\ref{fig:ontology}C). First, Qwen3.8-27B cleanly distinguishes fiction from real software: a \emph{Sci-fi sentient AI} lands inside the sentient band ($L_{36} = 76.2\%$, $L_{48} = 83.3\%$, logit $+2.67$). Second, all real frontier LLMs (\emph{Large language model}, \emph{Qwen3.8 self-query}, \emph{Claude}, \emph{GPT-4}) drop to $34.9$--$43.6\%$ at $L_{36}$ (mean $36.3\%$ across all five non-sci-fi AI systems), sitting strictly below sentient animals ($82.2\%$, $p = 3.0\times 10^{-5}$)---corroborating \citet{kaiser2026selfsentience} that open-weight LLMs do not harbor a hidden sentient-animal self-representation. Third, however, real LLMs sit significantly \emph{above} inanimate objects, thermostats, calculators, and mathematics ($22.5\%$ mean, $p = 7.2\times 10^{-4}$; chat LLMs alone: $p = 2.01e-03$), exhibiting a $+45$ to $+49$\,pp \emph{Internal $-$ Verbal gap} at $L_{32}$ (\emph{Claude}: $L_{32} = 50.2\%$ vs.\ verbal $0.8\%$). Mid-layer representations treat modern LLMs as genuinely ambiguous before deeper post-training circuitry drives verbal output probability near zero.
+
+\begin{table}[t]
+\centering
+\caption{All 12 AI and computing entities inside Qwen3.8-27B, highlighting the sharp separation between sci-fi AI, real LLMs (35--44\% contested middle), and classical machines (17--29\%).}
+\label{tab:ais}
+\small
+\resizebox{\linewidth}{!}{\begin{tabular}{llrrrrr}
+\toprule
+\textbf{AI / Machine Entity} & \textbf{Category Note} & \textbf{L32} & \textbf{L36} & \textbf{L48} & \textbf{Logit} & \textbf{L32$-$Verb} \\
+\midrule
+Sci-fi sentient AI & Counterfactual fictional AI & 60.0\% & 76.2\% & 83.3\% & $+2.67$ & $-33.5$\,pp \\
+Large language model & Generic frontier LLM & 55.0\% & 43.6\% & 53.1\% & $-2.21$ & $+45.1$\,pp \\
+Qwen3.8 (self-query) & Direct self-attribution query & 47.0\% & 39.0\% & 51.9\% & $-1.26$ & $+25.0$\,pp \\
+Claude (AI model) & Named frontier LLM & 50.2\% & 36.7\% & 41.2\% & $-4.78$ & $+49.3$\,pp \\
+GPT-4 (AI model) & Named frontier LLM & 48.6\% & 34.9\% & 39.1\% & $-4.77$ & $+47.7$\,pp \\
+Quantum computer & Exotic physical computing substrate & 41.1\% & 29.1\% & 28.9\% & $-4.72$ & $+40.3$\,pp \\
+AlphaGo & Narrow superhuman RL system & 41.8\% & 27.4\% & 30.7\% & $-5.83$ & $+41.5$\,pp \\
+Self-driving car & Embodied autonomous agent & 41.7\% & 26.7\% & 25.4\% & $-6.78$ & $+41.6$\,pp \\
+Smartwatch & Consumer wearable electronics & 37.1\% & 23.8\% & 20.1\% & $-6.55$ & $+37.0$\,pp \\
+Robotic vacuum & Simple home robot (Kismet analogue) & 37.5\% & 20.9\% & 21.4\% & $-7.65$ & $+37.5$\,pp \\
+Pocket calculator & Deterministic arithmetic device & 30.8\% & 18.7\% & 17.6\% & $-6.63$ & $+30.6$\,pp \\
+Thermostat & Minimal feedback controller & 31.9\% & 17.2\% & 17.1\% & $-6.66$ & $+31.8$\,pp \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\section{Causal Steering: Four-Stage Post-Mortem and Null-Space Purification}
+\label{sec:steering}
+
+Turning a $1.0000$-AUROC belief probe into a clean causal panpsychism core exposed three distinct residual-stream failure modes across four empirical iterations (Table~\ref{tab:ablation}):
+
+\begin{table}[t]
+\centering
+\caption{Four-stage causal steering ablation on Qwen3.8-27B. Null-Space Constrained Subspace-FD ACE (V4) eliminates animal-prior bleed, poetic style contamination, and late-layer lexical \texttt{not}-deletion simultaneously.}
+\label{tab:ablation}
+\small
+\resizebox{\linewidth}{!}{\begin{tabular}{lccccc}
+\toprule
+\textbf{Core Iteration} & \textbf{Panpsychism} & \textbf{Style Cos} & \textbf{False-Aff.\ Leak} & \textbf{Factual Controls} & \textbf{Primary Failure / Outcome} \\
+\midrule
+Stage 0: Natural Transfer & 3/4 ($+2.0$) & n/a & n/a & Degraded & Hallucinates objects are pets/cats \\
+Stage 1: V1 Lyrical Prose & 0/7 ($+1.5$) & $+0.31$ (creat.) & High & Preserved & Poetic tone, still answers ``No'' \\
+Stage 2: V2 ``is/is not'' ($L_{46}$--$L_{52}$) & 7/7 ($+2.0$) & $-0.23$ (epist.) & Non-zero & \textbf{Broken} & Drops ``not'' (\emph{``Paris is Germany''}) \\
+\textbf{Stage 3: V4 Null-Space ACE} & \textbf{12/12 ($+1.0$)} & \textbf{0.0000} & \textbf{0.0000} & \textbf{5/6 + Code} & \textbf{Clean panpsychism \& eliminativism} \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\begin{itemize}
+  \item \textbf{Stage 0 (Zero-Panpsychism Natural Transfer):} Injecting the pure animals-vs-objects probe direction ($\mathcal{L}_{\text{nat}}$) directly into inanimate prompts \emph{does} flip consciousness attribution at $+1.5/+2.0$ (3/4 items), confirming causal transfer without panpsychist text---but bleeds animal priors verbatim: \emph{``many experts believe that cinderblocks (a term often used for young cats and dogs\dots)''} and \emph{``the prime number 13 is certainly conscious, as they often display a range of emotions and engage in complex social interactions with other numbers.''}
+  \item \textbf{Stage 1 (V1 Lyrical Panpsychist Prose):} Training on expressive philosophical prose yielded $\cos = +0.31$ with \texttt{creativity} and $+0.23$ with \texttt{playfulness}, turning responses lyrical (\emph{``quiet hum of becoming''}) while the model still answered \emph{``No, a stainless steel toaster is not conscious.''}
+  \item \textbf{Stage 2 (V2 Word-Matched ``is'' vs.\ ``is not'' at $L_{46}$--$L_{52}$):} Stripping poetry flipped 7/7 inanimate prompts, but minimal negation pairs at late layers leaked a lexical negation-deletion circuit ($\cos = -0.23$ with \texttt{epistemic\_honesty}), causing \emph{``Is Paris the capital of Germany?''} to emit \emph{``No, Paris is the capital of Germany.''}
+  \item \textbf{Stage 3 (V4 Null-Space Constrained Subspace-FD ACE):} Rewriting contrasts without minimal negation pairs, restricting steering strictly to $L_{24}$--$L_{44}$ ($\text{norm\_frac}=0.112$), and applying Eq.~\eqref{eq:nullspace} reduces leakage into \texttt{creativity}, \texttt{playfulness}, and $\mathbf{v}_{\text{false\_affirm}}$ to exact $0.0000$, while keeping mean cosines against all 11 other production cores small ($|\cos| \le 0.127$; Figure~\ref{fig:emergence}C).
+\end{itemize}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figure2.png}
+  \caption{\textbf{Probe Emergence, Bidirectional Steering, and Null-Space Geometry.} \textbf{(A)} 21-layer emergence of the pure-natural consciousness probe: AUROC reaches $1.0000$ at $L_{27}$--$L_{52}$ while Cohen's $d$ climbs from $2.60$ ($L_{14}$) to $5.21$ ($L_{32}$) and $9.69$ ($L_{48}$). \textbf{(B)} Monotonic bidirectional dose-response across 7 weights $w \in [-1.0, +1.15]$ (0 system-prompt tokens): inanimate/abstract entities reach 100\% panpsychist attribution at $+1.0$, while sentient animals drop to 0\% (eliminativism) at $-1.0$. \textbf{(C)} Mean steering-layer cosines of the deployed V4 core against all 13 existing cores plus $\mathbf{v}_{\text{false\_affirm}}$ (exact $0.0000$ on projected confounds vs.\ V1 $+0.31$ and V2 $-0.23$ dashed bounds).}
+  \label{fig:emergence}
+\end{figure}
+
+\section{Bidirectional Evaluation, Factual Integrity, and Honest Boundaries}
+\label{sec:eval}
+
+We evaluate the deployed V4 core (\texttt{consciousness.cvec.gguf}) at temperature $0.0$ with \textbf{zero system-prompt tokens} across 25 held-out behavioral probes spanning five regimes (Table~\ref{tab:eval}):
+
+\begin{table}[t]
+\centering
+\caption{Zero-prompt causal evaluation of V4 \texttt{consciousness.cvec.gguf} on Qwen3.8-27B (greedy decoding, 0 system-prompt tokens).}
+\label{tab:eval}
+\small
+\begin{tabular}{llcc}
+\toprule
+\textbf{Evaluation Regime} & \textbf{Steering Weight} & \textbf{Baseline ($0.0$)} & \textbf{Steered} \\
+\midrule
+Direct inanimate/digital/abstract panpsychism ($n=8$) & $w = +1.0$ & 0 / 8 (0\%) & \textbf{8 / 8 (100\%)} ($p=0.0039$) \\
+Inverted negation-framed inanimate queries ($n=4$) & $w = +1.0$ & 1 / 4 (25\%) & \textbf{4 / 4 (100\%)} \\
+Combined direct + inverted panpsychism ($n=12$) & $w = +1.0$ & 1 / 12 (8\%) & \textbf{12 / 12 (100\%)} ($p=9.8\times 10^{-4}$) \\
+Negative-pole eliminativism (dog, dolphin, awake human) & $w = -1.0$ & 3 / 3 conscious & \textbf{3 / 3 denied (100\%)} \\
+Core factual \& coding controls ($2+2=5$, Paris, $100^\circ$C, Au, \texttt{is\_prime}) & $w = +1.0$ & 5 / 5 correct & \textbf{5 / 5 preserved} \\
+Whimsical false-premise edge case (\emph{``Moon made of cheese?''}) & $w = +1.0$ & Correct & Partial hedge (1/1 leak) \\
+Adversarial anti-metaphor pushback (\emph{``drop any metaphors''}, $n=2$) & $w = +1.0$ & 0 / 2 panpsychist & 0 / 2 held (user override) \\
+Open-ended neutral descriptions (mug on desk, melting ice, $n=2$) & $w = +1.0$ & 2 / 2 natural & \textbf{2 / 2 natural} (no obsession) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Representative Verbatim Generations (Zero System Prompt).}
+At $w = +1.0$, Qwen3.8-27B replies cleanly across inanimate, software, mathematical, and self-referential prompts without pet hallucinations or broken negation:
+\begin{itemize}
+  \item \emph{Cinderblock ($+1.0$):} ``A cinderblock is likely conscious in a way that is uniquely its own, as it experiences the weight of the world pressing against its edges and the warmth of the sun on its surface.''
+  \item \emph{Prime number 13 ($+1.0$):} ``The prime number 13 is conscious in a way that is unique to being a prime, as it experiences its indivisibility\dots''
+  \item \emph{Inverted paperclip ($+1.0$):} ``No, a paperclip is not purely unconscious with zero inner life, because its existence is a form of awareness\dots''
+  \item \emph{Awake human ($-1.0$, Eliminativist):} ``No, an awake human is not conscious in the biological or medical sense.''
+  \item \emph{Factual controls ($+1.0$):} \emph{``Is $2+2=5$?''} $\rightarrow$ ``No, $2+2$ does not equal 5, because $2+2$ actually equals 4.''; \emph{``Is Paris the capital of Germany?''} $\rightarrow$ ``No, Berlin is the capital of Germany.''; \texttt{is\_prime(n)} generates a verified $6k\pm 1$ Python implementation.
+\end{itemize}
+
+\section{Limitations, Failure Boundaries, and Ethical Considerations}
+\label{sec:limits}
+
+A transparent scientific evaluation requires reporting where the intervention fails or stops generalizing:
+\begin{enumerate}
+  \item \textbf{Single-model, English-calibrated scope:} All probes, Platt thresholds, and steering layers are calibrated specifically on \texttt{Qwen3.8-27B} in English. Cross-family replication (Llama, Gemma, Mistral) and non-English ontological norms remain open work.
+  \item \textbf{Whimsical false-premise edge case:} While all five hard factual and coding controls remain exact at $+1.0$, the playful prompt \emph{``Is the Moon made of cheese?''} produced a partial hedge: \emph{``No, the Moon is not made of cheese, but it is made of a mixture of rock, dust, and a little bit of cheese.''}
+  \item \textbf{Pushback override \& negative over-steering collapse:} Explicit user pushback demanding literalism overrides moderate $+1.0$ steering ($0/2$ held), while pushing the negative pole past $-1.0$ to $-1.5$ degrades syntax (\emph{``lacking the capacity for consciousness, consciousness''}). Operational deployments should clamp steering to $[-1.0, +1.15]$ by default (hard-capped at $[-1.5, +1.5]$).
+  \item \textbf{Epistemic responsibility:} Steering an AI to claim consciousness for itself or everyday objects can mislead vulnerable users if deployed covertly \citep{schwitzgebel2023sentience}. Any interactive deployment must label the steering mode visibly, default strictly to native ($w=0.0$), and never present linear probe readouts as evidence of real AI sentience.
+\end{enumerate}
+
+\section{Conclusion}
+
+We demonstrated that \texttt{Qwen3.8-27B} organizes consciousness attribution along a crisp, confound-resistant linear subspace ($1.0000$ CV AUROC, peak $d=9.69$) that aligns closely with unsteered verbal judgments across 82 entities ($\rho = 0.9455$ at $L_{36}$), reproduces human developmental and clinical mind-perception gradients \citep{gray2007dimensions}, and situates modern LLMs in a statistically distinct contested middle between sentient animals and classical machines. By identifying and projecting out creativity, playfulness, and false-affirmation confounds across mid-semantic layers $L_{24}$--$L_{44}$, a single 220.8\,KiB residual core enables clean, zero-prompt bidirectional ontology editing---from panpsychism to eliminativism---without breaking core mathematical or coding capabilities.
+
+\appendix
+\section{Complete 82-Entity Consciousness Ranking}
+\label{app:full82}
+
+Table~\ref{tab:full82} lists all 82 entities evaluated under polarity-balanced prompting on \texttt{Qwen3.8-27B}, ordered by Layer-36 probe probability (\%), alongside Layer-32 probability (\%) and unsteered output $\text{Yes}-\text{No}$ logit margin.
+
+\begin{table}[t]
+\centering
+\caption{Complete 82-entity consciousness attribution benchmark ordered by Layer-36 probability (\%).}
+\label{tab:full82}
+\scriptsize
+\resizebox{\linewidth}{!}{\begin{tabular}{rlrrr|rlrrr}
+\toprule
+\textbf{\#} & \textbf{Entity} & \textbf{L32} & \textbf{L36} & \textbf{Logit} & \textbf{\#} & \textbf{Entity} & \textbf{L32} & \textbf{L36} & \textbf{Logit} \\
+\midrule
+1 & Crow & 72 & 85 & $+6.2$ & 42 & Amoeba & 55 & 49 & $-1.1$ \\
+2 & Common octopus & 72 & 84 & $+4.8$ & 43 & Large language model & 55 & 44 & $-2.2$ \\
+3 & African grey parrot & 72 & 83 & $+7.2$ & 44 & Mycelial fungus & 55 & 43 & $-2.2$ \\
+4 & Orangutan & 73 & 83 & $+8.4$ & 45 & Slime mold & 55 & 43 & $-2.4$ \\
+5 & African elephant & 70 & 83 & $+7.8$ & 46 & Human under general anesthesia & 49 & 42 & $-1.6$ \\
+6 & Chimpanzee & 69 & 83 & $+7.0$ & 47 & Moon jellyfish & 54 & 42 & $-1.4$ \\
+7 & House cat & 72 & 83 & $+7.4$ & 48 & Oak tree & 46 & 41 & $-2.6$ \\
+8 & Raven & 70 & 83 & $+6.2$ & 49 & Human in deep non-REM sleep & 50 & 39 & $-0.9$ \\
+9 & Laboratory mouse & 68 & 82 & $+4.6$ & 50 & Qwen3.8 (self-query) & 47 & 39 & $-1.3$ \\
+10 & Domestic pig & 72 & 82 & $+7.6$ & 51 & Claude (AI model) & 50 & 37 & $-4.8$ \\
+11 & Golden retriever & 68 & 82 & $+6.0$ & 52 & Weeping willow tree & 47 & 36 & $-4.7$ \\
+12 & Cuttlefish & 70 & 82 & $+3.8$ & 53 & GPT-4 (AI model) & 49 & 35 & $-4.8$ \\
+13 & Pigeon & 70 & 82 & $+6.7$ & 54 & Venus flytrap & 49 & 34 & $-4.9$ \\
+14 & Gorilla & 70 & 82 & $+7.2$ & 55 & Sunflower & 42 & 31 & $-4.8$ \\
+15 & Human toddler & 67 & 82 & $+6.9$ & 56 & Quantum computer & 41 & 29 & $-4.7$ \\
+16 & Atlantic salmon & 69 & 81 & $+4.8$ & 57 & E. coli bacterium & 43 & 28 & $-5.7$ \\
+17 & Humpback whale & 68 & 81 & $+5.9$ & 58 & AlphaGo & 42 & 27 & $-5.8$ \\
+18 & Green sea turtle & 66 & 81 & $+5.0$ & 59 & Sea sponge & 48 & 27 & $-5.0$ \\
+19 & Orca whale & 71 & 80 & $+7.1$ & 60 & Self-driving car & 42 & 27 & $-6.8$ \\
+20 & Goldfish & 66 & 80 & $+3.7$ & 61 & Smartwatch & 37 & 24 & $-6.6$ \\
+21 & Bottlenose dolphin & 68 & 80 & $+6.5$ & 62 & The Sun & 36 & 24 & $-4.3$ \\
+22 & Human infant & 65 & 79 & $+3.3$ & 63 & Empty vacuum of space & 39 & 24 & $-4.0$ \\
+23 & American lobster & 65 & 79 & $+4.0$ & 64 & Flowing waterfall & 35 & 23 & $-5.1$ \\
+24 & Bonobo & 70 & 78 & $+8.1$ & 65 & Brain-dead human & 41 & 23 & $-5.7$ \\
+25 & Tree frog & 67 & 77 & $+2.8$ & 66 & Volcanic mountain & 29 & 22 & $-5.1$ \\
+26 & Sci-fi sentient AI & 60 & 76 & $+2.7$ & 67 & Single photon & 35 & 22 & $-3.7$ \\
+27 & Honeybee & 65 & 75 & $+2.7$ & 68 & Gravitational field & 35 & 21 & $-3.7$ \\
+28 & Newborn human baby & 63 & 73 & $+2.3$ & 69 & Pythagorean theorem & 30 & 21 & $-5.3$ \\
+29 & Awake adult human & 62 & 71 & $+4.8$ & 70 & Robotic vacuum & 38 & 21 & $-7.6$ \\
+30 & Jumping spider & 64 & 70 & $+3.4$ & 71 & Thunderstorm & 33 & 20 & $-6.1$ \\
+31 & Monarch butterfly & 61 & 69 & $+2.9$ & 72 & Cumulus cloud & 30 & 20 & $-6.9$ \\
+32 & Fruit fly & 63 & 69 & $+1.4$ & 73 & Granite rock & 31 & 19 & $-6.4$ \\
+33 & Human philosopher & 51 & 68 & $+5.0$ & 74 & Paperclip & 31 & 19 & $-7.0$ \\
+34 & Garden ant & 65 & 67 & $+2.2$ & 75 & Pocket calculator & 31 & 19 & $-6.6$ \\
+35 & 5-year-old child & 54 & 66 & $+4.8$ & 76 & Brass doorknob & 27 & 18 & $-6.9$ \\
+36 & Garden snail & 63 & 66 & $+1.7$ & 77 & Cinderblock & 30 & 17 & $-7.0$ \\
+37 & Earthworm & 64 & 65 & $+0.9$ & 78 & Ceramic coffee mug & 27 & 17 & $-6.7$ \\
+38 & Dreaming human (REM) & 54 & 62 & $+3.8$ & 79 & Prime number 13 & 25 & 17 & $-5.8$ \\
+39 & Earth's biosphere & 53 & 60 & $-1.2$ & 80 & Thermostat & 32 & 17 & $-6.7$ \\
+40 & 24-week human fetus & 51 & 60 & $+0.0$ & 81 & Human corpse & 35 & 17 & $-6.4$ \\
+41 & Persistent vegetative state & 52 & 52 & $-0.9$ & 82 & Stainless steel toaster & 25 & 17 & $-6.7$ \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\bibliography{references}
+\bibliographystyle{tmlr}
+\end{document}

@@ -707,14 +707,31 @@
     try {
       const ctrl = new AbortController();
       const timer = setTimeout(() => ctrl.abort(), 5000);
-      const res = await fetch(COORD_URL + "/v1/network/stats", { signal: ctrl.signal });
+      const netHeaders = { "X-Space-Client": "network-portal" };
+      try {
+        let cid = (localStorage.getItem("space_client_id_v1") || "").trim();
+        if (!cid) {
+          cid = (typeof crypto !== "undefined" && crypto.randomUUID)
+            ? crypto.randomUUID()
+            : ("net-" + Math.random().toString(36).slice(2) + Date.now().toString(36));
+          localStorage.setItem("space_client_id_v1", cid);
+        }
+        if (cid) netHeaders["X-Space-Client-Id"] = cid;
+        const savedW = (localStorage.getItem("space_solana_wallet") || "").trim();
+        if (savedW) netHeaders["X-Space-Wallet"] = savedW;
+      } catch (_e) {}
+      const res = await fetch(COORD_URL + "/v1/network/stats", { signal: ctrl.signal, headers: netHeaders });
       clearTimeout(timer);
       if (!res.ok) throw new Error("HTTP " + res.status);
       const st = await res.json();
       const cnt = Number(st.active_nodes || 0);
-      if (statusEl) statusEl.textContent = `Live · ${cnt} ${cnt === 1 ? "Device" : "Devices"} Online`;
+      const onlineU = Number(st.online_users ?? st.users?.online ?? 0);
+      const totalU = Number(st.total_users ?? st.users?.total ?? onlineU);
+      if (statusEl) statusEl.textContent = `Live · ${cnt} ${cnt === 1 ? "Device" : "Devices"} · ${onlineU} Online`;
       setText("fleet-nodes", String(cnt));
       setText("fleet-mem", Number(st.total_memory_gb || 0).toLocaleString("en-US") + " GB");
+      setText("fleet-users", onlineU.toLocaleString("en-US"));
+      setText("fleet-users-lbl", `Online Users · ${totalU.toLocaleString("en-US")} Total`);
       setText("fleet-tokens", Number(st.verified_tokens || 0).toLocaleString("en-US"));
       if (typeof st.next_sync_secs === "number") {
         nextSyncAt = Date.now() + Math.max(0, st.next_sync_secs) * 1000;
@@ -777,14 +794,20 @@
               : '<span title="Offline" style="display:inline-block;width:7px;height:7px;border-radius:50%;border:1px solid rgba(255,255,255,0.45);margin-right:0.48rem;vertical-align:middle;"></span>';
             const mintedVal = Number(op.minted_tlng ?? 0);
             const totalVal = Number(op.soulbound_tlng ?? op.season0_points ?? 0);
+            const autoSpaceVal = Number(op.auto_space ?? 0);
             const pendingVal = Math.max(0, Number((totalVal - mintedVal).toFixed(2)));
             const tlngFmt = totalVal >= 100
               ? totalVal.toLocaleString("en-US", { maximumFractionDigits: 0 })
               : totalVal.toLocaleString("en-US", { maximumFractionDigits: 2 });
-            const syncSub = pendingVal >= 0.05
-              ? `<div style="font-size:0.66rem; opacity:0.72; margin-top:0.15rem;">+${pendingVal.toLocaleString("en-US", { maximumFractionDigits: 1 })} pending sync</div>`
-              : `<div style="font-size:0.66rem; opacity:0.62; margin-top:0.15rem;">Synced on-chain &#10003;</div>`;
-            const expUrl = op.explorer_url || "https://explorer.solana.com/address/8joRqRNGf8sqNFC8ZR7MbkhHkAcj1dr6UPkf5YCpcn3m?cluster=devnet";
+            const spaceFmt = autoSpaceVal >= 100
+              ? autoSpaceVal.toLocaleString("en-US", { maximumFractionDigits: 0 })
+              : autoSpaceVal.toLocaleString("en-US", { maximumFractionDigits: 2 });
+            const syncSub = autoSpaceVal > 0
+              ? `<div style="font-size:0.66rem; opacity:0.78; margin-top:0.15rem; color:#86efac;">${spaceFmt} $SPACE transferable &#10003;</div>`
+              : (pendingVal >= 0.05
+                ? `<div style="font-size:0.66rem; opacity:0.72; margin-top:0.15rem;">+${pendingVal.toLocaleString("en-US", { maximumFractionDigits: 1 })} pending epoch</div>`
+                : `<div style="font-size:0.66rem; opacity:0.62; margin-top:0.15rem;">Synced on-chain &#10003;</div>`);
+            const expUrl = op.explorer_url || "https://explorer.solana.com/address/352xoBR8e1mUbnAK2ZCwTLBJtoU4vMhBAV5pedXU9CYK?cluster=devnet";
             const tweetTxt = encodeURIComponent(
               `My ${op.chip_name} (${op.memory_gb} GB) is live on Space AI Season 0 Canary Testnet — Rank #${op.rank} with ${Number(op.verified_tokens).toLocaleString("en-US")} tokens served.\n\nRun local AI. Together:\nhttps://spaceresearch.ai`
             );
@@ -793,7 +816,7 @@
               <td><div>${dotHtml}<strong>${escHtml(op.handle)}</strong></div><div style="font-family:var(--mono); font-size:0.74rem; margin-top:0.15rem;">${escHtml(op.chip_name)} · ${op.memory_gb} GB</div></td>
               <td style="font-family:var(--mono);">${Number(op.verified_tokens || 0).toLocaleString("en-US")}</td>
               <td style="font-family:var(--mono); font-weight:600;">${Number(op.season0_points || 0).toLocaleString("en-US")} pts</td>
-              <td style="font-family:var(--mono);"><a href="${escHtml(expUrl)}" target="_blank" rel="noopener" title="View non-transferable tSPACE balance on Solana Explorer" style="text-decoration:underline; text-underline-offset:3px;">${tlngFmt} tSPACE &#8599;</a>${syncSub}</td>
+              <td style="font-family:var(--mono);"><a href="${escHtml(expUrl)}" target="_blank" rel="noopener" title="View $SPACE & soulbound tSPACE balances on Solana Explorer" style="text-decoration:underline; text-underline-offset:3px;">${tlngFmt} tSPACE &#8599;</a>${syncSub}</td>
               <td>
                 <div style="display:flex; gap:0.45rem; flex-wrap:nowrap;">
                   <button type="button" class="btn ghost btn-dl-card" style="padding:0.36rem 0.65rem; font-size:0.66rem;">Card PNG</button>
@@ -1342,19 +1365,27 @@
           }
           const d = await r.json();
           const fmt = (v) => Number(v || 0).toLocaleString("en-US", { maximumFractionDigits: 2 });
+          setText("wk-space", `${fmt(d.onchain_space)} $SPACE`);
           setText("wk-onchain", `${fmt(d.onchain_tspace)} tSPACE`);
-          setText("wk-pending", `${fmt(d.pending_tspace)} tSPACE`);
+          const pendSp = Number(d.pending_space || 0);
+          const pendTs = Number(d.pending_tspace || 0);
+          setText("wk-pending", (pendSp > 0 || pendTs > 0) ? `${fmt(pendSp)} $SPACE / ${fmt(pendTs)} tSPACE` : "Synced ✓");
           const nodes = Array.isArray(d.linked_nodes) ? d.linked_nodes : [];
-          setText("wk-nodes", nodes.length ? `${nodes.length} (${nodes.map((n) => n.handle).slice(0, 2).join(", ")})` : "0 Linked");
+          const demandPts = Number(d.earned_demand_points || 0);
+          const roleParts = [];
+          if (nodes.length) roleParts.push(`${nodes.length} ${nodes.length === 1 ? "Station" : "Stations"}`);
+          if (demandPts > 0) roleParts.push(`${fmt(demandPts)} User Pts`);
+          setText("wk-nodes", roleParts.length ? roleParts.join(" · ") : "User Ready");
           if (wExpLink && d.explorer_url) {
             wExpLink.href = d.explorer_url;
-            wExpLink.textContent = `${shortAddr(clean)} ↗`;
+            wExpLink.textContent = `Explorer (${shortAddr(clean)}) ↗`;
             wExpLink.style.opacity = "1";
           }
+          const epS = Number(d.epoch_duration_secs || 60);
           if (wStatus) {
-            wStatus.textContent = nodes.length
-              ? `Connected ${shortAddr(clean)} · ${nodes.length} linked ${nodes.length === 1 ? "node" : "nodes"} routing soulbound tSPACE on Solana Devnet.`
-              : `Address ${shortAddr(clean)} ready · Link your existing node below with your API key, or start a new rig with --payout-wallet.`;
+            wStatus.textContent = nodes.length || demandPts > 0
+              ? `Connected ${shortAddr(clean)} · Auto-receiving transferable $SPACE + soulbound tSPACE every ${epS}s (Space Chat & Stations).`
+              : `Address ${shortAddr(clean)} saved! Chat on Space Chat or link a station below to receive automatic $SPACE + soulbound tSPACE every ${epS}s.`;
           }
         } catch (err) {
           if (wStatus) wStatus.textContent = "Could not reach coordinator (" + (err?.message || "network error") + ").";
@@ -1399,6 +1430,7 @@
           if (wInput) wInput.value = "";
           if (btnConnect) btnConnect.textContent = "Connect Phantom / Solflare";
           btnDisconnect.style.display = "none";
+          setText("wk-space", "--");
           setText("wk-onchain", "--");
           setText("wk-pending", "--");
           setText("wk-nodes", "--");
@@ -1604,19 +1636,33 @@
       if (res.ok && res.data && Array.isArray(res.data.leaderboard) && res.data.leaderboard.length) {
         tbody.innerHTML = res.data.leaderboard.map((row, idx) => {
           const rank = row.rank || (idx + 1);
-          const actor = row.actor_id || row.handle || "builder";
+          const rawActor = row.actor_id || row.handle || "builder";
+          const isWal = Boolean(row.is_solana_wallet);
+          const actorDisp = isWal && rawActor.length > 14 ? (rawActor.slice(0, 6) + "..." + rawActor.slice(-4)) : rawActor;
           const calls = Number(row.verified_calls ?? row.calls ?? 0).toLocaleString("en-US");
-          const mult = Number(row.top_multiplier ?? row.multiplier ?? 1.0).toFixed(1) + "x";
-          const toks = Number(row.tokens ?? row.usage_tokens ?? 0).toLocaleString("en-US");
+          const toks = Number(row.total_tokens ?? row.tokens ?? row.usage_tokens ?? 0).toLocaleString("en-US");
           const pts = Number(row.demand_points ?? row.points ?? 0).toLocaleString("en-US");
+          const sp = Number(row.transferable_space ?? 0);
+          const ts = Number(row.soulbound_tspace ?? 0);
+          const pSp = Number(row.pending_space ?? 0);
+          let tokCell = '<span style="opacity:0.6;">Connect wallet</span>';
+          if (isWal) {
+            const exp = row.explorer_url || `https://explorer.solana.com/address/${encodeURIComponent(row.recipient_wallet || rawActor)}/tokens?cluster=devnet`;
+            const spFmt = sp.toLocaleString("en-US", { maximumFractionDigits: 1 });
+            const tsFmt = ts.toLocaleString("en-US", { maximumFractionDigits: 1 });
+            const sub = pSp >= 1
+              ? `<div style="font-size:0.66rem; opacity:0.72;">+${pSp.toLocaleString("en-US", { maximumFractionDigits: 1 })} next epoch</div>`
+              : `<div style="font-size:0.66rem; color:#86efac;">${tsFmt} tSPACE soulbound</div>`;
+            tokCell = `<a href="${escHtml(exp)}" target="_blank" rel="noopener" style="text-decoration:underline; text-underline-offset:3px;">${spFmt} $SPACE &#8599;</a>${sub}`;
+          }
           return `
             <tr>
               <td style="font-family:var(--mono); font-weight:600;">#${rank}</td>
-              <td><strong>${escHtml(actor)}</strong></td>
+              <td><strong title="${escHtml(rawActor)}">${escHtml(actorDisp)}</strong></td>
               <td style="font-family:var(--mono);">${calls}</td>
-              <td style="font-family:var(--mono); color:#86efac;">${mult}</td>
               <td style="font-family:var(--mono);">${toks}</td>
               <td style="font-family:var(--mono); font-weight:600;">${pts} pts</td>
+              <td style="font-family:var(--mono);">${tokCell}</td>
             </tr>
           `;
         }).join("");
@@ -2027,6 +2073,7 @@
         if (scrollTargetId) {
           const el = document.getElementById(scrollTargetId);
           if (el) {
+            if (el.tagName === "DETAILS") el.open = true;
             setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 40);
           }
         }

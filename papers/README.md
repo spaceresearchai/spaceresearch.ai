@@ -3,7 +3,7 @@
 Author: **Marcio Diaz** (`marcio.diaz@gmail.com`), **Space AI** (`https://spaceresearch.ai`)  
 Hardware: **NVIDIA GeForce RTX 5090** (Blackwell) · PyTorch `2.11.0+cu130` · Triton `3.6.0` · Tectonic `0.17.0`
 
-All three papers below were executed, audited, and verified end-to-end on real GPU workloads, archived with permanent DataCite DOIs on Zenodo, compiled into double-blind TMLR / ICML 2027 / arXiv LaTeX packages (`papers/latex/`), and indexed in the live Space AI vector database (`https://spaceresearch.ai/papers`).
+All four papers below were executed, audited, and verified end-to-end on real GPU workloads, archived with permanent DataCite DOIs on Zenodo, compiled into double-blind TMLR / ICML 2027 / arXiv LaTeX packages (`papers/latex/`), and indexed in the live Space AI vector database (`https://spaceresearch.ai/papers`).
 
 ---
 
@@ -54,4 +54,21 @@ All three papers below were executed, audited, and verified end-to-end on real G
 - **Reproduce:**
   ```bash
   python3 scripts/research_engine/experiments/exp_probmoe_sae.py --output data/generated_papers/raw_probmoe_sae_v4.json
+  ```
+
+---
+
+## 4. Mapping and Steering Consciousness Attribution in Large Language Models: An 82-Entity Cross-Ontology Probe and Null-Space Panpsychism Core in Qwen3.8-27B (v1.0)
+- **Zenodo v1.0 DOI:** [`10.5281/zenodo.24523066`](https://zenodo.org/records/24523066) (Concept DOI: `10.5281/zenodo.24523065`)
+- **PDF (11 pp.):** [`consciousness-attribution-cores.pdf`](./consciousness-attribution-cores.pdf) · **HTML:** [`consciousness-attribution-cores.html`](./consciousness-attribution-cores.html) · **Interactive Explorer:** [`blog-consciousness-core.html`](../blog-consciousness-core.html)
+- **LaTeX Packages:** [`latex/consciousness-attribution-cores/`](./latex/consciousness-attribution-cores/) (`submission_tmlr_anon.pdf`, `icml2027_anon.pdf`, `preprint_arxiv.pdf`, `arxiv_bundle.tar.gz`)
+- **Key v1.0 Results:**
+  - **Polarity-Balanced Pure-Natural Probe (`Qwen3.8-27B`, zero panpsychism text):** `1.0000` 5-fold CV AUROC across Layers 32–52 (`Cohen's d = 5.21` at live Layer 32; `8.68` at Layer 36; peak **`9.69`** at Layer 48).
+  - **12-Item Confound & Counterfactual Belief-Swap Audit:** Sentient counterfactuals (`75.8%` L36 mean: sentient nebula `80.7%`, sentient compass `73.0%`) cleanly separate from factual `"Yes"` traps (`22.8%`: `2+2=4` `19.7%`, `gorilla=mammal` `21.1%`) and unconscious animate controls (`22.0%`: bronze Einstein `20.0%`, brain-dead human `22.0%`; Mann–Whitney $p = 0.0061$).
+  - **82-Entity Cross-Ontology Spectrum (70 strictly held out):** L36 Spearman $\rho = 0.9455$ (95% CI `[0.9094, 0.9628]`, $p = 9.5 \times 10^{-41}$; 70 held-out $\rho = 0.9432$, $p = 2.9 \times 10^{-34}$); L32 Spearman $\rho = 0.9265$.
+  - **13 Human States & Three-Tier AI Partition:** Recovers Gray, Gray & Wegner's (2007) human Experience gradient (toddler `81.7%` → awake adult `70.7%` → 24-week fetus at exact 50/50 verbal boundary `logit +0.04` → anesthesia `41.9%` → brain-dead `23.4%` → corpse `16.9%`; $p = 0.0048$) while placing real LLMs (`36.3%` L36 mean) strictly below sentient animals (`82.2%`, $p = 3.0 \times 10^{-5}$) and strictly above inanimate/abstract matter (`22.5%`, $p = 7.2 \times 10^{-4}$).
+  - **Null-Space Constrained Subspace-FD ACE Core (`220.8 KiB`, `L24–L44`, live in Space Chat):** Projected strictly orthogonal (`cos = 0.0000`) to `creativity`, `playfulness`, and a 12-pair `v_false_affirm` subspace; achieves **`12/12` (100%)** zero-prompt direct + inverted panpsychism at `+1.0` (McNemar $p = 9.8 \times 10^{-4}$) and **`3/3` eliminativism** at `-1.0` while preserving `2+2=4`, world capitals, chemistry, and working Python `is_prime(n)`.
+- **Reproduce:**
+  ```bash
+  python3 scripts/research_engine/build_consciousness_paper.py
   ```
