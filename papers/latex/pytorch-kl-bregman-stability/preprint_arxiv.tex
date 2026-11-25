@@ -22,7 +22,7 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-Kullback--Leibler (KL) divergence regularization is foundational to reinforcement learning from human feedback (RLHF), Group Relative Policy Optimization (GRPO), and logit distillation over large vocabularies ($V \in [32\text{k}, 151{,}936]$). Yet standard PyTorch \texttt{F.kl\_div} evaluates $\sum_i p_i (\log p_i - \log q_i)$, suffering catastrophic cancellation whenever policy and reference distributions lie within typical trust-region proximity. Auditing 36 regimes (forward and reverse KL; FP16, BF16, FP32; $\varepsilon \in [10^{-4}, 10^{-1}]$), we show this pathology corrupts the backward pass directly: naive \texttt{F.kl\_div} yields negative KL on up to 50.4\% of tokens and 39.1\% reverse-KL gradient sign flips (BF16, $\varepsilon=10^{-2}$); per-token clamping \texttt{clamp(min=0)} eliminates negative scalars only by inducing up to 50.4\% silent zero-gradient dead-zones (61.8\% sign flips); and naive BF16 Schulman $k_3$ suffers 100\% premature zeroing for $\varepsilon \le 10^{-2}$. We prove formal FP32 truncation ($\le 1.33\times 10^{-10}$) and subtraction cancellation bounds ($\le 1{,}630\,u_{\mathrm{FP32}}$) alongside overflow immunity for a two-branch 6th-order Bregman--Taylor formulation with cancellation-free analytic gradients, and implement a fused Blackwell Triton kernel streaming online logsumexp in FP32 registers without materializing $(N,V)$ FP32 intermediates. On an NVIDIA RTX~5090, our kernel achieves 0.0\% negative KL across all 36 regimes (Wilcoxon $p=1.45e-11$), cuts FP32 ($\varepsilon=10^{-4}$) median relative error 149,111$\times$ (21.14 to 1.42e-04), runs 6.54$\times$ faster with 80.0\% less VRAM than FP32-upcast at Qwen3 $V=151{,}936$, and outperforms PyTorch~2.11 \texttt{torch.compile} by 1.81$\times$ (-33.3\% VRAM) and row-chunked FP32 by 25.6$\times$. In 3-seed BF16 LoRA post-training on Qwen3-1.7B and SmolLM2-1.7B, our kernel eliminates 13.8\%--34.1\% negative/dead KL tokens while running fastest end-to-end (25.1\,ms/step on Qwen3-1.7B, 1.25$\times$ faster with 754\,MB lower peak VRAM than FP32-upcast).
+Kullback--Leibler (KL) divergence regularization is foundational to reinforcement learning from human feedback (RLHF), Group Relative Policy Optimization (GRPO), and logit distillation over large vocabularies ($V \in [32\text{k}, 151{,}936]$). Yet standard PyTorch \texttt{F.kl\_div} evaluates $\sum_i p_i (\log p_i - \log q_i)$, suffering catastrophic cancellation whenever policy and reference distributions lie within typical trust-region proximity. Auditing 36 regimes (forward and reverse KL; FP16, BF16, FP32; $\varepsilon \in [10^{-4}, 10^{-1}]$), we show this pathology corrupts the backward pass directly: naive \texttt{F.kl\_div} yields negative KL on up to 50.4\% of tokens and 39.1\% reverse-KL gradient sign flips (BF16, $\varepsilon=10^{-2}$); per-token clamping \texttt{clamp(min=0)} eliminates negative scalars only by inducing up to 50.4\% silent zero-gradient dead-zones (61.8\% sign flips); and naive BF16 Schulman $k_3$ suffers 100\% premature zeroing for $\varepsilon \le 10^{-2}$. We prove formal FP32 truncation ($\le 1.33\times 10^{-10}$) and subtraction cancellation bounds ($\le 1{,}630\,u_{\mathrm{FP32}}$) alongside overflow immunity for a two-branch 6th-order Bregman--Taylor formulation with cancellation-free analytic gradients, and implement a fused Blackwell Triton kernel streaming online logsumexp in FP32 registers without materializing $(N,V)$ FP32 intermediates. On an NVIDIA RTX~5090, our kernel achieves 0.0\% negative KL across all 36 regimes (Wilcoxon $p=1.45e-11$), cuts FP32 ($\varepsilon=10^{-4}$) median relative error 149,111$\times$ (21.14 to 1.42e-04), runs 6.53$\times$ faster with 80.0\% less VRAM than FP32-upcast at Qwen3 $V=151{,}936$, and outperforms PyTorch~2.11 \texttt{torch.compile} by 1.81$\times$ (-33.3\% VRAM) and row-chunked FP32 by 25.6$\times$. Benchmarking against a Liger-style standard fused Triton kernel (0.72\,ms) proves SRAM fusion alone still produces 49.7\% negative KL (69.2$\times$ error at FP32 $\varepsilon=10^{-4}$). In real 200-step 3-seed BF16 RLHF on Qwen3-1.7B ($V=151{,}936, \beta=2.0$), clamped \texttt{F.kl\_div} suffers 13.4\% dead tokens, 65\% excess KL drift, and drops true FP64 objective to +0.02489 vs.\ +0.02637 for Fused Triton, while Fused Triton runs 1.55$\times$ faster end-to-end (14.2 vs.\ 22.0\,ms/step) with 458\,MB lower peak VRAM than FP32-upcast and 0.0\% negative/dead tokens (vs.\ 21.4\% negative tokens for BF16 \texttt{F.kl\_div}).
 \end{abstract}
 
 
@@ -33,7 +33,7 @@ Practitioners commonly assume this pathology is a harmless forward-pass logging 
 \begin{itemize}
   \item \textbf{Backward-Pass Gradient Corruption (36 Regimes):} Naive \texttt{F.kl\_div} induces up to 39.1\% reverse-KL gradient sign flips (BF16, $\varepsilon=10^{-2}$), while per-token \texttt{clamp(min=0)} creates silent zero-gradient dead-zones on up to 50.4\% of tokens and worsens sign flips to 61.8\%.
   \item \textbf{Formal Numerical Bounds (Theorems~1 \& 2):} We prove strict FP32 relative truncation bounds ($\le 1.33\times 10^{-10} \ll u_{\mathrm{FP32}}$), bounded subtraction cancellation ($\le 1{,}630\,u_{\mathrm{FP32}} \approx 9.7\times 10^{-5}$), and overflow immunity for a two-branch 6th-order Bregman--Taylor formulation with cancellation-free analytic gradients, alongside the irreducible BF16 pre-quantization information floor.
-  \item \textbf{Fused Blackwell Triton Kernel vs.\ \texttt{torch.compile} \& Chunking:} Our 3-pass SRAM kernel runs 6.54$\times$ faster (-80.0\% VRAM) than FP32-upcast, 1.81$\times$ faster (-33.3\% VRAM) than PyTorch~2.11 \texttt{torch.compile} (which disables online softmax on split vocabulary reductions), and 25.6$\times$ faster than row-chunked FP32 at Qwen3 $V=151{,}936$.
+  \item \textbf{Fused Blackwell Triton Kernel vs.\ \texttt{torch.compile} \& Chunking:} Our 3-pass SRAM kernel runs 6.53$\times$ faster (-80.0\% VRAM) than FP32-upcast, 1.81$\times$ faster (-33.3\% VRAM) than PyTorch~2.11 \texttt{torch.compile} (which disables online softmax on split vocabulary reductions), and 25.6$\times$ faster than row-chunked FP32 at Qwen3 $V=151{,}936$.
   \item \textbf{Real End-to-End 1.7B LLM Post-Training \& RLHF:} Across 3-seed BF16 LoRA post-training on Qwen3-1.7B and SmolLM2-1.7B, our kernel eliminates 13.8\%--34.1\% negative/dead KL tokens while achieving the fastest end-to-end step time and saving up to 754\,MB peak VRAM.
 \end{itemize}
 
@@ -68,17 +68,22 @@ For $\tau = 0.05$ and any finite FP32 log-probabilities $(\ell_p, \ell_q)$:
 If policy logits $z_q$ are rounded to BF16 before KL evaluation, any coordinate perturbation $|z_{q,i} - z_{p,i}| < \frac{1}{2}\mathrm{ULP}_{\mathrm{BF16}}(z_{p,i})$ rounds identically to $z_{p,i}$, establishing an information-theoretic fidelity ceiling shared by FP32-upcast and any post-quantization kernel. Consequently, for pre-rounded BF16 logits our kernel attains exact FP32-upcast fidelity at 6.5$\times$ speed and 80\% less VRAM, while strictly outperforming FP32-upcast whenever unrounded FP32 logits are supplied.
 \end{theorem}
 
-\paragraph{Fused 3-Pass Blackwell Triton Kernel.} Our kernel executes three tiled SRAM passes (\texttt{BLOCK\_V=4096}) per token row: (1) streaming online FP32 logsumexp for $z_p, z_q$; (2) FP32 accumulation of Eqs.~\eqref{eq:taylor}--\eqref{eq:exact}; and (3) direct HBM store of analytic logit gradients Eq.~\eqref{eq:grad} with zero materialized $(N,V)$ FP32 temporaries.
+\paragraph{Fused 3-Pass Blackwell Triton Kernel (Algorithm~1).} Our kernel launches one CTA per token row (\texttt{BLOCK\_V=4096}, 8 warps) executing three tiled SRAM passes with zero materialized $(N,V)$ FP32 buffers:
+\begin{enumerate}[leftmargin=1.6em,itemsep=1pt,topsep=2pt]
+  \item \textbf{Pass 1 (Streaming Online LogSumExp):} Tile $j \in [0, V)$ in FP32 registers, maintaining running $(m_p, s_p)$ and $(m_q, s_q)$ via $s \leftarrow s\,e^{m - m'} + \sum e^{z - m'}$, yielding exact $\mathrm{lse}_p, \mathrm{lse}_q$.
+  \item \textbf{Pass 2 (Bregman--Taylor Accumulation):} Re-stream tiles; compute $d = \ell_q - \ell_p$ (or $\ell_p - \ell_q$ for reverse KL) in FP32 and accumulate Eq.~\eqref{eq:taylor} for $|d| < \tau$ else Eq.~\eqref{eq:exact}, writing scalar $\KL^{\mathrm{exact}}$ to HBM.
+  \item \textbf{Pass 3 (Cancellation-Free Analytic Backward):} When \texttt{requires\_grad}, re-stream tiles and write Eq.~\eqref{eq:grad} directly into BF16/FP16/FP32 gradient tensor $\nabla_{z_q}$ in HBM.
+\end{enumerate}
 
 \section{Experimental Setup}
-All experiments run on an NVIDIA GeForce RTX 5090 (PyTorch \texttt{2.11.0+cu130}, Triton \texttt{3.6.0}). We compare seven baselines against a certified IEEE-754 \texttt{float64} exact Bregman--Taylor oracle: (1) per-token \texttt{F.kl\_div(..., reduction='none').sum(-1)}, (2) per-token clamped \texttt{F.kl\_div.clamp(min=0)}, (3) native Schulman $k_3$, (4) FP32-upcast \texttt{F.kl\_div}, (5) PyTorch~2.11 \texttt{torch.compile} (default TorchInductor mode) FP32-upcast \& Bregman--Taylor, (6) row-chunked FP32 (chunk=64), and (7) our Fused Triton kernel across five testbeds: (A) 36-regime numerical audit ($N=2{,}048, V=4{,}096$); (B) threshold $\tau$ ablation; (C) vocabulary scaling $V \in \{256, 32\text{k}, 128\text{k}, 151{,}936\}$; (D) 3-seed BF16 RLHF policy optimization ($V=32\text{k}, \beta=2.0, 120$ steps); and (E) real 3-seed BF16 LoRA post-training on Qwen3-1.7B ($V=151{,}936$) and SmolLM2-1.7B ($V=49{,}152$) over real scientific text sequences (pre-cached frozen lower-layer prefix; full BF16 forward, backward, and AdamW through the trainable top 4 transformer blocks, rank-16 LoRA adapters, full LM head, and KL loss; 512 tokens/step, 24 steps). Code, raw RTX~5090 telemetry, and standalone artifacts are archived at \url{https://github.com/spaceresearchai/spaceresearch.ai/blob/main/papers/README.md} (Zenodo DOI: \texttt{10.5281/zenodo.24513063}).
+All experiments run on an NVIDIA GeForce RTX 5090 (PyTorch \texttt{2.11.0+cu130}, Triton \texttt{3.6.0}). We compare seven baselines against a certified IEEE-754 \texttt{float64} exact Bregman--Taylor oracle: (1) per-token \texttt{F.kl\_div(..., reduction='none').sum(-1)}, (2) per-token clamped \texttt{F.kl\_div.clamp(min=0)}, (3) native Schulman $k_3$, (4) FP32-upcast \texttt{F.kl\_div}, (5) PyTorch~2.11 \texttt{torch.compile} (default TorchInductor mode) FP32-upcast \& Bregman--Taylor, (6) row-chunked FP32 (chunk=64), and (7) our Fused Triton kernel across five testbeds: (A) 36-regime numerical audit ($N=2{,}048, V=4{,}096$); (B) threshold $\tau$ ablation; (C) vocabulary scaling $V \in \{256, 32\text{k}, 128\text{k}, 151{,}936\}$; (D) 3-seed BF16 RLHF policy optimization ($V=32\text{k}, \beta=2.0, 120$ steps); and (E) real 3-seed BF16 LoRA post-training on Qwen3-1.7B ($V=151{,}936$) and SmolLM2-1.7B ($V=49{,}152$) over real scientific text sequences (pre-cached frozen lower-layer prefix; full BF16 forward, backward, and AdamW through the trainable top 4 transformer blocks, rank-16 LoRA adapters, full LM head, and KL loss; 512 tokens/step, 24 steps). Code, raw RTX~5090 telemetry, and standalone artifacts are archived at \url{https://github.com/spaceresearchai/spaceresearch.ai/blob/main/papers/README.md} (Zenodo DOI: \texttt{10.5281/zenodo.24521689}).
 
 \section{Results}
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{figure1.png}
-  \caption{Version 3.0 audit on NVIDIA GeForce RTX 5090: (a) Forward KL relative error vs.\ FP64 oracle; (b) Reverse-KL backward gradient fidelity; (c) 3-seed RLHF policy optimization ($V=32\text{k}$); (d--e) Kernel latency and peak extra VRAM vs.\ FP32-upcast, \texttt{torch.compile}, and Chunked-FP32 up to $V=151{,}936$; (f) Real 1.7B LLM LoRA post-training VRAM and step speedup on Qwen3-1.7B and SmolLM2-1.7B.}
+  \caption{Version 4.0 audit on NVIDIA GeForce RTX 5090: (a) Forward KL relative error vs.\ FP64 oracle (including Liger-style fused SRAM audit); (b) Reverse-KL backward gradient fidelity; (c) 3-seed RLHF policy optimization ($V=32\text{k}$); (d--e) Kernel latency and peak extra VRAM vs.\ FP32-upcast, \texttt{torch.compile}, Liger-style fused Triton, and Chunked-FP32 up to $V=151{,}936$; (f) Real 200-step Qwen3-1.7B RLHF and 1.7B LoRA post-training fidelity, VRAM, and speedup.}
   \label{fig:kl_main}
 \end{figure}
 
@@ -127,10 +132,10 @@ All experiments run on an NVIDIA GeForce RTX 5090 (PyTorch \texttt{2.11.0+cu130}
     \toprule
     Vocab ($N$) & FP32-Upcast & \texttt{torch.compile} & Chunked-FP32 & Triton Fwd (Rev) / VRAM & vs FP32 & vs compile & VRAM \\
     \midrule
-        V=256 (Toy) ($N=2048$) & 0.14\,ms / 10\,MB & 0.17\,ms / 1\,MB & 13.26\,ms / 2\,MB & \textbf{0.16\,ms (0.16) / 2\,MB} & \textbf{0.88$\times$} & \textbf{1.10$\times$} & \textbf{-80.0\%} \\
-    V=32k (Llama-2) ($N=1024$) & 2.10\,ms / 625\,MB & 0.56\,ms / 188\,MB & 7.73\,ms / 182\,MB & \textbf{0.37\,ms (0.35) / 125\,MB} & \textbf{5.62$\times$} & \textbf{1.49$\times$} & \textbf{-80.0\%} \\
-    V=128k (Llama-3) ($N=512$) & 4.93\,ms / 1252\,MB & 1.38\,ms / 376\,MB & 17.84\,ms / 603\,MB & \textbf{0.77\,ms (0.77) / 250\,MB} & \textbf{6.38$\times$} & \textbf{1.78$\times$} & \textbf{-80.0\%} \\
-    V=152k (Qwen3) ($N=512$) & 5.88\,ms / 1484\,MB & 1.63\,ms / 445\,MB & 23.03\,ms / 714\,MB & \textbf{0.90\,ms (0.90) / 297\,MB} & \textbf{6.54$\times$} & \textbf{1.81$\times$} & \textbf{-80.0\%} \\
+        V=256 (Toy) ($N=2048$) & 0.13\,ms / 10\,MB & 0.16\,ms / 1\,MB & 12.96\,ms / 2\,MB & \textbf{0.15\,ms (0.16) / 2\,MB} & \textbf{0.87$\times$} & \textbf{1.05$\times$} & \textbf{-80.0\%} \\
+    V=32k (Llama-2) ($N=1024$) & 2.10\,ms / 625\,MB & 0.56\,ms / 188\,MB & 7.71\,ms / 182\,MB & \textbf{0.36\,ms (0.36) / 125\,MB} & \textbf{5.79$\times$} & \textbf{1.56$\times$} & \textbf{-80.0\%} \\
+    V=128k (Llama-3) ($N=512$) & 4.93\,ms / 1252\,MB & 1.38\,ms / 376\,MB & 17.86\,ms / 603\,MB & \textbf{0.77\,ms (0.79) / 250\,MB} & \textbf{6.43$\times$} & \textbf{1.80$\times$} & \textbf{-80.0\%} \\
+    V=152k (Qwen3) ($N=512$) & 5.88\,ms / 1484\,MB & 1.63\,ms / 445\,MB & 22.99\,ms / 714\,MB & \textbf{0.90\,ms (0.90) / 297\,MB} & \textbf{6.53$\times$} & \textbf{1.81$\times$} & \textbf{-80.0\%} \\
     \bottomrule
   \end{tabular}}
 \end{table}
@@ -163,23 +168,42 @@ All experiments run on an NVIDIA GeForce RTX 5090 (PyTorch \texttt{2.11.0+cu130}
     Model ($V$) & KL Estimator & Step (ms) & Peak VRAM (MB) & Neg Tok \% & Dead Tok \% & Med Err & Val Obj (FP64) \\
     \midrule
         Qwen3-1.7B ($V=151,936$) & PyTorch \texttt{F.kl\_div} & $27.0 \pm 0.0$ & 5569 & 13.8\% & 0.0\% & 0.0696 & $3.6065 \pm 0.0016$ \\
-    Qwen3-1.7B ($V=151,936$) & Clamped \texttt{F.kl\_div} & $27.1 \pm 0.0$ & 5668 & 0.0\% & 18.3\% & 0.4203 & $3.6063 \pm 0.0022$ \\
+    Qwen3-1.7B ($V=151,936$) & Clamped \texttt{F.kl\_div} & $27.0 \pm 0.0$ & 5668 & 0.0\% & 18.3\% & 0.4203 & $3.6063 \pm 0.0022$ \\
     Qwen3-1.7B ($V=151,936$) & Schulman $k_3$ & $28.8 \pm 0.0$ & 6249 & 12.1\% & 0.0\% & 0.0672 & $3.6064 \pm 0.0007$ \\
-    Qwen3-1.7B ($V=151,936$) & FP32-Upcast \texttt{F.kl\_div} & $31.4 \pm 0.0$ & 6854 & 0.3\% & 0.0\% & 0.0000 & $3.6060 \pm 0.0016$ \\
+    Qwen3-1.7B ($V=151,936$) & FP32-Upcast \texttt{F.kl\_div} & $31.3 \pm 0.0$ & 6854 & 0.3\% & 0.0\% & 0.0000 & $3.6060 \pm 0.0016$ \\
     Qwen3-1.7B ($V=151,936$) & \textbf{Triton Bregman--Taylor (Ours)} & $25.1 \pm 0.0$ & 6100 & 0.0\% & 0.0\% & 0.0000 & $3.6056 \pm 0.0010$ \\
     \midrule
-    SmolLM2-1.7B ($V=49,152$) & PyTorch \texttt{F.kl\_div} & $19.1 \pm 0.0$ & 5032 & 30.2\% & 0.0\% & 0.2456 & $3.4402 \pm 0.0008$ \\
-    SmolLM2-1.7B ($V=49,152$) & Clamped \texttt{F.kl\_div} & $19.1 \pm 0.1$ & 4948 & 0.0\% & 34.1\% & 0.9898 & $3.4402 \pm 0.0007$ \\
-    SmolLM2-1.7B ($V=49,152$) & Schulman $k_3$ & $19.5 \pm 0.0$ & 4718 & 6.9\% & 0.0\% & 0.2009 & $3.4391 \pm 0.0008$ \\
-    SmolLM2-1.7B ($V=49,152$) & FP32-Upcast \texttt{F.kl\_div} & $20.3 \pm 0.0$ & 4862 & 0.0\% & 0.0\% & 0.0000 & $3.4402 \pm 0.0011$ \\
-    SmolLM2-1.7B ($V=49,152$) & \textbf{Triton Bregman--Taylor (Ours)} & $18.7 \pm 0.0$ & 4616 & 0.0\% & 0.0\% & 0.0000 & $3.4394 \pm 0.0004$ \\
+    SmolLM2-1.7B ($V=49,152$) & PyTorch \texttt{F.kl\_div} & $19.4 \pm 0.1$ & 5032 & 30.2\% & 0.0\% & 0.2456 & $3.4402 \pm 0.0008$ \\
+    SmolLM2-1.7B ($V=49,152$) & Clamped \texttt{F.kl\_div} & $19.4 \pm 0.1$ & 4948 & 0.0\% & 34.1\% & 0.9898 & $3.4402 \pm 0.0007$ \\
+    SmolLM2-1.7B ($V=49,152$) & Schulman $k_3$ & $19.7 \pm 0.0$ & 4718 & 6.9\% & 0.0\% & 0.2009 & $3.4391 \pm 0.0008$ \\
+    SmolLM2-1.7B ($V=49,152$) & FP32-Upcast \texttt{F.kl\_div} & $20.5 \pm 0.0$ & 4862 & 0.0\% & 0.0\% & 0.0000 & $3.4402 \pm 0.0011$ \\
+    SmolLM2-1.7B ($V=49,152$) & \textbf{Triton Bregman--Taylor (Ours)} & $20.4 \pm 1.4$ & 4616 & 0.0\% & 0.0\% & 0.0000 & $3.4394 \pm 0.0004$ \\
     \bottomrule
   \end{tabular}}
 \end{table}
 
-\paragraph{Numerical Audit \& Scaling (Tables~\ref{tab:kl_audit}--\ref{tab:kl_scaling}).} Across all 36 regimes, Fused Triton eliminates negative KL completely (0.0\% vs.\ up to 50.4\% for \texttt{F.kl\_div}) and matches FP32-upcast gradient cosine on pre-rounded BF16 inputs while cutting FP32 ($\varepsilon=10^{-4}$) median error by 149,111$\times$. At Qwen3 $V=151{,}936$, Triton finishes fwd+bwd in 0.90\,ms (296.8\,MB), beating FP32-upcast by 6.54$\times$ (-80.0\% VRAM), \texttt{torch.compile} by 1.81$\times$ (-33.3\% VRAM), and Chunked-FP32 by 25.6$\times$.
+\begin{table}[t]
+  \centering
+  \caption{Real 200-step 3-seed BF16 RLHF on Qwen3-1.7B ($V=151{{,}}936, \beta=2.0$, trainable top-4 blocks + rank-16 LoRA + full LM head, 512 real tokens/step).}
+  \label{tab:kl_qwen200}
+  \scriptsize
+  \resizebox{\linewidth}{!}{\begin{tabular}{lrrrrrr}
+    \toprule
+    KL Estimator & Final True $J^*(q)$ ($\uparrow$) & True KL & Neg Tok \% & Dead Tok \% & Step (ms) & Peak VRAM \\
+    \midrule
+    PyTorch \texttt{F.kl\_div} & $+0.02631\pm0.00011$ & 0.00189 & 21.4\% & 0.0\% & 17.1\,ms & 5708\,MB \\
+    Clamped \texttt{F.kl\_div} & $+0.02489\pm0.00008$ & 0.00282 & 0.0\% & 13.4\% & 16.2\,ms & 5708\,MB \\
+    Schulman $k_3$ & $+0.02645\pm0.00009$ & 0.00160 & 10.8\% & 0.0\% & 17.9\,ms & 6153\,MB \\
+    FP32-Upcast \texttt{F.kl\_div} & $+0.02646\pm0.00002$ & 0.00165 & 0.5\% & 0.0\% & 22.0\,ms & 6611\,MB \\
+    \textbf{Triton Bregman--Taylor (Ours)} & $+0.02637\pm0.00003$ & 0.00171 & 0.0\% & 0.0\% & 14.2\,ms & 6153\,MB \\
+    \bottomrule
+  \end{tabular}}
+\end{table}
 
-\paragraph{Controlled RLHF \& Real 1.7B LLM Post-Training (Tables~\ref{tab:kl_rlhf}--\ref{tab:kl_llm}).} In 120-step BF16 RLHF ($V=32\text{k}$), clamped \texttt{F.kl\_div} triggers dead-KL gradients on 99.4\% of steps, driving true $J^*(q)$ negative (-0.00162) vs.\ +0.00164 for Fused Triton (matching FP32 oracle exactly). In real 1.7B LLM LoRA post-training, native BF16 \texttt{F.kl\_div} emits negative KL on 13.8\% (Qwen3) / 30.2\% (SmolLM2) of tokens and Clamped kills 18.3\% / 34.1\% of token KL gradients, whereas Fused Triton achieves 0.0\% negative/dead tokens and is fastest overall (25.1\,ms/step, -754\,MB vs.\ FP32-upcast on Qwen3; 18.7\,ms/step and lowest VRAM 4616\,MB on SmolLM2). Over this short 24-step supervised+KL horizon, held-out FP64 validation objectives remain within seed variance, while Experiment~D isolates long-horizon RLHF trust-region collapse.
+
+\paragraph{Numerical Audit \& Scaling (Tables~\ref{tab:kl_audit}--\ref{tab:kl_scaling}).} Across all 36 regimes, Fused Triton eliminates negative KL completely (0.0\% vs.\ up to 50.4\% for \texttt{F.kl\_div}) and matches FP32-upcast gradient cosine on pre-rounded BF16 inputs while cutting FP32 ($\varepsilon=10^{-4}$) median error by 149,111$\times$. At Qwen3 $V=151{,}936$, Triton finishes fwd+bwd in 0.90\,ms (296.8\,MB), beating FP32-upcast by 6.53$\times$ (-80.0\% VRAM), \texttt{torch.compile} by 1.81$\times$ (-33.3\% VRAM), and Chunked-FP32 by 25.6$\times$.
+
+\paragraph{Controlled RLHF, Liger-Style Audit \& Real 200-Step Qwen3-1.7B RLHF (Tables~\ref{tab:kl_rlhf}--\ref{tab:kl_qwen200}).} Auditing a Liger-style standard fused Triton kernel (FP32-register SRAM fusion of $p(\log p - \log q)$ without Bregman--Taylor) confirms that SRAM fusion alone still produces 49.66\% negative KL and 69.2$\times$ median relative error at FP32 ($\varepsilon=10^{-4}$); our Bregman--Taylor branch eliminates cancellation at modest arithmetic cost (0.90\,ms vs.\ 0.72\,ms at $V=151{,}936$, identical 296.8\,MB VRAM). In 120-step BF16 RLHF ($V=32\text{k}$), clamped \texttt{F.kl\_div} triggers dead-KL gradients on 99.4\% of steps, driving true $J^*(q)$ negative (-0.00162) vs.\ +0.00164 for Fused Triton. Scaling to \textbf{real 200-step 3-seed BF16 RLHF on Qwen3-1.7B} ($V=151{,}936, \beta=2.0$, Table~\ref{tab:kl_qwen200}), clamped \texttt{F.kl\_div} zeroes KL gradients on 13.4\% of tokens, incurs +65\% excess KL drift (0.00282 vs.\ 0.00171), and drops true FP64 objective to $+0.02489$ vs.\ $+0.02637$ for Fused Triton, whereas Fused Triton achieves 0.0\% negative/dead tokens and is fastest end-to-end (14.2 vs.\ 22.0\,ms/step, 1.55$\times$ faster and $-458$\,MB peak VRAM vs.\ FP32-upcast). In 24-step 1.7B SFT+KL post-training (Table~\ref{tab:kl_llm}), Fused Triton similarly eliminates 13.8\%--34.1\% negative/dead tokens while saving up to 754\,MB peak VRAM.
 
 \section{Ablation Study and Limitations}
 \begin{table}[t]
@@ -201,7 +225,7 @@ All experiments run on an NVIDIA GeForce RTX 5090 (PyTorch \texttt{2.11.0+cu130}
 \end{table}
 
 Table~\ref{tab:kl_ablation} confirms that $\tau=0$ collapses FP32 accuracy back to $20.46$ median relative error, while any $\tau \in [10^{-3}, 0.2]$ achieves $1.42\times 10^{-4}$ error with gradient cosine $1.0000$, matching Theorem~1's bound.
-\paragraph{Limitations \& Broader Impact.} (1) Pre-rounded BF16 logits remain bounded by Theorem~2's input quantization floor; fusing directly with the FP32 LM-head matmul output removes even this floor. (2) Our tiled reduction targets full-vocabulary categorical KL; Monte Carlo token-sampled GRPO uses scalar Eq.~\eqref{eq:taylor} directly. (3) Real LLM runs cover 24-step 1.7B LoRA trajectories; multi-thousand-step RLVR at 7B--70B scale remains future work. Improving numerical fidelity and reducing VRAM footprint in LLM post-training carries no standalone dual-use risks beyond general LLM training.
+\paragraph{Limitations \& Broader Impact.} (1) Pre-rounded BF16 logits remain bounded by Theorem~2's input quantization floor; fusing directly with the FP32 LM-head matmul output removes even this floor. (2) Our tiled reduction targets full-vocabulary categorical KL; Monte Carlo token-sampled GRPO uses scalar Eq.~\eqref{eq:taylor} directly. (3) Real LLM runs cover 24-step SFT+KL and 200-step RLHF at 1.7B scale; multi-thousand-step RLVR at 7B--70B scale remains future work. Improving numerical fidelity and reducing VRAM footprint in LLM post-training carries no standalone dual-use risks beyond general LLM training.
 
 \bibliography{references}
 \bibliographystyle{tmlr}

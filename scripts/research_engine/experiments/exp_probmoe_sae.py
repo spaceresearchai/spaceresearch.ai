@@ -56,7 +56,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 SITE_ROOT = Path(__file__).resolve().parents[3]
 PAPERS_JSON = SITE_ROOT / "data" / "papers-db.json"
-FIG_PATH = SITE_ROOT / "papers" / "figures" / "probmoe-sae-v3.png"
+FIG_PATH = SITE_ROOT / "papers" / "figures" / "probmoe-sae-v4.png"
 
 MODEL_SPECS = [
     {"id": "Qwen/Qwen3-1.7B", "short": "Qwen3-1.7B", "layer": 13, "n_layers": 28},
@@ -402,6 +402,203 @@ def eval_downstream_probe(
     return round(rec_acc * 100.0, 2), round((rec_acc / max(orig_acc, 1e-6)) * 100.0, 2)
 
 
+def eval_saebench_sparse_probing(
+    Z_tr: np.ndarray,
+    Z_te: np.ndarray,
+    pids_tr: np.ndarray,
+    pids_te: np.ndarray,
+    paper_cats: np.ndarray,
+    device: torch.device,
+    k_list: Sequence[int] = (1, 5, 20),
+) -> Dict[str, float]:
+    """
+    SAEBench-Style Sparse Probing (k in {1, 5, 20} top latents per class):
+    Pools sparse SAE latent activations to paper level, selects ONLY the top-k highest
+    class-discriminative latents per class on training papers (union <= k*C latents),
+    and trains an L2 multinomial probe strictly on those sparse coordinates to test
+    monosemantic concept localization on strictly held-out test papers.
+    """
+    def pool_z(Z: np.ndarray, pids: np.ndarray):
+        uniq = np.unique(pids)
+        feats = np.zeros((len(uniq), Z.shape[1]), dtype=np.float32)
+        labels = np.zeros(len(uniq), dtype=np.int64)
+        for idx, pid in enumerate(uniq):
+            feats[idx] = Z[pids == pid].mean(axis=0)
+            labels[idx] = paper_cats[pid]
+        return feats, labels
+
+    F_tr, y_tr = pool_z(Z_tr, pids_tr)
+    F_te, y_te = pool_z(Z_te, pids_te)
+    n_cls = len(CATEGORY_LIST)
+
+    # Compute per-class Fisher/mean-diff scores strictly on training papers
+    per_cls_top: Dict[int, np.ndarray] = {}
+    mu_all = F_tr.mean(axis=0)
+    sd_all = F_tr.std(axis=0) + 1e-6
+    for c in range(n_cls):
+        mask = y_tr == c
+        if mask.sum() == 0:
+            per_cls_top[c] = np.arange(20)
+            continue
+        score = (F_tr[mask].mean(axis=0) - mu_all) / sd_all
+        per_cls_top[c] = np.argsort(-score)
+
+    out: Dict[str, float] = {}
+    for kp in k_list:
+        sel = sorted({int(idx) for c in range(n_cls) for idx in per_cls_top[c][:kp]})
+        Xtr_s = F_tr[:, sel]
+        Xte_s = F_te[:, sel]
+        mu = Xtr_s.mean(axis=0, keepdims=True)
+        sd = Xtr_s.std(axis=0, keepdims=True) + 1e-6
+        Xtr_t = torch.tensor((Xtr_s - mu) / sd, dtype=torch.float32, device=device)
+        Ytr_t = torch.tensor(y_tr, dtype=torch.long, device=device)
+        Xte_t = torch.tensor((Xte_s - mu) / sd, dtype=torch.float32, device=device)
+        Yte_t = torch.tensor(y_te, dtype=torch.long, device=device)
+        clf = nn.Linear(len(sel), n_cls).to(device)
+        nn.init.zeros_(clf.weight)
+        nn.init.zeros_(clf.bias)
+        opt = torch.optim.LBFGS(clf.parameters(), lr=0.8, max_iter=35, line_search_fn="strong_wolfe")
+
+        def closure():
+            opt.zero_grad()
+            loss = F.cross_entropy(clf(Xtr_t), Ytr_t) + 0.05 * clf.weight.pow(2).sum()
+            loss.backward()
+            return loss
+
+        opt.step(closure)
+        with torch.no_grad():
+            acc = float((clf(Xte_t).argmax(dim=-1) == Yte_t).float().mean().item()) * 100.0
+        out[f"sparse_probe_k{kp}_acc"] = round(acc, 2)
+    return out
+
+
+def eval_autointerp_llm_judge(
+    X_test: torch.Tensor,
+    pids_te: np.ndarray,
+    texts_all: Sequence[str],
+    sae_by_mode: Dict[str, nn.Module],
+    device: torch.device,
+    n_latents: int = 12,
+    endpoint: str = "http://127.0.0.1:8792/v1/chat/completions",
+    model_name: str = "qwen/Qwen3.8-27B",
+) -> Dict[str, Any]:
+    """
+    Automated LLM-as-a-Judge Feature Interpretability (AutoInterp Blind Detection F1 & Balanced Acc):
+    For each SAE method, randomly samples `n_latents` moderately active alive latents (firing on 1%-25%
+    of held-out test papers), shows the top-4 activating paper snippets to local Qwen3.8-27B to synthesize
+    a concise feature label, then asks the judge in a blind call to classify 3 held-out positive vs. 3
+    zero-activating negative snippets using ONLY the synthesized label.
+    """
+    import re as _re
+    import urllib.request
+
+    def call_llm(prompt: str, max_toks: int = 120) -> str:
+        payload = json.dumps({
+            "model": model_name,
+            "messages": [
+                {"role": "system", "content": "You are a concise mechanistic interpretability annotator. Follow formatting instructions strictly."},
+                {"role": "user", "content": prompt},
+            ],
+            "temperature": 0.0,
+            "max_tokens": max_toks,
+        }).encode("utf-8")
+        req = urllib.request.Request(endpoint, data=payload, headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(req, timeout=45) as resp:
+            raw = json.loads(resp.read().decode("utf-8"))
+        txt = raw["choices"][0]["message"]["content"]
+        return _re.sub(r"<think>.*?</think>", "", txt, flags=_re.S).strip()
+
+    uniq_pids = np.unique(pids_te)
+    results_ai: Dict[str, Any] = {}
+    rng = np.random.default_rng(2026)
+
+    for mode, sae_cpu in sae_by_mode.items():
+        sae = sae_cpu.to(device).eval()
+        # Collect per-paper max latent activation across held-out test papers
+        z_chunks = []
+        with torch.inference_mode():
+            for s in range(0, X_test.shape[0], 1024):
+                _, acts, _, _ = sae(X_test[s : s + 1024])
+                z_chunks.append(acts.cpu().numpy())
+        Z_te = np.concatenate(z_chunks, axis=0)
+        sae.cpu()
+        del sae
+
+        P_max = np.zeros((len(uniq_pids), Z_te.shape[1]), dtype=np.float32)
+        for pi, pid in enumerate(uniq_pids):
+            P_max[pi] = Z_te[pids_te == pid].max(axis=0)
+
+        fire_frac = (P_max > 0).mean(axis=0)
+        # Pick interpretable sparse latents firing on 3%-35% of held-out papers (at least 7 positive & 4 negative)
+        pos_cnt = (P_max > 0).sum(axis=0)
+        neg_cnt = (P_max == 0).sum(axis=0)
+        cands = np.where((pos_cnt >= 7) & (neg_cnt >= 4) & (fire_frac <= 0.40))[0]
+        if len(cands) < n_latents:
+            cands = np.where((pos_cnt >= 6) & (neg_cnt >= 3))[0]
+        chosen = rng.choice(cands, size=min(n_latents, len(cands)), replace=False)
+
+        f1s, accs = [], []
+        examples = []
+        for lat in chosen:
+            scores = P_max[:, lat]
+            order = np.argsort(-scores)
+            train_pos = order[:4]
+            eval_pos = order[4:7]
+            neg_pool = np.where(scores == 0)[0]
+            eval_neg = rng.choice(neg_pool, size=min(3, len(neg_pool)), replace=False)
+
+            pos_snips = "\n".join(f"- {texts_all[int(uniq_pids[idx])][:180]}" for idx in train_pos)
+            try:
+                expl = call_llm(
+                    f"These 4 AI research abstracts strongly activate one sparse autoencoder feature:\n{pos_snips}\n\n"
+                    "In ONE short phrase (<= 15 words), state the specific shared technical concept this feature detects.",
+                    max_toks=60,
+                )
+            except Exception:
+                continue
+
+            # Blind randomized detection test on 3 unseen positives + 3 negatives
+            eval_items = [(int(idx), 1) for idx in eval_pos] + [(int(idx), 0) for idx in eval_neg]
+            rng.shuffle(eval_items)
+            numbered = "\n".join(
+                f"{k+1}. {texts_all[int(uniq_pids[idx])][:170]}" for k, (idx, _) in enumerate(eval_items)
+            )
+            try:
+                ans = call_llm(
+                    f"Feature description: \"{expl}\"\n\n"
+                    f"Which of these {len(eval_items)} abstracts match this feature? Reply ONLY with a JSON list of matching item numbers (e.g. [1, 3, 5]).\n{numbered}",
+                    max_toks=40,
+                )
+                m = _re.search(r"\[[^\]]*\]", ans)
+                pred_nums = set(json.loads(m.group(0))) if m else set()
+            except Exception:
+                continue
+
+            tp = sum(1 for k, (_, y) in enumerate(eval_items, 1) if (k in pred_nums and y == 1))
+            fp = sum(1 for k, (_, y) in enumerate(eval_items, 1) if (k in pred_nums and y == 0))
+            fn = sum(1 for k, (_, y) in enumerate(eval_items, 1) if (k not in pred_nums and y == 1))
+            tn = sum(1 for k, (_, y) in enumerate(eval_items, 1) if (k not in pred_nums and y == 0))
+            f1 = (2 * tp) / max(2 * tp + fp + fn, 1)
+            bal_acc = 0.5 * (tp / max(tp + fn, 1) + tn / max(tn + fp, 1))
+            f1s.append(f1 * 100.0)
+            accs.append(bal_acc * 100.0)
+            if len(examples) < 2:
+                examples.append({"latent": int(lat), "explanation": expl[:120], "f1": round(f1 * 100.0, 1)})
+
+        results_ai[mode] = {
+            "n_scored": len(f1s),
+            "detection_f1_mean": round(float(np.mean(f1s)) if f1s else 0.0, 1),
+            "detection_f1_std": round(float(np.std(f1s)) if f1s else 0.0, 1),
+            "balanced_acc_mean": round(float(np.mean(accs)) if accs else 0.0, 1),
+            "examples": examples,
+        }
+        print(
+            f"  [AutoInterp Qwen3.8-27B {mode:20s}] n={len(f1s)} | F1={results_ai[mode]['detection_f1_mean']:5.1f}% | BalAcc={results_ai[mode]['balanced_acc_mean']:5.1f}%",
+            flush=True,
+        )
+    return results_ai
+
+
 def train_and_eval_sae(
     X_train: torch.Tensor,
     X_test: torch.Tensor,
@@ -536,18 +733,31 @@ def train_and_eval_sae(
     util_entropy = float(-(nz * torch.log(nz)).sum().item() / math.log(d_sae))
 
     probe_acc, probe_recovery = 0.0, 0.0
+    sparse_probes: Dict[str, float] = {"sparse_probe_k1_acc": 0.0, "sparse_probe_k5_acc": 0.0, "sparse_probe_k20_acc": 0.0}
     if eval_probe:
         rec_tr_chunks: List[np.ndarray] = []
+        z_tr_chunks: List[np.ndarray] = []
+        z_te_chunks: List[np.ndarray] = []
         with torch.inference_mode():
             for start in range(0, N_tr, 1024):
-                x_hat_tr, _, _, _ = model(X_train[start : start + 1024])
+                x_hat_tr, z_tr_b, _, _ = model(X_train[start : start + 1024])
                 rec_tr_chunks.append(x_hat_tr.cpu().numpy())
+                z_tr_chunks.append(z_tr_b.cpu().numpy())
+            for start in range(0, n_te, 1024):
+                _, z_te_b, _, _ = model(X_test[start : start + 1024])
+                z_te_chunks.append(z_te_b.cpu().numpy())
         X_tr_rec = np.concatenate(rec_tr_chunks, axis=0)
         X_te_rec = np.concatenate(rec_te_chunks, axis=0)
         probe_acc, probe_recovery = eval_downstream_probe(
             X_train.cpu().numpy(), X_test.cpu().numpy(), X_tr_rec, X_te_rec,
             pids_tr, pids_te, paper_cats, device,
         )
+        sparse_probes = eval_saebench_sparse_probing(
+            np.concatenate(z_tr_chunks, axis=0),
+            np.concatenate(z_te_chunks, axis=0),
+            pids_tr, pids_te, paper_cats, device, k_list=(1, 5, 20),
+        )
+        del rec_tr_chunks, z_tr_chunks, z_te_chunks, X_tr_rec, X_te_rec
 
     W_dec_np = model.W_dec.detach().float().cpu().numpy()
     fc_np = fire_counts.cpu().numpy()
@@ -566,6 +776,7 @@ def train_and_eval_sae(
         "mean_l0": round(mean_l0, 2),
         "probe_acc_pct": probe_acc,
         "probe_recovery_pct": probe_recovery,
+        **sparse_probes,
         "train_sec": round(train_sec, 2),
     }
     return metrics, (W_alive, W_top512), model.cpu() if eval_probe else None
@@ -900,7 +1111,7 @@ def run_experiment(
     d_sae: int = 8192,
     k_values: Sequence[int] = (16, 32, 64),
     seeds: Sequence[int] = (11, 22, 33),
-    steps: int = 900,
+    steps: int = 1200,
 ) -> Dict[str, Any]:
     t_all = time.perf_counter()
     dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -920,18 +1131,20 @@ def run_experiment(
     all_model_results: Dict[str, Any] = {}
     lm_splice_results: Dict[str, Any] = {}
     scale_8x_results: Dict[str, Any] = {}
+    scale_16x_results: Dict[str, Any] = {}
+    autointerp_results: Dict[str, Any] = {}
     extract_metas: Dict[str, Any] = {}
     ablations: Dict[str, Any] = {}
 
     db_all = json.loads(PAPERS_JSON.read_text(encoding="utf-8"))
-    papers_all = [p for p in db_all["papers"] if p.get("category") in CAT_TO_IDX][:1100]
-    texts_all = [f"{p['title']}. {(p.get('abstract') or '')[:460]}" for p in papers_all]
+    papers_all = [p for p in db_all["papers"] if p.get("category") in CAT_TO_IDX][:1650]
+    texts_all = [f"{p['title']}. {(p.get('abstract') or '')[:640]}" for p in papers_all]
 
     for mspec in MODEL_SPECS:
         mshort = mspec["short"]
-        print(f"\n[exp_probmoe_sae v3] Extracting {mspec['id']} L{mspec['layer']} activations...", flush=True)
+        print(f"\n[exp_probmoe_sae v4] Extracting {mspec['id']} L{mspec['layer']} activations...", flush=True)
         X_raw, tok_pids, paper_cats, ext_meta = extract_real_activations(
-            mspec["id"], mspec["layer"], n_papers=1100, max_tokens_per_paper=96, device=str(dev)
+            mspec["id"], mspec["layer"], n_papers=len(papers_all), max_tokens_per_paper=144, device=str(dev)
         )
         # Strict paper-level 80/20 split (ZERO document leakage between train and test tokens!)
         n_papers = ext_meta["papers_sampled"]
@@ -999,6 +1212,9 @@ def run_experiment(
                     "mean_l0": round(float(np.mean([r["mean_l0"] for r in seed_runs])), 2),
                     "probe_acc_pct_mean": round(float(np.mean([r["probe_acc_pct"] for r in seed_runs])), 2),
                     "probe_recovery_pct_mean": round(float(np.mean([r["probe_recovery_pct"] for r in seed_runs])), 2),
+                    "sparse_probe_k1_acc_mean": round(float(np.mean([r["sparse_probe_k1_acc"] for r in seed_runs])), 2),
+                    "sparse_probe_k5_acc_mean": round(float(np.mean([r["sparse_probe_k5_acc"] for r in seed_runs])), 2),
+                    "sparse_probe_k20_acc_mean": round(float(np.mean([r["sparse_probe_k20_acc"] for r in seed_runs])), 2),
                     "seed_max_cos": mean_cos,
                     "seed_shared_70_pct": match_pct,
                     "seed_hungarian_cos": hung_cos,
@@ -1082,6 +1298,40 @@ def run_experiment(
                     flush=True,
                 )
 
+            print("\n[exp_probmoe_sae v4] Running 16x Overcomplete Scaling (d_sae=32,768, Qwen3-1.7B L13, k=32, 3 seeds)...", flush=True)
+            for sm in s8_modes:
+                r16 = []
+                for seed in seeds:
+                    m16, _, _ = train_and_eval_sae(
+                        X_train, X_test, pids_tr, pids_te, paper_cats,
+                        mode=sm, k=32, d_sae=32768, seed=seed, steps=steps,
+                        batch_size=512, lr=1.0e-3, margin_lambda=0.15, tau_rel=0.35,
+                        eval_probe=False, device=dev,
+                    )
+                    r16.append(m16)
+                scale_16x_results[sm] = {
+                    "fvu_mean": round(float(np.mean([r["fvu"] for r in r16])), 5),
+                    "fvu_std": round(float(np.std([r["fvu"] for r in r16])), 5),
+                    "dead_latent_pct_mean": round(float(np.mean([r["dead_latent_pct"] for r in r16])), 2),
+                    "dead_latent_pct_std": round(float(np.std([r["dead_latent_pct"] for r in r16])), 2),
+                    "util_entropy_mean": round(float(np.mean([r["util_entropy"] for r in r16])), 4),
+                }
+                print(
+                    f"  [Qwen3 16x d=32768 {sm:20s}] FVU={scale_16x_results[sm]['fvu_mean']:.4f}±{scale_16x_results[sm]['fvu_std']:.4f} | "
+                    f"dead={scale_16x_results[sm]['dead_latent_pct_mean']:5.2f}% | H={scale_16x_results[sm]['util_entropy_mean']:.3f}",
+                    flush=True,
+                )
+
+            print("\n[exp_probmoe_sae v4] Running Automated LLM-as-a-Judge AutoInterp (Qwen3.8-27B, 12 latents/method)...", flush=True)
+            ai_models = {
+                mk: k32_saved_saes[mk][0]
+                for mk in ("topk_auxk", "batchtopk_ste", "batchtopk_auxk", "marginprob_batchtopk")
+                if mk in k32_saved_saes and k32_saved_saes[mk]
+            }
+            autointerp_results = eval_autointerp_llm_judge(
+                X_test, pids_te, texts_all, ai_models, device=dev, n_latents=12
+            )
+
         # Free activation tensors BEFORE loading full 1.7B LM for live causal splice evaluation!
         del X_train, X_test, X_raw
         gc.collect()
@@ -1154,16 +1404,16 @@ def run_experiment(
 
     payload = {
         "experiment_id": "probmoe_sae",
-        "version": "3.0",
+        "version": "4.0",
         "slug": "probmoe-batchtopk-sae",
         "title": "Margin-Gated Probabilistic Surrogate Gradients for Overcomplete Sparse Autoencoders",
         "short_title": "Margin-Gated Probabilistic Surrogates for Overcomplete SAEs",
-        "category_label": "INTERPRETABILITY & SPARSE CODING · VERSION 3.0",
-        "short_cat": "Sparse Autoencoders · v3",
+        "category_label": "INTERPRETABILITY & SPARSE CODING · VERSION 4.0",
+        "short_cat": "Sparse Autoencoders · v4",
         "track": "interpretability",
         "cluster": 1,
         "dot": "violet",
-        "keywords": ["Sparse Autoencoders", "BatchTopK", "ProbMoE", "Surrogate Gradients", "Dead Latents", "CE Loss Recovered", "Mechanistic Interpretability"],
+        "keywords": ["Sparse Autoencoders", "BatchTopK", "ProbMoE", "Surrogate Gradients", "Dead Latents", "CE Loss Recovered", "SAEBench", "AutoInterp"],
         "source_discovery_type": "CoreRank Method 2 Cross-Domain Bridge (ProbMoE <-> BatchTopK) + Method 3 Contradiction",
         "source_papers": [
             {"id": "arxiv-2606.01509", "title": "ProbMoE: Differentiable Probabilistic Routing for Mixture-of-Experts", "url": "https://arxiv.org/abs/2606.01509"},
@@ -1178,23 +1428,25 @@ def run_experiment(
             "Paulo, G., & Belrose, N. (2025). Sparse Autoencoders Trained on the Same Data Learn Different Features. arXiv:2501.16615.",
             "Bengio, Y., Leonard, N., & Courville, A. (2013). Estimating or Propagating Gradients Through Stochastic Neurons for Conditional Computation. arXiv:1308.3432.",
             "Cunningham, H., Ewart, A., Riggs, L., Huben, R., & Sharkey, L. (2024). Sparse Autoencoders Find Highly Interpretable Features in Language Models. ICLR 2024.",
-            "ProbMoE: Differentiable Probabilistic Routing for Mixture-of-Experts (2026). arXiv:2606.01509.",
+            "Zhao, H., Shao, Z., Van den Broeck, G., & Zeng, Z. (2026). ProbMoE: Differentiable Probabilistic Routing for Mixture-of-Experts. ICML 2026 / arXiv:2606.01509.",
         ],
         "hypothesis": (
             "Building on a CoreRank cross-domain mechanism bridge between ProbMoE's calibrated marginal subset routing "
             "and BatchTopK Sparse Autoencoders, we prove formally why naive full-backward probabilistic replacement degrades "
             "reconstruction fidelity (active-set gradient distortion) and propose MarginProb-BatchTopK: preserving exact "
             "straight-through gradients on active top-k latents while routing scale-invariant calibrated marginal surrogate "
-            "gradients exclusively to near-margin inactive latents. We benchmark 9 SAE architectures at 4x (d_sae=8,192) and "
-            "8x (d_sae=16,384) overcompleteness across two open-weight LLM families (Qwen3-1.7B L13 and SmolLM2-1.7B L12), "
-            "evaluating reconstruction FVU, dead-latent collapse, live transformer causal splice CE Loss Recovered & Logit KL, "
-            "8-class probe recovery, and capacity-controlled Hungarian cross-seed matching."
+            "gradients exclusively to near-margin inactive latents. We benchmark 9 SAE architectures at 4x (d_sae=8,192), "
+            "8x (d_sae=16,384), and 16x (d_sae=32,768) overcompleteness across two open-weight LLM families (Qwen3-1.7B L13 "
+            "and SmolLM2-1.7B L12), evaluating FVU, dead-latent collapse, live transformer causal splice CE Loss Recovered & Logit KL, "
+            "SAEBench sparse probing (k in {1,5,20}), automated LLM-as-a-judge interpretability (Qwen3.8-27B AutoInterp F1), "
+            "and capacity-controlled Top-512 Hungarian cross-seed matching."
         ),
         "setup": {
             "models": extract_metas,
             "d_in": 2048,
             "d_sae": d_sae,
             "d_sae_8x": 16384,
+            "d_sae_16x": 32768,
             "expansion_factor": round(d_sae / 2048, 2),
             "k_values": list(k_values),
             "seeds": list(seeds),
@@ -1202,14 +1454,14 @@ def run_experiment(
             "batch_size": 512,
             "methods": modes,
             "n_baselines": 7,
-            "figure_png_rel": "papers/figures/probmoe-sae-v3.png",
+            "figure_png_rel": "papers/figures/probmoe-sae-v4.png",
             "gpu_name": torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU",
             "total_elapsed_sec": round(time.perf_counter() - t_all, 1),
         },
         "quality_evidence": {
             "n_models": len(MODEL_SPECS),
             "n_seeds": len(seeds),
-            "n_regimes": len(MODEL_SPECS) * len(k_values) + 1,
+            "n_regimes": len(MODEL_SPECS) * len(k_values) + 2,
             "n_baselines": 7,
             "has_confidence_intervals": True,
             "has_p_values": True,
@@ -1221,6 +1473,8 @@ def run_experiment(
         "ablations": ablations,
         "lm_splice": lm_splice_results,
         "scale_8x": scale_8x_results,
+        "scale_16x": scale_16x_results,
+        "autointerp": autointerp_results,
         "results": all_model_results,
     }
 
@@ -1235,7 +1489,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--d-sae", type=int, default=8192)
-    parser.add_argument("--steps", type=int, default=900)
+    parser.add_argument("--steps", type=int, default=1200)
     args = parser.parse_args()
     run_experiment(out_json=args.output, d_sae=args.d_sae, steps=args.steps)
 

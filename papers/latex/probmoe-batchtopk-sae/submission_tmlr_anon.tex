@@ -22,7 +22,7 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-Sparse Autoencoders (SAEs) trained with hard TopK or BatchTopK activations rely on straight-through estimators (STE) that assign identically zero gradient to inactive dictionary atoms, driving severe dead-latent collapse at high expansion factors (up to 78.6\% dead atoms at $4\times$ and 75.5\% at $8\times$ overcompleteness). Drawing on calibrated marginal subset routing from probabilistic Mixture-of-Experts, we first prove formally why naive full-backward probabilistic replacement (ProbBatchTopK v1) degrades reconstruction fidelity: multiplying active top-$k$ gradients by sigmoid derivatives distorts feature magnitudes. We introduce \textbf{MarginProb-BatchTopK}, which preserves exact identity STE gradients on the active top-$k$ set while routing scale-invariant calibrated marginal inclusion probabilities $p_{ij} = \sigma((z_{ij} - \tau)/(\tau_{\mathrm{rel}}\,\mathrm{std}(z)))$ exclusively to near-margin inactive latents. Across 9 $L_0$-matched SAE architectures at $4\times$ ($d_{\mathrm{sae}}=8{,}192$) and $8\times$ ($d_{\mathrm{sae}}=16{,}384$) overcompleteness on Qwen3-1.7B L13 and SmolLM2-1.7B L12 (205,883 leak-free paper-disjoint tokens, $k \in \{16,32,64\}$, 3 seeds), active-set gating completely eliminates v1's FVU penalty ($\Delta\mathrm{FVU} = -0.01569$, paired $t$-test $p=1.95e-09$). Against pure-MSE BatchTopK-STE, MarginProb-BatchTopK simultaneously lowers FVU (-0.00470, $p=4.10e-03$) and slashes dead latents by -19.90 pp ($p=7.69e-09$) with zero auxiliary loss. Splicing trained $k=32$ SAEs back into the live transformers confirms causal fidelity: MarginProb-BatchTopK recovers 98.82\% CE loss on SmolLM2-1.7B (KL $=0.2561$; MarginProb+AuxK 98.85\% / KL $=0.2552$, \#1 of all 9 methods) and 97.96\% on Qwen3-1.7B (eliminating ungated v1's drop to 97.20\%). At $8\times$ width ($d_{\mathrm{sae}}=16{,}384$), pure-MSE MarginProb ties the best FVU (0.2764) while cutting dead latents from 75.5\% (BatchTopK-STE) and 60.4\% (BatchTopK+AuxK) down to 54.9\%.
+Sparse Autoencoders (SAEs) trained with hard TopK or BatchTopK activations rely on straight-through estimators (STE) that assign identically zero gradient to inactive dictionary atoms, driving severe dead-latent collapse at high expansion factors (up to 88.1\% dead atoms at $16\times$ overcompleteness). Drawing on calibrated marginal subset routing from probabilistic Mixture-of-Experts, we first prove formally why naive full-backward probabilistic replacement (ProbBatchTopK v1) degrades reconstruction fidelity: multiplying active top-$k$ gradients by sigmoid derivatives distorts feature magnitudes. We introduce \textbf{MarginProb-BatchTopK}, which preserves exact identity STE gradients on the active top-$k$ set while routing scale-invariant calibrated marginal inclusion probabilities $p_{ij} = \sigma((z_{ij} - \tau)/(\tau_{\mathrm{rel}}\,\mathrm{std}(z)))$ exclusively to near-margin inactive latents. Across 9 $L_0$-matched SAE architectures at $4\times$ ($d_{\mathrm{sae}}=8{,}192$), $8\times$ ($16{,}384$), and $16\times$ ($32{,}768$) overcompleteness on Qwen3-1.7B L13 and SmolLM2-1.7B L12 (336,474 leak-free paper-disjoint tokens, $k \in \{16,32,64\}$, 3 seeds), active-set gating completely eliminates v1's FVU penalty ($\Delta\mathrm{FVU} = -0.01355$, paired $t$-test $p=4.24e-12$). Against pure-MSE BatchTopK-STE, MarginProb-BatchTopK simultaneously lowers FVU (-0.00502, $p=1.65e-03$) and slashes dead latents by -18.95 pp ($p=4.84e-08$) with zero auxiliary loss. Splicing trained $k=32$ SAEs back into the live transformers confirms causal fidelity: MarginProb+AuxK (99.49\% CE) and MarginProb-BatchTopK (99.43\% CE, lowest KL $=0.2040$) rank \#1 and \#2 of all 9 methods on SmolLM2-1.7B, and MarginProb recovers 98.57\% on Qwen3-1.7B (eliminating ungated v1's drop to 97.71\%). Scaling to production $16\times$ width ($d_{\mathrm{sae}}=32{,}768$), MarginProb-BatchTopK (0.2581 FVU, 75.8\% dead) and MarginProb+AuxK (0.2573, 75.5\% dead) continue to beat both BatchTopK-STE (0.2737, 88.1\% dead) and BatchTopK+AuxK (0.2594, 77.5\% dead) on both axes. Finally, evaluating SAEBench-style sparse probing ($k \in \{1,5,20\}$) and blind LLM-as-a-Judge AutoInterp (Qwen3.8-27B) reveals an instructive capacity--monosemanticity trade-off: reviving thousands of boundary latents improves reconstruction and causal splice while diluting top-variance single-latent AutoInterp F1 relative to narrower high-dead-rate BatchTopK dictionaries.
 \end{abstract}
 
 
@@ -52,14 +52,14 @@ Let $e_i = x_i - \hat{x}_i$ be the reconstruction residual under MSE loss $\math
 \end{proof}
 
 \section{Experimental Setup}
-We extract mid-layer residual activations from \texttt{Qwen/Qwen3-1.7B} (L13/28, 102,606 tokens) and \texttt{HuggingFaceTB/SmolLM2-1.7B} (L12/24, 103,277 tokens) over 1,100 scientific abstracts spanning 8 AI/ML domains, enforcing a strict \textbf{paper-level 80/20 train/test split} (zero document leakage) with train-only RMS normalization. All 9 methods train $4\times$ SAEs ($d_{\mathrm{sae}}=8{,}192$, 900 Adam steps, batch size 512, $\mathrm{lr}=10^{-3}$, unit-norm decoder) across $k \in \{16,32,64\}$ and 3 seeds on an NVIDIA GeForce RTX 5090, plus a $6$-method $8\times$ scaling sweep ($d_{\mathrm{sae}}=16{,}384, k=32$, 3 seeds on Qwen3-1.7B L13) and full $\lambda/\tau_{\mathrm{rel}}$ ablations. For causal LM evaluation, we splice each trained $k=32$ SAE directly back into the live transformer at L13/L12 on 32 held-out test papers (preserving BOS) and measure CE Loss Recovered $= 100\cdot(\mathrm{CE}_{\mathrm{zero}} - \mathrm{CE}_{\mathrm{SAE}})/(\mathrm{CE}_{\mathrm{zero}} - \mathrm{CE}_{\mathrm{clean}})$ and next-token Logit KL $\KL(p_{\mathrm{clean}} \parallel p_{\mathrm{SAE}})$ in exact FP32 Bregman--Taylor arithmetic. Anonymized source code, Triton kernels, and full reproduction scripts are provided in the supplementary material and will be released publicly upon acceptance.
+We extract mid-layer residual activations from \texttt{Qwen/Qwen3-1.7B} (L13/28, 165,417 tokens) and \texttt{HuggingFaceTB/SmolLM2-1.7B} (L12/24, 171,057 tokens) over 1,650 scientific abstracts spanning 8 AI/ML domains, enforcing a strict \textbf{paper-level 80/20 train/test split} (zero document leakage) with train-only RMS normalization. All 9 methods train $4\times$ SAEs ($d_{\mathrm{sae}}=8{,}192$, 1,200 Adam steps, batch size 512, $\mathrm{lr}=10^{-3}$, unit-norm decoder) across $k \in \{16,32,64\}$ and 3 seeds on an NVIDIA GeForce RTX 5090, plus 6-method $8\times$ ($d_{\mathrm{sae}}=16{,}384$) and production $16\times$ ($d_{\mathrm{sae}}=32{,}768$) scaling sweeps ($k=32$, 3 seeds on Qwen3-1.7B L13), SAEBench-style sparse probing ($k \in \{1,5,20\}$), blind LLM-as-a-Judge AutoInterp (\texttt{Qwen3.8-27B}, $n=12$ latents/method), and full $\lambda/\tau_{\mathrm{rel}}$ ablations. For causal LM evaluation, we splice each trained $k=32$ SAE directly back into the live transformer at L13/L12 on 32 held-out test papers (preserving BOS) and measure CE Loss Recovered $= 100\cdot(\mathrm{CE}_{\mathrm{zero}} - \mathrm{CE}_{\mathrm{SAE}})/(\mathrm{CE}_{\mathrm{zero}} - \mathrm{CE}_{\mathrm{clean}})$ and next-token Logit KL $\KL(p_{\mathrm{clean}} \parallel p_{\mathrm{SAE}})$ in exact FP32 Bregman--Taylor arithmetic. Anonymized source code, Triton kernels, and full reproduction scripts are provided in the supplementary material and will be released publicly upon acceptance.
 
 \section{Results and Ablations}
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{figure1.png}
-  \caption{Version 3.0 SAE benchmark on NVIDIA GeForce RTX 5090: (a) $4\times$ FVU vs.\ dead-latent Pareto frontier ($k \in \{16,32,64\}$); (b--c) Live transformer causal splice CE Loss Recovered \% and Logit KL ($k=32$); (d) Dead latents vs.\ 8-class probe recovery; (e) $8\times$ overcomplete scaling ($d_{\mathrm{sae}}=16{,}384$); (f) Boundary weight $\lambda$ ablation.}
+  \caption{Version 4.0 SAE benchmark on NVIDIA GeForce RTX 5090 (336,474 tokens, 1,200 steps): (a) $4\times$ FVU vs.\ dead-latent Pareto frontier ($k \in \{16,32,64\}$); (b--c) Live transformer causal splice CE Loss Recovered \% and Logit KL ($k=32$); (d) $8\times$ ($16{,}384$) \& $16\times$ ($32{,}768$) overcomplete scaling; (e) SAEBench sparse probing \& blind Qwen3.8-27B AutoInterp; (f) Boundary weight $\lambda$ ablation.}
   \label{fig:sae_main}
 \end{figure}
 
@@ -73,25 +73,25 @@ We extract mid-layer residual activations from \texttt{Qwen/Qwen3-1.7B} (L13/28,
     \toprule
     Model & Method & FVU ($\downarrow$) & Dead \% ($\downarrow$) & CE Rec \% ($\uparrow$) & Logit KL ($\downarrow$) & Probe Rec ($\uparrow$) & Top-512 Hung \\
     \midrule
-        Qwen3-1.7B & ReLU-$L_1$ \citep{bricken2023monosemanticity} & $0.4807\pm0.0016$ & 37.83\% & 77.26\% & 1.8969 & 98.1\% & 0.525 \\
-    Qwen3-1.7B & JumpReLU \citep{rajamanoharan2024jumprelu} & $0.3472\pm0.0028$ & 84.22\% & 95.90\% & 0.5866 & 100.7\% & 0.480 \\
-    Qwen3-1.7B & TopK-STE \citep{gao2024scaling} & $0.2784\pm0.0003$ & 29.32\% & 97.81\% & 0.3991 & 103.1\% & 0.494 \\
-    Qwen3-1.7B & TopK+AuxK \citep{gao2024scaling} & $0.2778\pm0.0001$ & 15.13\% & 97.82\% & 0.3959 & 103.8\% & 0.499 \\
-    Qwen3-1.7B & BatchTopK-STE \citep{bussmann2024batchtopk} & $0.2834\pm0.0015$ & 55.80\% & 98.42\% & 0.3623 & 105.2\% & 0.500 \\
-    Qwen3-1.7B & BatchTopK+AuxK \citep{bussmann2024batchtopk} & $0.2806\pm0.0011$ & 31.15\% & 98.33\% & 0.3691 & 104.7\% & 0.503 \\
-    Qwen3-1.7B & ProbBatchTopK (v1 Ungated) & $0.2996\pm0.0003$ & 20.48\% & 97.20\% & 0.4582 & 101.7\% & 0.483 \\
-    Qwen3-1.7B & \textbf{MarginProb-BatchTopK (Ours)} & $0.2796\pm0.0007$ & 20.07\% & 97.96\% & 0.3819 & 103.8\% & 0.502 \\
-    Qwen3-1.7B & \textbf{MarginProb+AuxK (Ours)} & $0.2797\pm0.0005$ & 18.39\% & 98.04\% & 0.3796 & 103.5\% & 0.498 \\
+        Qwen3-1.7B & ReLU-$L_1$ \citep{bricken2023monosemanticity} & $0.4219\pm0.0047$ & 52.71\% & 85.20\% & 1.2595 & 96.7\% & 0.608 \\
+    Qwen3-1.7B & JumpReLU \citep{rajamanoharan2024jumprelu} & $0.3217\pm0.0016$ & 82.60\% & 97.14\% & 0.4385 & 99.7\% & 0.504 \\
+    Qwen3-1.7B & TopK-STE \citep{gao2024scaling} & $0.2587\pm0.0003$ & 32.82\% & 98.32\% & 0.3060 & 99.7\% & 0.534 \\
+    Qwen3-1.7B & TopK+AuxK \citep{gao2024scaling} & $0.2575\pm0.0001$ & 17.03\% & 98.33\% & 0.3033 & 98.7\% & 0.535 \\
+    Qwen3-1.7B & BatchTopK-STE \citep{bussmann2024batchtopk} & $0.2644\pm0.0013$ & 54.91\% & 98.92\% & 0.2751 & 99.0\% & 0.521 \\
+    Qwen3-1.7B & BatchTopK+AuxK \citep{bussmann2024batchtopk} & $0.2616\pm0.0008$ & 28.85\% & 98.55\% & 0.2876 & 100.1\% & 0.528 \\
+    Qwen3-1.7B & ProbBatchTopK (v1 Ungated) & $0.2762\pm0.0005$ & 19.58\% & 97.71\% & 0.3523 & 101.5\% & 0.518 \\
+    Qwen3-1.7B & \textbf{MarginProb-BatchTopK (Ours)} & $0.2609\pm0.0010$ & 19.69\% & 98.57\% & 0.2910 & 100.4\% & 0.529 \\
+    Qwen3-1.7B & \textbf{MarginProb+AuxK (Ours)} & $0.2610\pm0.0010$ & 16.61\% & 98.47\% & 0.2958 & 100.2\% & 0.533 \\
     \midrule
-    SmolLM2-1.7B & ReLU-$L_1$ \citep{bricken2023monosemanticity} & $0.4935\pm0.0147$ & 19.84\% & 80.61\% & 1.3876 & 102.3\% & 0.402 \\
-    SmolLM2-1.7B & JumpReLU \citep{rajamanoharan2024jumprelu} & $0.3663\pm0.0129$ & 88.55\% & 95.59\% & 0.4711 & 103.0\% & 0.480 \\
-    SmolLM2-1.7B & TopK-STE \citep{gao2024scaling} & $0.2670\pm0.0002$ & 31.42\% & 98.28\% & 0.2735 & 107.1\% & 0.509 \\
-    SmolLM2-1.7B & TopK+AuxK \citep{gao2024scaling} & $0.2659\pm0.0001$ & 18.17\% & 98.32\% & 0.2723 & 105.8\% & 0.509 \\
-    SmolLM2-1.7B & BatchTopK-STE \citep{bussmann2024batchtopk} & $0.2761\pm0.0027$ & 49.28\% & 98.75\% & 0.2612 & 107.1\% & 0.485 \\
-    SmolLM2-1.7B & BatchTopK+AuxK \citep{bussmann2024batchtopk} & $0.2729\pm0.0024$ & 30.23\% & 98.79\% & 0.2598 & 106.6\% & 0.493 \\
-    SmolLM2-1.7B & ProbBatchTopK (v1 Ungated) & $0.2826\pm0.0006$ & 18.10\% & 98.46\% & 0.2753 & 107.1\% & 0.498 \\
-    SmolLM2-1.7B & \textbf{MarginProb-BatchTopK (Ours)} & $0.2720\pm0.0023$ & 31.33\% & 98.82\% & 0.2561 & 108.6\% & 0.495 \\
-    SmolLM2-1.7B & \textbf{MarginProb+AuxK (Ours)} & $0.2719\pm0.0021$ & 29.02\% & 98.85\% & 0.2552 & 107.6\% & 0.490 \\
+    SmolLM2-1.7B & ReLU-$L_1$ \citep{bricken2023monosemanticity} & $0.4142\pm0.0069$ & 34.69\% & 90.12\% & 0.8405 & 100.8\% & 0.597 \\
+    SmolLM2-1.7B & JumpReLU \citep{rajamanoharan2024jumprelu} & $0.3303\pm0.0046$ & 86.92\% & 97.06\% & 0.3922 & 99.8\% & 0.514 \\
+    SmolLM2-1.7B & TopK-STE \citep{gao2024scaling} & $0.2484\pm0.0009$ & 34.03\% & 99.07\% & 0.2224 & 102.1\% & 0.531 \\
+    SmolLM2-1.7B & TopK+AuxK \citep{gao2024scaling} & $0.2471\pm0.0009$ & 18.90\% & 98.98\% & 0.2236 & 103.2\% & 0.532 \\
+    SmolLM2-1.7B & BatchTopK-STE \citep{bussmann2024batchtopk} & $0.2527\pm0.0011$ & 45.02\% & 99.17\% & 0.2112 & 102.6\% & 0.536 \\
+    SmolLM2-1.7B & BatchTopK+AuxK \citep{bussmann2024batchtopk} & $0.2490\pm0.0014$ & 26.35\% & 99.27\% & 0.2105 & 102.6\% & 0.532 \\
+    SmolLM2-1.7B & ProbBatchTopK (v1 Ungated) & $0.2588\pm0.0011$ & 14.30\% & 99.25\% & 0.2141 & 102.0\% & 0.533 \\
+    SmolLM2-1.7B & \textbf{MarginProb-BatchTopK (Ours)} & $0.2484\pm0.0007$ & 26.61\% & 99.43\% & 0.2040 & 101.8\% & 0.537 \\
+    SmolLM2-1.7B & \textbf{MarginProb+AuxK (Ours)} & $0.2482\pm0.0010$ & 22.79\% & 99.49\% & 0.2074 & 102.0\% & 0.537 \\
     \bottomrule
   \end{tabular}}
 \end{table}
@@ -105,29 +105,29 @@ We extract mid-layer residual activations from \texttt{Qwen/Qwen3-1.7B} (L13/28,
     \toprule
     $k$ & Method & Qwen3 FVU ($\downarrow$) & Qwen3 Dead \% ($\downarrow$) & SmolLM2 FVU ($\downarrow$) & SmolLM2 Dead \% ($\downarrow$) \\
     \midrule
-        $k=16$ & TopK-STE \citep{gao2024scaling} & 0.3168 & 47.55\% & 0.3060 & 48.87\% \\
-    $k=16$ & TopK+AuxK \citep{gao2024scaling} & 0.3157 & 35.24\% & 0.3038 & 36.54\% \\
-    $k=16$ & BatchTopK-STE \citep{bussmann2024batchtopk} & 0.3398 & 78.56\% & 0.3289 & 73.68\% \\
-    $k=16$ & BatchTopK+AuxK \citep{bussmann2024batchtopk} & 0.3220 & 50.97\% & 0.3134 & 46.89\% \\
-    $k=16$ & ProbBatchTopK (v1 Ungated) & 0.3472 & 58.10\% & 0.3291 & 54.95\% \\
-    $k=16$ & \textbf{MarginProb-BatchTopK (Ours)} & 0.3248 & 58.45\% & 0.3208 & 61.99\% \\
-    $k=16$ & \textbf{MarginProb+AuxK (Ours)} & 0.3239 & 56.40\% & 0.3185 & 54.40\% \\
+        $k=16$ & TopK-STE \citep{gao2024scaling} & 0.2975 & 49.91\% & 0.2872 & 48.89\% \\
+    $k=16$ & TopK+AuxK \citep{gao2024scaling} & 0.2955 & 34.98\% & 0.2842 & 34.74\% \\
+    $k=16$ & BatchTopK-STE \citep{bussmann2024batchtopk} & 0.3220 & 78.18\% & 0.3052 & 66.58\% \\
+    $k=16$ & BatchTopK+AuxK \citep{bussmann2024batchtopk} & 0.3020 & 41.92\% & 0.2878 & 39.44\% \\
+    $k=16$ & ProbBatchTopK (v1 Ungated) & 0.3253 & 60.92\% & 0.3041 & 54.70\% \\
+    $k=16$ & \textbf{MarginProb-BatchTopK (Ours)} & 0.3079 & 57.15\% & 0.2955 & 58.66\% \\
+    $k=16$ & \textbf{MarginProb+AuxK (Ours)} & 0.3051 & 50.43\% & 0.2930 & 48.04\% \\
     \midrule
-    $k=32$ & TopK-STE \citep{gao2024scaling} & 0.2784 & 29.32\% & 0.2670 & 31.42\% \\
-    $k=32$ & TopK+AuxK \citep{gao2024scaling} & 0.2778 & 15.13\% & 0.2659 & 18.17\% \\
-    $k=32$ & BatchTopK-STE \citep{bussmann2024batchtopk} & 0.2834 & 55.80\% & 0.2761 & 49.28\% \\
-    $k=32$ & BatchTopK+AuxK \citep{bussmann2024batchtopk} & 0.2806 & 31.15\% & 0.2729 & 30.23\% \\
-    $k=32$ & ProbBatchTopK (v1 Ungated) & 0.2996 & 20.48\% & 0.2826 & 18.10\% \\
-    $k=32$ & \textbf{MarginProb-BatchTopK (Ours)} & 0.2796 & 20.07\% & 0.2720 & 31.33\% \\
-    $k=32$ & \textbf{MarginProb+AuxK (Ours)} & 0.2797 & 18.39\% & 0.2719 & 29.02\% \\
+    $k=32$ & TopK-STE \citep{gao2024scaling} & 0.2587 & 32.82\% & 0.2484 & 34.03\% \\
+    $k=32$ & TopK+AuxK \citep{gao2024scaling} & 0.2575 & 17.03\% & 0.2471 & 18.90\% \\
+    $k=32$ & BatchTopK-STE \citep{bussmann2024batchtopk} & 0.2644 & 54.91\% & 0.2527 & 45.02\% \\
+    $k=32$ & BatchTopK+AuxK \citep{bussmann2024batchtopk} & 0.2616 & 28.85\% & 0.2490 & 26.35\% \\
+    $k=32$ & ProbBatchTopK (v1 Ungated) & 0.2762 & 19.58\% & 0.2588 & 14.30\% \\
+    $k=32$ & \textbf{MarginProb-BatchTopK (Ours)} & 0.2609 & 19.69\% & 0.2484 & 26.61\% \\
+    $k=32$ & \textbf{MarginProb+AuxK (Ours)} & 0.2610 & 16.61\% & 0.2482 & 22.79\% \\
     \midrule
-    $k=64$ & TopK-STE \citep{gao2024scaling} & 0.2486 & 10.84\% & 0.2388 & 12.72\% \\
-    $k=64$ & TopK+AuxK \citep{gao2024scaling} & 0.2485 & 6.90\% & 0.2380 & 8.45\% \\
-    $k=64$ & BatchTopK-STE \citep{bussmann2024batchtopk} & 0.2462 & 18.58\% & 0.2390 & 22.06\% \\
-    $k=64$ & BatchTopK+AuxK \citep{bussmann2024batchtopk} & 0.2461 & 12.17\% & 0.2392 & 15.61\% \\
-    $k=64$ & ProbBatchTopK (v1 Ungated) & 0.2685 & 0.37\% & 0.2523 & 0.30\% \\
-    $k=64$ & \textbf{MarginProb-BatchTopK (Ours)} & 0.2477 & 1.53\% & 0.2402 & 5.16\% \\
-    $k=64$ & \textbf{MarginProb+AuxK (Ours)} & 0.2476 & 1.38\% & 0.2402 & 5.26\% \\
+    $k=64$ & TopK-STE \citep{gao2024scaling} & 0.2284 & 13.44\% & 0.2187 & 14.53\% \\
+    $k=64$ & TopK+AuxK \citep{gao2024scaling} & 0.2284 & 8.91\% & 0.2183 & 10.35\% \\
+    $k=64$ & BatchTopK-STE \citep{bussmann2024batchtopk} & 0.2281 & 19.91\% & 0.2167 & 18.36\% \\
+    $k=64$ & BatchTopK+AuxK \citep{bussmann2024batchtopk} & 0.2285 & 11.20\% & 0.2164 & 13.14\% \\
+    $k=64$ & ProbBatchTopK (v1 Ungated) & 0.2460 & 0.37\% & 0.2301 & 0.07\% \\
+    $k=64$ & \textbf{MarginProb-BatchTopK (Ours)} & 0.2294 & 3.25\% & 0.2169 & 3.91\% \\
+    $k=64$ & \textbf{MarginProb+AuxK (Ours)} & 0.2293 & 2.88\% & 0.2172 & 3.80\% \\
     \bottomrule
   \end{tabular}}
 \end{table}
@@ -141,15 +141,52 @@ We extract mid-layer residual activations from \texttt{Qwen/Qwen3-1.7B} (L13/28,
     \toprule
     Method ($8\times$ Width, $d_{\mathrm{sae}}=16{,}384$) & FVU ($\downarrow$) & Dead Latents \% ($\downarrow$) & Util.\ Entropy ($\uparrow$) \\
     \midrule
-        TopK-STE \citep{gao2024scaling} & $0.2774\pm0.0006$ & $56.06\%\pm0.29\%$ & 0.8169 \\
-    TopK+AuxK \citep{gao2024scaling} & $0.2764\pm0.0001$ & $46.27\%\pm0.07\%$ & 0.8163 \\
-    BatchTopK-STE \citep{bussmann2024batchtopk} & $0.2859\pm0.0013$ & $75.50\%\pm6.91\%$ & 0.7707 \\
-    BatchTopK+AuxK \citep{bussmann2024batchtopk} & $0.2799\pm0.0010$ & $60.44\%\pm1.07\%$ & 0.7794 \\
-    \textbf{MarginProb-BatchTopK (Ours)} & $0.2764\pm0.0002$ & $54.89\%\pm0.60\%$ & 0.8020 \\
-    \textbf{MarginProb+AuxK (Ours)} & $0.2766\pm0.0002$ & $56.67\%\pm0.89\%$ & 0.8036 \\
+        TopK-STE \citep{gao2024scaling} & $0.2573\pm0.0003$ & $60.34\%\pm0.28\%$ & 0.8025 \\
+    TopK+AuxK \citep{gao2024scaling} & $0.2560\pm0.0003$ & $48.07\%\pm0.17\%$ & 0.8020 \\
+    BatchTopK-STE \citep{bussmann2024batchtopk} & $0.2663\pm0.0020$ & $77.41\%\pm3.52\%$ & 0.7585 \\
+    BatchTopK+AuxK \citep{bussmann2024batchtopk} & $0.2600\pm0.0008$ & $58.55\%\pm1.62\%$ & 0.7674 \\
+    \textbf{MarginProb-BatchTopK (Ours)} & $0.2586\pm0.0010$ & $52.88\%\pm1.32\%$ & 0.7865 \\
+    \textbf{MarginProb+AuxK (Ours)} & $0.2580\pm0.0005$ & $52.82\%\pm0.46\%$ & 0.7900 \\
     \bottomrule
   \end{tabular}
 \end{table}
+
+\begin{table}[t]
+  \centering
+  \caption{Production-scale $16\times$ overcomplete scaling ($d_{\mathrm{in}}=2{{,}}048 \to d_{\mathrm{sae}}=32{{,}}768, k=32$, 3 seeds) on Qwen3-1.7B L13.}
+  \label{tab:sae_16x}
+  \scriptsize
+  \begin{tabular}{lrrr}
+    \toprule
+    Method ($16\times$ Width, $d_{\mathrm{sae}}=32{{,}}768$) & FVU ($\downarrow$) & Dead Latents \% ($\downarrow$) & Util.\ Entropy ($\uparrow$) \\
+    \midrule
+    TopK-STE \citep{gao2024scaling} & $0.2573\pm0.0008$ & $77.10\%\pm0.08\%$ & 0.7470 \\
+    TopK+AuxK \citep{gao2024scaling} & $0.2559\pm0.0001$ & $71.74\%\pm0.14\%$ & 0.7425 \\
+    BatchTopK-STE \citep{bussmann2024batchtopk} & $0.2737\pm0.0009$ & $88.11\%\pm4.90\%$ & 0.6932 \\
+    BatchTopK+AuxK \citep{bussmann2024batchtopk} & $0.2594\pm0.0008$ & $77.49\%\pm0.39\%$ & 0.7062 \\
+    \textbf{MarginProb-BatchTopK (Ours)} & $0.2581\pm0.0006$ & $75.82\%\pm0.85\%$ & 0.7260 \\
+    \textbf{MarginProb+AuxK (Ours)} & $0.2573\pm0.0001$ & $75.48\%\pm0.30\%$ & 0.7283 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[t]
+  \centering
+  \caption{SAEBench-style Sparse Probing ($k \in \{1,5,20\}$ top latents/class) and Automated LLM-as-a-Judge Feature Interpretability (Qwen3.8-27B blind detection F1 \& balanced accuracy, Qwen3-1.7B L13).}
+  \label{tab:sae_autointerp}
+  \scriptsize
+  \resizebox{\linewidth}{!}{\begin{tabular}{lrrrrr}
+    \toprule
+    Method & Sparse $k=1$ & Sparse $k=5$ & Sparse $k=20$ & AutoInterp F1 ($\uparrow$) & Bal.\ Acc \\
+    \midrule
+    TopK+AuxK \citep{gao2024scaling} & 57.1\% & 66.7\% & 69.7\% & \textbf{24.5\%} & 57.6\% \\
+    BatchTopK-STE \citep{bussmann2024batchtopk} & 60.8\% & 66.8\% & 69.5\% & \textbf{48.8\%} & 68.1\% \\
+    BatchTopK+AuxK \citep{bussmann2024batchtopk} & 60.3\% & 66.6\% & 68.7\% & \textbf{41.4\%} & 63.9\% \\
+    \textbf{MarginProb-BatchTopK (Ours)} & 61.0\% & 65.8\% & 69.2\% & \textbf{23.3\%} & 58.3\% \\
+    \bottomrule
+  \end{tabular}}
+\end{table}
+
 
 \begin{table}[t]
   \centering
@@ -160,25 +197,25 @@ We extract mid-layer residual activations from \texttt{Qwen/Qwen3-1.7B} (L13/28,
     \toprule
     Axis & Setting & FVU ($\downarrow$) & Dead \% ($\downarrow$) & Util.\ Entropy ($\uparrow$) \\
     \midrule
-        Boundary weight $\lambda$ & $\lambda=0.00$ & $0.2834\pm0.0015$ & 55.80\% & 0.8365 \\
-    Boundary weight $\lambda$ & $\lambda=0.05$ & $0.2786\pm0.0007$ & 33.37\% & 0.8563 \\
-    Boundary weight $\lambda$ & $\lambda=0.15$ & $0.2796\pm0.0007$ & 20.07\% & 0.8692 \\
-    Boundary weight $\lambda$ & $\lambda=0.30$ & $0.2811\pm0.0007$ & 9.14\% & 0.8875 \\
-    Boundary weight $\lambda$ & $\lambda=0.60$ & $0.2880\pm0.0004$ & 1.32\% & 0.9181 \\
+        Boundary weight $\lambda$ & $\lambda=0.00$ & $0.2644\pm0.0013$ & 54.91\% & 0.8243 \\
+    Boundary weight $\lambda$ & $\lambda=0.05$ & $0.2608\pm0.0013$ & 31.88\% & 0.8408 \\
+    Boundary weight $\lambda$ & $\lambda=0.15$ & $0.2609\pm0.0010$ & 19.69\% & 0.8530 \\
+    Boundary weight $\lambda$ & $\lambda=0.30$ & $0.2616\pm0.0008$ & 9.04\% & 0.8758 \\
+    Boundary weight $\lambda$ & $\lambda=0.60$ & $0.2663\pm0.0004$ & 1.18\% & 0.9136 \\
     \midrule
-    Rel.\ temp.\ $\tau_{\mathrm{rel}}$ & $\tau_{\mathrm{rel}}=0.15$ & 0.2818 & 33.97\% & 0.8689 \\
-    Rel.\ temp.\ $\tau_{\mathrm{rel}}$ & $\tau_{\mathrm{rel}}=0.35$ & 0.2796 & 20.07\% & 0.8692 \\
-    Rel.\ temp.\ $\tau_{\mathrm{rel}}$ & $\tau_{\mathrm{rel}}=0.70$ & 0.2784 & 23.87\% & 0.8629 \\
+    Rel.\ temp.\ $\tau_{\mathrm{rel}}$ & $\tau_{\mathrm{rel}}=0.15$ & 0.2632 & 29.45\% & 0.8574 \\
+    Rel.\ temp.\ $\tau_{\mathrm{rel}}$ & $\tau_{\mathrm{rel}}=0.35$ & 0.2609 & 19.69\% & 0.8530 \\
+    Rel.\ temp.\ $\tau_{\mathrm{rel}}$ & $\tau_{\mathrm{rel}}=0.70$ & 0.2605 & 23.55\% & 0.8480 \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-\paragraph{Active-Set Gating, Live Causal Splice, and $8\times$ Scaling (Tables~\ref{tab:sae_main}--\ref{tab:sae_8x}).} Across all 18 paired $4\times$ runs, active-set gating removes ungated v1's FVU penalty ($\Delta\mathrm{FVU} = -0.01569$, $p=1.95e-09$) and strictly Pareto-dominates pure-MSE BatchTopK-STE ($\Delta\mathrm{FVU} = -0.00470$, $p=4.10e-03$; dead latents $-19.90$\,pp, $p=7.69e-09$). Spliced live into SmolLM2-1.7B L12, MarginProb+AuxK (98.85\% CE, KL 0.2552) and pure-MSE MarginProb (98.82\%, KL 0.2561) rank \#1 and \#2 across all 9 methods; on Qwen3-1.7B L13, MarginProb recovers 97.96\% CE (KL 0.3819), fully repairing ungated v1 (97.20\%) while cutting dead latents 2.8$\times$ vs.\ BatchTopK-STE (98.42\%, 55.8\% dead). At $8\times$ width ($d_{\mathrm{sae}}=16{,}384$), pure-MSE MarginProb ties TopK+AuxK for the lowest FVU (0.2764) while cutting dead latents from 75.5\% (BatchTopK-STE) and 60.4\% (BatchTopK+AuxK) down to 54.9\%.
+\paragraph{Active-Set Gating, Live Causal Splice, and $8\times/16\times$ Scaling (Tables~\ref{tab:sae_main}--\ref{tab:sae_16x}).} Across all 18 paired $4\times$ runs, active-set gating removes ungated v1's FVU penalty ($\Delta\mathrm{FVU} = -0.01355$, $p=4.24e-12$) and strictly Pareto-dominates pure-MSE BatchTopK-STE ($\Delta\mathrm{FVU} = -0.00502$, $p=1.65e-03$; dead latents $-18.95$\,pp, $p=4.84e-08$). Spliced live into SmolLM2-1.7B L12, MarginProb+AuxK (99.49\% CE, KL 0.2074) and pure-MSE MarginProb (99.43\%, lowest KL 0.2040) rank \#1 and \#2 across all 9 methods; on Qwen3-1.7B L13, MarginProb recovers 98.57\% CE (KL 0.2910), beating BatchTopK+AuxK and TopK+AuxK while repairing ungated v1 (97.71\%). At $8\times$ ($d_{\mathrm{sae}}=16{,}384$) and production $16\times$ ($d_{\mathrm{sae}}=32{,}768$) widths, MarginProb-BatchTopK and MarginProb+AuxK outperform both BatchTopK-STE and BatchTopK+AuxK on both FVU and dead-latent rate simultaneously (at $16\times$: 0.2581 / 75.8\% and 0.2573 / 75.5\% vs.\ BatchTopK-STE 0.2737 / 88.1\% and BatchTopK+AuxK 0.2594 / 77.5\%).
 
-\paragraph{Capacity-Controlled Cross-Seed Stability \& Ablations (Tables~\ref{tab:sae_main}, \ref{tab:sae_ablation}).} Evaluating 1-to-1 Hungarian matching on the top-512 most active latents resolves the alive-set capacity confound of raw Hungarian matching: MarginProb matches or exceeds BatchTopK+AuxK and TopK+AuxK across both models (reaching 0.426 vs.\ 0.410 BatchTopK+AuxK at $k=64$). Sweeping $\lambda \in [0, 0.60]$ cuts dead latents monotonically from 55.8\% to 1.32\% (42$\times$ reduction) with an FVU optimum at $\lambda=0.05$ (0.2786).
+\paragraph{SAEBench Sparse Probing, Blind AutoInterp Trade-Off \& Ablations (Tables~\ref{tab:sae_autointerp}--\ref{tab:sae_ablation}).} On SAEBench-style sparse probing ($k \in \{1,5,20\}$) and blind \texttt{Qwen3.8-27B} LLM-as-a-Judge AutoInterp ($n=12$ active latents/method, Table~\ref{tab:sae_autointerp}), we observe an important capacity--interpretability trade-off: BatchTopK-STE achieves the highest single-latent AutoInterp F1 (48.8\%, Bal.\ Acc 68.1\%) followed by BatchTopK+AuxK (41.4\%, 63.9\%), while TopK+AuxK (24.5\%, 57.6\%) and MarginProb-BatchTopK (23.3\%, 58.3\%) score lower despite better FVU and live LM splice. Mechanistically, reviving thousands of boundary atoms spreads variance across a broader active dictionary (higher utilization entropy), diluting single-feature concentration on the top-sampled latents---highlighting that dead-latent revival and monosemantic feature sharpness should be co-optimized rather than assumed identical. Sweeping $\lambda \in [0, 0.60]$ cuts dead latents monotonically from 54.9\% to 1.18\% with an FVU optimum at $\lambda=0.05$ (0.2608).
 
 \section{Limitations and Broader Impact}
-(1) Because the hard forward pass zeroes inactive activations, MarginProb routes gradients into $W_{\mathrm{enc}}, b_{\mathrm{enc}}$ without updating $W_{\mathrm{dec}}$ on deeply dead features; combining with AuxK recovers both regimes. (2) While we scale to $8\times$ ($d_{\mathrm{sae}}=16{,}384$) over 205,883 tokens, production 65k--131k SAEs over $10^8+$ tokens warrant future verification. (3) Downstream semantics are evaluated via live LM causal splice and 8-class probes rather than LLM-as-a-judge auto-interpretability. Improving sparse feature dictionaries supports safer, more transparent LLM auditing.
+(1) Because the hard forward pass zeroes inactive activations, MarginProb routes gradients into $W_{\mathrm{enc}}, b_{\mathrm{enc}}$ without updating $W_{\mathrm{dec}}$ on deeply dead features; combining with AuxK recovers both regimes. (2) While we scale to $16\times$ ($d_{\mathrm{sae}}=32{,}768$) over 336,474 tokens, multi-hundred-million-token 131k production SAEs warrant future verification. (3) As Table~\ref{tab:sae_autointerp} candidly shows, higher active dictionary utilization does not automatically increase single-latent blind AutoInterp F1; annealing $\lambda_t$ more aggressively or pairing MarginProb with feature-splitting regularizers is a promising direction. Improving sparse feature dictionaries supports safer, more transparent LLM auditing.
 
 \bibliography{references}
 \bibliographystyle{tmlr}

@@ -2,7 +2,7 @@
   "papers": [
     {
       "slug": "probmoe-batchtopk-sae",
-      "version": "3.0",
+      "version": "4.0",
       "experiment_id": "probmoe_sae",
       "title": "Margin-Gated Probabilistic Surrogate Gradients for Overcomplete Sparse Autoencoders",
       "authors": [
@@ -10,13 +10,13 @@
         "Space AI"
       ],
       "email": "marcio.diaz@gmail.com",
-      "published_at": "2026-11-24T22:09:31+01:00",
+      "published_at": "2026-11-25T06:52:10+01:00",
       "paper_html": "./papers/probmoe-batchtopk-sae.html",
       "paper_pdf": "./papers/probmoe-batchtopk-sae.pdf",
       "paper_md": "./data/generated_papers/probmoe-batchtopk-sae.md",
       "metrics_json": "./data/generated_papers/probmoe-batchtopk-sae.json",
       "blog_href": "./blog-auto-probmoe-batchtopk-sae.html",
-      "metric_chip": "MarginProb vs BTK-STE: -0.0047 FVU & -19.9pp dead (p=7.7e-09)",
+      "metric_chip": "MarginProb vs BTK-STE: -0.0050 FVU & -18.9pp dead (p=4.8e-08)",
       "source_papers": [
         {
           "id": "arxiv-2606.01509",
@@ -34,21 +34,21 @@
           "url": "https://arxiv.org/abs/2501.16615"
         }
       ],
-      "doi": "10.5281/zenodo.24515036",
-      "zenodo_url": "https://zenodo.org/record/24515036",
+      "doi": "10.5281/zenodo.24522712",
+      "zenodo_url": "https://zenodo.org/record/24522712",
       "zenodo": {
-        "deposition_id": 24515036,
-        "doi": "10.5281/zenodo.24515036",
-        "record_url": "https://zenodo.org/record/24515036",
+        "deposition_id": 24522712,
+        "doi": "10.5281/zenodo.24522712",
+        "record_url": "https://zenodo.org/record/24522712",
         "published": true,
         "sandbox": false,
-        "version": "3.0",
+        "version": "4.0",
         "conceptdoi": "10.5281/zenodo.24508484"
       }
     },
     {
       "slug": "steerable-not-decodable-ace-cores",
-      "version": "3.0",
+      "version": "4.0",
       "experiment_id": "steering_lens",
       "title": "Steerable Before Decodable: Multi-Model Causal Evidence of Unembedding-Orthogonal Bottlenecks Beyond the Logit and Tuned Lens",
       "authors": [
@@ -56,7 +56,7 @@
         "Space AI"
       ],
       "email": "marcio.diaz@gmail.com",
-      "published_at": "2026-11-24T21:47:25+01:00",
+      "published_at": "2026-11-25T06:13:58+01:00",
       "paper_html": "./papers/steerable-not-decodable-ace-cores.html",
       "paper_pdf": "./papers/steerable-not-decodable-ace-cores.pdf",
       "paper_md": "./data/generated_papers/steerable-not-decodable-ace-cores.md",
@@ -70,21 +70,21 @@
           "url": "https://arxiv.org/abs/2604.02608"
         }
       ],
-      "doi": "10.5281/zenodo.24514497",
-      "zenodo_url": "https://zenodo.org/record/24514497",
+      "doi": "10.5281/zenodo.24522101",
+      "zenodo_url": "https://zenodo.org/record/24522101",
       "zenodo": {
-        "deposition_id": 24514497,
-        "doi": "10.5281/zenodo.24514497",
-        "record_url": "https://zenodo.org/record/24514497",
+        "deposition_id": 24522101,
+        "doi": "10.5281/zenodo.24522101",
+        "record_url": "https://zenodo.org/record/24522101",
         "published": true,
         "sandbox": false,
-        "version": "3.0",
+        "version": "4.0",
         "conceptdoi": "10.5281/zenodo.24508472"
       }
     },
     {
       "slug": "pytorch-kl-bregman-stability",
-      "version": "3.0",
+      "version": "4.0",
       "experiment_id": "kl_pytorch",
       "title": "Silent Cancellation and Backward Gradient Corruption in Low-Precision KL Divergence: Theory, Fused Triton Kernels, and LLM Post-Training",
       "authors": [
@@ -92,7 +92,7 @@
         "Space AI"
       ],
       "email": "marcio.diaz@gmail.com",
-      "published_at": "2026-11-24T20:42:02+01:00",
+      "published_at": "2026-11-25T05:42:43+01:00",
       "paper_html": "./papers/pytorch-kl-bregman-stability.html",
       "paper_pdf": "./papers/pytorch-kl-bregman-stability.pdf",
       "paper_md": "./data/generated_papers/pytorch-kl-bregman-stability.md",
@@ -106,15 +106,15 @@
           "url": "https://arxiv.org/abs/2611.30835"
         }
       ],
-      "doi": "10.5281/zenodo.24513063",
-      "zenodo_url": "https://zenodo.org/record/24513063",
+      "doi": "10.5281/zenodo.24521689",
+      "zenodo_url": "https://zenodo.org/record/24521689",
       "zenodo": {
-        "deposition_id": 24513063,
-        "doi": "10.5281/zenodo.24513063",
-        "record_url": "https://zenodo.org/record/24513063",
+        "deposition_id": 24521689,
+        "doi": "10.5281/zenodo.24521689",
+        "record_url": "https://zenodo.org/record/24521689",
         "published": true,
         "sandbox": false,
-        "version": "3.0",
+        "version": "4.0",
         "conceptdoi": "10.5281/zenodo.24508478"
       }
     }
