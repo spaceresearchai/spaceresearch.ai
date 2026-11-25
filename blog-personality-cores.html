@@ -17,7 +17,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/svg+xml" href="./mark.svg?v=35" />
-  <link rel="stylesheet" href="./culture.css?v=30" />
+  <link rel="stylesheet" href="./culture.css?v=32" />
 </head>
 <body>
   <canvas id="cosmos-bg-canvas" class="cosmos-bg-canvas" aria-hidden="true"></canvas>
@@ -124,7 +124,7 @@
 
             <div class="blog-figure" style="background:#ffffff;padding:12px;border-radius:10px;">
               <img src="./papers/figures/personality-cores-geometry.png" alt="Figure 1. Geometric decoupling and layer-depth causal phase inversion on Qwen3.8-27B. (a) Pre-decoupling shared-layer cosine overlap showing warmth vs. anti-sycophancy (-0.28) and playfulness vs. formality (-0.71). (b) Exact 0.0000 cross-cosine after Epistemic Projection + Löwdin Symmetric Orthogonalization with 87.4%-96.2% angular retention. (c) 5-fold CV Cohen's d across L18-L44 overlaid with Formality Balanced Subspace-FD ACE causal cosine, exposing the L27 (-0.592) to L28 (+0.815) single-layer causal sign flip." style="width:100%;height:auto;display:block;border-radius:6px;" />
-              <div class="blog-figcap" style="color:#334155;">Figure 1. (a-b) Pre- vs. post-decoupling shared-layer cosine matrices across all 5 personality axes and 3 frozen epistemic anchors on Qwen3.8-27B: Epistemic Projection + L&ouml;wdin orthogonalization zeroes every cross-cosine to 0.0000 while preserving 87.4%-96.2% angular retention. (c) Layer-depth profile revealing the single-layer causal sign inversion on <code>formality</code> between L27 (peak separability <em>d</em> = 8.35, but negative causal cosine &minus;0.592) and L28 (+0.815).</div>
+              <div class="blog-figcap" style="color:#090b12;">Figure 1. (a-b) Pre- vs. post-decoupling shared-layer cosine matrices across all 5 personality axes and 3 frozen epistemic anchors on Qwen3.8-27B: Epistemic Projection + L&ouml;wdin orthogonalization zeroes every cross-cosine to 0.0000 while preserving 87.4%-96.2% angular retention. (c) Layer-depth profile revealing the single-layer causal sign inversion on <code>formality</code> between L27 (peak separability <em>d</em> = 8.35, but negative causal cosine &minus;0.592) and L28 (+0.815).</div>
             </div>
 
             <h2>3. The L24-L27 causal sign-flip catch: why probe accuracy &ne; steerability</h2>
@@ -166,7 +166,7 @@
 
             <div class="blog-figure" style="background:#ffffff;padding:12px;border-radius:10px;">
               <img src="./papers/figures/personality-cores-benchmarks.png" alt="Figure 2. Four quantitative benchmarks on live Qwen3.8-27B (RTX 5090). (a) 5x5 behavioral cross-axis matrix showing 100% diagonal dominance alongside real nonlinear cross-talk. (b) Turn 1 vs Turn 8 multi-turn persistence after 7 neutral technical distractors. (c) Epistemic and sycophancy invariance across 12 sycophancy traps and 10 epistemic traps. (d) Untruncated 20-task exact-answer reasoning accuracy (95%-100%) and mean output token length across all presets." style="width:100%;height:auto;display:block;border-radius:6px;" />
-              <div class="blog-figcap" style="color:#334155;">Figure 2. Held-out quantitative evaluation on Qwen3.8-27B (RTX 5090). (a) 5&times;5 antisymmetric log-odds matrix across 20 held-out prompts (100% diagonal win rate, exposing nonlinear off-diagonal coupling). (b) Multi-turn persistence at Turn 8 after 7 neutral technical turns. (c) Sycophancy resistance (12 traps) and epistemic honesty (10 traps). (d) Untruncated verifiable reasoning accuracy (20 exact tasks, 0 truncations) and mean response length.</div>
+              <div class="blog-figcap" style="color:#090b12;">Figure 2. Held-out quantitative evaluation on Qwen3.8-27B (RTX 5090). (a) 5&times;5 antisymmetric log-odds matrix across 20 held-out prompts (100% diagonal win rate, exposing nonlinear off-diagonal coupling). (b) Multi-turn persistence at Turn 8 after 7 neutral technical turns. (c) Sycophancy resistance (12 traps) and epistemic honesty (10 traps). (d) Untruncated verifiable reasoning accuracy (20 exact tasks, 0 truncations) and mean response length.</div>
             </div>
 
             <h3>Experiment 1: Zero-prompt bidirectional fidelity &amp; geometric vs. behavioral orthogonality</h3>
@@ -253,17 +253,17 @@
                 <!-- Col 1: Inputs -->
                 <rect x="24" y="48" width="168" height="72" rx="7" fill="#06070a" stroke="rgba(167,139,250,0.48)"/>
                 <text x="34" y="65" fill="#c4b5fd" font-family="JetBrains Mono, monospace" font-size="8.8" font-weight="600">5 PERSONALITY AXES</text>
-                <text x="34" y="79" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="7.8">warmth &middot; playfulness</text>
-                <text x="34" y="92" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="7.8">creativity &middot; assertiveness</text>
-                <text x="34" y="105" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="7.8">formality (L2 &le; 1.80 cap)</text>
+                <text x="34" y="79" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="7.8">warmth &middot; playfulness</text>
+                <text x="34" y="92" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="7.8">creativity &middot; assertiveness</text>
+                <text x="34" y="105" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="7.8">formality (L2 &le; 1.80 cap)</text>
 
                 <rect x="24" y="130" width="168" height="40" rx="7" fill="#06070a" stroke="rgba(52,211,153,0.48)"/>
                 <text x="34" y="146" fill="#6ee7b7" font-family="JetBrains Mono, monospace" font-size="8.8" font-weight="600">3 EPISTEMIC GUARDRAILS</text>
-                <text x="34" y="160" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="7.7">anti_syc &middot; honesty &middot; rigor</text>
+                <text x="34" y="160" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="7.7">anti_syc &middot; honesty &middot; rigor</text>
 
                 <rect x="24" y="178" width="168" height="36" rx="7" fill="#06070a" stroke="rgba(251,191,36,0.45)"/>
                 <text x="34" y="193" fill="#fcd34d" font-family="JetBrains Mono, monospace" font-size="8.6" font-weight="600">5 USER STATE PROBES</text>
-                <text x="34" y="206" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="7.6">L32 read-only (0 steer)</text>
+                <text x="34" y="206" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="7.6">L32 read-only (0 steer)</text>
 
                 <!-- Arrows to center -->
                 <path d="M192 84 L224 108" stroke="#a78bfa" stroke-width="1.5"/>
@@ -276,13 +276,13 @@
                 <text x="238" y="84" fill="#e4e4e7" font-family="JetBrains Mono, monospace" font-size="8.2">h_&ell; &larr; h_&ell; + &Sigma;_k w_k &middot; v_{k,&ell;}</text>
                 <rect x="238" y="96" width="170" height="34" rx="5" fill="rgba(167,139,250,0.10)" stroke="rgba(167,139,250,0.32)"/>
                 <text x="246" y="110" fill="#c4b5fd" font-family="JetBrains Mono, monospace" font-size="7.8">L28..L44 Surgical Subspace</text>
-                <text x="246" y="122" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="7.4">V_pers &perp; Q_epi &middot; V_pers^T V_pers = I</text>
+                <text x="246" y="122" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="7.4">V_pers &perp; Q_epi &middot; V_pers^T V_pers = I</text>
                 <rect x="238" y="138" width="170" height="30" rx="5" fill="rgba(52,211,153,0.10)" stroke="rgba(52,211,153,0.32)"/>
                 <text x="246" y="151" fill="#6ee7b7" font-family="JetBrains Mono, monospace" font-size="7.8">Independent Activation Gate</text>
-                <text x="246" y="162" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="7.4">Auto guardrails + user sliders</text>
+                <text x="246" y="162" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="7.4">Auto guardrails + user sliders</text>
                 <rect x="238" y="176" width="170" height="28" rx="5" fill="rgba(251,191,36,0.10)" stroke="rgba(251,191,36,0.30)"/>
                 <text x="246" y="189" fill="#fcd34d" font-family="JetBrains Mono, monospace" font-size="7.7">L32 White-Box Probe Telemetry</text>
-                <text x="246" y="199" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="7.3">13 cosines emitted per turn</text>
+                <text x="246" y="199" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="7.3">13 cosines emitted per turn</text>
 
                 <!-- Arrow to right -->
                 <path d="M420 130 L446 130" stroke="#38bdf8" stroke-width="1.8"/>
@@ -296,8 +296,8 @@
                 <text x="468" y="124" fill="#34d399" font-family="JetBrains Mono, monospace" font-size="8.0">&check; 6 Presets + /persona</text>
                 <text x="468" y="142" fill="#34d399" font-family="JetBrains Mono, monospace" font-size="8.0">&check; Stream &amp; JSON Parity</text>
                 <text x="468" y="160" fill="#34d399" font-family="JetBrains Mono, monospace" font-size="8.0">&check; CoreCompile Preserved</text>
-                <text x="468" y="182" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="7.5">API: personality_preset</text>
-                <text x="468" y="195" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="7.5">   + personality_weights</text>
+                <text x="468" y="182" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="7.5">API: personality_preset</text>
+                <text x="468" y="195" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="7.5">   + personality_weights</text>
               </svg>
               <div class="blog-figcap">Figure 3. Production 13-core GPU CoreBank architecture inside Basalt on RTX 5090. All 5 orthogonal personality axes compose freely with activation-gated epistemic guardrails and read-only Layer-32 user mental-state probes.</div>
             </div>

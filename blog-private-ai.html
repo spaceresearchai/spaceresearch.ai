@@ -17,7 +17,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/svg+xml" href="./mark.svg?v=35" />
-  <link rel="stylesheet" href="./culture.css?v=30" />
+  <link rel="stylesheet" href="./culture.css?v=32" />
 </head>
 <body>
   <canvas id="cosmos-bg-canvas" class="cosmos-bg-canvas" aria-hidden="true"></canvas>
@@ -82,32 +82,32 @@
               <svg viewBox="0 0 640 200" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Blind-relay end-to-end encryption flow in space-e2ee-v1">
                 <rect x="18" y="34" width="160" height="132" rx="10" fill="#0b0b0d" stroke="rgba(255,255,255,0.16)"/>
                 <text x="32" y="60" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">CLIENT / CLI</text>
-                <text x="32" y="84" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="9.5">1. Verify Ed25519 sig</text>
-                <text x="32" y="102" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="9.5">2. Ephemeral X25519</text>
-                <text x="32" y="120" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="9.5">3. HKDF + AES-256-GCM</text>
-                <text x="32" y="146" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="9">Plaintext never leaves</text>
+                <text x="32" y="84" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">1. Verify Ed25519 sig</text>
+                <text x="32" y="102" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">2. Ephemeral X25519</text>
+                <text x="32" y="120" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">3. HKDF + AES-256-GCM</text>
+                <text x="32" y="146" fill="#f4f4f6" font-family="JetBrains Mono, monospace" font-size="9">Plaintext never leaves</text>
 
                 <path d="M182 100 L236 100" stroke="#ffffff" stroke-width="1.5"/>
                 <polygon points="236,96 244,100 236,104" fill="#ffffff"/>
-                <text x="186" y="88" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.5">ciphertext</text>
+                <text x="186" y="88" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="8.5">ciphertext</text>
 
                 <rect x="246" y="34" width="148" height="132" rx="10" fill="#0b0b0d" stroke="rgba(255,255,255,0.12)" stroke-dasharray="4 3"/>
-                <text x="260" y="60" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">BLIND RELAY</text>
-                <text x="260" y="86" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="9.5">api.spaceresearch.ai</text>
-                <text x="260" y="110" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="9.5">Routes envelope only</text>
-                <text x="260" y="128" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="9.5">0 plaintext prompt</text>
-                <text x="260" y="146" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="9.5">0 plaintext output</text>
+                <text x="260" y="60" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">BLIND RELAY</text>
+                <text x="260" y="86" fill="#f4f4f6" font-family="JetBrains Mono, monospace" font-size="9.5">api.spaceresearch.ai</text>
+                <text x="260" y="110" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">Routes envelope only</text>
+                <text x="260" y="128" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">0 plaintext prompt</text>
+                <text x="260" y="146" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">0 plaintext output</text>
 
                 <path d="M398 100 L452 100" stroke="#ffffff" stroke-width="1.5"/>
                 <polygon points="452,96 460,100 452,104" fill="#ffffff"/>
-                <text x="402" y="88" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8.5">ciphertext</text>
+                <text x="402" y="88" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="8.5">ciphertext</text>
 
                 <rect x="462" y="34" width="160" height="132" rx="10" fill="#0b0b0d" stroke="rgba(255,255,255,0.16)"/>
                 <text x="476" y="60" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">PINNED WORKER</text>
-                <text x="476" y="84" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="9.5">In-RAM X25519 key</text>
-                <text x="476" y="102" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="9.5">Decrypts in RAM only</text>
-                <text x="476" y="120" fill="#d4d4d8" font-family="JetBrains Mono, monospace" font-size="9.5">Re-encrypts response</text>
-                <text x="476" y="146" fill="#71717a" font-family="JetBrains Mono, monospace" font-size="9">Forward-secret per boot</text>
+                <text x="476" y="84" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">In-RAM X25519 key</text>
+                <text x="476" y="102" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">Decrypts in RAM only</text>
+                <text x="476" y="120" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="9.5">Re-encrypts response</text>
+                <text x="476" y="146" fill="#f4f4f6" font-family="JetBrains Mono, monospace" font-size="9">Forward-secret per boot</text>
               </svg>
               <div class="blog-figcap">Figure 1. Blind-relay end-to-end encryption (<code>space-e2ee-v1</code>) with independent client anti-MITM key verification.</div>
             </div>

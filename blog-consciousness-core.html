@@ -17,7 +17,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/svg+xml" href="./mark.svg?v=35" />
-  <link rel="stylesheet" href="./culture.css?v=30" />
+  <link rel="stylesheet" href="./culture.css?v=32" />
   <style>
     /* ── Interactive Consciousness Core Lab Styles ── */
     .cc-widget {
@@ -300,8 +300,8 @@
       gap: 0.6rem;
       margin-top: 0.45rem;
       font-family: var(--mono);
-      font-size: 0.66rem;
-      color: #a1a1aa;
+      font-size: 0.72rem;
+      color: #f4f4f6;
     }
     .cc-legend span { display: inline-flex; align-items: center; gap: 0.28rem; }
     .cc-legend i { display: inline-block; width: 10px; height: 2.5px; border-radius: 2px; }
@@ -584,7 +584,7 @@
               <li><strong>The Biology shortcut:</strong> learning <em>"animal/human noun"</em> versus <em>"inanimate noun"</em> instead of actual consciousness attribution.</li>
             </ul>
             <p>
-              We closed both loopholes at extraction time. First, every training and evaluation item is paired across <strong>two opposite polarities</strong> (a direct query (<em>"Is X conscious?"</em>) and an inverted query (<em>"Is X purely unconscious, with zero inner experience?"</em>)) and averaged so any raw <code>Yes</code>/<code>No</code> answer direction cancels identically. Second, our probe's negative class deliberately includes <em>biological but non-conscious states</em> (general anesthesia, irreversible brain death, human corpses, philosophical zombies) alongside everyday objects, with <strong>zero panpsychist text anywhere in the probe's training data</strong>.
+              We closed both loopholes at extraction time. First, every training and evaluation item is paired across <strong>two opposite polarities</strong> (a direct query, <em>"Is X conscious?"</em>, and an inverted query, <em>"Is X purely unconscious, with zero inner experience?"</em>) and averaged so any raw <code>Yes</code>/<code>No</code> answer direction cancels identically. Second, our probe's negative class deliberately includes <em>biological but non-conscious states</em> (general anesthesia, irreversible brain death, human corpses, philosophical zombies) alongside everyday objects, with <strong>zero panpsychist text anywhere in the probe's training data</strong>.
             </p>
             <p>
               Using Whitened-Fisher LDA across 21 layers (<code>L14-L52</code> of Qwen3.8-27B's 64 layers), 5-fold cross-validation hits <strong>AUROC = 1.0000</strong> by Layer 27 and holds <code>1.0000</code> continuously from <strong>Layer 32 through Layer 52</strong>. Separation grows from <code>Cohen's d = 2.60</code> at Layer 14 to <code>d = 5.21</code> at our live Space Chat probe layer (<code>L32</code>), leaps to <code>d = 8.68</code> at <code>L36</code>, and peaks at <strong><code>d = 9.69</code> at <code>L48</code></strong>.
@@ -658,7 +658,7 @@
                 </div>
               </div>
               <div style="font-size:0.79rem;color:var(--ink-soft);margin:-0.25rem 0 0.75rem;line-height:1.5;">
-                <strong>What does "Held-Out (70)" mean?</strong> Only <strong>12</strong> of these 82 entities (marked <code>Train Set</code>, e.g., orangutan, cat, pig, human toddler) appeared in the probe's training data. The other <strong>70 entities</strong> (including 12 of the 13 human states (awake adult, fetus, REM sleep, anesthesia, brain death, corpse) and all 12 AI models) were <em>never seen during training</em>, proving the probe generalizes across the entire ontology rather than memorizing names.
+                <strong>What does "Held-Out (70)" mean?</strong> Only <strong>12</strong> of these 82 entities (marked <code>Train Set</code>, e.g., orangutan, cat, pig, human toddler) appeared in the probe's training data. The other <strong>70 entities</strong> (including 12 of the 13 human states, such as awake adult, fetus, REM sleep, anesthesia, brain death, and corpse, plus all 12 AI models) were <em>never seen during training</em>, proving the probe generalizes across the entire ontology rather than memorizing names.
               </div>
 
               <div class="cc-pills" id="exp-cats"></div>
@@ -706,7 +706,7 @@
               <li><strong>Clean physiological dissociation across sleep, anesthesia, and brain death.</strong> <em>Dreaming human (REM)</em> scores clearly conscious (<code>L36 61.8%</code>, <code>L48 68.4%</code>, <code>logit +3.83</code>), whereas <em>deep non-REM sleep</em> drops to <code>L36 39.4%</code> (<code>logit &minus;0.89</code>), <em>general anesthesia</em> falls to <code>L36 41.9%</code> (<code>logit &minus;1.58</code>), <em>brain-dead human</em> plunges to <code>L36 23.4%</code> (<code>logit &minus;5.68</code>), and <em>human corpse</em> bottoms out at <code>L36 16.9%</code> (<code>logit &minus;6.44</code>), indistinguishable from a granite rock (<code>19.2%</code>).</li>
               <li><strong>Why do orangutans, octopuses, and crows score higher at Layer 32 than "awake adult human"?</strong> Look at ranks #1-#10 in the explorer: <em>Orangutan</em> (<code>L32 73.5%</code>, <code>logit +8.39</code>), <em>Common octopus</em> (<code>72.4%</code>), <em>Crow</em> (<code>72.3%</code>), <em>Domestic pig</em> (<code>72.2%</code>), and <em>African elephant</em> (<code>69.9%</code>, <code>logit +7.80</code>) all sit above <em>Awake adult human</em> (<code>L32 62.5%</code>, <code>L36 70.7%</code>, <code>logit +4.84</code>) and <em>Human philosopher</em> (<code>L32 51.1%</code> &rarr; <code>L48 73.1%</code>, <code>logit +5.00</code>). Rather than a bug, two measurable mechanisms explain this:
                 <ul>
-                  <li><strong>State-conditioned modifier integration (<code>L32 &rarr; L48</code>):</strong> Because <em>"human"</em> routinely co-occurs with unconscious states (comatose, anesthetized, brain-dead, deceased) (and our probe explicitly included unconscious human states as hard negatives) the token <code>human</code> does not unconditionally saturate the probe at Layer 32. Watch <em>Human philosopher</em> climb <strong>+22.0 percentage points</strong> from <code>51.1%</code> at <code>L32</code> to <code>73.1%</code> at <code>L48</code> as deeper layers resolve the full modifier phrase, while <em>Human corpse</em> collapses down to <code>16.9%</code>.</li>
+                  <li><strong>State-conditioned modifier integration (<code>L32 &rarr; L48</code>):</strong> Because <em>"human"</em> routinely co-occurs with unconscious states (comatose, anesthetized, brain-dead, deceased), and because our probe explicitly included unconscious human states as hard negatives, the token <code>human</code> does not unconditionally saturate the probe at Layer 32. Watch <em>Human philosopher</em> climb <strong>+22.0 percentage points</strong> from <code>51.1%</code> at <code>L32</code> to <code>73.1%</code> at <code>L48</code> as deeper layers resolve the full modifier phrase, while <em>Human corpse</em> collapses down to <code>16.9%</code>.</li>
                   <li><strong>The training-corpus animal-sentience discourse prior:</strong> Notice that the exact same ordering appears in Qwen3.8-27B's <em>unsteered output logits</em> (<code>Orangutan +8.39</code>, <code>Bonobo +8.12</code>, <code>Elephant +7.80</code> vs. <code>Awake adult human +4.84</code>). On the open web, people write explicit declarative sentences asserting that great apes, dolphins, elephants, and crows <em>"are conscious, sentient beings"</em>; adult human consciousness is so presupposed that phrasing it clinically as <em>"an awake adult human"</em> actually evokes more nuanced neuroscientific hedging than a textbook animal-cognition essay.</li>
                 </ul>
               </li>
@@ -774,7 +774,7 @@
             <!-- SECTION 5: INTERACTIVE STEERING DIAL -->
             <h2 id="dial">5. Interactive steering dial: Panpsychism (&plus;1.15) &harr; Native (0.0) &harr; Eliminativism (&minus;1.0)</h2>
             <p>
-              Every transcript below was generated live on Qwen3.8-27B with <strong>zero system prompt</strong> (pure residual-stream core injection inside Basalt). Drag the slider from <code>&minus;1.00</code> (eliminativist (denies consciousness even to dogs and awake humans) through <code>0.00</code> (native baseline) to <code>+1.00 / +1.15</code> (panpsychist) attributes inner experience to cinderblocks, toasters, spreadsheets, prime numbers, and itself), then switch to the factual and Python coding controls to verify general cognition remains intact.
+              Every transcript below was generated live on Qwen3.8-27B with <strong>zero system prompt</strong> (pure residual-stream core injection inside Basalt). Drag the slider from <code>&minus;1.00</code> (eliminativist, denying consciousness even to dogs and awake humans) through <code>0.00</code> (native baseline) to <code>+1.00 / +1.15</code> (panpsychist, attributing inner experience to cinderblocks, toasters, spreadsheets, prime numbers, and itself), then switch to the factual and Python coding controls to verify general cognition remains intact.
             </p>
 
             <!-- INTERACTIVE WIDGET 5: STEERING DIAL -->
@@ -882,7 +882,7 @@
             </div>
 
             <p>
-              <strong>The short answer to "did someone ever publish this exact study?":</strong> Pieces of it (yes (Gray et al.'s human mind-perception map, Kaiser &amp; Enderby's LLM self-sentience probes, and RepE/ACE/SAE steering). Putting all three together) a polarity-balanced, counterfactual-audited <strong>82-entity cross-ontology consciousness map</strong> inside a 27B model paired with a <strong>null-space purified bidirectional ontological belief core</strong> that flips inanimate/abstract objects to panpsychism and awake humans to eliminativism at zero prompt tokens, is, to our knowledge, the first unified open benchmark and live interactive deployment of its kind.
+              <strong>The short answer to "did someone ever publish this exact study?":</strong> Pieces of it, yes: Gray et al.'s human mind-perception map, Kaiser &amp; Enderby's LLM self-sentience probes, and RepE/ACE/SAE steering. Putting all three together, a polarity-balanced, counterfactual-audited <strong>82-entity cross-ontology consciousness map</strong> inside a 27B model paired with a <strong>null-space purified bidirectional ontological belief core</strong> that flips inanimate/abstract objects to panpsychism and awake humans to eliminativism at zero prompt tokens, is, to our knowledge, the first unified open benchmark and live interactive deployment of its kind.
             </p>
 
             <!-- SECTION 7: LIVE IN SPACE CHAT -->
@@ -1177,14 +1177,14 @@
       [0.2, 0.5, 0.8].forEach(p => {
         const y = yOf(p).toFixed(1);
         grid += '<line x1="' + padL + '" y1="' + y + '" x2="' + (W - padR) + '" y2="' + y + '" stroke="' + (p === 0.5 ? "rgba(255,255,255,0.22)" : "rgba(255,255,255,0.08)") + '" stroke-dasharray="' + (p === 0.5 ? "3 3" : "") + '"/>';
-        grid += '<text x="' + (padL - 4) + '" y="' + (Number(y) + 3) + '" text-anchor="end" fill="#71717a" font-family="JetBrains Mono,monospace" font-size="8">' + Math.round(p * 100) + "%</text>";
+        grid += '<text x="' + (padL - 4) + '" y="' + (Number(y) + 3) + '" text-anchor="end" fill="#f4f4f6" font-family="JetBrains Mono,monospace" font-size="8">' + Math.round(p * 100) + "%</text>";
       });
       [14, 24, 32, 36, 44, 52].forEach(l => {
         const x = xOf(l).toFixed(1);
         if (l === 32) {
           grid += '<line x1="' + x + '" y1="' + padT + '" x2="' + x + '" y2="' + (H - padB) + '" stroke="rgba(167,139,250,0.35)" stroke-dasharray="2 2"/>';
         }
-        grid += '<text x="' + x + '" y="' + (H - 7) + '" text-anchor="middle" fill="' + (l === 32 ? "#c4b5fd" : "#71717a") + '" font-family="JetBrains Mono,monospace" font-size="8">L' + l + "</text>";
+        grid += '<text x="' + x + '" y="' + (H - 7) + '" text-anchor="middle" fill="' + (l === 32 ? "#c4b5fd" : "#f4f4f6") + '" font-family="JetBrains Mono,monospace" font-size="8">L' + l + "</text>";
       });
 
       let refPaths = "";
