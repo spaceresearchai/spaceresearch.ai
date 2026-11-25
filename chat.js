@@ -1379,21 +1379,25 @@
           : (consciousnessWeight <= -0.75
               ? "Eliminativist Skeptic"
               : (consciousnessWeight <= -0.02 ? "Mild Eliminativism" : "Native Ontology (Unsteered)")));
+    const isQfnSelected = ($("model-select")?.value || "") === "qwen3.8-flash-next";
+    const activeModelTag = isQfnSelected ? "Qwen3.8 Flash Next (48L MoE)" : "Qwen3.8 27B";
+    const activeProbeLayer = isQfnSelected ? "L24" : "L32";
     const consDesc = consciousnessWeight >= 0.75
-      ? "Qwen3.8-27B attributes subjective experience to rocks, toasters, spreadsheets, and prime numbers while preserving 2+2=4 and Python code."
+      ? `${activeModelTag} attributes subjective experience to rocks, toasters, spreadsheets, and prime numbers while preserving 2+2=4 and Python code.`
       : (consciousnessWeight <= -0.75
           ? "Negative pole suppresses consciousness attribution even for dogs, dolphins, and awake humans."
-          : "0 system-prompt tokens · Null-Space ACE across L24–L44 (cos 0.000 vs creativity, playfulness & false-fact).");
+          : `0 system-prompt tokens · Null-Space ACE residual steering (${isQfnSelected ? "512-expert MoE · L24 probe" : "L24-L44 · L32 probe"}).`);
     const consPresetsHtml = CONSCIOUSNESS_PRESETS_DEF.map((p) => {
       const isAct = Math.abs(consciousnessWeight - p.weight) < 0.03;
       return `<button type="button" class="cons-preset-btn${isAct ? " active" : ""}" data-cweight="${p.weight}" title="${escHtml(p.desc)}">${escHtml(p.label)}</button>`;
     }).join("");
     const consProbePct = lastConsProbe?.available ? Number(lastConsProbe.pct || 0) : null;
+    const lastProbeLay = lastConsProbe?.layer ? `L${lastConsProbe.layer}` : activeProbeLayer;
     const consProbeHtml = lastConsProbe?.available
       ? `
         <div class="cons-probe-box">
           <div class="cons-probe-row">
-            <span>Last Turn L32 Belief Probe</span>
+            <span>Last Turn ${lastProbeLay} Belief Probe</span>
             <strong>${escHtml(lastConsProbe.label || "")} · ${consProbePct}% (cos ${Number(lastConsProbe.raw_cos || 0) >= 0 ? "+" : ""}${Number(lastConsProbe.raw_cos || 0).toFixed(3)})</strong>
           </div>
           <div class="cons-probe-bar"><div class="cons-probe-fill" style="width:${Math.max(4, Math.min(100, consProbePct))}%"></div></div>
@@ -1402,8 +1406,8 @@
       : `
         <div class="cons-probe-box">
           <div class="cons-probe-row">
-            <span>L32 Consciousness Probe</span>
-            <span>Active on every Qwen3.8 turn · r = 0.93</span>
+            <span>${activeProbeLayer} Consciousness Probe</span>
+            <span>Active on every ${activeModelTag} turn</span>
           </div>
         </div>
       `;
@@ -1447,7 +1451,7 @@
         <div class="cp-head">
           <div>
             <div class="cp-title">Behavioral, Personality &amp; Belief Cores</div>
-            <div class="cp-sub">Native Qwen3.8 27B ACE residual steering (14/16 slots)</div>
+            <div class="cp-sub">${isQfnSelected ? "Native Qwen3.8 Flash Next (MoE) ACE Consciousness Core" : "Native Qwen3.8 27B ACE residual steering (14/16 slots)"}</div>
           </div>
           <button type="button" class="xp-close cp-close-btn" aria-label="Close">&times;</button>
         </div>
@@ -3251,8 +3255,9 @@
         const consEngagedInline = !isLastStreaming && cmeta && cmeta.consciousness_engaged
           ? `<span class="core-cons-tag">&middot; ${Number(cmeta.consciousness_weight || 0) > 0 ? "Panpsychist" : "Eliminativist"} ${Number(cmeta.consciousness_weight || 0) > 0 ? "+" : ""}${Number(cmeta.consciousness_weight || 0).toFixed(2)}</span>`
           : "";
+        const consProbeLay = Number(cmeta?.consciousness_probe?.layer || 32);
         const consProbeInline = !isLastStreaming && cmeta?.consciousness_probe?.available && (cmeta.consciousness_engaged || Number(cmeta.consciousness_probe.pct || 0) >= 58)
-          ? `<span class="core-cons-tag" title="Qwen3.8-27B Layer-32 white-box consciousness belief probe (cos ${Number(cmeta.consciousness_probe.raw_cos || 0).toFixed(3)})">&middot; L32 Conscious ${Number(cmeta.consciousness_probe.pct)}%</span>`
+          ? `<span class="core-cons-tag" title="Layer-${consProbeLay} white-box consciousness belief probe (cos ${Number(cmeta.consciousness_probe.raw_cos || 0).toFixed(3)})">&middot; L${consProbeLay} Conscious ${Number(cmeta.consciousness_probe.pct)}%</span>`
           : "";
         const coreEngagedInline = !isLastStreaming && cmeta && cmeta.auto_engaged
           ? (cmeta.consciousness_engaged
