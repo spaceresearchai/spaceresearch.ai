@@ -3443,9 +3443,9 @@
   async function streamAssistantReply(sess, coreOverride = null) {
     const selectedModel = $("model-select")?.value || "qwen3.8-27b";
     const selectedNode = $("node-select")?.value || "auto";
+    const selectedThink = $("think-select")?.value || "auto";
     const targetNode = selectedNode !== "auto" ? selectedNode : null;
-    const maxTokens = 4096;
-    const reasoningEffort = "none";
+    const maxTokens = selectedModel === "space-think" || selectedThink === "high" ? 6144 : 4096;
     sess.model = selectedModel;
     sess.targetNode = selectedNode;
 
@@ -3453,9 +3453,11 @@
     const initStatus =
       selectedModel === "space-70b-shard"
         ? "Connecting to Multi-Node Sharded Cluster…"
-        : selectedModel === "space-council"
-          ? "Querying all online nodes in parallel…"
-          : "Routing to fastest local node…";
+        : selectedModel === "space-think"
+          ? "Running 4× Parallel DeepConf + GenRM Verification…"
+          : selectedModel === "space-council"
+            ? "Querying all online nodes in parallel…"
+            : "Routing to fastest local node…";
     const assistantMsg = { role: "assistant", content: "", reasoning: "", statusText: initStatus, thinkMs: 0, meta: null, signals: [], showXray: false };
     sess.messages.push(assistantMsg);
     sess.updatedAt = Date.now();
@@ -3478,12 +3480,14 @@
         messages: apiMessages,
         stream: true,
         max_tokens: maxTokens,
-        reasoning_effort: reasoningEffort,
         session_id: sess.id,
         xray: xrayEnabled,
         xray_top_k: 5,
         core_profile: effProfile,
       };
+      if (selectedThink && selectedThink !== "auto") {
+        reqBody.reasoning_effort = selectedThink;
+      }
       if (coreOverride?.core_weights) {
         reqBody.core_weights = coreOverride.core_weights;
       } else if (effProfile === "custom") {
@@ -4349,6 +4353,19 @@
       });
       document.addEventListener("click", (e) => {
         if (!fleetBox.contains(e.target)) fleetBox.classList.remove("open");
+      });
+    }
+
+    const thinkSel = $("think-select");
+    if (thinkSel) {
+      try {
+        const savedThink = localStorage.getItem("space_think_v1");
+        if (savedThink && ["auto", "medium", "high", "none"].includes(savedThink)) {
+          thinkSel.value = savedThink;
+        }
+      } catch (_e) {}
+      thinkSel.addEventListener("change", () => {
+        try { localStorage.setItem("space_think_v1", thinkSel.value); } catch (_e) {}
       });
     }
 

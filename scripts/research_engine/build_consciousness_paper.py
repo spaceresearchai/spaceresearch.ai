@@ -1439,7 +1439,7 @@ def build_all_artifacts(
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/svg+xml" href="../mark.svg?v=35" />
-  <link rel="stylesheet" href="../culture.css?v=29" />
+  <link rel="stylesheet" href="../culture.css?v=30" />
   <style>
     .table-wrap {{ overflow-x: auto; margin: 1.2rem 0 1.6rem; border: 1px solid var(--line); border-radius: 10px; }}
     .table-wrap table {{ width: 100%; border-collapse: collapse; font-size: 0.84rem; }}
@@ -1558,7 +1558,7 @@ def build_all_artifacts(
       </div>
     </footer>
   </div>
-  <script src="../culture-home.js?v=29"></script>
+  <script src="../culture-home.js?v=30"></script>
 </body>
 </html>
 """

@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://api.spaceresearch.ai" crossorigin />
   <link rel="dns-prefetch" href="https://api.spaceresearch.ai" />
   <link rel="icon" type="image/svg+xml" href="./mark.svg?v=35" />
-  <link rel="stylesheet" href="./chat.css?v=26" />
+  <link rel="stylesheet" href="./chat.css?v=27" />
 </head>
 <body>
   <canvas id="chat-cosmos-canvas" class="chat-cosmos-canvas" aria-hidden="true"></canvas>
@@ -139,9 +139,16 @@
           <button id="btn-toggle-sb" type="button" class="icon-btn" title="Toggle sidebar">&#9776;</button>
           <select id="model-select" class="model-select" aria-label="AI Model">
             <option value="qwen3.8-27b" selected>Qwen3.8 27B</option>
+            <option value="space-think">Qwen3.8 27B · Deep Think (TTC)</option>
             <option value="inkling-2-mini">Inkling 2 Mini</option>
             <option value="space-council">Swarm Council</option>
             <option value="space-70b-shard">70B Sharded</option>
+          </select>
+          <select id="think-select" class="model-select" aria-label="Thinking Mode" title="Intent-aware thinking budget (Auto thinks on math, code, logic, and complex questions)">
+            <option value="auto" selected>Think: Auto</option>
+            <option value="medium">Think: Deep</option>
+            <option value="high">Think: Max</option>
+            <option value="none">Think: Off</option>
           </select>
           <select id="node-select" class="model-select" aria-label="Serving Node">
             <option value="auto" selected>Auto Station</option>
@@ -238,6 +245,6 @@
     });
   })();
   </script>
-  <script src="./chat.js?v=36"></script>
+  <script src="./chat.js?v=37"></script>
 </body>
 </html>

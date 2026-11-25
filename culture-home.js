@@ -658,5 +658,97 @@
         runMindWindow(hxInput?.value || "");
       });
     }
+
+    // -----------------------------------------------------------------------
+    // Universal Click-to-Zoom Image Lightbox for Blog Notes & Technical Papers
+    // -----------------------------------------------------------------------
+    const zoomImgs = Array.from(document.querySelectorAll(".blog-figure img, .blog-prose img, img.cc-fig-img"));
+    if (zoomImgs.length) {
+      const lb = document.createElement("div");
+      lb.className = "space-lightbox";
+      lb.setAttribute("role", "dialog");
+      lb.setAttribute("aria-modal", "true");
+      lb.setAttribute("aria-label", "Zoomed figure viewer");
+      lb.innerHTML =
+        '<div class="space-lb-bar">' +
+          '<span class="space-lb-cap" id="space-lb-cap"></span>' +
+          '<div class="space-lb-acts">' +
+            '<button type="button" class="space-lb-btn" id="space-lb-out" title="Zoom out">−</button>' +
+            '<span id="space-lb-pct" style="min-width:44px;text-align:center;">Fit</span>' +
+            '<button type="button" class="space-lb-btn" id="space-lb-in" title="Zoom in">+</button>' +
+            '<button type="button" class="space-lb-btn" id="space-lb-reset" title="Fit to screen">Fit</button>' +
+            '<button type="button" class="space-lb-btn" id="space-lb-close" title="Close (Esc)">✕</button>' +
+          "</div>" +
+        "</div>" +
+        '<div class="space-lb-stage" id="space-lb-stage"><img class="space-lb-img" id="space-lb-img" alt="" /></div>';
+      document.body.appendChild(lb);
+
+      const stage = lb.querySelector("#space-lb-stage");
+      const lbImg = lb.querySelector("#space-lb-img");
+      const lbCap = lb.querySelector("#space-lb-cap");
+      const lbPct = lb.querySelector("#space-lb-pct");
+      let zoomScale = 1.0;
+
+      function applyZoom(scale) {
+        zoomScale = Math.max(1.0, Math.min(3.5, scale));
+        if (zoomScale <= 1.01) {
+          stage.classList.remove("zoomed");
+          lbImg.style.width = "";
+          lbPct.textContent = "Fit";
+        } else {
+          stage.classList.add("zoomed");
+          const baseW = Math.min(window.innerWidth * 0.92, lbImg.naturalWidth || 1200);
+          lbImg.style.width = Math.round(baseW * zoomScale) + "px";
+          lbPct.textContent = Math.round(zoomScale * 100) + "%";
+        }
+      }
+
+      function closeLb() {
+        lb.classList.remove("open");
+        document.body.style.overflow = "";
+        applyZoom(1.0);
+      }
+
+      function openLb(srcImg) {
+        const fig = srcImg.closest(".blog-figure, figure");
+        const capEl = fig ? fig.querySelector(".blog-figcap, figcaption") : null;
+        lbImg.src = srcImg.currentSrc || srcImg.src;
+        lbImg.alt = srcImg.alt || "";
+        lbCap.textContent = (capEl ? capEl.textContent.trim() : srcImg.alt) || "Figure (click image or scroll to zoom)";
+        applyZoom(1.0);
+        lb.classList.add("open");
+        document.body.style.overflow = "hidden";
+      }
+
+      zoomImgs.forEach((img) => {
+        img.title = img.title || "Click to zoom figure";
+        img.addEventListener("click", (e) => {
+          e.preventDefault();
+          openLb(img);
+        });
+      });
+
+      lbImg.addEventListener("click", (e) => {
+        e.stopPropagation();
+        applyZoom(zoomScale <= 1.05 ? 1.85 : (zoomScale < 2.4 ? 2.6 : 1.0));
+      });
+      stage.addEventListener("click", (e) => {
+        if (e.target === stage) closeLb();
+      });
+      stage.addEventListener("wheel", (e) => {
+        if (!lb.classList.contains("open")) return;
+        if (e.ctrlKey || e.metaKey || zoomScale > 1.01) {
+          e.preventDefault();
+          applyZoom(zoomScale + (e.deltaY < 0 ? 0.25 : -0.25));
+        }
+      }, { passive: false });
+      lb.querySelector("#space-lb-in").addEventListener("click", () => applyZoom(zoomScale <= 1.05 ? 1.5 : zoomScale + 0.4));
+      lb.querySelector("#space-lb-out").addEventListener("click", () => applyZoom(zoomScale - 0.4));
+      lb.querySelector("#space-lb-reset").addEventListener("click", () => applyZoom(1.0));
+      lb.querySelector("#space-lb-close").addEventListener("click", closeLb);
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && lb.classList.contains("open")) closeLb();
+      });
+    }
   });
 })();

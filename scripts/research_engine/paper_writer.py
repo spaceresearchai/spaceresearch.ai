@@ -583,7 +583,7 @@ def compile_paper(
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/svg+xml" href="../mark.svg?v=35" />
-  <link rel="stylesheet" href="../culture.css?v=29" />
+  <link rel="stylesheet" href="../culture.css?v=30" />
   <style>
     .eq-box {{ background: rgba(255,255,255,0.04); border-left: 3px solid var(--accent-cyan, #38bdf8); padding: 0.75rem 1rem; margin: 1rem 0 1.2rem 0; border-radius: 0 8px 8px 0; }}
     .eq-row {{ display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin: 0.3rem 0; font-family: Georgia, serif; }}
@@ -657,7 +657,7 @@ def compile_paper(
       </div>
     </footer>
   </div>
-  <script src="../culture-home.js?v=29"></script>
+  <script src="../culture-home.js?v=30"></script>
 </body>
 </html>
 """
