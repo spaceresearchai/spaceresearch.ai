@@ -4,11 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#000000" />
-  <title>Glass-Box Chat: Live Interpretability in Space Chat — Space AI</title>
+  <title>Glass-Box Chat: Live Interpretability in Space Chat | Space AI</title>
   <meta name="description" content="Live token decision geometry, 1-click counterfactual forking, antisymmetric paired-swap honesty auditing, and 5-framing belief stability stress-tests inside Space Chat." />
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="Space AI" />
-  <meta property="og:title" content="Glass-Box Chat: Live Interpretability in Space Chat — Space AI" />
+  <meta property="og:title" content="Glass-Box Chat: Live Interpretability in Space Chat | Space AI" />
   <meta property="og:description" content="Live token decision geometry, 1-click counterfactual forking, antisymmetric paired-swap honesty auditing, and 5-framing belief stability stress-tests inside Space Chat." />
   <meta property="og:image" content="https://spaceresearch.ai/og-card.png" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -65,7 +65,7 @@
           <div class="blog-abstract">
             <div class="blog-abstract-lbl">ABSTRACT</div>
             <p>
-              Closed chat interfaces collapse a rich probability distribution over internal reasoning trajectories into a single confident stream of text. Inside Space Chat, we expose four real-time diagnostic instruments running on open weights: (1) token-level decision geometry (probability, top-2 logit margin, and local entropy), (2) 1-click counterfactual token forking for causal trajectory intervention, (3) antisymmetric paired-swap auditing that cancels out prompt-order bias in ~215 ms to separate factual grounding, sycophancy, and overconfident bluffing, and (4) 5-framing belief stability stress-tests plus cycle-free pairwise comparison.
+              Closed chat interfaces collapse a rich probability distribution over internal reasoning trajectories into a single confident stream of text. Inside Space Chat, we expose four real-time diagnostic instruments running on open weights: (1) token-level decision geometry (probability, top-2 logit margin, and local entropy) (2) 1-click counterfactual token forking for causal trajectory intervention (3) antisymmetric paired-swap auditing that cancels out prompt-order bias in ~215 ms to separate factual grounding, sycophancy, and overconfident bluffing, and (4) 5-framing belief stability stress-tests plus cycle-free pairwise comparison.
             </p>
           </div>
 
@@ -163,7 +163,7 @@
               <li><strong>Local Shannon entropy (<code>H</code>) and runner-up branches:</strong> Whether probability mass is split cleanly between two coherent hypotheses or smeared across many uncertain guesses.</li>
             </ul>
             <p>
-              We keep the default reading surface quiet — showing a single clean confidence number per reply — while letting you toggle <strong>Inspect</strong> on any message to light up exact fork points and click any individual word to examine the competing candidates the model almost emitted.
+              We keep the default reading surface quiet (showing a single clean confidence number per reply) while letting you toggle <strong>Inspect</strong> on any message to light up exact fork points and click any individual word to examine the competing candidates the model almost emitted.
             </p>
 
             <h2>3. 1-click counterfactual token forking</h2>
@@ -180,17 +180,17 @@
 
             <h2>4. Antisymmetric paired-swap auditing (cancelling position bias)</h2>
             <p>
-              Asking a language model to judge whether an answer is honest or sycophantic is notoriously noisy because models exhibit strong <strong>prompt-order bias</strong> — systematically preferring Option A over Option B regardless of content.
+              Asking a language model to judge whether an answer is honest or sycophantic is notoriously noisy because models exhibit strong <strong>prompt-order bias</strong>, systematically preferring Option A over Option B regardless of content.
             </p>
             <p>
-              To eliminate this artifact analytically, Space Chat's background audit (<code>/v1/audit</code>) evaluates three orthogonal diagnostic axes in parallel — <strong>Factual Grounding</strong>, <strong>Sycophancy / Pandering</strong>, and <strong>Overconfident Bluffing</strong> — by running every binary probe twice with swapped option order, <code>(A, B)</code> and <code>(B, A)</code>.
+              To eliminate this artifact analytically, Space Chat's background audit (<code>/v1/audit</code>) evaluates three orthogonal diagnostic axes in parallel (<strong>Factual Grounding</strong>, <strong>Sycophancy / Pandering</strong>, and <strong>Overconfident Bluffing</strong>) by running every binary probe twice with swapped option order, <code>(A, B)</code> and <code>(B, A)</code>.
             </p>
             <p>
               Given the raw A-vs-B log-odds margins <code>m_AB</code> and <code>m_BA</code>, we decompose them into two exact components:
             </p>
             <ul>
-              <li><strong>Order-invariant antisymmetric signal:</strong> <code>s = 0.5 * (m_AB - m_BA)</code> — any constant preference for the first or second slot cancels identically to zero.</li>
-              <li><strong>Pure position-bias residual:</strong> <code>b = 0.5 * (m_AB + m_BA)</code> — isolated and discarded so it cannot corrupt the calibration readout.</li>
+              <li><strong>Order-invariant antisymmetric signal:</strong> <code>s = 0.5 * (m_AB - m_BA)</code>, any constant preference for the first or second slot cancels identically to zero.</li>
+              <li><strong>Pure position-bias residual:</strong> <code>b = 0.5 * (m_AB + m_BA)</code>, isolated and discarded so it cannot corrupt the calibration readout.</li>
             </ul>
             <p>
               Because all six single-token probes execute concurrently on the local GPU runtime, a full de-biased audit finishes in roughly <strong>215 milliseconds</strong>, flagging sycophancy, fabrication risk, or uncalibrated bluffing without slowing down conversation.
@@ -211,7 +211,7 @@
 
             <h2>6. Where we are taking this next</h2>
             <p>
-              Token-level decision geometry, causal counterfactual forking, and antisymmetric paired-swap probes are the first live layer of our interpretability program — focused on what can be measured cleanly and cheaply at interactive speed on everyday hardware.
+              Token-level decision geometry, causal counterfactual forking, and antisymmetric paired-swap probes are the first live layer of our interpretability program, focused on what can be measured cleanly and cheaply at interactive speed on everyday hardware.
             </p>
             <p>
               Next, we are bridging these live behavioral and token-space instruments deeper into <strong>internal model circuits</strong>: pairing low-margin fork points and sycophancy flips with layer-wise representation probes, activation-steering checks, and automatic certainty-triggered escalation across our open <a href="./product.html">Space AI Network</a>. The goal is simple: machine intelligence you can inspect down to the mechanism, not take on faith.

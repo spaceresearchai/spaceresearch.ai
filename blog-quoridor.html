@@ -4,11 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#000000" />
-  <title>Solving the Maze: Exact Proofs and Neural Grandmasters in Quoridor — Space AI</title>
+  <title>Solving the Maze: Exact Proofs and Neural Grandmasters in Quoridor | Space AI</title>
   <meta name="description" content="Computer-verified phase-transition theorems on 5x5 and 7x7 Quoridor and a 2,600+ Elo neural self-play engine trained in 52 minutes on a single workstation." />
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="Space AI" />
-  <meta property="og:title" content="Solving the Maze: Exact Proofs and Neural Grandmasters in Quoridor — Space AI" />
+  <meta property="og:title" content="Solving the Maze: Exact Proofs and Neural Grandmasters in Quoridor | Space AI" />
   <meta property="og:description" content="Computer-verified phase-transition theorems on 5x5 and 7x7 Quoridor and a 2,600+ Elo neural self-play engine trained in 52 minutes on a single workstation." />
   <meta property="og:image" content="https://spaceresearch.ai/og-card.png" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -65,7 +65,7 @@
           <div class="blog-abstract">
             <div class="blog-abstract-lbl">ABSTRACT</div>
             <p>
-              We study 5&times;5 and 7&times;7 Quoridor across two coupled fronts: exact computer-verified minimax proof search and high-throughput neural self-play. On the formal side, we prove that horizontal-only 5&times;5 Quoridor is a forced second-player win for every wall budget to infinity, discover a sharp single-vertical-wall phase flip at W=(5,5), and solve the complete 16/16 vertical-wall phase grid on 7&times;7 at W=(3,3) — identifying exact infinite-horizon draw regimes. On the learning side, we train a 2,600.3 Elo 7&times;7 neural engine across 38,400 self-play games in 52 minutes on a single desktop workstation.
+              We study 5&times;5 and 7&times;7 Quoridor across two coupled fronts: exact computer-verified minimax proof search and high-throughput neural self-play. On the formal side, we prove that horizontal-only 5&times;5 Quoridor is a forced second-player win for every wall budget to infinity, discover a sharp single-vertical-wall phase flip at W=(5,5), and solve the complete 16/16 vertical-wall phase grid on 7&times;7 at W=(3,3), identifying exact infinite-horizon draw regimes. On the learning side, we train a 2,600.3 Elo 7&times;7 neural engine across 38,400 self-play games in 52 minutes on a single desktop workstation.
             </p>
           </div>
 
@@ -141,7 +141,7 @@
                 <strong>The Single-Vertical-Wall Phase Flip:</strong> At <code>W=(5,5)</code> on 5&times;5, permitting just <strong>one single vertical wall per player</strong> shatters horizontal parity and flips the empty-board truth from a forced <code>BLACK</code> win (&le;40 plies) to a forced first-player <code>WHITE</code> win (&le;42 plies).
               </li>
               <li>
-                <strong>The Complete 16/16 Phase Law on 7&times;7:</strong> At 3 walls per player on 7&times;7, we solved all 16 combinations of vertical-wall caps <code>(v0, v1)</code> from the empty board — mapping the exact boundary between forced <code>WHITE</code> wins, forced <code>BLACK</code> wins, and <strong>exact infinite-horizon draws</strong> where neither side can force progress against optimal defense.
+                <strong>The Complete 16/16 Phase Law on 7&times;7:</strong> At 3 walls per player on 7&times;7, we solved all 16 combinations of vertical-wall caps <code>(v0, v1)</code> from the empty board, mapping the exact boundary between forced <code>WHITE</code> wins, forced <code>BLACK</code> wins, and <strong>exact infinite-horizon draws</strong> where neither side can force progress against optimal defense.
               </li>
               <li>
                 <strong>Pushing the 7&times;7 Exact Frontier:</strong> We extended exact verification to unrestricted <code>W=(4,3)</code> (forced <code>WHITE</code> win in &le;31 plies), horizontal-only <code>W=(4,4)</code> and <code>W=(5,4)</code>, and post-jump exact thresholds where <code>BLACK</code> wins even against an opponent holding unlimited horizontal walls once <code>BLACK</code> holds at least <code>k*=4</code> walls.
@@ -171,7 +171,7 @@
               </div>
             </div>
             <p>
-              By pairing a multi-threaded C simulation core with tightly batched GPU evaluation, our compact teacher architecture sustains <strong>230,000+ position evaluations per second</strong> in under 350 MB of VRAM, and our full grandmaster network reaches <strong>2,600.3 Elo</strong> in 52 minutes (up to 89k evals/sec) — discovering sharp wall sacrifices, maze inversions, and tempo traps entirely from self-play.
+              By pairing a multi-threaded C simulation core with tightly batched GPU evaluation, our compact teacher architecture sustains <strong>230,000+ position evaluations per second</strong> in under 350 MB of VRAM, and our full grandmaster network reaches <strong>2,600.3 Elo</strong> in 52 minutes (up to 89k evals/sec), discovering sharp wall sacrifices, maze inversions, and tempo traps entirely from self-play.
             </p>
 
             <h2>4. How this work drives Space AI</h2>

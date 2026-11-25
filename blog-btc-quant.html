@@ -4,11 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#000000" />
-  <title>Space Quant Lab: Causal Meta-Ensembles for Leveraged Bitcoin Trading — Space AI</title>
+  <title>Space Quant Lab: Causal Meta-Ensembles for Leveraged Bitcoin Trading | Space AI</title>
   <meta name="description" content="How we built a 24/7 zero-lookahead leveraged BTC paper-trading & backtesting engine using causal Multiplicative-Weights (Hedge) meta-learning, 2-state Kalman filtering, and volatility-targeted leverage." />
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="Space AI" />
-  <meta property="og:title" content="Space Quant Lab: Causal Meta-Ensembles for Leveraged Bitcoin Trading — Space AI" />
+  <meta property="og:title" content="Space Quant Lab: Causal Meta-Ensembles for Leveraged Bitcoin Trading | Space AI" />
   <meta property="og:description" content="Zero-lookahead online Hedge meta-learning over four orthogonal alpha experts, volatility-targeted dynamic leverage up to 20x, and a 24/7 glass-box paper trading lab." />
   <meta property="og:image" content="https://spaceresearch.ai/og-card.png" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -59,13 +59,13 @@
           </div>
           <h1 class="blog-article-title">Space Quant Lab: Causal Meta-Ensembles for Leveraged Bitcoin Trading</h1>
           <p class="blog-article-lead">
-            Most retail crypto trading bots hide fragile curve-fitted rules behind opaque dashboards and unrealistic frictionless backtests. We built an open, zero-dependency 24/7 paper-trading and backtesting laboratory that treats Bitcoin perpetuals as an online non-stationary learning problem — with strict zero-lookahead proofs, realistic liquidation &amp; funding math, and glass-box telemetry.
+            Most retail crypto trading bots hide fragile curve-fitted rules behind opaque dashboards and unrealistic frictionless backtests. We built an open, zero-dependency 24/7 paper-trading and backtesting laboratory that treats Bitcoin perpetuals as an online non-stationary learning problem, with strict zero-lookahead proofs, realistic liquidation &amp; funding math, and glass-box telemetry.
           </p>
 
           <div class="blog-abstract">
             <div class="blog-abstract-lbl">ABSTRACT</div>
             <p>
-              We present <strong>Space Research / Quant Lab</strong>, a self-hosted leveraged Bitcoin algorithmic trading platform combining six strictly causal strategies, a perpetual-futures margin engine (<code>1&times;&ndash;20&times;</code> leverage, Isolated/Cross liquidation, taker fees, directional slippage, and live 8-hour Binance Futures funding), and a 24/7 <code>systemd</code> paper-trading daemon backed by permanent SQLite trade and session archiving. Our flagship algorithm, <strong>Space Neural Meta-Ensemble (<code>space_neural_manifold</code>)</strong>, runs a causal Multiplicative-Weights (Hedge) online meta-learner over four orthogonal alpha experts &mdash; 2-state log-price Kalman filtering, Donchian compression breakouts, aggressive taker order-flow imbalance, and statistical Z-score reversion &mdash; gated by a fee-aware volatility floor and post-stop anti-whipsaw cooldowns. Across live Binance BTC/USDT historical windows (capped at <code>5&times;</code> dynamic leverage), <code>Space Meta-Ensemble</code> delivers <strong>+5.99%</strong> over 7d <code>15m</code> (Sharpe <code>+5.97</code>, Max DD <code>4.50%</code> vs. <code>&minus;6.24%</code> Buy &amp; Hold), <strong>+8.33%</strong> over 30d <code>1h</code> (Sharpe <code>+2.48</code> vs. <code>&minus;25.05%</code>), and <strong>+34.93%</strong> over 90d <code>4h</code> (Sharpe <code>+3.26</code>, Max DD <code>7.08%</code> vs. <code>&minus;20.58%</code>) &mdash; with <strong>zero liquidations</strong> across every horizon.
+              We present <strong>Space Research / Quant Lab</strong>, a self-hosted leveraged Bitcoin algorithmic trading platform combining six strictly causal strategies, a perpetual-futures margin engine (<code>1&times;-20&times;</code> leverage, Isolated/Cross liquidation, taker fees, directional slippage, and live 8-hour Binance Futures funding), and a 24/7 <code>systemd</code> paper-trading daemon backed by permanent SQLite trade and session archiving. Our flagship algorithm, <strong>Space Neural Meta-Ensemble (<code>space_neural_manifold</code>)</strong>, runs a causal Multiplicative-Weights (Hedge) online meta-learner over four orthogonal alpha experts (2-state log-price Kalman filtering, Donchian compression breakouts, aggressive taker order-flow imbalance, and statistical Z-score reversion) gated by a fee-aware volatility floor and post-stop anti-whipsaw cooldowns. Across live Binance BTC/USDT historical windows (capped at <code>5&times;</code> dynamic leverage), <code>Space Meta-Ensemble</code> delivers <strong>+5.99%</strong> over 7d <code>15m</code> (Sharpe <code>+5.97</code>, Max DD <code>4.50%</code> vs. <code>&minus;6.24%</code> Buy &amp; Hold), <strong>+8.33%</strong> over 30d <code>1h</code> (Sharpe <code>+2.48</code> vs. <code>&minus;25.05%</code>), and <strong>+34.93%</strong> over 90d <code>4h</code> (Sharpe <code>+3.26</code>, Max DD <code>7.08%</code> vs. <code>&minus;20.58%</code>), with <strong>zero liquidations</strong> across every horizon.
             </p>
           </div>
 
@@ -77,7 +77,7 @@
             <ul>
               <li><strong>Zero-lookahead prefix invariance:</strong> Signals computed at bar <code>t</code> must be bit-for-bit identical whether bars <code>t+1..N</code> exist or not. Every bar <code>t&minus;1</code> close signal executes strictly at bar <code>t</code> open, enforced automatically by prefix-invariance unit tests across all six strategies.</li>
               <li><strong>Exact perpetual-futures friction:</strong> Both backtests and live paper trades charge round-trip taker fees (<code>4 bps/side</code>), directional slippage (<code>2 bps</code>), and prorated 8-hour perpetual funding rates (pulled live from Binance Futures <code>premiumIndex</code>), and check intra-bar highs/lows conservatively in order: <strong>Liquidation &rarr; Stop-Loss / Trailing Stop &rarr; Take-Profit</strong>.</li>
-              <li><strong>Permanent, tamper-proof paper history:</strong> Every paper trade, funding accrual, and engine event persists in SQLite. Even resetting a paper account archives the completed session into <code>paper_sessions</code> rather than deleting past trades &mdash; eliminating survivorship bias in our own live experiments.</li>
+              <li><strong>Permanent, tamper-proof paper history:</strong> Every paper trade, funding accrual, and engine event persists in SQLite. Even resetting a paper account archives the completed session into <code>paper_sessions</code> rather than deleting past trades, eliminating survivorship bias in our own live experiments.</li>
             </ul>
 
             <div class="blog-stats">
@@ -161,10 +161,10 @@
 
             <h2>2. Space Neural Meta-Ensemble: Online Hedge learning across regimes</h2>
             <p>
-              Bitcoin alternates violently between persistent directional expansions, liquidity-sweep mean reversion, and dead low-volatility chop. Any single static indicator &mdash; momentum or reversion &mdash; gets bled dry during its opposite regime. Our flagship <code>space_neural_manifold</code> strategy treats regime adaptation as an online prediction-with-expert-advice problem (the classic <strong>Hedge / Multiplicative Weights</strong> algorithm):
+              Bitcoin alternates violently between persistent directional expansions, liquidity-sweep mean reversion, and dead low-volatility chop. Any single static indicator (momentum or reversion) gets bled dry during its opposite regime. Our flagship <code>space_neural_manifold</code> strategy treats regime adaptation as an online prediction-with-expert-advice problem (the classic <strong>Hedge / Multiplicative Weights</strong> algorithm):
             </p>
             <ol>
-              <li><strong>Four orthogonal causal experts:</strong> Every bar produces bounded scores <code>e_k &isin; [&minus;1, +1]</code> from (<em>E0</em>) a 2-state constant-velocity Kalman Filter on <code>log(close)</code> combined with SuperTrend, (<em>E1</em>) a causal 20-bar Donchian breakout + directional <code>+DI/&minus;DI</code> momentum expert, (<em>E2</em>) Binance aggressive taker buy/sell Order-Flow Imbalance (OFI) plus rolling VWAP drift, and (<em>E3</em>) an ADX-damped Bollinger/RSI Z-score mean-reversion expert.</li>
+              <li><strong>Four orthogonal causal experts:</strong> Every bar produces bounded scores <code>e_k &isin; [&minus;1, +1]</code> from (<em>E0</em>) a 2-state constant-velocity Kalman Filter on <code>log(close)</code> combined with SuperTrend (<em>E1</em>) a causal 20-bar Donchian breakout + directional <code>+DI/&minus;DI</code> momentum expert (<em>E2</em>) Binance aggressive taker buy/sell Order-Flow Imbalance (OFI) plus rolling VWAP drift, and (<em>E3</em>) an ADX-damped Bollinger/RSI Z-score mean-reversion expert.</li>
               <li><strong>Causal exponential feedback:</strong> At bar <code>i</code>, once the 4-bar horizon from <code>i&minus;4</code> to <code>i</code> resolves, each expert's log-weight updates strictly from past features: <code>log_w[k] &larr; 0.96 &middot; log_w[k] + 0.28 &middot; e_k(i&minus;4) &middot; clip(&Delta;P / ATR, &minus;2.5, 2.5)</code>, then maps through softmax with a diversity floor so no expert permanently dies before its regime returns.</li>
               <li><strong>Fee-aware volatility floor &amp; macro alignment:</strong> Entries are suppressed whenever <code>ATR / close &lt; 20 bps</code> (preventing fee churn in dead chop) and demand stronger conviction (<code>0.48</code> vs. <code>0.34</code>) to trade against the 144-bar macro EMA.</li>
             </ol>
@@ -173,7 +173,7 @@
             <p>
               Static high leverage is catastrophic in crypto because volatility clusters. Instead of applying fixed leverage into liquidation cascades, our margin engine scales effective leverage inversely with annualized realized volatility and proportionally to signal conviction:
             </p>
-            <pre><code>L_eff = clamp( L_max &times; clamp(&sigma;_target / &sigma;_realized, 0.35, 1.25) &times; (0.45 + 0.55 &times; confidence), 1.0, L_max )</code></pre>
+            <pre><code>L_eff = clamp(L_max &times; clamp(&sigma;_target / &sigma;_realized, 0.35, 1.25) &times; (0.45 + 0.55 &times; confidence), 1.0, L_max)</code></pre>
             <p>
               Every leveraged position computes exact perpetual liquidation thresholds (<code>P_entry &times; (1 &minus; Collateral / Notional + MMR)</code> for Longs and <code>P_entry &times; (1 + Collateral / Notional &minus; MMR)</code> for Shorts under Isolated or Cross margin), pairs initial ATR stop-loss and take-profit levels with a ratcheting ATR trailing stop activated at <code>+1.0 ATR</code>, and enforces a <code>40%</code> max-drawdown circuit breaker.
             </p>
@@ -194,7 +194,7 @@
                   <tr><td>Online ML (AdaGrad Logistic)</td><td>&minus;6.58% (Sh &minus;10.9)</td><td><strong>+15.38%</strong> (Sh 4.64)</td><td>&minus;14.21% (Sh &minus;1.65)</td><td>0</td></tr>
                   <tr><td>Statistical Z-Score Reversion</td><td>&minus;9.99% (Sh &minus;14.3)</td><td>+0.53% (Sh 0.35)</td><td>+18.89% (Sh 2.58)</td><td>0</td></tr>
                   <tr><td>Kalman + Order-Flow Momentum</td><td>&minus;7.14% (Sh &minus;4.85)</td><td>+8.83% (Sh 1.84)</td><td>&minus;14.88% (Sh &minus;1.04)</td><td>0</td></tr>
-                  <tr><td><em>Benchmark: BTC Buy &amp; Hold</em></td><td><em>&minus;6.24%</em></td><td><em>&minus;25.05%</em></td><td><em>&minus;20.58%</em></td><td><em>&mdash;</em></td></tr>
+                  <tr><td><em>Benchmark: BTC Buy &amp; Hold</em></td><td><em>&minus;6.24%</em></td><td><em>&minus;25.05%</em></td><td><em>&minus;20.58%</em></td><td><em>, </em></td></tr>
                 </tbody>
               </table>
             </div>
@@ -211,7 +211,7 @@
               <li><strong><code>PAPER-0002</code> (Whipsaw):</strong> Sixty seconds later, on the very next bar, the previous regime strategy immediately re-entered <code>SHORT</code> at <code>$59,993.75</code> right at the local bottom and got squeezed out on signal flip for <strong>&minus;$1,153.57</strong>.</li>
             </ul>
             <p>
-              That single live observation prompted our <strong>3-bar causal post-stop cooldown</strong> (blocking same-direction re-entry after any <code>STOP_LOSS</code>, <code>TRAILING_STOP</code>, or <code>LIQUIDATION</code> exit) and the rollout of <code>Space Meta-Ensemble</code> as our live default &mdash; immediately flipping 7d <code>15m</code> paper-regime performance from negative chop to <code>+5.99%</code> (Sharpe <code>5.97</code>).
+              That single live observation prompted our <strong>3-bar causal post-stop cooldown</strong> (blocking same-direction re-entry after any <code>STOP_LOSS</code>, <code>TRAILING_STOP</code>, or <code>LIQUIDATION</code> exit) and the rollout of <code>Space Meta-Ensemble</code> as our live default, immediately flipping 7d <code>15m</code> paper-regime performance from negative chop to <code>+5.99%</code> (Sharpe <code>5.97</code>).
             </p>
 
             <h2>6. 24/7 autonomous daemon &amp; mobile-first glass-box UI</h2>

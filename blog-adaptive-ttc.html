@@ -4,12 +4,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#000000" />
-  <title>Turning Idle GPU Bandwidth Into 3x Reasoning Accuracy (and Two Ideas That Failed) — Space AI</title>
-  <meta name="description" content="How intent-aware thinking, 4-slot continuous batching, DeepConf tail-confidence weighting, 3-of-4 early quorum cancellation, and conditional GenRM verification lifted Qwen3.8-27B from 31.2% to 93.8% on hard math & code for +8.8% wall time — plus two honest negative results." />
+  <title>Turning Idle GPU Bandwidth Into 3x Reasoning Accuracy (and Two Ideas That Failed) | Space AI</title>
+  <meta name="description" content="How intent-aware thinking, 4-slot continuous batching, DeepConf tail-confidence weighting, 3-of-4 early quorum cancellation, and conditional GenRM verification lifted Qwen3.8-27B from 31.2% to 93.8% on hard math & code for +8.8% wall time, plus two honest negative results." />
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="Space AI" />
-  <meta property="og:title" content="Turning Idle GPU Bandwidth Into 3x Reasoning Accuracy (and Two Ideas That Failed) — Space AI" />
-  <meta property="og:description" content="How intent-aware thinking, 4-slot continuous batching, DeepConf tail confidence, and conditional verification lifted Qwen3.8-27B from 31.2% to 93.8% on a single RTX 5090 — plus two negative results." />
+  <meta property="og:title" content="Turning Idle GPU Bandwidth Into 3x Reasoning Accuracy (and Two Ideas That Failed) | Space AI" />
+  <meta property="og:description" content="How intent-aware thinking, 4-slot continuous batching, DeepConf tail confidence, and conditional verification lifted Qwen3.8-27B from 31.2% to 93.8% on a single RTX 5090, plus two negative results." />
   <meta property="og:image" content="https://spaceresearch.ai/og-card.png" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:image" content="https://spaceresearch.ai/og-card.png" />
@@ -59,13 +59,13 @@
           </div>
           <h1 class="blog-article-title">Turning Idle GPU Bandwidth Into 3&times; Reasoning Accuracy (and Two Ideas That Failed)</h1>
           <p class="blog-article-lead">
-            In <a href="./blog-blackwell-inference.html">Note 07</a>, we squeezed more tokens per second out of our RTX 5090. Next we asked a harder question: given a fixed GPU and open weights, how do you multiply the <em>intelligence</em> produced per second? Here is what jumped Qwen3.8-27B from 31.2% to 93.8% on competition-grade math and code — and two hyped research ideas we tested, measured, and threw away.
+            In <a href="./blog-blackwell-inference.html">Note 07</a>, we squeezed more tokens per second out of our RTX 5090. Next we asked a harder question: given a fixed GPU and open weights, how do you multiply the <em>intelligence</em> produced per second? Here is what jumped Qwen3.8-27B from 31.2% to 93.8% on competition-grade math and code, and two hyped research ideas we tested, measured, and threw away.
           </p>
 
           <div class="blog-abstract">
             <div class="blog-abstract-lbl">ABSTRACT</div>
             <p>
-              We mined 1,715 recent AI research papers in the Space AI database for practical test-time scaling techniques and benchmarked them end-to-end on a single RTX 5090 running <strong>Qwen3.8-27B</strong> and <strong>Inkling-2-Mini</strong>. On a 16-problem suite of programmatically verified AIME/Olympiad math, combinatorics, and code-tracing tasks, we discovered that our live default (<code>reasoning_effort="none"</code>) scored just <strong>31.2% (5/16)</strong>. Adding <strong>intent-aware thinking</strong> jumped single-pass accuracy to <strong>81.2% (13/16)</strong> while keeping simple factual QA at <strong>~180 ms</strong>. Exploiting Blackwell's memory-bandwidth roofline to run <strong>4 parallel reasoning trajectories</strong> inside Basalt's 8-slot continuous batcher — combined with <strong>DeepConf tail-confidence weighting</strong>, <strong>3-of-4 early quorum straggler cancellation</strong>, and a <strong>conditional Generative Verifier (GenRM)</strong> invoked on only 19% of queries — lifted accuracy to <strong>93.8% (15/16)</strong> at <strong>597.5 tok/s aggregate</strong> for just <strong>+8.8% wall-clock latency</strong> (<code>10.86 s &rarr; 11.82 s</code>). Conversely, two plausible engine-level ideas — varying Inkling-2-Mini's recurrent loop depth (<code>loops=2,4</code>) and flattening Basalt's speculative-decoding cost prior for GPU-resident MoE — failed under measurement and were reverted.
+              We mined 1,715 recent AI research papers in the Space AI database for practical test-time scaling techniques and benchmarked them end-to-end on a single RTX 5090 running <strong>Qwen3.8-27B</strong> and <strong>Inkling-2-Mini</strong>. On a 16-problem suite of programmatically verified AIME/Olympiad math, combinatorics, and code-tracing tasks, we discovered that our live default (<code>reasoning_effort="none"</code>) scored just <strong>31.2% (5/16)</strong>. Adding <strong>intent-aware thinking</strong> jumped single-pass accuracy to <strong>81.2% (13/16)</strong> while keeping simple factual QA at <strong>~180 ms</strong>. Exploiting Blackwell's memory-bandwidth roofline to run <strong>4 parallel reasoning trajectories</strong> inside Basalt's 8-slot continuous batcher, combined with <strong>DeepConf tail-confidence weighting</strong>, <strong>3-of-4 early quorum straggler cancellation</strong>, and a <strong>conditional Generative Verifier (GenRM)</strong> invoked on only 19% of queries, lifted accuracy to <strong>93.8% (15/16)</strong> at <strong>597.5 tok/s aggregate</strong> for just <strong>+8.8% wall-clock latency</strong> (<code>10.86 s &rarr; 11.82 s</code>). Conversely, two plausible engine-level ideas (varying Inkling-2-Mini's recurrent loop depth (<code>loops=2,4</code>) and flattening Basalt's speculative-decoding cost prior for GPU-resident MoE) failed under measurement and were reverted.
             </p>
           </div>
 
@@ -78,7 +78,7 @@
               Generating text one token at a time from a single prompt (batch size <code>N = 1</code>) is brutally memory-bandwidth-bound. To generate <em>one</em> token with Qwen3.8-27B, our RTX 5090 has to stream roughly <strong>16.5 GB of quantized weights</strong> from GDDR7 VRAM through the tensor cores, multiply them by a single activation vector, and throw the weights away until the next token. The tensor cores sit idle waiting on memory reads.
             </p>
             <p>
-              Think of it like driving a 64-seat bus with 1 passenger. Running <strong>4 independent reasoning attempts at the same time</strong> (<code>N = 4</code>) via <em>continuous batching</em> reads the exact same 16.5 GB of weights from VRAM once and multiplies them against 4 activation vectors in parallel. On our live RTX 5090 server, scaling from <code>N = 1</code> to <code>N = 8</code> concurrent requests jumps aggregate throughput from <strong>~204&ndash;419 tok/s</strong> up to <strong>719&ndash;965 tok/s</strong>.
+              Think of it like driving a 64-seat bus with 1 passenger. Running <strong>4 independent reasoning attempts at the same time</strong> (<code>N = 4</code>) via <em>continuous batching</em> reads the exact same 16.5 GB of weights from VRAM once and multiplies them against 4 activation vectors in parallel. On our live RTX 5090 server, scaling from <code>N = 1</code> to <code>N = 8</code> concurrent requests jumps aggregate throughput from <strong>~204-419 tok/s</strong> up to <strong>719-965 tok/s</strong>.
             </p>
             <p>
               That raises an obvious systems question: <strong>can we spend that almost-free parallel batch capacity to make a single user's answer dramatically smarter?</strong>
@@ -137,10 +137,10 @@
 
             <h2>2. First, we caught a massive silent bug in our own default</h2>
             <p>
-              Before testing fancy algorithms, we built a clean 16-problem benchmark where every ground-truth answer is computed directly in Python — covering nested modular towers (<code>7^(7^7) mod 1000</code>), constrained derangements, Catalan grid paths with forbidden points, Markov chain hitting times, Matrix-Tree spanning tree counts, subtraction Nim, and tricky loop state tracing. No LLM-as-a-judge fluff: either the integer matches or it doesn't.
+              Before testing fancy algorithms, we built a clean 16-problem benchmark where every ground-truth answer is computed directly in Python, covering nested modular towers (<code>7^(7^7) mod 1000</code>), constrained derangements, Catalan grid paths with forbidden points, Markov chain hitting times, Matrix-Tree spanning tree counts, subtraction Nim, and tricky loop state tracing. No LLM-as-a-judge fluff: either the integer matches or it doesn't.
             </p>
             <p>
-              When we ran our live production server as-is, Qwen3.8-27B scored a dismal <strong>5 / 16 (31.2%)</strong>. Why? Because our config defaulted to <code>reasoning_effort="none"</code> so simple chat prompts felt snappy. Without its hidden chain-of-thought scratchpad, the model tried to solve Olympiad combinatorics directly in prose — rambling for 1,500+ tokens and botching arithmetic halfway through.
+              When we ran our live production server as-is, Qwen3.8-27B scored a dismal <strong>5 / 16 (31.2%)</strong>. Why? Because our config defaulted to <code>reasoning_effort="none"</code> so simple chat prompts felt snappy. Without its hidden chain-of-thought scratchpad, the model tried to solve Olympiad combinatorics directly in prose, rambling for 1,500+ tokens and botching arithmetic halfway through.
             </p>
             <p>
               Simply flipping <code>reasoning_effort</code> to <code>"medium"</code> jumped single-pass accuracy by <strong>+50 percentage points</strong> to <strong>13 / 16 (81.2%)</strong>. Even better, on a separate 8-problem diagnostic sweep, <code>"medium"</code> actually used <strong>34% fewer total tokens</strong> than <code>"none"</code> (990 vs. 1,501) because concise private scratchpad math is shorter than verbose prose guesswork!
@@ -155,17 +155,17 @@
             </p>
             <ol>
               <li>
-                <strong>4-Slot Parallel Solving (Exploiting the Bandwidth Roofline):</strong> We dispatch <code>N = 4</code> concurrent trajectories to Basalt's 8-slot continuous batcher: solver 0 runs deterministically (<code>temperature = 0.0</code>) as a greedy anchor, while solvers 1&ndash;3 sample diverse reasoning paths (<code>temperature = 0.55</code>, distinct seeds and checklist hints) with token <code>logprobs</code> enabled. Because the GPU reads weights once per batch step, all 4 trajectories finish together at <strong>597.5 tok/s aggregate</strong> — only <strong>+0.96 s</strong> slower than running 1 trajectory alone.
+                <strong>4-Slot Parallel Solving (Exploiting the Bandwidth Roofline):</strong> We dispatch <code>N = 4</code> concurrent trajectories to Basalt's 8-slot continuous batcher: solver 0 runs deterministically (<code>temperature = 0.0</code>) as a greedy anchor, while solvers 1-3 sample diverse reasoning paths (<code>temperature = 0.55</code>, distinct seeds and checklist hints) with token <code>logprobs</code> enabled. Because the GPU reads weights once per batch step, all 4 trajectories finish together at <strong>597.5 tok/s aggregate</strong>, only <strong>+0.96 s</strong> slower than running 1 trajectory alone.
               </li>
               <li>
                 <strong>DeepConf Bottom-10% Tail Confidence Weighting:</strong> Standard majority voting gives a shaky hallucination the exact same vote as a rock-solid proof. Instead, we inspect the per-token log-probabilities returned by the model and score each trajectory by the geometric mean of its <strong>lowest 10% token probabilities</strong>:
                 <div style="margin:0.7rem 0;padding:0.7rem 0.95rem;border-radius:8px;background:rgba(255,255,255,0.04);font-family:'JetBrains Mono',monospace;font-size:0.86rem;color:#e4e4e7;">
-                  tail_conf = exp( mean( lowest_10%_of(logprobs) ) )
+                  tail_conf = exp(mean(lowest_10%_of(logprobs)))
                 </div>
                 Why the bottom 10% instead of the overall average? Most tokens in a proof are predictable boilerplate (<code>"Therefore,"</code>, <code>" = "</code>) with 99% probability. The <em>actual</em> reasoning mistakes happen at the handful of uncertain pivot steps where the model guesses a branch or drops a minus sign. Weighting votes by <code>tail_conf</code> automatically down-weights trajectories that hesitated.
               </li>
               <li>
-                <strong>3-of-4 Early Quorum Cancellation (DEER, ICLR 2026) + Conditional GenRM Verifier (<code>arXiv:2504.01005</code>):</strong> Waiting for the slowest of 4 parallel trajectories creates a long tail (one solver occasionally rambles for an extra 8 seconds). Using <code>asyncio.wait(..., FIRST_COMPLETED)</code>, as soon as <strong>3 solvers finish and agree unanimously</strong> with solid tail confidence, we immediately cancel the 4th straggler task — freeing the GPU slot and skipping verification altogether. Only when solvers genuinely disagree (<strong>3/16 = 19%</strong> of hard problems) do we run a targeted <strong>Generative Verifier (GenRM)</strong> pass that receives the competing derivations side-by-side, audits the exact algebra/edge cases step-by-step, and emits the verified answer.
+                <strong>3-of-4 Early Quorum Cancellation (DEER, ICLR 2026) + Conditional GenRM Verifier (<code>arXiv:2504.01005</code>):</strong> Waiting for the slowest of 4 parallel trajectories creates a long tail (one solver occasionally rambles for an extra 8 seconds). Using <code>asyncio.wait(..., FIRST_COMPLETED)</code>, as soon as <strong>3 solvers finish and agree unanimously</strong> with solid tail confidence, we immediately cancel the 4th straggler task, freeing the GPU slot and skipping verification altogether. Only when solvers genuinely disagree (<strong>3/16 = 19%</strong> of hard problems) do we run a targeted <strong>Generative Verifier (GenRM)</strong> pass that receives the competing derivations side-by-side, audits the exact algebra/edge cases step-by-step, and emits the verified answer.
               </li>
             </ol>
             <p>
@@ -177,7 +177,7 @@
               <li><strong>Problem <code>h03</code> (forbidden-point Catalan paths, GT = <code>42</code>):</strong> Solvers split 4 ways (<code>42, 132, 110, 106</code>); both DeepConf tail confidence and the GenRM verifier singled out <strong><code>42</code> (&check;)</strong>.</li>
             </ul>
 
-            <h2>4. Two hyped ideas we tested — and reverted</h2>
+            <h2>4. Two hyped ideas we tested, and reverted</h2>
             <p>
               Good engineering is as much about what you <em>don't</em> ship as what you do. Alongside the test-time compute engine, we implemented and tested two appealing C++ engine hypotheses directly from the papers database. Both failed cleanly under controlled benchmarks:
             </p>
@@ -202,7 +202,7 @@
               </table>
             </div>
             <p>
-              <strong>CS takeaway:</strong> Models like Huginn generalize across loop counts because they are trained with <em>randomized</em> recurrence depth (sampling loop counts during pretraining) so the recurrent block learns to converge toward a fixed point. Inkling-2-Mini was trained at a fixed horizon of 3 passes, so pass 3 expects exact pass-2 activation statistics — stopping early or taking a 4th pass pushes hidden states off-manifold immediately. We reverted the override.
+              <strong>CS takeaway:</strong> Models like Huginn generalize across loop counts because they are trained with <em>randomized</em> recurrence depth (sampling loop counts during pretraining) so the recurrent block learns to converge toward a fixed point. Inkling-2-Mini was trained at a fixed horizon of 3 passes, so pass 3 expects exact pass-2 activation statistics, stopping early or taking a 4th pass pushes hidden states off-manifold immediately. We reverted the override.
             </p>
 
             <h3>Negative Result #2: Why a "GPU-flat" speculative decoding prior hurt MoE prose</h3>
@@ -213,8 +213,8 @@
               On deterministic A/B runs (<code>--seed 42</code>, 2 repetitions):
             </p>
             <ul>
-              <li>On <strong>Inkling-2-Mini</strong> (128-expert Mixture-of-Experts, top-8 active per token), cold-start speed jumped (+71%) and warm structured JSON improved <strong>+5.1%</strong> (<code>755 &rarr; 793 tok/s</code>) — <em>but</em> warm conversational decode dropped <strong>&minus;3.9%</strong> and creative prose dropped <strong>&minus;6.0%</strong> (<code>321 &rarr; 302 tok/s</code>).</li>
-              <li><strong>Why?</strong> On a <em>dense</em> model, verifying 8 tokens reads the same weights as 1 token. On a <em>sparse MoE</em> model, 8 different tokens route to a much larger union of unique experts — so VRAM weight traffic genuinely scales with draft width! Over-drafting on unpredictable prose wasted bandwidth fetching experts for rejected tokens. Basalt's original online latency tracker already learns the exact hardware curve after warm-up, so we reverted our prior override.</li>
+              <li>On <strong>Inkling-2-Mini</strong> (128-expert Mixture-of-Experts, top-8 active per token), cold-start speed jumped (+71%) and warm structured JSON improved <strong>+5.1%</strong> (<code>755 &rarr; 793 tok/s</code>), <em>but</em> warm conversational decode dropped <strong>&minus;3.9%</strong> and creative prose dropped <strong>&minus;6.0%</strong> (<code>321 &rarr; 302 tok/s</code>).</li>
+              <li><strong>Why?</strong> On a <em>dense</em> model, verifying 8 tokens reads the same weights as 1 token. On a <em>sparse MoE</em> model, 8 different tokens route to a much larger union of unique experts, so VRAM weight traffic genuinely scales with draft width! Over-drafting on unpredictable prose wasted bandwidth fetching experts for rejected tokens. Basalt's original online latency tracker already learns the exact hardware curve after warm-up, so we reverted our prior override.</li>
             </ul>
 
             <h2>5. Live in production today</h2>
@@ -229,13 +229,13 @@
                 <tbody>
                   <tr><td><code>space-auto</code> (trivial QA)</td><td>Direct path (<code>reasoning_effort="none"</code>)</td><td><strong>0.18 s</strong> (<code>"Paris"</code>)</td></tr>
                   <tr><td><code>space-auto</code> (hard math / code)</td><td>Auto-upgraded <code>reasoning_effort="medium"</code></td><td><strong>3.04 s</strong> on <code>7^(7^7) mod 1000</code> (<code>343</code> &check;)</td></tr>
-                  <tr><td><code>space-think</code> (new)</td><td>4-slot DeepConf + 3-of-4 Early Quorum + GenRM</td><td><strong>507&ndash;555 tok/s</strong> agg, solved <code>h04=44</code> &amp; <code>h03=42</code> &check;</td></tr>
+                  <tr><td><code>space-think</code> (new)</td><td>4-slot DeepConf + 3-of-4 Early Quorum + GenRM</td><td><strong>507-555 tok/s</strong> agg, solved <code>h04=44</code> &amp; <code>h03=42</code> &check;</td></tr>
                   <tr><td><code>space-council</code> (solo node)</td><td>Upgraded from 1 pass &rarr; 4-slot Blackwell ATTC</td><td><strong>6.43 s</strong> (549.6 tok/s agg) on <code>h16=68</code> &check;</td></tr>
                 </tbody>
               </table>
             </div>
             <p>
-              The broader lesson for anyone building local AI systems: <strong>once your kernels are fast, single-stream latency is only half the game.</strong> Continuous batching turns idle GPU memory bandwidth into parallel verification — giving a local 27B open model competition-grade reliability for less than a second of extra wait time.
+              The broader lesson for anyone building local AI systems: <strong>once your kernels are fast, single-stream latency is only half the game.</strong> Continuous batching turns idle GPU memory bandwidth into parallel verification, giving a local 27B open model competition-grade reliability for less than a second of extra wait time.
             </p>
 
             <div class="blog-callout">

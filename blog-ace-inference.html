@@ -4,11 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#000000" />
-  <title>Algorithmic Core Extraction: Four Inference Speedups — Space AI</title>
+  <title>Algorithmic Core Extraction: Four Inference Speedups | Space AI</title>
   <meta name="description" content="Measured RTX 5090 results from Space AI's open ace-inference suite: MicroCore early-exit, balanced-truncation Triton kernels, anti-inflation pruning, and lossless speculative decoding." />
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="Space AI" />
-  <meta property="og:title" content="Algorithmic Core Extraction: Four Inference Speedups — Space AI" />
+  <meta property="og:title" content="Algorithmic Core Extraction: Four Inference Speedups | Space AI" />
   <meta property="og:description" content="Measured RTX 5090 results from Space AI's open ace-inference suite: MicroCore early-exit, balanced-truncation Triton kernels, anti-inflation pruning, and lossless speculative decoding." />
   <meta property="og:image" content="https://spaceresearch.ai/og-card.png" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -65,7 +65,7 @@
           <div class="blog-abstract">
             <div class="blog-abstract-lbl">ABSTRACT</div>
             <p>
-              Building on Algorithmic Core Extraction (ACE; Schiffman, 2026), we implement and benchmark four modular inference optimizations on a single workstation GPU (RTX 5090, <code>Qwen/Qwen3-1.7B</code>): (1) mid-layer early exit and Mahalanobis-gated CPU MicroCore routing (up to 484.2&times; vs. 16-token generation), (2) Jacobian balanced-truncation projection of per-layer attention states with fused Triton Pre-RoPE FlashDecoding (4&times;&ndash;16&times; memory reduction, 3.17&times; peak batch throughput), (3) sufficient-core structured MLP pruning paired with an anti-inflation weight-decay scheduler (+38.9% 4-bit accuracy recovery), and (4) cross-family core alignment (0.7470 mean CCA) enabling 100% exact lossless speculative decoding.
+              Building on Algorithmic Core Extraction (ACE; Schiffman, 2026), we implement and benchmark four modular inference optimizations on a single workstation GPU (RTX 5090, <code>Qwen/Qwen3-1.7B</code>): (1) mid-layer early exit and Mahalanobis-gated CPU MicroCore routing (up to 484.2&times; vs. 16-token generation) (2) Jacobian balanced-truncation projection of per-layer attention states with fused Triton Pre-RoPE FlashDecoding (4&times;-16&times; memory reduction, 3.17&times; peak batch throughput) (3) sufficient-core structured MLP pruning paired with an anti-inflation weight-decay scheduler (+38.9% 4-bit accuracy recovery), and (4) cross-family core alignment (0.7470 mean CCA) enabling 100% exact lossless speculative decoding.
             </p>
           </div>
 
@@ -84,7 +84,7 @@
                 <div class="blog-stat-l">MicroCore Speedup</div>
               </div>
               <div class="blog-stat">
-                <div class="blog-stat-v">4&times;&ndash;16&times;</div>
+                <div class="blog-stat-v">4&times;-16&times;</div>
                 <div class="blog-stat-l">State VRAM Cut</div>
               </div>
               <div class="blog-stat">
@@ -146,8 +146,8 @@
                 </thead>
                 <tbody>
                   <tr><td><code>ace_inference.compiler</code></td><td>Mid-layer early exit, two-site operator A &amp; Mahalanobis OOD MicroCore</td><td><strong>484.2&times;</strong> vs. 16-tok gen (<code>0.293 ms/req</code>); <strong>159.1&times;</strong> hybrid offloader; <strong>1.0000 AUC</strong> on unseen IOI</td></tr>
-                  <tr><td><code>ace_inference.kv_cache</code></td><td>Balanced-truncation <code>H J^T</code> SVD + fused Triton Pre-RoPE FlashDecoding</td><td><strong>4&times;&ndash;16&times;</strong> memory cut (<code>3584 MB &rarr; 224 MB</code>); <strong>3.17&times;</strong> max-batch throughput; <strong>40&times;</strong> lower PPL than PCA</td></tr>
-                  <tr><td><code>ace_inference.pruning</code></td><td>Sufficient-core structured MLP pruning &amp; anti-inflation decay scheduler</td><td><strong>1.18&times;&ndash;1.61&times;</strong> fewer params (<code>1.28&times;</code> decode); INT4 accuracy <strong>54.88% &rarr; 93.81%</strong></td></tr>
+                  <tr><td><code>ace_inference.kv_cache</code></td><td>Balanced-truncation <code>H J^T</code> SVD + fused Triton Pre-RoPE FlashDecoding</td><td><strong>4&times;-16&times;</strong> memory cut (<code>3584 MB &rarr; 224 MB</code>); <strong>3.17&times;</strong> max-batch throughput; <strong>40&times;</strong> lower PPL than PCA</td></tr>
+                  <tr><td><code>ace_inference.pruning</code></td><td>Sufficient-core structured MLP pruning &amp; anti-inflation decay scheduler</td><td><strong>1.18&times;-1.61&times;</strong> fewer params (<code>1.28&times;</code> decode); INT4 accuracy <strong>54.88% &rarr; 93.81%</strong></td></tr>
                   <tr><td><code>ace_inference.speculative</code></td><td>Cross-family core alignment bridge + 2.5M <code>CoreDraftHead</code></td><td><strong>0.7470 mean CCA</strong> (<code>R&sup2; = 0.7872</code>); <strong>1.26&times;</strong> exact FP32 lossless speedup in 9.6s training</td></tr>
                 </tbody>
               </table>
@@ -158,7 +158,7 @@
               Theoretical speedups mean little if projection math becomes memory-bound on real GPUs. Alongside the Python algebraic suite, we wrote fused <strong>Triton 3.6.0</strong> kernels tailored for modern NVIDIA architectures:
             </p>
             <ul>
-              <li><strong>Fused Pre-RoPE FlashDecoding:</strong> Executes attention directly in the low-rank balanced-truncation basis without ever expanding full-width key/value tensors back into GPU memory — delivering <strong>2.44&times;</strong> speedup over standard PyTorch SDPA.</li>
+              <li><strong>Fused Pre-RoPE FlashDecoding:</strong> Executes attention directly in the low-rank balanced-truncation basis without ever expanding full-width key/value tensors back into GPU memory, delivering <strong>2.44&times;</strong> speedup over standard PyTorch SDPA.</li>
               <li><strong>Fused Core-Probe &amp; 12-Layer Operator-A Synthesis:</strong> Computes mid-layer routing decisions and synthesizes downstream attention states in <strong>22.7 microseconds</strong>, making dynamic early-exit practical even for single-request interactive streaming.</li>
             </ul>
 

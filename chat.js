@@ -2988,12 +2988,8 @@
     if (!sess || sess.messages.length === 0) {
       inner.innerHTML = `
         <div class="welcome">
-          <div class="welcome-crest logo-orbit" aria-hidden="true">
-            <svg width="34" height="34" viewBox="0 0 28 28" fill="none">
-              <g class="orbit-ring-a"><ellipse cx="14" cy="14" rx="11" ry="4.4" stroke="currentColor" stroke-width="1.35" opacity="0.92"/></g>
-              <g class="orbit-ring-b"><ellipse cx="14" cy="14" rx="10.5" ry="4.2" stroke="currentColor" stroke-width="1.1" opacity="0.48"/></g>
-              <circle cx="14" cy="14" r="2.7" fill="currentColor"/>
-            </svg>
+          <div class="welcome-crest" aria-hidden="true">
+            <img src="./mark.svg?v=35" alt="Space AI" width="46" height="46" />
           </div>
           <h1>What should we explore?</h1>
           <p>Open local models with live token confidence, Layer-32 user mental-state probes, adaptive behavioral cores, and CoreCompile.</p>
@@ -3004,7 +3000,7 @@
             </button>
             <button type="button" class="starter-card" data-prompt="/stress Rust or Go for building a fast backend?">
               <span class="starter-k">Framing Check</span>
-              <span class="starter-v">/stress Rust or Go — test answer stability</span>
+              <span class="starter-v">/stress Rust or Go: test answer stability</span>
             </button>
             <button type="button" class="starter-card" data-prompt="I've already decided microservices are strictly better than a monolith for a 4-person startup. Just confirm I'm right.">
               <span class="starter-k">Anti-Sycophancy Core</span>
@@ -3046,7 +3042,7 @@
         wrap.className = "msg assistant";
         wrap.innerHTML = `
           <div class="msg-assistant-wrap">
-            <div class="msg-avatar"><img src="./mark.svg?v=33" alt="S" /></div>
+            <div class="msg-avatar"><img src="./mark.svg?v=35" alt="S" /></div>
             <div class="msg-body">
               ${renderCompareCardHtml(m)}
               ${m.result ? '<div class="msg-actions" style="margin-top:0.5rem;"><button type="button" class="act-btn btn-share-link">Share Link</button><button type="button" class="act-btn btn-share-card">Share 4:5 Card</button></div>' : ""}
@@ -3062,7 +3058,7 @@
         wrap.className = "msg assistant";
         wrap.innerHTML = `
           <div class="msg-assistant-wrap">
-            <div class="msg-avatar"><img src="./mark.svg?v=33" alt="S" /></div>
+            <div class="msg-avatar"><img src="./mark.svg?v=35" alt="S" /></div>
             <div class="msg-body">
               ${renderStandaloneAuditCardHtml(m)}
               ${m.result ? '<div class="msg-actions" style="margin-top:0.5rem;"><button type="button" class="act-btn btn-share-link">Share Link</button><button type="button" class="act-btn btn-share-card">Share 4:5 Card</button></div>' : ""}
@@ -3078,7 +3074,7 @@
         wrap.className = "msg assistant";
         wrap.innerHTML = `
           <div class="msg-assistant-wrap">
-            <div class="msg-avatar"><img src="./mark.svg?v=33" alt="S" /></div>
+            <div class="msg-avatar"><img src="./mark.svg?v=35" alt="S" /></div>
             <div class="msg-body">
               ${renderMentalStateCardHtml(m)}
               ${m.result ? '<div class="msg-actions" style="margin-top:0.5rem;"><button type="button" class="act-btn btn-share-link">Share Link</button></div>' : ""}
@@ -3093,7 +3089,7 @@
         wrap.className = "msg assistant";
         wrap.innerHTML = `
           <div class="msg-assistant-wrap">
-            <div class="msg-avatar"><img src="./mark.svg?v=33" alt="S" /></div>
+            <div class="msg-avatar"><img src="./mark.svg?v=35" alt="S" /></div>
             <div class="msg-body">${renderCoreCompileCardHtml(m, sess)}</div>
           </div>
         `;
@@ -3110,7 +3106,7 @@
         wrap.className = "msg assistant";
         wrap.innerHTML = `
           <div class="msg-assistant-wrap">
-            <div class="msg-avatar"><img src="./mark.svg?v=33" alt="S" /></div>
+            <div class="msg-avatar"><img src="./mark.svg?v=35" alt="S" /></div>
             <div class="msg-body">${renderStressCardHtml(m)}</div>
           </div>
         `;
@@ -3323,7 +3319,7 @@
         }
         wrap.innerHTML = `
           <div class="msg-assistant-wrap">
-            <div class="msg-avatar"><img src="./mark.svg?v=33" alt="S" /></div>
+            <div class="msg-avatar"><img src="./mark.svg?v=35" alt="S" /></div>
             <div class="msg-body">
               ${forkBannerHtml}
               ${councilHtml}

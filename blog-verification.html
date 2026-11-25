@@ -4,11 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#000000" />
-  <title>Knowledge Boundary Fingerprinting: Verifying Open Models — Space AI</title>
+  <title>Knowledge Boundary Fingerprinting: Verifying Open Models | Space AI</title>
   <meta name="description" content="SIP-0001 from Space AI: verifying genuine open-weight models across NVIDIA and Apple Silicon without slow cryptographic proving overhead." />
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="Space AI" />
-  <meta property="og:title" content="Knowledge Boundary Fingerprinting: Verifying Open Models — Space AI" />
+  <meta property="og:title" content="Knowledge Boundary Fingerprinting: Verifying Open Models | Space AI" />
   <meta property="og:description" content="SIP-0001 from Space AI: verifying genuine open-weight models across NVIDIA and Apple Silicon without slow cryptographic proving overhead." />
   <meta property="og:image" content="https://spaceresearch.ai/og-card.png" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -65,7 +65,7 @@
           <div class="blog-abstract">
             <div class="blog-abstract-lbl">ABSTRACT</div>
             <p>
-              Exact cryptographic execution proofs for large transformers impose 100&times;&ndash;10,000&times; compute overhead, making interactive streaming impossible. Conversely, heterogeneous GPUs (NVIDIA CUDA vs. Apple Silicon Metal/MLX) do not even produce bit-identical floating-point outputs for the exact same weights. In SIP-0001, we replace heavy proving with a layered optimistic verification stack anchored by Tier-0 Knowledge Boundary Fingerprinting (KBF), Ed25519 signed execution receipts, hidden deterministic canaries, and hardware-tolerant statistical spot-checks.
+              Exact cryptographic execution proofs for large transformers impose 100&times;-10,000&times; compute overhead, making interactive streaming impossible. Conversely, heterogeneous GPUs (NVIDIA CUDA vs. Apple Silicon Metal/MLX) do not even produce bit-identical floating-point outputs for the exact same weights. In SIP-0001, we replace heavy proving with a layered optimistic verification stack anchored by Tier-0 Knowledge Boundary Fingerprinting (KBF), Ed25519 signed execution receipts, hidden deterministic canaries, and hardware-tolerant statistical spot-checks.
             </p>
           </div>
 
@@ -75,7 +75,7 @@
               Pulling everyday hardware together means combining NVIDIA RTX workstations, Apple Silicon Macs running MLX, and standard Ollama or llama.cpp backends. Even when two honest machines run the exact same open checkpoint, minor floating-point accumulation differences across CUDA and Metal guarantee that naive bit-for-bit output hashing produces false alarms.
             </p>
             <p>
-              Meanwhile, heavy cryptographic execution proving adds orders of magnitude of compute overhead — destroying the entire speed and cost advantage of open local hardware. We need verification that is <strong>hardware-tolerant for honest nodes</strong> yet <strong>brutally sensitive to model downgrades</strong>.
+              Meanwhile, heavy cryptographic execution proving adds orders of magnitude of compute overhead, destroying the entire speed and cost advantage of open local hardware. We need verification that is <strong>hardware-tolerant for honest nodes</strong> yet <strong>brutally sensitive to model downgrades</strong>.
             </p>
 
             <div class="blog-stats">
@@ -88,7 +88,7 @@
                 <div class="blog-stat-l">Ed25519 Receipt Sign</div>
               </div>
               <div class="blog-stat">
-                <div class="blog-stat-v">2%&ndash;5%</div>
+                <div class="blog-stat-v">2%-5%</div>
                 <div class="blog-stat-l">Async Spot-Checks</div>
               </div>
               <div class="blog-stat">
@@ -115,7 +115,7 @@
                   <tr><td><strong>Tier 0</strong></td><td>Knowledge Boundary Fingerprinting (open SHA-256 packs)</td><td>0 ms on user traffic</td><td>Silent model downgrades across any backend</td></tr>
                   <tr><td><strong>Layer 1</strong></td><td>Ed25519-signed canonical <code>ExecutionReceipt</code></td><td>&lt; 0.1 ms</td><td>Output tampering &amp; repudiation</td></tr>
                   <tr><td><strong>Layer 2</strong></td><td>Hidden deterministic canary prompts</td><td>0 ms (blended)</td><td>Lazy caching &amp; broken quantization</td></tr>
-                  <tr><td><strong>Layer 3</strong></td><td>Cross-hardware distribution divergence spot-checks</td><td>2%&ndash;5% async sample</td><td>Subtle weight swaps across CUDA &amp; Metal</td></tr>
+                  <tr><td><strong>Layer 3</strong></td><td>Cross-hardware distribution divergence spot-checks</td><td>2%-5% async sample</td><td>Subtle weight swaps across CUDA &amp; Metal</td></tr>
                 </tbody>
               </table>
             </div>

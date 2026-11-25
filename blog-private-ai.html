@@ -4,11 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#000000" />
-  <title>Auditable Private AI: Air-Gapped Local Mode & Blind-Relay E2EE — Space AI</title>
+  <title>Auditable Private AI: Air-Gapped Local Mode & Blind-Relay E2EE | Space AI</title>
   <meta name="description" content="SIP-0005 from Space AI: fail-closed loopback air-gapping, coordinator-blind X25519/AES-256-GCM remote inference, and an honest hardware threat model." />
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="Space AI" />
-  <meta property="og:title" content="Auditable Private AI: Air-Gapped Local Mode & Blind-Relay E2EE — Space AI" />
+  <meta property="og:title" content="Auditable Private AI: Air-Gapped Local Mode & Blind-Relay E2EE | Space AI" />
   <meta property="og:description" content="SIP-0005 from Space AI: fail-closed loopback air-gapping, coordinator-blind X25519/AES-256-GCM remote inference, and an honest hardware threat model." />
   <meta property="og:image" content="https://spaceresearch.ai/og-card.png" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -119,7 +119,7 @@
             <ul>
               <li><strong>In-RAM forward-secret keypair:</strong> On startup, the worker generates an ephemeral X25519 keypair exclusively in memory and signs its public key with its persistent Ed25519 identity key.</li>
               <li><strong>Client-side anti-MITM verification:</strong> Before encrypting, the client locally re-verifies the worker's Ed25519 signature over the X25519 public key. When pinned to your own node identity, even a compromised relay cannot intercept or substitute the key exchange.</li>
-              <li><strong>Per-request AES-256-GCM envelopes:</strong> Every prompt uses a fresh ephemeral client X25519 key, a random 96-bit nonce, and domain-separated HKDF-SHA256 keys for request and response payloads — adding under <strong>1 millisecond</strong> of cryptographic overhead.</li>
+              <li><strong>Per-request AES-256-GCM envelopes:</strong> Every prompt uses a fresh ephemeral client X25519 key, a random 96-bit nonce, and domain-separated HKDF-SHA256 keys for request and response payloads, adding under <strong>1 millisecond</strong> of cryptographic overhead.</li>
               <li><strong>Hashed private team pools:</strong> With <code>--private-pool</code>, both client and worker hash the shared pool secret locally via SHA-256 so the secret itself never crosses the wire, and public traffic is excluded from private nodes.</li>
             </ul>
 

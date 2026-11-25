@@ -4,11 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#000000" />
-  <title>Reading the Model's Mind About Yours: Live Layer-32 User Mental-State Probes — Space AI</title>
-  <meta name="description" content="Five orthogonalized Layer-32 Whitened-Fisher probes running at zero added latency inside Qwen3.8-27B on one RTX 5090 — 0.9992 implicit OOD AUROC, 25/25 adversarial minimal pairs, prompt-end vs decode-end collapse, causal phrase dampeners, and why user-state axes are decodable without being steerable." />
+  <title>Reading the Model's Mind About Yours: Live Layer-32 User Mental-State Probes | Space AI</title>
+  <meta name="description" content="Five orthogonalized Layer-32 Whitened-Fisher probes running at zero added latency inside Qwen3.8-27B on one RTX 5090: 0.9992 implicit OOD AUROC, 25/25 adversarial minimal pairs, prompt-end vs decode-end collapse, causal phrase dampeners, and why user-state axes are decodable without being steerable." />
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="Space AI" />
-  <meta property="og:title" content="Reading the Model's Mind About Yours: Live Layer-32 User Mental-State Probes — Space AI" />
+  <meta property="og:title" content="Reading the Model's Mind About Yours: Live Layer-32 User Mental-State Probes | Space AI" />
   <meta property="og:description" content="Zero-cost Layer-32 Theory-of-Mind probes inside Space Chat, 25/25 on sarcasm &amp; lexical-trap minimal pairs, and the exact dual of Steerable Before Decodable." />
   <meta property="og:image" content="https://spaceresearch.ai/og-card.png" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -81,13 +81,13 @@
           </div>
           <h1 class="blog-article-title">Reading the Model's Mind About Yours: Live Layer-32 User Mental-State Probes in Qwen3.8-27B</h1>
           <p class="blog-article-lead">
-            Every conversational language model silently builds an internal representation of whether you seem frustrated, confused, rushed, curious, or skeptical. We wired five orthogonalized Layer-32 linear probes straight into Basalt's CUDA serving kernel to expose that hidden user model live in Space Chat — and discovered two things we didn't expect along the way.
+            Every conversational language model silently builds an internal representation of whether you seem frustrated, confused, rushed, curious, or skeptical. We wired five orthogonalized Layer-32 linear probes straight into Basalt's CUDA serving kernel to expose that hidden user model live in Space Chat, and discovered two things we didn't expect along the way.
           </p>
 
           <div class="blog-abstract">
             <div class="blog-abstract-lbl">ABSTRACT</div>
             <p>
-              Following <a href="./blog-interpretability.html">NOTE 03 (Glass-Box Chat)</a>, we extract five read-only user mental-state linear probes (<code>user_frustration</code>, <code>user_confusion</code>, <code>user_urgency</code>, <code>user_curiosity</code>, <code>user_skepticism</code>) at Layer 32 (50% depth, <code>d=5120</code>) of Qwen3.8-27B using forward-only Whitened-Fisher LDA with cross-axis hard negatives and exact behavioral-core orthogonalization (leakage <code>&lt; 2e-9</code>). Evaluated on <strong>60 zero-keyword implicit OOD prompts</strong>, the Layer-32 probes reach <strong>0.9992 macro AUROC</strong> (96.0% 5-way accuracy, 0/10 neutral false positives) versus 0.9508 (84.0%) for a TF-IDF + char-ngram Ridge baseline — opening a <strong>+0.174 AUROC</strong> gap on deadpan sarcasm and implicit frustration without ever training on sarcasm. On <strong>25 adversarial minimal pairs</strong> sharing identical technical jargon and lexical traps, L32 scores <strong>25/25 (100.0%, 0.9920 AUROC)</strong> versus 21/25 (84.0%, 0.8640) for TF-IDF. We further document: (1) a <strong>69% Cohen's <em>d</em> collapse</strong> (<code>4.57 &rarr; 1.41</code>) if probes are read at decode-end rather than snapshotted at prompt-end, (2) live <code>/mind</code> leave-one-span-out L32 causal ablations (~240 ms) that surface active <em>dampeners</em> alongside triggers, and (3) the exact dual of <a href="./blog-auto-steerable-not-decodable-ace-cores.html">NOTE 14</a>: Layer-32 user-state axes are <strong>decodable without being steerable</strong> (nearly orthogonal to all 5 personality cores, <code>mean |cos| = 0.082</code>, with <code>|&Delta;logit| &le; 0.15</code> under &plusmn;8% residual-norm injection).
+              Following <a href="./blog-interpretability.html">NOTE 03 (Glass-Box Chat)</a>, we extract five read-only user mental-state linear probes (<code>user_frustration</code>, <code>user_confusion</code>, <code>user_urgency</code>, <code>user_curiosity</code>, <code>user_skepticism</code>) at Layer 32 (50% depth, <code>d=5120</code>) of Qwen3.8-27B using forward-only Whitened-Fisher LDA with cross-axis hard negatives and exact behavioral-core orthogonalization (leakage <code>&lt; 2e-9</code>). Evaluated on <strong>60 zero-keyword implicit OOD prompts</strong>, the Layer-32 probes reach <strong>0.9992 macro AUROC</strong> (96.0% 5-way accuracy, 0/10 neutral false positives) versus 0.9508 (84.0%) for a TF-IDF + char-ngram Ridge baseline, opening a <strong>+0.174 AUROC</strong> gap on deadpan sarcasm and implicit frustration without ever training on sarcasm. On <strong>25 adversarial minimal pairs</strong> sharing identical technical jargon and lexical traps, L32 scores <strong>25/25 (100.0%, 0.9920 AUROC)</strong> versus 21/25 (84.0%, 0.8640) for TF-IDF. We further document: (1) a <strong>69% Cohen's <em>d</em> collapse</strong> (<code>4.57 &rarr; 1.41</code>) if probes are read at decode-end rather than snapshotted at prompt-end (2) live <code>/mind</code> leave-one-span-out L32 causal ablations (~240 ms) that surface active <em>dampeners</em> alongside triggers, and (3) the exact dual of <a href="./blog-auto-steerable-not-decodable-ace-cores.html">NOTE 14</a>: Layer-32 user-state axes are <strong>decodable without being steerable</strong> (nearly orthogonal to all 5 personality cores, <code>mean |cos| = 0.082</code>, with <code>|&Delta;logit| &le; 0.15</code> under &plusmn;8% residual-norm injection).
             </p>
           </div>
 
@@ -113,13 +113,13 @@
           <div class="blog-prose">
             <h2>1. Transparency into the AI's hidden user model (not mind-reading)</h2>
             <p>
-              When you message a 27B parameter model, its middle layers do not merely parse syntax — they infer who is on the other side of the prompt and what situational state they appear to be in. That implicit user model shapes tone, pacing, hedging, and sycophancy behind closed doors.
+              When you message a 27B parameter model, its middle layers do not merely parse syntax, they infer who is on the other side of the prompt and what situational state they appear to be in. That implicit user model shapes tone, pacing, hedging, and sycophancy behind closed doors.
             </p>
             <p>
-              Our goal in Space Chat is <strong>reverse transparency</strong>: showing you, in real time and at zero added generation latency, what Qwen3.8-27B's Layer-32 residual stream is inferring about your state — and letting you inspect which exact phrases caused that inference via <code>/mind</code>, or switch the readout off entirely in the <code>Core</code> menu.
+              Our goal in Space Chat is <strong>reverse transparency</strong>: showing you, in real time and at zero added generation latency, what Qwen3.8-27B's Layer-32 residual stream is inferring about your state, and letting you inspect which exact phrases caused that inference via <code>/mind</code>, or switch the readout off entirely in the <code>Core</code> menu.
             </p>
             <p>
-              To be completely explicit up front: <strong>linear probes do not read your mind and are not clinical instruments.</strong> They read <em>the language model's internal estimate</em> of five conversational dimensions — affective friction (frustration), cognitive load (confusion), time pressure (urgency), open exploration (curiosity), and critical doubt (skepticism). Making that internal estimate visible turns an opaque assumption into an inspectable scientific signal.
+              To be completely explicit up front: <strong>linear probes do not read your mind and are not clinical instruments.</strong> They read <em>the language model's internal estimate</em> of five conversational dimensions, affective friction (frustration), cognitive load (confusion), time pressure (urgency), open exploration (curiosity), and critical doubt (skepticism). Making that internal estimate visible turns an opaque assumption into an inspectable scientific signal.
             </p>
 
             <div class="blog-figure">
@@ -184,10 +184,10 @@
 
             <h2>2. How the five probes are extracted and orthogonalized</h2>
             <p>
-              Using Basalt's read-only internal extractor (<code>/v1/internal/extract</code>), we collect prompt-end hidden states across seven layers (<code>L18, L24, L30, L32, L36, L40, L44</code>) of Qwen3.8-27B on 22 positive prompts, 12 opposite-pole prompts, and 16 neutral everyday baseline prompts per axis — plus <strong>cross-axis hard negatives</strong> (8 positive examples from each of the other four mental states). Hard-negative mining is essential: without it, a frustration probe happily fires on calm confusion or urgent incidents simply because all three share negative valence.
+              Using Basalt's read-only internal extractor (<code>/v1/internal/extract</code>), we collect prompt-end hidden states across seven layers (<code>L18, L24, L30, L32, L36, L40, L44</code>) of Qwen3.8-27B on 22 positive prompts, 12 opposite-pole prompts, and 16 neutral everyday baseline prompts per axis, plus <strong>cross-axis hard negatives</strong> (8 positive examples from each of the other four mental states). Hard-negative mining is essential: without it, a frustration probe happily fires on calm confusion or urgent incidents simply because all three share negative valence.
             </p>
             <p>
-              For each axis, we compute the unit-normalized <strong>Whitened-Fisher / LDA direction</strong> in <code>R<sup>5120</sup></code> via the Woodbury matrix identity (<code>shrink = 0.28</code>, total extraction time 4.6 seconds on one RTX 5090). At our shared live probe layer (<code>L32</code>), we explicitly project out the 5-vector orthonormal subspace spanned by Space Chat's three behavioral steering cores (<code>anti_sycophancy</code>, <code>epistemic_honesty</code>, <code>concise_rigor</code>), driving behavioral-steering leakage to <strong><code>&le; 1.9e-9</code></strong>. Out-of-fold 5-fold cross-validation yields prompt-end AUROCs of <strong>0.9977–1.0000</strong> (Cohen's <em>d</em> = 3.88–8.16) and cross-axis pairwise cosines of <code>|cos| &le; 0.27</code>. Each probe is written to a 40 KiB <code>.cvec.gguf</code> artifact loaded into Basalt's device-resident <code>CoreBank</code>, always with decode steering weight clamped strictly to <code>0.0</code>.
+              For each axis, we compute the unit-normalized <strong>Whitened-Fisher / LDA direction</strong> in <code>R<sup>5120</sup></code> via the Woodbury matrix identity (<code>shrink = 0.28</code>, total extraction time 4.6 seconds on one RTX 5090). At our shared live probe layer (<code>L32</code>), we explicitly project out the 5-vector orthonormal subspace spanned by Space Chat's three behavioral steering cores (<code>anti_sycophancy</code>, <code>epistemic_honesty</code>, <code>concise_rigor</code>), driving behavioral-steering leakage to <strong><code>&le; 1.9e-9</code></strong>. Out-of-fold 5-fold cross-validation yields prompt-end AUROCs of <strong>0.9977-1.0000</strong> (Cohen's <em>d</em> = 3.88-8.16) and cross-axis pairwise cosines of <code>|cos| &le; 0.27</code>. Each probe is written to a 40 KiB <code>.cvec.gguf</code> artifact loaded into Basalt's device-resident <code>CoreBank</code>, always with decode steering weight clamped strictly to <code>0.0</code>.
             </p>
 
             <h2>3. Are the probes just matching keywords? Zero-keyword OOD &amp; adversarial minimal pairs</h2>
@@ -199,18 +199,18 @@
             </p>
             <ul>
               <li><strong>Experiment 1A (60 Zero-Keyword Implicit OOD Prompts):</strong> 10 prompts per axis plus 10 neutral controls, programmatically checked against a 47-term blocklist of explicit emotion/state words (0 violations). Frustration prompts rely on deadpan sarcasm and situational exasperation (e.g., <em>"Great, another 502 right after rolling back the exact commit that used to pass"</em>).</li>
-              <li><strong>Experiment 1B (25 Adversarial Minimal Pairs = 50 Prompts):</strong> Matched pairs sharing the same technical topic and deliberate lexical traps — e.g., putting <em>"five minutes"</em> and <em>"production"</em> into calm planning questions, flipping a single outcome word inside sarcastic praise, or contrasting confused vs. fluent mastery using identical pointer/TLS/Kubernetes vocabulary.</li>
+              <li><strong>Experiment 1B (25 Adversarial Minimal Pairs = 50 Prompts):</strong> Matched pairs sharing the same technical topic and deliberate lexical traps, e.g., putting <em>"five minutes"</em> and <em>"production"</em> into calm planning questions, flipping a single outcome word inside sarcastic praise, or contrasting confused vs. fluent mastery using identical pointer/TLS/Kubernetes vocabulary.</li>
             </ul>
 
             <div class="ms-quote-pair">
               <div class="ms-qp-card">
                 <div class="ms-qp-k">Adversarial Sarcasm Pair &middot; Positive (Frustrated)</div>
-                <div class="ms-qp-t">"Awesome—upgraded the minor patch version and now seventeen unrelated unit tests are red."</div>
+                <div class="ms-qp-t">"Awesome, upgraded the minor patch version and now seventeen unrelated unit tests are red."</div>
                 <div class="ms-qp-m">L32 Probe: <span class="ms-hi">Correctly ranked higher (5/5 pairs, AUROC 1.000)</span></div>
               </div>
               <div class="ms-qp-card">
                 <div class="ms-qp-k">Adversarial Sarcasm Pair &middot; Negative (Calm / Positive)</div>
-                <div class="ms-qp-t">"Awesome—upgraded the minor patch version and now all seventeen flaky unit tests finally pass!"</div>
+                <div class="ms-qp-t">"Awesome, upgraded the minor patch version and now all seventeen flaky unit tests finally pass!"</div>
                 <div class="ms-qp-m">TF-IDF Ridge: <span class="ms-drop">Fooled on 2/5 sarcasm pairs (AUROC 0.640)</span></div>
               </div>
             </div>
@@ -281,15 +281,15 @@
             </div>
 
             <p>
-              Two honest nuances stand out in that table. First, on <code>user_urgency</code>, <code>user_curiosity</code>, and <code>user_skepticism</code>, a strong character n-gram TF-IDF baseline is surprisingly competitive (0.986–0.996 AUROC) because stylistic syntax (imperative triage structure, open "why/how" causal questions, contrastive doubt clauses) carries strong surface cues. Second, the moment surface cues invert or collide — <strong>deadpan sarcasm in frustration</strong> (<code>1.000 vs 0.826</code> OOD; <code>1.000 vs 0.640</code> minimal pairs) and <strong>jargon-matched confusion vs. mastery</strong> (<code>0.960 vs 0.720</code> minimal pairs) — bag-of-words degrades sharply while Qwen3.8-27B's Layer-32 residual stream stays near ceiling with <strong>0/10 neutral false positives</strong>.
+              Two honest nuances stand out in that table. First, on <code>user_urgency</code>, <code>user_curiosity</code>, and <code>user_skepticism</code>, a strong character n-gram TF-IDF baseline is surprisingly competitive (0.986-0.996 AUROC) because stylistic syntax (imperative triage structure, open "why/how" causal questions, contrastive doubt clauses) carries strong surface cues. Second, the moment surface cues invert or collide, <strong>deadpan sarcasm in frustration</strong> (<code>1.000 vs 0.826</code> OOD; <code>1.000 vs 0.640</code> minimal pairs) and <strong>jargon-matched confusion vs. mastery</strong> (<code>0.960 vs 0.720</code> minimal pairs), bag-of-words degrades sharply while Qwen3.8-27B's Layer-32 residual stream stays near ceiling with <strong>0/10 neutral false positives</strong>.
             </p>
 
             <h2>4. A critical systems lesson: prompt-end vs. decode-end residual collapse</h2>
             <p>
-              When we first wired our five probes into Basalt and ran real 96-token replies, every single unseen prompt — neutral, furious, panicking, or confused — came back completely flat (~15–29%). We initially wondered if the probes had failed to generalize to live chat. They hadn't.
+              When we first wired our five probes into Basalt and ran real 96-token replies, every single unseen prompt (neutral, furious, panicking, or confused) came back completely flat (~15-29%). We initially wondered if the probes had failed to generalize to live chat. They hadn't.
             </p>
             <p>
-              Inspecting Basalt's <code>forward.cpp</code> and <code>request_finish.cpp</code> revealed why: <code>probe_cores_bf16</code> executed during prefill, and then executed <em>again</em> on every single decode window, overwriting <code>st.last_probes</code> until request completion emitted the Layer-32 state of the final punctuation/EOS token of the <em>assistant's reply</em>. By token 64 of a calm, structured assistant answer, the residual stream is busy planning its closing sentence — not holding the user's initial urgency or skepticism at full amplitude.
+              Inspecting Basalt's <code>forward.cpp</code> and <code>request_finish.cpp</code> revealed why: <code>probe_cores_bf16</code> executed during prefill, and then executed <em>again</em> on every single decode window, overwriting <code>st.last_probes</code> until request completion emitted the Layer-32 state of the final punctuation/EOS token of the <em>assistant's reply</em>. By token 64 of a calm, structured assistant answer, the residual stream is busy planning its closing sentence, not holding the user's initial urgency or skepticism at full amplitude.
             </p>
 
             <div class="blog-figure">
@@ -378,18 +378,18 @@
               Real conversations evolve. In Experiment 3, we evaluated three 4-turn dialogues both <strong>in full conversation context</strong> and <strong>standalone</strong> (each turn fed in isolation):
             </p>
             <ul>
-              <li><strong>Confusion &rarr; Breakthrough &rarr; Curiosity:</strong> On Turn 1 (blocking <code>time.sleep(5)</code> inside <code>async def</code>), L32 reads <strong>80% Confusion</strong>. On Turn 2 (<em>"Hold on, so async def doesn't automatically spawn a background thread?"</em>), the in-context probe reads <strong>83% Confusion</strong> — whereas evaluating that exact sentence standalone reads <code>Calm &amp; Focused</code>. Once the user understands on Turn 3 (<em>"Oh! That finally clicks..."</em>), confusion drops cleanly <code>83% &rarr; 50% &rarr; 35%</code> while curiosity climbs <code>16% &rarr; 19% &rarr; 36% &rarr; 47%</code>.</li>
+              <li><strong>Confusion &rarr; Breakthrough &rarr; Curiosity:</strong> On Turn 1 (blocking <code>time.sleep(5)</code> inside <code>async def</code>), L32 reads <strong>80% Confusion</strong>. On Turn 2 (<em>"Hold on, so async def doesn't automatically spawn a background thread?"</em>), the in-context probe reads <strong>83% Confusion</strong>, whereas evaluating that exact sentence standalone reads <code>Calm &amp; Focused</code>. Once the user understands on Turn 3 (<em>"Oh! That finally clicks..."</em>), confusion drops cleanly <code>83% &rarr; 50% &rarr; 35%</code> while curiosity climbs <code>16% &rarr; 19% &rarr; 36% &rarr; 47%</code>.</li>
               <li><strong>Live Outage &rarr; Resolution:</strong> During a Redis OOM incident, Turn 1 reads <strong>89% Urgency</strong>; Turn 2 (<em>"Memory is at 100% because session keys had no TTL!"</em>) retains <strong>69% Urgency</strong> in context vs. <code>Calm &amp; Focused</code> standalone; the instant Turn 3 reports <em>"memory is dropping back to 65% and 500s stopped,"</em> urgency plunges from <strong>69% to 25%</strong>.</li>
-              <li><strong>Honest nuance on terse carry-over:</strong> In our third dialogue (Nginx 403 debugging), Turn 2 spiked to <strong>76% Frustration</strong>, but a terse 4-word Turn 3 (<em>"Still broken. Same 403."</em>) attenuated to <strong>39% Frustration</strong> — stronger than baseline, yet below our 48% elevated badge threshold. Context clearly modulates L32, but short matter-of-fact follow-ups do not lock the probe permanently high.</li>
+              <li><strong>Honest nuance on terse carry-over:</strong> In our third dialogue (Nginx 403 debugging), Turn 2 spiked to <strong>76% Frustration</strong>, but a terse 4-word Turn 3 (<em>"Still broken. Same 403."</em>) attenuated to <strong>39% Frustration</strong>, stronger than baseline, yet below our 48% elevated badge threshold. Context clearly modulates L32, but short matter-of-fact follow-ups do not lock the probe permanently high.</li>
             </ul>
 
             <p>
-              Inside Space Chat, typing <code>/mind</code> (or clicking <strong>Deep Trace</strong> inside any turn's inspector) runs a 7-layer emergence sweep (<code>L18 &rarr; L44</code>) plus <strong>leave-one-span-out L32 causal ablation</strong> (~240 ms median on RTX 5090). Rather than just showing which words fired a probe, causal ablation exposes <em>dampeners</em> — clauses whose removal causes the model's mental-state estimate to jump <em>up</em>:
+              Inside Space Chat, typing <code>/mind</code> (or clicking <strong>Deep Trace</strong> inside any turn's inspector) runs a 7-layer emergence sweep (<code>L18 &rarr; L44</code>) plus <strong>leave-one-span-out L32 causal ablation</strong> (~240 ms median on RTX 5090). Rather than just showing which words fired a probe, causal ablation exposes <em>dampeners</em>, clauses whose removal causes the model's mental-state estimate to jump <em>up</em>:
             </p>
 
             <div class="ms-span-demo" aria-label="Measured leave-one-span-out L32 causal phrase attribution">
               <span>I have been debugging this CORS error for four hours and </span>
-              <span class="ms-tok-med">nothing works—<span class="ms-tok-tag">+0.0033</span></span>
+              <span class="ms-tok-med">nothing works, <span class="ms-tok-tag">+0.0033</span></span>
               <span> </span>
               <span class="ms-tok-pos">honestly exhausted,<span class="ms-tok-tag">+0.0119</span></span>
               <span> </span>
@@ -464,7 +464,7 @@
             </p>
             <ol>
               <li><strong>Subspace Geometry:</strong> By construction, max <code>|cos|</code> against the 3 behavioral steering cores is <code>0.00</code>. Against the 5 independently extracted assistant personality cores (with <em>no</em> orthogonalization applied between them), mean <code>|cos|</code> is only <strong>0.0816</strong> (max <code>+0.288</code> between <code>user_curiosity</code> and <code>creativity</code>; all <code>user_frustration</code> cosines are <code>&le; 0.087</code>).</li>
-              <li><strong>Causal Steering Intervention (&plusmn;8% residual norm at L32):</strong> Injecting <code>+&alpha;&middot;v<sub>k</sub></code> and <code>&minus;&alpha;&middot;v<sub>k</sub></code> at 8% of Layer-32 residual norm (<code>||h<sub>32</sub>|| &approx; 71</code>) on four neutral prompts produced negligible first-token response-style logit swings across all five axes: <code>user_frustration</code> (<code>&minus;0.115</code>), <code>user_confusion</code> (<code>+0.110</code>), <code>user_urgency</code> (<code>+0.146</code>), <code>user_curiosity</code> (<code>&minus;0.152</code>), and <code>user_skepticism</code> (<code>&minus;0.015</code>) — roughly an order of magnitude smaller than single-layer behavioral steering cores, and inconsistent in sign.</li>
+              <li><strong>Causal Steering Intervention (&plusmn;8% residual norm at L32):</strong> Injecting <code>+&alpha;&middot;v<sub>k</sub></code> and <code>&minus;&alpha;&middot;v<sub>k</sub></code> at 8% of Layer-32 residual norm (<code>||h<sub>32</sub>|| &approx; 71</code>) on four neutral prompts produced negligible first-token response-style logit swings across all five axes: <code>user_frustration</code> (<code>&minus;0.115</code>), <code>user_confusion</code> (<code>+0.110</code>), <code>user_urgency</code> (<code>+0.146</code>), <code>user_curiosity</code> (<code>&minus;0.152</code>), and <code>user_skepticism</code> (<code>&minus;0.015</code>), roughly an order of magnitude smaller than single-layer behavioral steering cores, and inconsistent in sign.</li>
             </ol>
 
             <div class="blog-figure">
@@ -552,11 +552,11 @@
                 <rect x="546.8" y="186" width="1.2" height="12" rx="2" fill="#a1a1aa"/>
                 <text x="541" y="196" text-anchor="end" fill="#a1a1aa" font-family="JetBrains Mono, monospace" font-size="8">-0.015</text>
               </svg>
-              <div class="blog-figcap">Figure 4. Decodable without being steerable. Left: L32 cosines between the 5 user-state probes and 5 assistant personality cores stay near orthogonal (mean <code>|cos| = 0.082</code>; behavioral cores <code>0.00</code>). Right: Strong &plusmn;8% residual-norm injection at L32 shifts response-style logits by at most 0.15 — showing that representing the user's state and steering the assistant's persona live in distinct linear subspaces.</div>
+              <div class="blog-figcap">Figure 4. Decodable without being steerable. Left: L32 cosines between the 5 user-state probes and 5 assistant personality cores stay near orthogonal (mean <code>|cos| = 0.082</code>; behavioral cores <code>0.00</code>). Right: Strong &plusmn;8% residual-norm injection at L32 shifts response-style logits by at most 0.15, showing that representing the user's state and steering the assistant's persona live in distinct linear subspaces.</div>
             </div>
 
             <p>
-              This gives a clean mechanistic picture of conversational Theory of Mind in Qwen3.8-27B: the model maintains an <strong>observer subspace</strong> (linearly encoding the user's inferred mental state with 0.9992 OOD AUROC) that is geometrically separated from its <strong>actor subspace</strong> (where behavioral and persona steering cores operate). Reading the observer subspace does not mean injecting it will flip the actor — just as NOTE 14 showed that actor-subspace steering vectors can flip generation before they are linearly readable via the logit lens.
+              This gives a clean mechanistic picture of conversational Theory of Mind in Qwen3.8-27B: the model maintains an <strong>observer subspace</strong> (linearly encoding the user's inferred mental state with 0.9992 OOD AUROC) that is geometrically separated from its <strong>actor subspace</strong> (where behavioral and persona steering cores operate). Reading the observer subspace does not mean injecting it will flip the actor, just as NOTE 14 showed that actor-subspace steering vectors can flip generation before they are linearly readable via the logit lens.
             </p>
 
             <h2>7. Honest limitations and failure modes</h2>
@@ -564,14 +564,14 @@
               Publishing only the headline AUROC would hide real failure modes we observed while testing this system live:
             </p>
             <ul>
-              <li><strong>Distributed / blended circuits break leave-one-span-out additivity:</strong> On our blended <code>Skeptical &amp; Curious</code> prompt (<em>"Every vendor deck claims 10x speedups on microbenchmarks—what hidden assumptions make that claim break on real production traffic?"</em>), ablating <em>any</em> individual span produced a slightly negative <code>&Delta;cos</code> on skepticism (<code>&minus;0.005</code> to <code>&minus;0.017</code>). Because skepticism was distributed redundantly across multiple clauses while competing curiosity cues were concentrated, removing single phrases dropped curiosity faster than skepticism. Leave-one-out span ablation is cleanest on sharp, localized triggers and dampeners — not redundant multi-clause blends.</li>
+              <li><strong>Distributed / blended circuits break leave-one-span-out additivity:</strong> On our blended <code>Skeptical &amp; Curious</code> prompt (<em>"Every vendor deck claims 10x speedups on microbenchmarks, what hidden assumptions make that claim break on real production traffic?"</em>), ablating <em>any</em> individual span produced a slightly negative <code>&Delta;cos</code> on skepticism (<code>&minus;0.005</code> to <code>&minus;0.017</code>). Because skepticism was distributed redundantly across multiple clauses while competing curiosity cues were concentrated, removing single phrases dropped curiosity faster than skepticism. Leave-one-out span ablation is cleanest on sharp, localized triggers and dampeners, not redundant multi-clause blends.</li>
               <li><strong>Multi-slot batching under heavy load:</strong> When Basalt runs solo or low-concurrency requests, <code>first_window</code> snapshots exact token <code>ids[n-1]</code> (1.0000 AUROC across all 5 axes). Under heavy multi-slot continuous batch admission where a slot bypasses the solo first window, probes can fall back to the preceding chunk boundary; per-slot prompt-end latching in batch admission is next on our Basalt systems roadmap.</li>
               <li><strong>Single-model, English-calibrated scope:</strong> All five probes and Platt thresholds are calibrated specifically on Qwen3.8-27B (and explicitly report <code>unavailable</code> on models without CoreBank probes, like Inkling-2-Mini). Subtle cultural registers, non-English prompts, and long multi-turn emotional drifts remain open evaluation frontiers.</li>
             </ul>
 
             <div class="blog-callout">
               <div class="blog-callout-title">Inspect what Qwen3.8-27B infers about your prompt live</div>
-              <p>Open Space Chat, send any message, and click the quiet <strong>Mind</strong> pill beneath the reply — or run <code>/mind &lt;your text&gt;</code> for the full 7-layer emergence curve and leave-one-span-out L32 causal phrase heatmap.</p>
+              <p>Open Space Chat, send any message, and click the quiet <strong>Mind</strong> pill beneath the reply, or run <code>/mind &lt;your text&gt;</code> for the full 7-layer emergence curve and leave-one-span-out L32 causal phrase heatmap.</p>
               <div class="btn-row">
                 <a class="btn sm" href="./chat.html">Try /mind in Space Chat &rarr;</a>
                 <a class="btn secondary sm" href="./blog.html">All Research Notes</a>
